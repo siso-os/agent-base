@@ -50,6 +50,13 @@ try {
   const section = await nav.getByText('DEMO-CLAUDE', { exact: true }).first().evaluate(el => el.closest('section,[role="group"],div[data-section]')?.textContent?.slice(0, 120) ?? '');
   const landing = await nav.getByText('SISO-LANDING', { exact: true }).count();
   check('SISO owners are not repeated in it', landing <= 1, { landing, section });
+  const errors = [];
+  page.on('console', m => { if (m.type() === 'error') errors.push(m.text().slice(0, 400)); });
+  page.on('pageerror', e => errors.push(String(e?.stack ?? e).slice(0, 600)));
+  await nav.getByText('DEMO-CLAUDE', { exact: true }).first().click();
+  await page.waitForTimeout(1500);
+  const broken = await page.getByText('This chat could not be shown').count();
+  check('opening it shows its chat, not an error', broken === 0, { errors: errors.slice(0, 3) });
 } catch (error) {
   check('nav-loose-agents suite completes', false, { error: String(error?.stack ?? error).slice(0, 600) });
 } finally {

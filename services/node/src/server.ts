@@ -1053,7 +1053,8 @@ async function readAgents(requireFresh = false) {
       order: rows.order.includes(key) ? rows.order.indexOf(key) : null,
       status,
       since: since.get(key)!.at,
-      tool: a.agent,
+      // herdr reports no agent for a pane's first seconds, before it sees the CLI; the row's tool is always a string (t-0579).
+      tool: a.agent ?? "",
       cwd: a.cwd,
       folder: path.basename(a.cwd),
       machine: MACHINE,

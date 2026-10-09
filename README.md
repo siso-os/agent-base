@@ -63,8 +63,8 @@ Start herdr and run an agent inside it, either in a pane by hand (`herdr`, then 
 herdr agent start MY-AGENT --cwd ~/code/my-app -- claude
 ```
 
-Within a few seconds `MY-AGENT` appears under **Agents** in the side nav. Click it to read its chat and type to it;
-its terminal is one click further. Every agent herdr lists shows up the same way, on any number of projects.
+Within a few seconds `MY-AGENT` appears under **Agents** in the side nav. Click it and the middle shows its live
+terminal, the same screen herdr shows, and you can type into it there. Every agent herdr lists shows up the same way.
 
 Opening an agent's terminal attaches to its herdr pane, and herdr resizes a pane to fit whoever is attached, so the
 agent's own terminal can change size while you look at it.
