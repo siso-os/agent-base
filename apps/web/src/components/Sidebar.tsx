@@ -218,6 +218,9 @@ export function Sidebar(props: {
   const [codexChoice,setCodexChoice]=useState<WorkspaceChoice>({repo:"",workspace:{type:"isolated"}});
   const navAgents = (agents ?? []).filter(a => a.navOwner && !isInfra(a.name));
   const childrenOf = (a: Agent) => navAgents.filter(child => !child.zero && child.parentId === a.id);
+  // Someone else's agents (t-0579, the public repo): no main flag, no parent, no SISO project, so no tree would draw them.
+  // Each still gets a row. Shaan's own fleet has none of these (0 of 40 on the 9 Oct tape), so his nav is unchanged.
+  const loose = useMemo<Team[]>(() => navAgents.filter(a => a.row === "live" && !a.project && !a.workspace && !a.navParentId && !a.parentId && !a.main && !a.zero && !a.a0).map(a => ({ lead: a, crew: [] })), [navAgents]);
   const l = useMemo(() => {
     const mains = (agents ?? []).filter(a => (a.main || a.zero || a.a0) && !isInfra(a.name));
     const result = layout(mains.map(a => ({ ...a, owner: null, lead: null })), domains);
@@ -719,7 +722,8 @@ export function Sidebar(props: {
         )
       )}
       {!props.org && unsorted.length > 0 && <SideSection title="Unsorted">{teams(unsorted)}</SideSection>}
-      {agents !== null && !l.zero && l.pinned.length + l.sections.length === 0 && (
+      {loose.length > 0 && <SideSection title="Agents">{teams(loose)}</SideSection>}
+      {agents !== null && !l.zero && l.pinned.length + l.sections.length + loose.length === 0 && (
         <div className="px-2.5 py-2 text-[12.5px] text-muted-foreground">
           No live agents.
         </div>

@@ -21,6 +21,75 @@
 
 ## What it is
 
-One app to run every coding agent you have: Claude Code, Codex and more, side by side.
+Agent Base is one window onto every coding agent you run: Claude Code, Codex and the others that
+[herdr](https://github.com/herdrdev/herdr) can see. Each agent gets a row in the side nav, a readable chat, its live
+terminal and a page of its own, so you can watch and steer a whole fleet from one place instead of a wall of terminal tabs.
 
-It is part of **Agent Base** in [SISO OS](https://github.com/siso-os), the open-source agent operating system we run SISO on. More on [the website](https://www.sisolabs.space/agent-base/).
+It is the app SISO runs its own agents on, published as it is. That shows in two places: it is macOS only (tested on
+macOS 15, Apple silicon), and it ships with SISO's own workspace tree (HALO, SISO Agency, Clients and so on) as the
+example layout in the side nav. Your own agents appear under **Agents** in that nav.
+
+## What you need
+
+| | Why | Install |
+|---|---|---|
+| macOS | the app, the terminal bridge and the voice helper are built for it | |
+| Node.js 22.6 or newer | the server runs TypeScript directly (tested on 22.13 and 25.4) | `brew install node` |
+| pnpm 10 | the workspace and its lockfile | `brew install pnpm` |
+| herdr | Agent Base lists and drives the agents herdr runs; without it the app opens with no agents | `brew install herdr` |
+| An agent CLI, logged in | the agents themselves, for example Claude Code (`claude`) or Codex (`codex`) | their own install pages |
+
+Only for the desktop app (the browser version needs none of these): Rust (`rustup`), the Tauri CLI
+(`cargo install tauri-cli --version "^2" --locked`, a few minutes) and Xcode's command line tools (`xcode-select --install`).
+
+## Run it in your browser
+
+```sh
+git clone https://github.com/siso-os/agent-base.git
+cd agent-base
+pnpm install      # about 20 s
+pnpm build        # about 15 s
+pnpm node         # prints: agent-base node on http://127.0.0.1:5401
+```
+
+Open <http://127.0.0.1:5401>. You see the side nav on the left and "Pick an agent on the left." in the middle. Set
+`AB_PORT` to use another port (`AB_PORT=5499 pnpm node`). The server binds to 127.0.0.1 only.
+
+## Add an agent
+
+Start herdr and run an agent inside it, either in a pane by hand (`herdr`, then `claude` in a pane) or in one line:
+
+```sh
+herdr agent start MY-AGENT --cwd ~/code/my-app -- claude
+```
+
+Within a few seconds `MY-AGENT` appears under **Agents** in the side nav. Click it to read its chat and type to it;
+its terminal is one click further. Every agent herdr lists shows up the same way, on any number of projects.
+
+Opening an agent's terminal attaches to its herdr pane, and herdr resizes a pane to fit whoever is attached, so the
+agent's own terminal can change size while you look at it.
+
+## Run it as a desktop app
+
+```sh
+pnpm desktop
+open "apps/desktop/target/release/bundle/macos/Agent Base.app"
+```
+
+`pnpm desktop` builds the web app and then the macOS app. The app starts the same server itself, from the folder you
+built it in, so keep that folder where it is.
+
+## Where it keeps things
+
+Agent Base writes its own state under `~/.local/state/agent-base/` (names, pins, pages you saved). It reads the agents
+and their terminals through herdr and each agent's chat from that agent's own session files.
+
+## Layout
+
+- `apps/web`: the React app you see.
+- `apps/desktop`: the Tauri shell around it.
+- `services/node`: the local server (HTTP and WebSockets on 127.0.0.1), the only thing that talks to herdr.
+- `services/host`: runs a Claude Code or Codex chat for the app directly, through the Agent SDK.
+- `packages/`: parts with no agent knowledge (design tokens, shell, side nav, terminal).
+- `tools/`: probes and release scripts; `services/node/test`: the tests, which run against fixtures and never attach
+  to a live agent.
