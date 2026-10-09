@@ -1,0 +1,147 @@
+{
+  "direction": "prism",
+  "families": {
+    "claude": "rounded visor and softer default head shapes",
+    "codex": "cut-corner visor and angular default head shapes"
+  },
+  "palettePolicy": "projectHue is unchanged; explicit hue wins; amber/red/offline override the active paint without changing identity",
+  "states": {
+    "working": {
+      "eyes": "focused gaze; 86 percent eye height",
+      "motion": "1.8s activity rhythm; small reading glances",
+      "reduce": "still focused eyes and work instrument"
+    },
+    "waiting": {
+      "eyes": "open; blink every 2.6\u20135s; first blink by 2.4s; 18 percent double blinks",
+      "motion": "small saccades, under 1 SVG-unit breath, accessory spring lag",
+      "reduce": "still open eyes"
+    },
+    "needs-shaan": {
+      "colour": "#ffb336",
+      "eyes": "attentive",
+      "motion": "slow 3.8s top emphasis on portraits; steady at navigation sizes",
+      "reduce": "steady amber and attention mark"
+    },
+    "blocked": {
+      "colour": "#fa5867",
+      "eyes": "compressed with concerned brows",
+      "motion": "none",
+      "reduce": "same still red face"
+    },
+    "done": {
+      "eyes": "happy arcs during celebration; open after settling",
+      "motion": "1.55s anticipation, lift, follow-through, recovery; 0.7s restrained nav nod",
+      "reduce": "still face with completion check"
+    },
+    "offline": {
+      "colour": "#78879a / #455469",
+      "eyes": "closed lids",
+      "motion": "none",
+      "reduce": "same resting face"
+    }
+  },
+  "sizes": [
+    16,
+    24,
+    32,
+    48,
+    104,
+    170,
+    200
+  ],
+  "banks": {
+    "eyes": [
+      "Lens",
+      "Aperture",
+      "Round",
+      "Arc",
+      "Dash",
+      "Diamond"
+    ],
+    "colour": [
+      "Aurora",
+      "Ion",
+      "Orchid",
+      "Lagoon",
+      "Glacier",
+      "Iris",
+      "Solar",
+      "Sunset",
+      "Ember",
+      "Rose",
+      "Citron",
+      "Candy",
+      "Jade",
+      "Cobalt",
+      "Royal",
+      "Cherry"
+    ],
+    "sides": [
+      "Dock",
+      "Fins",
+      "Aerials",
+      "Pads",
+      "Crescents",
+      "Winglets"
+    ],
+    "top": [
+      "Orbit",
+      "Crest",
+      "Cap",
+      "Twin fins",
+      "Beacon",
+      "Bare",
+      "Crown"
+    ],
+    "head": [
+      "Original",
+      "Pebble",
+      "Wide",
+      "Tall",
+      "Chamfer",
+      "Shield"
+    ]
+  },
+  "spring": {
+    "substepSeconds": 0.004,
+    "eyes": {
+      "stiffness": 240,
+      "damping": 19.5
+    },
+    "accessory": {
+      "stiffness": 80,
+      "damping": 7.5
+    }
+  },
+  "upstreamMap": {
+    "working": "working",
+    "idle": "waiting",
+    "needs": "needs-shaan",
+    "failed": "blocked",
+    "done": "done",
+    "unknown": "offline"
+  },
+  "reviewOnly": true,
+  "identityPolicy": "Original six-way hash retained; new crown is an explicit or randomized override.",
+  "workspaceMarks": {
+    "brands": [
+      "agent-base",
+      "siso-agency",
+      "halo"
+    ],
+    "looks": [
+      "prism",
+      "orbit",
+      "relief"
+    ],
+    "geometry": "Exact approved paths; MARKS-SOURCE.json",
+    "portraitMotion": {
+      "float": "7 seconds, 1.8 SVG units; HALO 9 seconds",
+      "polish": "6.8 seconds with a resting interval",
+      "orbitTrail": "7 seconds",
+      "gesture": "1.3 seconds anticipation, lift, recovery"
+    },
+    "navigation": "48 pixels and below: static loops",
+    "accessibility": "Keyboard replay, native reduced motion, offscreen/page-hidden suspension, manual pause; no stale replay on resume"
+  }
+}

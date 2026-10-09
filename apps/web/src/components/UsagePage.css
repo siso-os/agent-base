@@ -1,0 +1,40 @@
+/* uihub: statistics-card-7, arc:timeline; shared app tokens and original shell geometry. */
+.usage-page {height:100%;overflow:auto;min-width:0;padding:22px 24px 40px;color:var(--crm-color-text);background:var(--crm-color-canvas);container:usage / inline-size;}
+.usage-heading {display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px;}
+.usage-heading h1 {margin:2px 0;font-size:28px;letter-spacing:-.7px;color:var(--crm-color-text-strong);}
+.usage-heading>div>span {font-size:10px;letter-spacing:1.5px;color:var(--crm-color-text-faint);}
+.usage-actions {display:flex;flex-wrap:wrap;gap:8px;}
+.usage-actions button,.usage-version-dialog button {border:1px solid var(--crm-color-line);border-radius:9px;background:var(--crm-color-surface);padding:8px 12px;font-size:12px;cursor:pointer;}
+.usage-page button:focus-visible,.usage-page summary:focus-visible {outline:2px solid var(--color-working);outline-offset:3px;}
+.usage-today {display:flex;align-items:center;flex-wrap:wrap;gap:10px;padding:8px 12px;margin-bottom:18px;overflow:visible;z-index:2;}
+.usage-today-note {margin-left:auto;font-size:11px;color:var(--crm-color-text-muted);}
+.usage-today .td-panel {position:relative;top:auto;left:auto;right:auto;width:100%;max-height:none;box-shadow:none;}
+.usage-today .td-root {width:100%;}
+.usage-today:has(.td-panel) .usage-today-note {display:none;}
+.usage-page>.ab-st {padding:0;margin:18px 0 0;}
+.usage-sections {display:grid;gap:18px;min-width:0;}
+.usage-sections h2 {font-size:16px;margin:0;color:var(--crm-color-text-strong);}
+.usage-sections summary {cursor:pointer;font-size:12px;color:var(--crm-color-text-muted);padding:12px 0;}
+.usage-sections details>div {padding-top:12px;}
+.usage-version-dialog {margin:auto;width:min(520px,calc(100vw - 24px));max-height:calc(100dvh - 40px);overflow:auto;padding:20px;border:1px solid var(--crm-color-line);border-radius:16px;background:var(--crm-color-canvas);color:var(--crm-color-text);}
+.usage-version-dialog::backdrop {background:#0009;backdrop-filter:blur(5px);}
+.usage-version-dialog header {display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
+.usage-version-dialog h2 {margin:0;font-size:18px;}
+.usage-version-status {font-size:12px;color:var(--crm-color-text-muted);margin:10px 0;}
+.usage-version-steps {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;list-style:none;padding:0;margin:14px 0;}
+.usage-version-steps li {border:1px solid var(--crm-color-line);border-radius:10px;padding:12px 9px;min-width:0;display:grid;gap:6px;background:var(--crm-color-surface);}
+.usage-version-steps span {text-transform:capitalize;font-size:12px;color:var(--crm-color-text-muted);}
+.usage-version-steps code {font-size:14px;color:var(--crm-color-text-strong);}
+.usage-version-steps small {font-size:9px;color:var(--crm-color-text-faint);overflow-wrap:anywhere;}
+.usage-version-layers {display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:12px;}
+.usage-version-layers div {display:grid;gap:5px;}.usage-version-layers dt {color:var(--crm-color-text-muted);}.usage-version-layers dd {margin:0;}
+.usage-versions>p {font-size:11px;color:var(--crm-color-text-faint);line-height:1.5;}
+.usage-versions[data-applying=true] li {animation:usage-stage 1.8s ease-in-out infinite;}
+@keyframes usage-stage {0%,65%,100%{border-color:var(--crm-color-line);box-shadow:none;}25%{border-color:var(--color-working);box-shadow:0 0 14px color-mix(in srgb,var(--color-working) 20%,transparent);}}
+@container usage (max-width:600px) {.usage-heading{align-items:flex-start;}.usage-actions{justify-content:flex-end;}.usage-today-note{margin-left:0;}.usage-page .ab-st__muted{display:none;}}
+@media(max-width:600px){.usage-page{padding:16px 12px 30px;}.usage-version-dialog{padding:16px;}.usage-today{padding:6px;}}
+@media(prefers-reduced-motion:reduce){.usage-versions[data-applying=true] li{animation:none;border-color:var(--color-working);}}
+
+.usage-overview-compact .mb-8{margin-bottom:16px;}.usage-overview-compact .mb-6{margin-bottom:16px;}.usage-overview-compact [data-testid=tt-total]{font-size:40px;}.usage-overview-compact .mt-4{margin-top:8px;}
+
+.usage-fixture-nav{align-items:center;font-size:11px;}.usage-fixture-nav strong{font-size:9px;letter-spacing:1px;color:var(--crm-color-text-faint);margin-right:8px;}.usage-fixture-nav button{padding:5px 9px;border-radius:6px;border:1px solid var(--crm-color-line);}.usage-fixture-nav button[aria-pressed=true]{color:var(--color-working);border-color:var(--color-working);}

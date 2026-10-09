@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Workspace spotlight · isolated fixture</title>
+  <style>
+    html,body { margin:0; min-height:100%; background:#151617; color:#edece8; font-family:system-ui,sans-serif }
+    * { box-sizing:border-box }
+    .fixture-shell { max-width:1000px; margin:auto; padding:32px 20px }
+    .fixture-shell h1 { font-size:24px; font-weight:550 }
+    .fixture-shell>p { color:#a5a5a0 }
+    .fixture-controls { display:flex; flex-wrap:wrap; gap:12px; margin:24px 0 }
+    .fixture-controls button,.fixture-controls textarea { color:inherit; background:#252627; border:1px solid #555; border-radius:8px; padding:12px; font:inherit }
+    .fixture-controls textarea { width:min(100%,480px) }
+    .fixture-receipt { display:block; overflow-wrap:anywhere; margin-top:24px }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module" src="./cmdk-spotlight.tsx"></script>
+</body>
+</html>

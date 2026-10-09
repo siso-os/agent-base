@@ -1,0 +1,96 @@
+[
+  {
+    "phase": "personal-set",
+    "profile": "personal",
+    "cookie": {
+      "url": "http://127.0.0.1:5498/cookie/set",
+      "title": "S1 /cookie/set",
+      "text": "/cookie/set\n\nNative WebKit cookie probe",
+      "cookie": "siso_s1_1790931188376478000=personal",
+      "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15"
+    },
+    "controls": true,
+    "security": {
+      "denied": true
+    },
+    "ok": true
+  },
+  {
+    "phase": "HALO-clean",
+    "profile": "HALO",
+    "cookie": {
+      "url": "http://127.0.0.1:5498/cookie/read",
+      "title": "S1 /cookie/read",
+      "text": "/cookie/read\n\nNative WebKit cookie probe",
+      "cookie": "",
+      "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15"
+    },
+    "isolated": true,
+    "controls": true,
+    "security": {
+      "denied": true
+    },
+    "ok": true
+  },
+  {
+    "phase": "HALO-set",
+    "profile": "HALO",
+    "cookie": {
+      "url": "http://127.0.0.1:5498/cookie/set",
+      "title": "S1 /cookie/set",
+      "text": "/cookie/set\n\nNative WebKit cookie probe",
+      "cookie": "siso_s1_1790931188376478000=HALO",
+      "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15"
+    },
+    "controls": true,
+    "security": {
+      "denied": true
+    },
+    "ok": true
+  },
+  {
+    "phase": "personal-read",
+    "profile": "personal",
+    "cookie": {
+      "url": "http://127.0.0.1:5498/cookie/read",
+      "title": "S1 /cookie/read",
+      "text": "/cookie/read\n\nNative WebKit cookie probe",
+      "cookie": "siso_s1_1790931188376478000=personal",
+      "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15"
+    },
+    "controls": true,
+    "security": {
+      "denied": true
+    },
+    "history": true,
+    "google": {
+      "url": "https://accounts.google.com/v3/signin/identifier",
+      "title": "Sign in - Google Accounts",
+      "text": "Loading\n\nSign in\nUse your Google Account\nEmail or phone\nForgot email?\n\nNext\n\nCreate account\nEnglish (United States)\nHelp\nPrivacy\nTerms\n",
+      "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15"
+    },
+    "github": {
+      "url": "https://github.com/",
+      "title": "GitHub \u00b7 Change is constant. GitHub keeps you ahead. \u00b7 GitHub",
+      "text": "Skip to content\nNavigation Menu\n\nSign in\nMona the Octocat, Copilot, and Ducky float jubilantly upward from behind the GitHub product demo accompanied by a purple glow and a scattering of stars.\nThe future of building happens together\nTools and trends evolve, but collaboration endures. With GitHub, developers, agents, and code come together on one platform.\nEnter your email\n\n\nSign up for GitHub\nDownload GitHub Copilot app\nGitHub features\nA demonstration animation of a code editor using GitHub Copilot Chat, where the user requests GitHub Copilot to refactor duplicated logic and extract it into a reusable function for a given code snippet.\nCodePlanCollaborateAutomateSecure\nWrite, test, and fix code quickly with GitHub Copilot, from simple boilerplate to complex features.\nGITHUB CUSTOMERS\n\nAccelerate your entire workflow\nFrom your first line of code to final deployment, GitHub provides AI and automation tools to help you build and ship better software faster.\n\nA Copilot chat window with the 'Ask' mode enabled. The user switches from 'Ask' mode to 'Agent' mode from a dropdown menu, then sends the prompt 'Update the website to allow searching for running races by name.' Copilot analyzes the codebase, then explains the required edits for three files before generating them. Copilot then confirms completion and summarizes the implemented changes for the new functionality allowing users to search races by name and view paginated, filtered results.\nYour AI partner everywhere. Copilot is ready to work with you at each step of the software development lifecycle.\nExplore GitHub Copilot\nDuolingo boosts developer speed by 25% with GitHub Copilot\n\nRead customer story\n2025 Gartner\u00ae Magic Quadrant\u2122 for AI Code Assistants\n\nRead industry report\n\n\nAutomate your path to production\nShip faster with secure, reliable CI/CD.\nExplore GitHub Actions\n\nCode instantly from anywhere\n\nKeep momentum on the go\n\nShape your toolchain\nBuilt-in application security where found means fixed\nUse AI to find a",
+      "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15"
+    },
+    "ok": true
+  },
+  {
+    "phase": "HALO-read",
+    "profile": "HALO",
+    "cookie": {
+      "url": "http://127.0.0.1:5498/cookie/read",
+      "title": "S1 /cookie/read",
+      "text": "/cookie/read\n\nNative WebKit cookie probe",
+      "cookie": "siso_s1_1790931188376478000=HALO",
+      "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15"
+    },
+    "controls": true,
+    "security": {
+      "denied": true
+    },
+    "ok": true
+  }
+]

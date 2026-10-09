@@ -1,0 +1,9 @@
+/* uihub: arc:bottom-sheet — non-modal detents, mapped to SISO tokens. */
+.siso-bottom-sheet { box-sizing: border-box; display: flex; flex-direction: column; min-height: 0; overflow: hidden; transition: height 180ms ease-out; }
+.siso-bottom-sheet[data-dragging] { transition: none; user-select: none; }
+.siso-bottom-sheet__grab { display: grid; flex: none; width: 100%; min-height: 30px; padding: 0; place-items: center; border: 0; background: transparent; color: var(--crm-color-text-muted); touch-action: none; cursor: grab; }
+.siso-bottom-sheet__grab:active { cursor: grabbing; }
+.siso-bottom-sheet__grab span { width: 38px; height: 5px; border-radius: 999px; background: currentColor; opacity: .45; }
+.siso-bottom-sheet__grab:focus-visible { outline: 2px solid rgb(var(--crm-brand-rgb)); outline-offset: -3px; }
+.siso-bottom-sheet__announcement { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+@media (prefers-reduced-motion: reduce) { .siso-bottom-sheet { transition: none; } }

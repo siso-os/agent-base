@@ -1,0 +1,27 @@
+/* Presentation is shared with other composer consumers. */
+@import "../../../../packages/siso-composer/src/hud.css";
+/* Both account sources remain visible at the same compact width as the former single-provider line. */
+@container composer (max-width:639px){
+ .ab-hud.is-rim{flex-wrap:wrap;row-gap:3px}
+ .ab-hud.is-rim>.ab-provider-meters{order:5;flex-basis:100%;padding:1px 0}
+}
+.ab-hud.is-strip .ab-hud__right{gap:6px}
+.ab-hud.is-strip .ab-provider-meters{gap:3px;font-size:10px}
+@media(max-width:520px){
+ .ab-hud.is-strip{padding-left:8px;gap:4px}
+ .ab-hud.is-strip .ab-hud__right{gap:4px}
+ .ab-hud.is-strip .ab-provider-meter{gap:3px;padding:3px}
+ .ab-hud.is-strip .ab-provider-meter .ab-hud__ring{display:none}
+ .ab-hud.is-strip .ab-hud__right>.ab-subagents .ab-subagents__run,.ab-hud.is-strip .ab-hud__right>.ab-subagents .ab-subagents__rate,.ab-hud.is-strip .ab-hud__right>.ab-subagents .ab-subagents__trigger>svg{display:none}
+}
+.ab-context-files{margin:10px 0;border-top:1px solid #ffffff15;padding-top:8px}
+.ab-context-files>div{display:flex;align-items:baseline;justify-content:space-between;gap:12px;font-size:10px;margin:5px 0}.ab-context-files span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ab-context-files b{font-size:9px;font-weight:400;color:#89939e;flex-shrink:0}.ab-context-files b[data-state=changed]{color:#e9b75c}
+
+/* t-0570 (Shaan, 9 Oct: "below the bar need to be cleaned up a bit"): the row under the composer is plain text groups, not a
+   string of pills (2 Oct: "it is clean not being in pills"); each control shows its surface on hover or focus only. */
+.ab-hud.is-rim{gap:12px}
+.ab-hud.is-rim .ab-hud__model,.ab-hud.is-rim .ab-provider-meter,.ab-hud.is-rim .ab-subagents__trigger{border-color:transparent;background:transparent}
+.ab-hud.is-rim .ab-hud__model:hover,.ab-hud.is-rim .ab-hud__model.is-open,.ab-hud.is-rim .ab-provider-meter:hover,.ab-hud.is-rim .ab-provider-meter[aria-expanded=true],.ab-hud.is-rim .ab-subagents__trigger:hover{background:rgb(var(--crm-white-rgb) / .06)}
+.ab-hud.is-rim .ab-model__account{border-left:0;padding-left:2px;color:rgb(var(--crm-white-rgb) / .45)!important}
+.ab-hud.is-rim .ab-effort-trigger{border-bottom:0;color:rgb(var(--crm-white-rgb) / .5)}
+.ab-hud.is-rim .ab-effort-trigger:hover{color:var(--crm-color-text-strong)}

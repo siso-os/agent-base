@@ -1,0 +1,1 @@
+{ "extends": "../../apps/web/tsconfig.json", "include": ["src", "preview"] }

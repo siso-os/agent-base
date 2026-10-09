@@ -1,0 +1,58 @@
+/* Notifications share the app's popup, row and reply primitives; only this surface is styled here. */
+.ab-attention-trigger { display: inline-flex; flex: none; align-self: center; align-items: center; justify-content: center; min-height: 26px; margin: 0; padding: 3px 9px; border: 1px solid rgb(240 176 63 / .3); border-radius: 8px; background: rgb(240 176 63 / .055); color: #f0b03f; font-size: 11.5px; line-height: 18px; white-space: nowrap; }
+.ab-attention-trigger:hover, .ab-attention-trigger[aria-expanded="true"] { background: rgb(240 176 63 / .12); border-color: rgb(240 176 63 / .5); }
+.ab-attention-anchor { position: fixed; top: max(58px, env(safe-area-inset-top)); right: max(12px, env(safe-area-inset-right)); z-index: 50; width: min(390px, calc(100vw - 24px)); }
+.ab-attention { display: flex; flex-direction: column; min-width: 0; max-height: min(75dvh, calc(100dvh - 76px)); padding: 0; overflow: hidden; border: 1px solid rgb(var(--crm-white-rgb) / .1); border-radius: 16px; background: var(--crm-color-surface-raised, #191919); box-shadow: 0 18px 70px rgb(0 0 0 / .45); color: var(--crm-color-text); }
+.ab-attention__header { display: flex; flex: none; align-items: center; gap: 9px; min-height: 58px; padding: 10px 12px; border-bottom: 1px solid var(--crm-color-line-subtle); }
+.ab-attention__bell { display: grid; place-items: center; width: 30px; height: 30px; flex: none; border-radius: 10px; color: #f0b03f; background: rgb(240 176 63 / .08); }
+.ab-attention__heading { min-width: 0; flex: 1; }
+.ab-attention__heading h2 { margin: 0; font-size: 13px; font-weight: 650; line-height: 18px; }
+.ab-attention__heading p { margin: 2px 0 0; color: var(--crm-color-text-muted); font-size: 10.5px; line-height: 15px; }
+.ab-attention__icon { display: inline-flex; flex: none; align-items: center; justify-content: center; gap: 5px; min-width: 30px; height: 30px; padding: 0 7px; border: 1px solid rgb(var(--crm-white-rgb) / .07); border-radius: 8px; color: var(--crm-color-text-muted); font-size: 11px; }
+.ab-attention__icon:hover, .ab-attention__icon[aria-expanded="true"] { background: rgb(var(--crm-white-rgb) / .065); color: var(--crm-color-text-strong); }
+.ab-attention__scroll { min-height: 0; overflow: auto; overscroll-behavior: contain; scrollbar-width: thin; }
+.ab-attention .ab-ping { padding: 13px 12px; }
+.ab-attention .ab-ping:last-child { border-bottom: 0; }
+.ab-attention .ab-ping__title { line-height: 1.5; overflow-wrap: anywhere; font-weight: 500; }
+.ab-attention .ab-ping__meta { align-items: center; }
+.ab-attention .ab-ping__meta time { margin-left: auto; white-space: nowrap; }
+.ab-attention .ab-ping__needs { font-size: 10px; padding: 1px 6px; margin: 2px 0; }
+.ab-attention .ab-ping__acts { gap: 5px; }
+.ab-attention .ab-ping__acts button { min-height: 30px; padding: 0 8px; border: 1px solid rgb(var(--crm-white-rgb) / .06); border-radius: 7px; }
+.ab-attention__expanded { display: grid; gap: 10px; margin-top: 8px; }
+.ab-attention .ab-ping__reply { align-items: stretch; padding: 5px; }
+.ab-attention .ab-ping__reply input { width: 0; padding: 3px 4px; }
+.ab-attention .ab-ping__send { flex: none; height: auto; min-height: 30px; }
+.ab-attention__settings { display: grid; gap: 10px; margin: 10px; padding: 12px; border: 1px solid var(--crm-color-line-subtle); border-radius: 12px; background: rgb(var(--crm-white-rgb) / .025); font-size: 12px; }
+.ab-attention__settings p { margin: 0; line-height: 1.5; color: var(--crm-color-text-muted); }
+.ab-attention__settings button { justify-self: start; padding: 7px 9px; border: 1px solid rgb(var(--crm-white-rgb) / .12); border-radius: 8px; font-size: 11.5px; }
+.ab-attention__settings button:hover { background: rgb(var(--crm-white-rgb) / .06); }
+.ab-attention__settings input { width: 100%; min-width: 0; padding: 9px; border: 1px solid var(--crm-color-line-subtle); border-radius: 8px; background: rgb(0 0 0 / .12); color: var(--crm-color-text-strong); font-size: 12px; }
+.ab-attention__status { margin: 0; padding: 10px 12px; font-size: 12px; color: #f0b03f; border-bottom: 1px solid var(--crm-color-line-subtle); }
+.ab-attention__empty { margin: 0; padding: 18px 14px; color: var(--crm-color-text-muted); font-size: 12px; line-height: 1.6; }
+.ab-attention button:focus-visible, .ab-attention input:focus-visible, .ab-attention-trigger:focus-visible { outline: 2px solid #67e8f9; outline-offset: 2px; }
+.ab-attention button:disabled { opacity: .45; cursor: default; }
+.ab-attention .siso-chat__ask { margin: 0; padding: 10px; border-radius: 10px; font-size: 12px; }
+.ab-attention .siso-chat__ask > div, .ab-attention .siso-chat__ask footer { flex-wrap: wrap; }
+.ab-attention .siso-chat__ask button { min-height: 30px; padding: 5px 9px; border: 1px solid rgb(var(--crm-white-rgb) / .12); border-radius: 7px; font-size: 11.5px; }
+@media (max-width: 639px) {
+  .ab-attention-anchor { right: 10px; width: calc(100vw - 20px); }
+  .ab-attention { max-height: calc(100dvh - 78px - env(safe-area-inset-bottom)); }
+  .ab-attention__icon, .ab-attention .ab-ping__acts button, .ab-attention .ab-ping__send, .ab-attention__settings button, .ab-attention .siso-chat__ask button { min-height: 40px; }
+  .ab-attention__header { gap: 7px; padding: 9px 10px; }
+  .ab-attention__icon span { display: none; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .ab-attention { animation: ab-attention-in 160ms ease-out; }
+  .ab-attention__expanded { animation: ab-attention-in 130ms ease-out; }
+}
+@keyframes ab-attention-in { from { opacity: 0; transform: translateY(-4px); } }
+/* 6 Oct 23:35: the "Updates · N" pill is now a bell with a count; it rings once when an owner note lands. */
+.ab-bell { position: relative; width: 30px; min-height: 28px; padding: 0; border-color: rgb(var(--crm-white-rgb) / .1); background: transparent; color: rgb(var(--crm-white-rgb) / .72); }
+.ab-bell:hover, .ab-bell[aria-expanded="true"] { border-color: rgb(var(--crm-white-rgb) / .2); background: rgb(var(--crm-white-rgb) / .06); color: var(--crm-color-text-strong); }
+.ab-bell[data-needs] { color: #f0b03f; border-color: rgb(240 176 63 / .35); }
+.ab-bell__count { position: absolute; top: -5px; right: -6px; min-width: 16px; height: 16px; padding: 0 4px; border: 2px solid var(--crm-color-bg, #121212); border-radius: 999px; background: #34d399; color: #062b1d; font: 700 9.5px/12px var(--crm-font-sans); text-align: center; }
+.ab-bell[data-needs] .ab-bell__count { background: #f0b03f; color: #2b1d02; }
+.ab-bell[data-ringing] svg { animation: ab-bell-ring 1.1s ease-in-out; transform-origin: 50% 10%; }
+@keyframes ab-bell-ring { 0%,100% { transform: rotate(0); } 15% { transform: rotate(16deg); } 30% { transform: rotate(-14deg); } 45% { transform: rotate(10deg); } 60% { transform: rotate(-6deg); } 75% { transform: rotate(3deg); } }
+@media (prefers-reduced-motion: reduce) { .ab-bell[data-ringing] svg { animation: none; } }

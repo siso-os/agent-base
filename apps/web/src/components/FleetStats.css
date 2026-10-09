@@ -1,0 +1,146 @@
+/* The fleet's Stats page, option A (SPEC-STATS-TASKS §3.1): one screen at 1512 x 982. The same tree fills the popped-out
+   column; a container query at 470 px lays it out narrow. Glow is for live things only (rule 2): waiting ship bars and
+   machine dots. No amber here (rule 8: needs-you's alone). Sources sit behind each card's i (rule 7). */
+.ab-st { --st-green: var(--color-done); --st-cyan: var(--color-working); --st-red: var(--accent-danger);
+  display: flex; min-height: 0; flex-direction: column; gap: 14px; padding: 6px 24px 18px; container: stats / inline-size; color: var(--crm-color-text); }
+.ab-st[data-host="pop"] { gap: 10px; padding: 10px 12px 14px; }
+.ab-st__top { display: flex; align-items: flex-end; gap: 16px; }
+.ab-st__title { min-width: 0; flex: 1; }
+.ab-st__title h1 { margin: 0; color: var(--crm-color-text-strong); font-size: 30px; font-weight: 720; letter-spacing: -.02em; }
+.ab-st__sentence { margin: 4px 0 0; color: var(--crm-color-text-muted); font-size: 15px; line-height: 1.45; }
+.ab-st__sentence b { color: var(--crm-color-text-strong); font-weight: 650; }
+.ab-st__right { display: flex; flex: none; align-items: center; gap: 10px; color: var(--crm-color-text-faint); font-size: 12px; }
+.ab-st__pop { display: inline-flex; height: 30px; align-items: center; gap: 6px; padding: 0 11px; border-radius: 999px; color: var(--crm-color-text-muted); font-size: 12.5px; }
+.ab-st__pop:hover { color: var(--crm-color-text-strong); background: rgb(var(--crm-white-rgb) / .07); }
+.ab-st__i { display: inline-grid; width: 15px; height: 15px; flex: none; place-items: center; border: 1px solid var(--crm-color-line); border-radius: 50%; color: var(--crm-color-text-faint); cursor: help; font: italic 600 9.5px/1 Georgia, serif; }
+.ab-st__i:hover, .ab-st__i:focus { color: var(--crm-color-text-strong); border-color: var(--crm-color-text-faint); outline: none; }
+.ab-st__down { margin: 0; color: var(--crm-color-text-faint); font-size: 12px; }
+.ab-st__quiet { margin: 0; color: var(--crm-color-text-faint); font-size: 12px; line-height: 1.45; }
+.ab-st__muted { margin: 0; color: var(--crm-color-text-muted); font-size: 12px; line-height: 1.45; }
+.ab-st__muted b { color: var(--crm-color-text-strong); font-weight: 600; }
+.ab-st__foot { margin: 0; color: var(--crm-color-text-faint); font-size: 11.5px; line-height: 1.45; }
+.ab-st__skel { height: 64px; border-radius: 10px; background: linear-gradient(90deg, rgb(var(--crm-white-rgb) / .03), rgb(var(--crm-white-rgb) / .07), rgb(var(--crm-white-rgb) / .03)); background-size: 200% 100%; animation: ab-st-skel 1.4s linear infinite; }
+@keyframes ab-st-skel { to { background-position: -200% 0; } }
+@media (prefers-reduced-motion: reduce) { .ab-st__skel { animation: none; } }
+
+/* The stat bar: one joined bar of four cells (statistics-card-7, rule 5). */
+.ab-st__bar { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); overflow: hidden; border: 1px solid var(--crm-color-line-subtle); border-radius: 16px; background: rgb(var(--crm-white-rgb) / .025); }
+.ab-st__cell { position: relative; display: grid; align-content: start; gap: 6px; min-width: 0; padding: 14px 16px; border-left: 1px solid var(--crm-color-line-subtle); }
+.ab-st__cell:first-child { border-left: 0; }
+.ab-st__cell > .ab-st__i { position: absolute; top: 12px; right: 12px; }
+.ab-st__celltop { display: grid; gap: 4px; }
+.ab-st__label { color: var(--crm-color-text-muted); font-size: 12.5px; font-weight: 560; }
+.ab-st__label small { color: var(--crm-color-text-faint); font-size: 11px; font-weight: 400; }
+.ab-st__fig { color: var(--crm-color-text-strong); font-size: 30px; font-weight: 720; font-variant-numeric: tabular-nums; letter-spacing: -.02em; line-height: 1.1; }
+.ab-st__pill { justify-self: start; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; }
+.ab-st__pill.is-cyan { color: var(--st-cyan); background: color-mix(in srgb, var(--st-cyan) 14%, transparent); }
+.ab-st__pill.is-green { color: var(--st-green); background: color-mix(in srgb, var(--st-green) 14%, transparent); }
+.ab-st__pill.is-grey { color: var(--crm-color-text-muted); background: rgb(var(--crm-white-rgb) / .07); }
+
+.ab-st__grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 12px; }
+.ab-st__card { display: grid; align-content: start; gap: 10px; min-width: 0; padding: 14px 16px; border: 1px solid var(--crm-color-line-subtle); border-radius: 16px; background: rgb(var(--crm-white-rgb) / .025); }
+.ab-st__card.is-ship { grid-column: span 7; }
+.ab-st__card.is-logins { grid-column: span 5; }
+.ab-st__card.is-grant { grid-column: span 3; }
+.ab-st__card.is-codex { grid-column: span 4; }
+.ab-st__card.is-machines { grid-column: span 5; }
+.ab-st__head { display: flex; align-items: center; gap: 8px; }
+.ab-st__head h2 { min-width: 0; flex: 1; margin: 0; color: var(--crm-color-text-strong); font-size: 13.5px; font-weight: 650; }
+.ab-st__head h2 small { color: var(--crm-color-text-faint); font-size: 11.5px; font-weight: 400; }
+
+/* Shipped today: a shared time axis, built → live (green), → now (cyan, glowing: alive), landed and held (hatched). */
+.ab-ship { display: grid; gap: 5px; margin: 0; padding: 0; list-style: none; }
+.ab-ship__row { display: grid; grid-template-columns: 14px minmax(70px, 150px) minmax(0, 1fr) 52px; align-items: center; gap: 8px; }
+.ab-ship__branch { overflow: hidden; color: var(--crm-color-text-muted); font: 11.5px var(--font-mono); text-overflow: ellipsis; white-space: nowrap; }
+.ab-ship__track { position: relative; height: 8px; border-radius: 999px; background: rgb(var(--crm-white-rgb) / .04); }
+.ab-ship__track i { position: absolute; top: 0; bottom: 0; min-width: 3px; border-radius: 999px; }
+.ab-ship__row.is-live i { background: linear-gradient(90deg, color-mix(in srgb, var(--st-green) 45%, transparent), var(--st-green)); }
+.ab-ship__row.is-alive i { background: var(--st-cyan); box-shadow: 0 0 10px color-mix(in srgb, var(--st-cyan) 60%, transparent); }
+.ab-ship__row.is-held i { background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--st-green) 70%, transparent) 0 4px, transparent 4px 7px); }
+.ab-ship__min { color: var(--crm-color-text-muted); font: 500 11.5px var(--font-mono); text-align: right; }
+.ab-ship__row.is-alive .ab-ship__min { color: var(--st-cyan); }
+.ab-ship__axis { position: relative; height: 14px; margin: 0 60px 0 180px; color: var(--crm-color-text-faint); font: 10px var(--font-mono); }
+.ab-ship__axis span { position: absolute; transform: translateX(-50%); white-space: nowrap; }
+.ab-ship__recent, .ab-ship__sum { display: none; }
+.ab-ship__recent { gap: 6px; margin: 0; padding: 0; list-style: none; }
+.ab-ship__recent li { display: grid; grid-template-columns: 20px minmax(0, 1fr) auto; align-items: center; gap: 8px; }
+.ab-ship__recent span { display: grid; min-width: 0; }
+.ab-ship__recent b { overflow: hidden; color: var(--crm-color-text-strong); font: 500 12px var(--font-mono); text-overflow: ellipsis; white-space: nowrap; }
+.ab-ship__recent small { color: var(--crm-color-text-faint); font-size: 11px; }
+.ab-ship__recent em { padding: 1px 7px; border-radius: 999px; font: 600 11px var(--font-mono); font-style: normal; }
+.ab-ship__recent em.is-live { color: var(--st-green); background: color-mix(in srgb, var(--st-green) 14%, transparent); }
+.ab-ship__recent em.is-alive { color: var(--st-cyan); background: color-mix(in srgb, var(--st-cyan) 14%, transparent); }
+.ab-ship__sum { margin: 0; color: var(--crm-color-text-muted); font-size: 12px; }
+
+/* Claude logins: two meters each; a week past 70% shades toward red at its end. */
+.ab-logins { display: grid; gap: 12px; }
+.ab-login { display: grid; gap: 4px; }
+.ab-login__name { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+.ab-login__name b { color: var(--crm-color-text-strong); font-size: 13px; font-weight: 650; }
+.ab-login__name small { min-width: 0; overflow: hidden; color: var(--crm-color-text-faint); font: 10.5px var(--font-mono); text-overflow: ellipsis; white-space: nowrap; }
+.ab-login__meter { display: grid; grid-template-columns: 34px minmax(0, 1fr) 54px auto; align-items: center; gap: 8px; color: var(--crm-color-text-faint); font-size: 11px; }
+.ab-login__meter b { color: var(--crm-color-text-strong); font: 600 11.5px var(--font-mono); text-align: right; }
+.ab-login__meter small { min-width: 92px; color: var(--crm-color-text-faint); font-size: 11px; }
+.ab-login__warn { margin: 0; color: var(--crm-color-text-muted); font-size: 12px; }
+.ab-login__warn b { color: var(--st-red); }
+.ab-st__meter { height: 6px; overflow: hidden; border-radius: 999px; background: rgb(var(--crm-white-rgb) / .06); }
+.ab-st__meter i { display: block; height: 100%; border-radius: 999px; background: color-mix(in srgb, var(--crm-color-text-strong) 70%, transparent); }
+.ab-st__meter.is-hot i { background: linear-gradient(90deg, color-mix(in srgb, var(--crm-color-text-strong) 70%, transparent) 55%, var(--st-red)); }
+
+/* The grant ring and Codex. */
+.ab-grant { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 12px; }
+.ab-grant__fig, .ab-codex__fig { margin: 0 0 4px; color: var(--crm-color-text-muted); font-size: 12.5px; }
+.ab-grant__fig b, .ab-codex__fig b { color: var(--crm-color-text-strong); font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.ab-ring__bg { fill: none; stroke: rgb(var(--crm-white-rgb) / .07); stroke-width: 3.5; }
+.ab-ring__fg { fill: none; stroke: var(--st-green); stroke-linecap: round; stroke-width: 3.5; }
+.ab-split { display: grid; gap: 4px; }
+.ab-split p { margin: 0; color: var(--crm-color-text-muted); font-size: 12px; }
+.ab-split p b { color: var(--crm-color-text-strong); font-weight: 600; }
+.ab-split__bar { position: relative; display: flex; height: 8px; overflow: visible; border-radius: 999px; background: rgb(var(--crm-white-rgb) / .06); }
+.ab-split__bar i.is-sol { border-radius: 999px 0 0 999px; background: var(--accent-reflect); }
+.ab-split__bar i.is-luna { flex: 1; border-radius: 0 999px 999px 0; background: var(--accent-focus); }
+.ab-split__bar em { position: absolute; top: -3px; bottom: -3px; width: 2px; margin-left: -1px; border-radius: 1px; background: #fff; }
+
+/* Machines (system-monitor): a dot (glowing, rule 2), three thin bars (load ÷ cores, memory, disk), a note. */
+.ab-mach { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.ab-mach__row { display: grid; grid-template-columns: 9px minmax(60px, 110px) minmax(0, 1fr) auto; align-items: center; gap: 8px; padding: 5px 6px; border-radius: 8px; }
+.ab-mach__row.is-bad { background: color-mix(in srgb, var(--st-red) 10%, transparent); }
+.ab-mach__dot { width: 8px; height: 8px; border-radius: 50%; background: var(--st-green); box-shadow: 0 0 8px color-mix(in srgb, var(--st-green) 70%, transparent); }
+.ab-mach__row.is-bad .ab-mach__dot { background: var(--st-red); box-shadow: 0 0 8px color-mix(in srgb, var(--st-red) 70%, transparent); }
+.ab-mach__row.is-warn .ab-mach__dot { background: var(--crm-color-text-muted); box-shadow: none; }
+.ab-mach__name { overflow: hidden; color: var(--crm-color-text-strong); font-size: 12.5px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.ab-mach__bars { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; }
+.ab-mach__bar { height: 5px; overflow: hidden; border-radius: 999px; background: rgb(var(--crm-white-rgb) / .06); }
+.ab-mach__bar i { display: block; height: 100%; background: color-mix(in srgb, var(--crm-color-text-strong) 55%, transparent); }
+.ab-mach__bar.is-over i { background: var(--st-red); }
+.ab-mach__note { color: var(--crm-color-text-faint); font-size: 11px; white-space: nowrap; }
+.ab-mach__why { grid-column: 2 / -1; margin: 0; color: var(--crm-color-text-muted); font-size: 11.5px; }
+
+@container stats (max-width: 900px) {
+  .ab-st__card.is-ship, .ab-st__card.is-logins, .ab-st__card.is-machines { grid-column: span 12; }
+  .ab-st__card.is-grant, .ab-st__card.is-codex { grid-column: span 6; }
+}
+/* Popped out (380 px): the bar 2 x 2, the five most recent lanes, grant and Codex as half tiles, machines as dots. */
+@container stats (max-width: 470px) {
+  .ab-st__top { flex-direction: column; align-items: stretch; gap: 8px; }
+  .ab-st__right { flex-wrap: wrap; }
+  .ab-st__bar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ab-st__cell { padding: 10px 12px; }
+  .ab-st__cell:nth-child(3) { border-left: 0; }
+  .ab-st__cell:nth-child(n + 3) { border-top: 1px solid var(--crm-color-line-subtle); }
+  .ab-st__label small { display: none; }
+  .ab-st__fig { font-size: 24px; }
+  .ab-st__card { padding: 12px; }
+  .ab-ship, .ab-ship__axis { display: none; }
+  .ab-ship__recent { display: grid; }
+  .ab-ship__sum { display: block; }
+  .ab-st__card.is-grant, .ab-st__card.is-codex { grid-column: span 6; }
+  .ab-grant { grid-template-columns: minmax(0, 1fr); }
+  .ab-ring { width: 54px; height: 54px; }
+  .ab-login__meter { grid-template-columns: 30px minmax(0, 1fr) 40px; }
+  .ab-login__meter small { display: none; }
+  .ab-mach { display: flex; flex-wrap: wrap; gap: 4px 12px; }
+  .ab-mach__row { display: flex; flex-wrap: wrap; padding: 2px 4px; }
+  .ab-mach__bars, .ab-mach__note { display: none; }
+  .ab-mach__why { flex-basis: 100%; }
+}

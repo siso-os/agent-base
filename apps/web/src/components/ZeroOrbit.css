@@ -1,0 +1,33 @@
+/* SPEC-DELIGHT §2: the needs ring and the limit arc around Agent Zero's face (.siso-zero-face: fixed, right 14px,
+   bottom 3px, 60 px). The orbit sits centred on the face; while one shows, the face (and its mic) lift so the ring stays
+   on screen: centre 46 px from the corner, the ring's outer edge (0.62 × 60 + 4 + the dot) at 45.5. */
+body:has(.ab-zorbit){--zf-at:16px;--zf-half:30px}
+body:has(.ab-zorbit) .siso-zero-face{right:var(--zf-at);bottom:var(--zf-at)}
+body:has(.ab-zorbit) .siso-zero-mic{right:calc(var(--zf-at) + 13px);bottom:102px}
+.ab-zorbit{position:fixed;z-index:31;right:calc(var(--zf-at) + var(--zf-half));bottom:calc(var(--zf-at) + var(--zf-half));transform:translate(50%,50%);pointer-events:none}
+.ab-zorbit__arc{position:absolute;inset:0;overflow:visible;pointer-events:none}
+.ab-zorbit__track{fill:none;stroke:rgb(var(--crm-white-rgb) / .08);stroke-width:2.5}
+.ab-zorbit__fill{fill:none;stroke:#fbbf24;stroke-width:2.5;stroke-linecap:round;pointer-events:stroke}
+.ab-zorbit__arc.is-bad .ab-zorbit__fill{stroke:rgb(var(--crm-danger-rgb))}
+.ab-zorbit__arc.is-pulse{animation:ab-zorbit-pulse 1.8s ease-in-out infinite}
+@keyframes ab-zorbit-pulse{50%{opacity:.45}}
+.ab-zorbit__ring{position:absolute;inset:0;animation:ab-zorbit-turn 14s linear infinite;transition:opacity .2s}
+@keyframes ab-zorbit-turn{to{transform:rotate(360deg)}}
+.ab-zorbit__dot{position:absolute;width:9px;height:9px;margin:-4.5px 0 0 -4.5px;padding:0;border:0;border-radius:50%;background:#f0b03f;box-shadow:0 0 0 2px #121211,0 0 10px rgb(240 176 63 / .7);cursor:pointer;pointer-events:auto;animation:ab-zorbit-pop .45s cubic-bezier(.34,1.56,.64,1) both}
+.ab-zorbit__dot.is-more{width:auto;height:14px;margin:-7px 0 0 -9px;padding:0 4px;border-radius:7px;color:#1a1206;font:700 8.5px/14px var(--crm-font-sans)}
+@keyframes ab-zorbit-pop{from{transform:scale(0)}}
+.ab-zorbit__dot:hover{transform:scale(1.35)}
+/* While he talks to Agent Zero (the face's mic says it is listening) the dots dim and stop; while the face dozes (PERF's
+   20 s), the ring stops too. */
+body:has(.siso-zero-mic .siso-mic:is([data-phase="listening"],[data-phase="starting"])) .ab-zorbit__ring{opacity:.35;animation-play-state:paused}
+body:has(.siso-zero-face [data-doze]) .ab-zorbit__ring{animation-play-state:paused}
+@media (prefers-reduced-motion:reduce){.ab-zorbit__ring,.ab-zorbit__arc.is-pulse,.ab-zorbit__dot{animation:none}}
+.rm .ab-zorbit__ring,.rm .ab-zorbit__arc.is-pulse,.rm .ab-zorbit__dot{animation:none}
+/* A dot under the pointer holds still, so it is easy to click. */
+.ab-zorbit__ring:has(.ab-zorbit__dot:hover){animation-play-state:paused}
+.ab-zorbit__research{position:absolute;inset:0;animation:ab-zorbit-turn 18s linear infinite reverse}
+.ab-zorbit__research[data-running="0"]{animation:none}.ab-zorbit__batch{position:absolute;width:18px;height:18px;margin:-9px;border:1px solid #22d3ee;border-radius:50%;background:#142b32;color:#67e8f9;font:700 11px/14px var(--crm-font-sans);pointer-events:auto;cursor:pointer;padding:0}.ab-zorbit__batch.is-unknown{border-color:#777;color:#aaa;background:#222}.ab-zorbit__research:has(button:is(:hover,:focus-visible)){animation-play-state:paused}
+.ab-zorbit[data-paused="1"] *{animation-play-state:paused!important}
+body:has(.siso-zero-face [data-doze]) .ab-zorbit__research,body:has(.siso-zero-mic .siso-mic:is([data-phase="listening"],[data-phase="starting"])) .ab-zorbit__research{animation-play-state:paused}
+@media(prefers-reduced-motion:reduce){.ab-zorbit__research{animation:none}}
+.rm .ab-zorbit__research{animation:none}

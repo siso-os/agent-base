@@ -1,0 +1,7 @@
+{
+  "updated": "2026-10-02T16:38:03+07:00",
+  "counts": { "by_stage": { "thought": 1 }, "by_project": { "Agent Base": 1 }, "by_priority": { "P1": 1 } },
+  "tasks": [
+    { "id": "t-0001", "title": "A0 task index reads", "project": "Agent Base", "priority": "P1", "stage": "thought", "owner": "AGENT-BASE", "model": null, "updated": "2026-10-02T16:38:03+07:00" }
+  ]
+}

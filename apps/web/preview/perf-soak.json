@@ -1,0 +1,77 @@
+{
+  "label": "soak",
+  "sessionMb": 5,
+  "sessionLines": 5591,
+  "openMs": 832,
+  "helloKb": 30,
+  "turnsRendered": 6,
+  "domNodes": 720,
+  "webContentMb": 203,
+  "workingNodeCpuPct": 1,
+  "workingPageCpuPct": 22,
+  "workingWsKb": 121,
+  "webContentMbAfterWork": 259,
+  "soak": [
+    {
+      "s": 0,
+      "mb": 259,
+      "turns": 33,
+      "dom": 1154
+    },
+    {
+      "s": 20,
+      "mb": 289,
+      "turns": 85,
+      "dom": 1876
+    },
+    {
+      "s": 40,
+      "mb": 318,
+      "turns": 139,
+      "dom": 2640
+    },
+    {
+      "s": 60,
+      "mb": 339,
+      "turns": 192,
+      "dom": 3398
+    },
+    {
+      "s": 80,
+      "mb": 374,
+      "turns": 244,
+      "dom": 4128
+    },
+    {
+      "s": 100,
+      "mb": 394,
+      "turns": 297,
+      "dom": 4897
+    },
+    {
+      "s": 120,
+      "mb": 410,
+      "turns": 349,
+      "dom": 5637
+    },
+    {
+      "s": 140,
+      "mb": 419,
+      "turns": 403,
+      "dom": 6402
+    },
+    {
+      "s": 160,
+      "mb": 429,
+      "turns": 456,
+      "dom": 7160
+    }
+  ],
+  "apiPer20sVisible": 15,
+  "apiPer20sHidden": 0,
+  "hiddenPageCpuPct": 6,
+  "reachedStart": true,
+  "scrollToStartMs": 4857,
+  "turnsRenderedAtStart": 1022,
+  "pageErrors": []
+}

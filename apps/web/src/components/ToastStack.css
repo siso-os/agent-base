@@ -1,0 +1,14 @@
+/* t-0460: one stack, bottom right, above the composer; newest at the bottom. Each toast keeps its own card. */
+.ab-toast-stack { position: fixed; right: calc(22px + var(--ab-panel-space, 0px)); bottom: 132px; z-index: 1000; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; width: min(440px, calc(100vw - 32px)); margin: 0; padding: 0; list-style: none; pointer-events: none; }
+.ab-toast-stack:empty { display: none; }
+.ab-toast { max-width: 100%; pointer-events: auto; animation: ab-toast-in .22s cubic-bezier(.2, .8, .2, 1) both; }
+.ab-toast-stack .ab-owner-toasts, .ab-toast-stack .ab-shipped, .ab-toast-stack .ab-ready { position: static; inset: auto; }
+.ab-toast-stack .ab-owner-toasts { width: min(360px, calc(100vw - 32px)); }
+.ab-toast-stack .ab-browser__toast { width: min(360px, calc(100vw - 32px)); margin: 0; }
+@keyframes ab-toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .ab-toast { animation: ab-toast-fade .12s linear both; } }
+@keyframes ab-toast-fade { from { opacity: 0; } to { opacity: 1; } }
+@media (max-width: 639px) { .ab-toast-stack { right: 16px; left: 16px; width: auto; bottom: 96px; } }
+/* Lane popups (9 Oct): five at once show the newest three and "+2 more"; hovering or focusing the stack shows them all. */
+.ab-toast-stack:not(:hover):not(:focus-within) > .ab-toast:nth-last-child(n+4) { display: none; }
+.ab-toast-stack[data-more]:not(:hover):not(:focus-within)::before { content: "+" attr(data-more) " more"; padding: 3px 9px; border: 1px solid var(--crm-color-line-subtle); border-radius: 999px; background: rgb(var(--crm-canvas-rgb) / 92%); color: var(--crm-color-text-muted); font: 500 10.5px var(--crm-font-sans); pointer-events: auto; }

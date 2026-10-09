@@ -1,0 +1,34 @@
+{
+  "at": 1790942400000,
+  "window_min": 60,
+  "claude": [
+    {
+      "login": "L1 fixture",
+      "profile": ".claude",
+      "five_hour": {
+        "used_pct": 23,
+        "resets_at": "2026-10-02T18:00:00+07:00",
+        "pct_per_hour": 1.5,
+        "hours_to_full": 51.3,
+        "stale": false
+      },
+      "seven_day": {
+        "used_pct": 44,
+        "resets_at": "2026-10-05T12:00:00+07:00",
+        "pct_per_hour": null,
+        "hours_to_full": null,
+        "stale": true
+      }
+    }
+  ],
+  "codex": {
+    "credits_per_hour": [0.2, 0.8],
+    "pct_of_budget_per_hour": [0.1, 0.4],
+    "today_credits": [1.2, 3.4],
+    "left": [10, 22],
+    "hours_left_at_rate": 27.5,
+    "by_model_per_hour": {
+      "gpt-5-codex": [0.2, 0.8]
+    }
+  }
+}

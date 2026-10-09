@@ -1,0 +1,16 @@
+import { createRoot } from 'react-dom/client';
+import { useState } from 'react';
+import { AttentionPanel } from '../src/components/AttentionPanel';
+import type { Attention } from '../src/lib/attention';
+import '../src/index.css';
+const ref={machineId:'fixture',hostKey:'fixture',hostInstanceId:'fixture-instance',sessionId:'fixture-session',runId:'fixture-run'};
+const at='2026-10-06T04:00:00Z';
+const items:Attention[]=[
+ {id:'activity:needs',ref,at,agentId:null,agentName:'Panel reviewer',headline:'Choose which synthetic review direction to inspect next',read:false,revision:1,buzz:false,delivery:'off',phase:'needs',requestKind:'input',requestId:'fixture-question'},
+ {id:'activity:approval',ref,at,agentId:null,agentName:'Fixture builder',headline:'A bounded synthetic tool request is waiting for a decision',read:false,revision:2,buzz:false,delivery:'off',phase:'needs',requestKind:'approval',requestId:'fixture-approval'},
+ {id:'activity:done',ref,at,agentId:null,agentName:'Visual checker',headline:'The desktop and phone review is ready to read, with a longer title that wraps cleanly',read:true,revision:3,buzz:false,delivery:'off',phase:'completed'},
+];
+const request={id:'fixture-question',provider:'codex',state:'open',createdAt:Date.now(),questions:[{id:'direction',header:'Review direction',question:'Which fixture should open?',options:[{value:'desktop',label:'Desktop',description:'Inspect the wide layout'},{value:'phone',label:'Phone',description:'Inspect the narrow layout'}],multiple:false,allowCustom:true,required:true}]};
+const calls:unknown[]=[];(window as any).__notificationFixtureCalls=calls;
+window.fetch=async(input,init)=>{const r=new Request(input,init),url=new URL(r.url);if(!url.pathname.startsWith('/api/attention'))return new Response('{}',{status:503});if(r.method==='GET')return Response.json({request});const body=await r.json();calls.push({path:url.pathname,body});return new Response(JSON.stringify(new URLSearchParams(location.search).has('fail')?{status:'uncertain'}:{ok:true}),{status:new URLSearchParams(location.search).has('fail')?409:200,headers:{'Content-Type':'application/json'}});};
+function Fixture(){const[open,setOpen]=useState(false),[opened,setOpened]=useState('');return <main style={{minHeight:'100dvh',background:'var(--crm-color-canvas)',color:'var(--crm-color-text)'}}><header style={{height:48,display:'flex',alignItems:'center',justifyContent:'flex-end',padding:'0 12px',borderBottom:'1px solid #ffffff12'}}><button className="ab-attention-trigger" data-testid="attention-trigger" aria-label="Agent notifications" aria-expanded={open} onClick={()=>setOpen(!open)}>Needs you · 2</button></header><section style={{padding:24}}><h1>Synthetic notifications review</h1><button data-testid="outside-action">Outside action</button><output data-testid="opened">{opened}</output></section>{open&&<div className="ab-attention-anchor"><AttentionPanel items={new URLSearchParams(location.search).has('empty')?[]:items} settings={{desktop:false,phone:false,phoneConfigured:false,appUrl:'',snoozeUntil:0}} healthy={!new URLSearchParams(location.search).has('down')} onOpen={setOpened} onClose={()=>setOpen(false)} refresh={async()=>{}}/></div>}</main>};createRoot(document.getElementById('root')!).render(<Fixture/>);

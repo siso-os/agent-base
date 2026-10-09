@@ -1,0 +1,34 @@
+import assert from 'node:assert/strict';
+import { Questions } from '../../../../services/host/src/questions.ts';
+import { loadQuestion,saveQuestion,questionBlock,questionReceipt,questionFingerprint,questionStorageKey,taskEvidence } from './OwnerSpaceModel.ts';
+const values=new Map(),store={getItem:k=>values.get(k)??null,setItem:(k,v)=>values.set(k,v)};
+let delivered=0;const events=[];const host=new Questions(e=>events.push(e));
+const request=host.add({session:'fixture-session',turnId:'turn',toolId:'tool',provider:'codex',questions:[{id:'choice',header:'Direction',question:'Which layout?',options:[{value:'compact',label:'Compact',description:''}],multiple:false,allowCustom:true,required:true}]},async a=>{delivered++;assert.deepEqual(a,{choice:['compact']});});
+const connection={connected:true,hostInstance:request.hostInstance,session:request.session,snapshotVersion:'1',requests:[request]};
+let saved=loadQuestion(store,request);assert.equal(questionBlock(request,connection,saved),null);
+saved.draft.answers.choice={selected:['compact'],custom:''};saveQuestion(store,request,saved);
+assert.equal(loadQuestion(store,request).draft.answers.choice.selected[0],'compact','draft survives remount');
+assert.match(questionBlock(request,{...connection,session:'replaced'},saved),/changed/);
+assert.match(questionBlock(request,{...connection,requests:[]},saved),/changed/);
+assert.match(questionBlock(request,{...connection,connected:false},saved),/disconnected/);
+assert.match(questionBlock(request,connection,saved,request.expiresAt),/expired/);
+const payload={t:'answer_question',id:request.id,hostInstance:request.hostInstance,session:request.session,submissionId:'same-submission',action:'answer',answers:{choice:['compact']}};
+saved={...saved,submission:payload,attemptedSnapshot:'1',draft:{...saved.draft,status:'sending'}};saveQuestion(store,request,saved);
+const restored=loadQuestion(store,request);assert.equal(restored.draft.status,'failed');assert.match(questionBlock(request,connection,restored),/unconfirmed/);assert.equal(questionBlock(request,{...connection,snapshotVersion:'2'},restored),null);
+await host.answer({...payload,session:'replaced-session'});assert.equal(delivered,0);assert.equal(events.at(-1).t,'question_failed','native host refuses replaced session');
+const receipt=questionReceipt(request,await host.answer(payload));assert.equal(receipt.outcome,'answered');
+await host.answer(payload);assert.equal(delivered,1,'same submission replay does not resume twice');
+saveQuestion(store,request,{...restored,receipt});assert.match(questionBlock(request,connection,loadQuestion(store,request)),/answered/);
+assert.throws(()=>questionReceipt(request,{...receipt,id:'other'}),/another question/);
+assert.equal(loadQuestion(store,{...request,session:'new-session'}).draft.answers.choice,undefined);
+assert.equal(loadQuestion(store,{...request,questions:[{...request.questions[0],question:'Different question'}]}).draft.answers.choice,undefined,'changed request cannot reuse old draft');
+store.setItem(questionStorageKey(request),JSON.stringify({fingerprint:questionFingerprint(request),draft:{index:0,answers:{choice:{selected:7}},status:'editing'}}));assert.deepEqual(loadQuestion(store,request).draft.answers,{},'malformed storage rejected');
+assert.deepEqual(taskEvidence({id:'t',title:'x',stage:'live',evidence:{bad:true}}).evidence,[]);
+assert.match(taskEvidence({id:'t',title:'x',stage:'live',evidence:['old receipt']}).landing,/not established/,'stage and unbound evidence never become landing acceptance');
+console.log('PASS: native answer receipt, idempotent replay, durable draft and receipt, changed session/question, disconnect, expiry, uncertain send refresh gate, malformed storage, evidence truth');
+
+const cancelled=host.add({session:'fixture-session',toolId:'failed-tool',provider:'codex',questions:request.questions},async()=>{throw Error('provider failed');});
+const rejected=questionReceipt(cancelled,await host.answer({...payload,id:cancelled.id,submissionId:'failed-provider'}));assert.equal(rejected.outcome,'cancelled','provider failure never claims answered');
+console.log('PASS: native stale-session refusal and failed-provider cancellation');
+
+assert.match(questionBlock({...request,toolId:'replaced-tool'},connection,saved),/changed/,'changed same-key request refuses old in-memory draft');

@@ -1,0 +1,14 @@
+.bell-preview { min-height: 100dvh; background: var(--crm-color-bg,#141414); color: var(--crm-color-text); font-family: var(--crm-font-sans); }
+.bell-preview__strip { position: relative; z-index: 100; height: 48px; padding: 0 22px; display: flex; align-items:center; justify-content:space-between; background: var(--crm-color-surface); border-bottom:1px solid var(--crm-color-line-subtle); font-size:12px; }
+.bell-preview__strip strong {font-weight:600}.bell-preview__strip strong span { margin-left:16px; font-weight:400; color:var(--crm-color-text-muted) }
+.bell-preview__intro { padding: 86px 6vw; max-width:800px; }
+.bell-preview__eyebrow { font-size:10px; letter-spacing:.13em; color:var(--crm-color-text-faint); }
+.bell-preview h1 { font-size:clamp(28px,4vw,54px);line-height:1.1; letter-spacing:-.04em; margin:22px 0; font-weight:550; }
+.bell-preview h1 span {color:var(--crm-color-text-muted)}
+.bell-preview__intro > p:not(.bell-preview__eyebrow) {font-size:13px;line-height:1.7;color:var(--crm-color-text-muted)}
+.bell-preview__states,.bell-preview__edges {display:flex;gap:8px;flex-wrap:wrap;margin:28px 0 18px;max-width:440px}
+.bell-preview__states button,.bell-preview__edges button {padding:9px 12px;font-size:11px; border:1px solid var(--crm-color-line-subtle);border-radius:8px;}
+.bell-preview__states button:hover {background:var(--crm-color-surface-raised)}
+.bell-preview__edges {margin-top:36px;color:var(--crm-color-text-muted)}
+.bell-preview button:focus-visible {outline:2px solid #67e8f9;outline-offset:2px}
+@media(max-width:640px) {.bell-preview__intro {padding:30px 24px}.bell-preview__strip {padding:0 18px}}

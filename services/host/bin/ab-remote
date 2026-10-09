@@ -1,0 +1,4 @@
+#!/bin/sh
+# ab-remote: hosted chats on the Mac mini or siso-vps, shown and talked to in Agent Base on this laptop (see ../src/remote.ts).
+DIR="$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)"
+exec node --experimental-strip-types --no-warnings "$DIR/src/remote.ts" "$@"

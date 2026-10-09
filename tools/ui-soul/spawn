@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# ui-soul spawn: start a Codex Sol UI worker on one board task. It makes a worktree off ui/opus, fills in brief.md,
+# tags the task with the soul's name, and runs codex-run at effort high in the background.
+# Usage: tools/ui-soul/spawn NAME TASK COMP SLUG PORT "TITLE" "HIS WORDS" "THE ASK"
+set -euo pipefail
+# Explicit Mini path is receipt-backed and does not alter the legacy local path.
+if [[ "${1:-}" == --mini ]]; then
+  shift
+  exec python3 "$(dirname "$0")/../ab-mini-run.py" ui-soul "$@"
+fi
+[ $# -eq 8 ] || { sed -n 2,4p "$0"; exit 2; }
+NAME=$1 TASK=$2 COMP=$3 SLUG=$4 PORT=$5 TITLE=$6 WORDS=$7 ASK=$8
+here=$(cd "$(dirname "$0")/../.." && pwd); lane=ui-$(echo "$SLUG" | tr 'A-Z' 'a-z'); wt=$(dirname "$here")/$lane
+A0T=~/SISO_Workspace/SISO_Agents/agent-zero/siso-agent-zero/bin/a0-task
+[ -d "$wt" ] || git -C "$here" worktree add -q "$wt" -b "ui/${lane#ui-}" ui/opus
+python3 - "$here/tools/ui-soul/brief.md" "$wt/.ui-soul-brief.md" "$@" "ui/${lane#ui-}" <<'PY'
+import sys; src, dst, name, task, comp, slug, port, title, words, ask, branch = sys.argv[1:]
+t = open(src).read()
+for k, v in dict(NAME=name, TASK=task, COMP=comp, SLUG=slug, PORT=port, TITLE=title, WORDS=words, ASK=ask, BRANCH=branch).items(): t = t.replace("{{%s}}" % k, v)
+open(dst, "w").write(t)
+PY
+$A0T set "$TASK" agent="$NAME" --by "AGENT BASE UI" >/dev/null; $A0T move "$TASK" building --note "UI soul $NAME" --by UI >/dev/null 2>&1 || true
+cd "$wt"; SISO_BATCH=ui-soul SISO_ABOUT="$TITLE" nohup codex-run --as "$NAME" --sol --why "UI soul: $TITLE ($TASK)" -e high -C . .ui-soul-brief.md > "/tmp/ui-soul-$NAME.log" 2>&1 &
+echo "ui-soul: $NAME on $TASK in $wt (log /tmp/ui-soul-$NAME.log, pid $!)"

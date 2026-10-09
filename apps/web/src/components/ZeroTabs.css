@@ -1,0 +1,56 @@
+.zero-tabs { display:flex; align-items:center; gap:5px; position:relative; min-width:0; color:var(--crm-color-text); font:12px/1.2 var(--font-sans); }
+.zero-tab-wrap { position:relative; }
+.zero-tab,.zero-spawn { height:30px; display:flex; align-items:center; gap:7px; padding:0 9px; border:1px solid var(--crm-color-line); border-radius:7px; color:var(--crm-color-text-muted); background:var(--crm-color-surface); cursor:pointer; white-space:nowrap; }
+.zero-tab:hover,.zero-spawn:hover { background:var(--crm-color-surface-raised); color:var(--crm-color-text); }
+.zero-tab.is-current { color:var(--crm-color-text); box-shadow:inset 0 0 0 1px var(--crm-color-brand); }
+.zero-tab.is-off { border-style:dashed; opacity:.72; }
+.zero-tab-id { color:var(--crm-color-text-faint); font:10px/1 var(--font-mono); }
+.zero-tab input { width:110px; color:inherit; background:transparent; border:0; outline:0; }
+.zero-tab [title] { border-radius:50%; }
+.zero-harness { color:var(--crm-color-text-faint); font-size:9px; letter-spacing:.06em; }
+.zero-state { width:6px; height:6px; border-radius:50%; display:inline-block; flex:none; background:var(--crm-color-text-faint); }
+.state-working { background:var(--color-working); }.state-done { background:var(--color-done); }.state-idle { background:var(--crm-color-text-faint); }.state-off { background:transparent; border:1px solid var(--crm-color-text-faint); }
+.zero-menu { position:absolute; z-index:100; top:38px; left:0; width:620px; max-height:min(900px,calc(100vh - 70px)); display:flex; flex-direction:column; border:1px solid var(--crm-color-line); border-radius:12px; background:var(--crm-color-surface-raised); box-shadow:0 18px 55px rgb(0 0 0 / 38%); overflow:hidden; }
+.zero-menu-head { display:flex; gap:11px; align-items:center; padding:16px 17px 11px; }
+.zero-face { border-radius:50%; background:color-mix(in srgb,var(--crm-color-brand) 12%,transparent); }
+.zero-head-copy { min-width:0; display:grid; gap:4px; flex:1; }
+.zero-head-copy strong { font-size:14px; color:var(--crm-color-text); }
+.zero-head-copy span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--crm-color-text-muted); font-size:11px; }
+.zero-menu-head button,.zero-expand { display:grid; place-items:center; border:0; background:transparent; color:var(--crm-color-text-muted); cursor:pointer; }
+.zero-menu-summary { padding:0 17px 12px 64px; color:var(--crm-color-text-muted); font-size:11px; border-bottom:1px solid var(--crm-color-line); }
+.zero-menu-scroll { overflow:auto; padding:5px 12px 12px; }
+.zero-group-title { padding:8px 7px 5px; color:var(--crm-color-text-faint); font-size:10px; text-transform:uppercase; letter-spacing:.09em; }
+.zero-owner-row { min-height:46px; display:flex; align-items:center; gap:8px; padding:4px 7px; border-radius:7px; box-shadow:inset 2px 0 0 transparent; }
+.zero-owner-row.is-working { box-shadow:inset 2px 0 0 hsl(var(--owner-hue)); }
+.zero-owner-row:hover { background:var(--crm-color-sidebar-row-hover); }
+.zero-expand { width:20px; height:24px; flex:none; }
+.zero-expand svg { transition:transform .12s; }
+.zero-expand svg.is-expanded { transform:rotate(90deg); }
+.zero-owner-face { border-radius:50%; flex:none; }
+.zero-owner-open { flex:1; min-width:140px; display:grid; gap:3px; text-align:left; border:0; background:transparent; color:var(--crm-color-text); cursor:pointer; }
+.zero-owner-main { display:flex; align-items:baseline; gap:6px; min-width:0; white-space:nowrap; }
+.zero-owner-open .zero-owner-role { overflow:hidden; color:var(--crm-color-text); font:700 10px/1.2 var(--font-sans); text-overflow:ellipsis; }
+.zero-owner-open .zero-owner-name { overflow:hidden; font:11px/1.2 var(--font-mono); text-overflow:ellipsis; }
+.zero-owner-open small:has(.zero-owner-plan) { display:flex; align-items:center; gap:5px; }
+.zero-owner-plan { flex:none; padding:1px 4px; border-radius:3px; color:var(--crm-color-brand); background:color-mix(in srgb,var(--crm-color-brand) 14%,transparent); font:9px/1.3 var(--font-mono); }
+.zero-owner-plan-title { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.zero-owner-count { color:var(--crm-color-text-muted); font-size:10px; }
+.zero-owner-working { color:var(--color-working); }
+.zero-owner-open small { overflow:hidden; color:var(--crm-color-text-faint); font-size:10px; text-overflow:ellipsis; white-space:nowrap; }
+.zero-owner-count { white-space:nowrap; }
+.zero-owner-status { padding:5px 8px; border-radius:999px; background:var(--crm-color-surface); color:var(--crm-color-text-muted); font-size:10px; white-space:nowrap; }
+.zero-owner-status.state-working { color:var(--color-working); }
+.zero-owner-status.state-done { color:var(--color-done); }
+.zero-workers { margin:0 0 5px 29px; padding:3px 0 4px 17px; border-left:1px solid var(--crm-color-line); }
+.zero-worker { width:100%; min-height:32px; display:flex; align-items:center; gap:4px; padding:3px 8px; text-align:left; border:0; border-radius:5px; background:transparent; color:var(--crm-color-text-muted); font-size:10px; cursor:pointer; }
+.zero-worker:hover,.zero-more:hover { color:var(--crm-color-text); background:var(--crm-color-sidebar-row-hover); }
+.zero-worker > span { min-width:0; flex:1; display:grid; gap:3px; overflow:hidden; font:10px/1.1 var(--font-mono); }
+.zero-worker b { overflow:hidden; font-weight:400; text-overflow:ellipsis; white-space:nowrap; }
+.zero-worker small { color:var(--crm-color-text-faint); font:10px/1.1 var(--font-sans); }
+.zero-worker em { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-align:right; font-style:normal; color:var(--crm-color-text-faint); }
+.zero-more { margin:3px 0 0 13px; padding:5px 8px; border:0; background:transparent; color:var(--crm-color-brand); font-size:10px; cursor:pointer; }
+.zero-menu footer { border-top:1px solid var(--crm-color-line); padding:8px 13px; }
+.zero-menu footer button { display:flex; align-items:center; gap:8px; padding:6px; border:0; background:transparent; color:var(--crm-color-text-muted); cursor:pointer; font-size:11px; }
+@media(max-width:700px) { .zero-menu { width:min(620px,calc(100vw - 18px)); }.zero-owner-count { display:none; } }
+
+.zero-manager-tab { margin-left:2px; }

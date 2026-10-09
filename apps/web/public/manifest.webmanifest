@@ -1,0 +1,23 @@
+{
+  "name": "Agent Base",
+  "short_name": "Agent Base",
+  "description": "Shaan's agents: talk, glance, answer.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0d0e0d",
+  "theme_color": "#0d0e0d",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

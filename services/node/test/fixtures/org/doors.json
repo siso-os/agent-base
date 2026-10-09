@@ -1,0 +1,12 @@
+{
+  "_what": "Fake agency doors for the org model test.",
+  "doors": {},
+  "what": {
+    "SISO_Agency/clients/fullora": "Fullora: subscription app client.",
+    "SISO_Agency/clients/home-essentials": "Home Essentials: Shopify client (offboarded 24 Sep).",
+    "SISO_Agency/partners/fahmy/clients/melanotresses": "MelanoTresses: website client (offboarded 24 Sep)."
+  },
+  "repo_note": {},
+  "repos": {},
+  "manifests": {}
+}

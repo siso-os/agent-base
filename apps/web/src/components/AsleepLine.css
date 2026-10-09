@@ -1,0 +1,8 @@
+.ab-asleep-line { display:flex; align-items:center; gap:8px; padding:9px 14px; font-size:12px; line-height:1.5; color:var(--crm-color-ink-muted); }
+.ab-asleep-line > svg { flex:none; color:var(--crm-color-ink-soft); }
+.ab-asleep-line > span { flex:1; min-width:0; overflow-wrap:anywhere; }
+.ab-asleep-line small { font-size:inherit; opacity:.75; }
+.ab-asleep-line button { display:inline-flex; align-items:center; gap:4px; flex:none; font:inherit; color:inherit; }
+.ab-asleep-line[data-state=failed] { color:var(--crm-color-danger,#f59a8d); }
+.ab-asleep-line button:focus-visible { outline:2px solid currentColor; outline-offset:3px; }
+@media(max-width:500px) { .ab-asleep-line { flex-wrap:wrap; } .ab-asleep-line button { margin-left:23px; } }

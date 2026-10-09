@@ -1,0 +1,201 @@
+#!/usr/bin/env node
+// ab-workshop: Agent Base's build lane on the Mac mini, a launchd service that works a queue of asks whether the laptop
+// is on or off (t-0549; Shaan via Agent Zero, 8 Oct: "Agent Base's build lane persistently on the Mac mini, so tasks
+// queue and get done in the background whether the laptop is on or off, and he reads updates whenever").
+//
+// One ask at a time: the runner starts a fresh siso-host chat (Codex, the one builder) in tmux ab-owners on the train
+// worktree, so it shows in the laptop's fleet through the ab-remote bridge like any mini chat. When its turn ends the
+// runner closes the chat, files the ask under done/ and starts the next. The builder writes its report to
+// done/<id>.md; STATUS.md is the page anyone reads. Lanes: priority, papercut, feature. After a priority ask, a waiting
+// papercut goes next, so small things get sorted while the big ones integrate.
+//
+//   ab-workshop add --lane priority|papercut|feature --id t-NNNN --title "..." [--spec PATH] [--file ASK.md]
+//   ab-workshop status [--json]      ab-workshop pause | resume      ab-workshop run (launchd)
+//   ab-workshop install | uninstall  (copies itself to ~/.local/share/agent-base/workshop.mjs, LaunchAgent
+//                                     com.siso.agent-base.workshop)
+// Files: ~/SISO_Workspace/_data/ab-workshop/{queue,doing,done}/, BRIEF.md, config.json, state.json, log.jsonl, STATUS.md.
+// Guards: an ask runs at most 3 h; a chat that dies without a report is retried once; two asks in a row with no report
+// pause the lane (PAUSED file) and say why in STATUS.md.
+import fs from "node:fs";
+import path from "node:path";
+import os from "node:os";
+import { execFileSync } from "node:child_process";
+
+const HOME = os.homedir();
+const DIR = process.env.AB_WORKSHOP_DIR ?? path.join(HOME, "SISO_Workspace/_data/ab-workshop");
+const WT = path.join(HOME, "SISO_Workspace/_data/worktrees/siso-internal-labs-agent-base");
+const HOSTS = process.env.AB_HOSTS_DIR ?? path.join(HOME, ".local/state/agent-base/hosts");
+const LABEL = "com.siso.agent-base.workshop";
+const PATHS = `${HOME}/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin`;
+const LANES = ["priority", "papercut", "feature"];
+const TICK = Number(process.env.AB_WORKSHOP_TICK_MS ?? 15_000);
+const d = (...p) => path.join(DIR, ...p);
+
+function config() {
+  let c = {};
+  try { c = JSON.parse(fs.readFileSync(d("config.json"), "utf8")); } catch {}
+  return {
+    name: "AB-ASTRA", model: "gpt-6-astra", effort: "high", maxMinutes: 180, session: "ab-owners",
+    cwd: path.join(WT, "train"), host: path.join(WT, "remote-host/services/host/bin/siso-host"), brief: d("BRIEF.md"), ...c,
+  };
+}
+const now = () => new Date().toISOString();
+const read = (f, dflt) => { try { return JSON.parse(fs.readFileSync(f, "utf8")); } catch { return dflt; } };
+function write(f, v) { const t = `${f}.tmp`; fs.writeFileSync(t, typeof v === "string" ? v : JSON.stringify(v, null, 2) + "\n"); fs.renameSync(t, f); }
+const log = (e) => fs.appendFileSync(d("log.jsonl"), JSON.stringify({ at: now(), ...e }) + "\n");
+const ls = (sub) => { try { return fs.readdirSync(d(sub)).filter((f) => f.endsWith(".md")).sort(); } catch { return []; } };
+const laneOf = (f) => LANES[Number(f[0]) - 1] ?? "feature";
+const idOf = (f) => f.replace(/\.md$/, "").split("-").slice(2).join("-");
+const sh = (cmd, args, opts = {}) => execFileSync(cmd, args, { encoding: "utf8", timeout: 30_000, stdio: ["ignore", "pipe", "pipe"], env: { ...process.env, PATH: PATHS }, ...opts });
+const ok = (cmd, args, opts) => { try { return { ok: true, out: sh(cmd, args, opts) }; } catch (e) { return { ok: false, out: String(e.stderr || e.message) }; } };
+
+function setup() { for (const s of ["queue", "doing", "done"]) fs.mkdirSync(d(s), { recursive: true }); }
+
+function add(f) {
+  setup();
+  const lane = f.lane ?? "feature", id = f.id;
+  if (!LANES.includes(lane) || !/^[A-Za-z0-9][A-Za-z0-9_.-]{0,40}$/.test(id ?? "")) { console.error("add needs --lane priority|papercut|feature --id t-NNNN"); process.exit(2); }
+  if ([...ls("queue"), ...ls("doing")].some((x) => idOf(x) === id)) { console.error(`${id} is already queued`); process.exit(1); }
+  const seq = String(Date.now()).slice(-9);
+  const body = f.file ? fs.readFileSync(f.file, "utf8")
+    : `# ${id} ${f.title ?? ""}\n\nLane: ${lane}.${f.spec ? `\nSpec: ${f.spec} (read it first; it outranks this line).` : ""}\n`;
+  const name = `${LANES.indexOf(lane) + 1}-${seq}-${id}.md`;
+  write(d("queue", name), body);
+  log({ t: "queued", id, lane, file: name });
+  render();
+  console.log(`queued ${id} (${lane}) as ${name}`);
+}
+
+function next(st) {
+  const q = ls("queue");
+  if (!q.length) return null;
+  const papercut = q.find((f) => laneOf(f) === "papercut");
+  if (st.lastLane === "priority" && papercut) return papercut;
+  return q[0];
+}
+
+const tmux = (args) => ok("tmux", args);
+const windowAlive = (c) => tmux(["list-windows", "-t", c.session, "-F", "#W"]).out.split("\n").includes(c.name);
+const hostRec = (c) => read(path.join(HOSTS, `name-${c.name}.json`), null);
+const pidAlive = (p) => { try { process.kill(p, 0); return true; } catch (e) { return e.code === "EPERM"; } };
+
+function start(st, c, file) {
+  const id = idOf(file), lane = laneOf(file);
+  if (windowAlive(c)) { if (st.note !== "busy") { st.note = "busy"; log({ t: "waiting", why: `a chat called ${c.name} already runs in tmux ${c.session}; the lane starts when it is closed` }); } return; }
+  st.note = null;
+  const pull = ok("git", ["-C", c.cwd, "pull", "--ff-only", "-q"], { timeout: 120_000 });
+  const dirty = ok("git", ["-C", c.cwd, "status", "--porcelain"]).out.split("\n").filter(Boolean).length;
+  fs.renameSync(d("queue", file), d("doing", file));
+  const report = d("done", `${id}.md`);
+  const prompt = `Read ${c.brief} and start: you are ${c.name}, Agent Base's one builder on the Mac mini, run by the workshop ` +
+    `queue (${DIR}). Your ask: ${d("doing", file)} (${id}, ${lane} lane). When you finish, or are blocked, write your final report ` +
+    `to ${report}: the t-id, the train sha you pushed, the checks you ran with results, shots, and what is left. Then end your turn.`;
+  const inner = `PATH=${PATHS} exec ${[c.host, "--harness", "codex", "--name", c.name, "--model", c.model, "--effort", c.effort, "--prompt", prompt].map((s) => `'${String(s).replace(/'/g, `'\\''`)}'`).join(" ")}`;
+  if (!tmux(["has-session", "-t", c.session]).ok) tmux(["new-session", "-d", "-s", c.session, "-n", "home"]);
+  const r = tmux(["new-window", "-d", "-t", c.session, "-n", c.name, "-c", c.cwd, inner]);
+  if (!r.ok) { fs.renameSync(d("doing", file), d("queue", file)); log({ t: "start-failed", id, why: r.out.trim().slice(0, 300) }); st.note = "start-failed"; return; }
+  const attempts = (st.attempts?.[id] ?? 0) + 1;
+  st.attempts = { ...(st.attempts ?? {}), [id]: attempts };
+  st.doing = { id, lane, file, startedAt: now(), sawWorking: false, attempt: attempts };
+  log({ t: "started", id, lane, attempt: attempts, pulled: pull.ok, dirtyFiles: dirty, model: c.model, effort: c.effort });
+}
+
+function finish(st, c, outcome) {
+  const { id, file, lane, startedAt } = st.doing;
+  if (windowAlive(c)) tmux(["kill-window", "-t", `${c.session}:${c.name}`]);
+  const reported = fs.existsSync(d("done", `${id}.md`));
+  const retry = !reported && outcome === "exited" && (st.attempts?.[id] ?? 1) < 2;
+  const stamp = now().replace(/[:.]/g, "").slice(0, 15);
+  fs.renameSync(d("doing", file), retry ? d("queue", file) : d("done", `${stamp}-${file.replace(/\.md$/, "")}.ask.md`));
+  const minutes = Math.round((Date.now() - Date.parse(startedAt)) / 60_000);
+  const sha = ok("git", ["-C", c.cwd, "rev-parse", "--short=8", "HEAD"]).out.trim();
+  log({ t: retry ? "retry" : "done", id, lane, outcome: reported ? "reported" : outcome, minutes, trainHead: sha });
+  st.lastLane = lane;
+  st.misses = reported || retry ? 0 : (st.misses ?? 0) + 1;
+  if (st.misses >= 2) { write(d("PAUSED"), `${now()} paused: two asks in a row ended with no report (last ${id}, ${outcome}). Read log.jsonl, then ab-workshop resume.\n`); log({ t: "paused", why: "two asks in a row with no report" }); }
+  st.doing = null;
+}
+
+function tick(c) {
+  const st = read(d("state.json"), {});
+  if (st.doing) {
+    const rec = hostRec(c), alive = windowAlive(c) && (!rec?.pid || pidAlive(rec.pid));
+    const age = Date.now() - Date.parse(st.doing.startedAt);
+    if (rec?.state === "working" || rec?.state === "blocked") st.doing.sawWorking = true;
+    if (rec?.state === "blocked" && !st.doing.blockedSince) { st.doing.blockedSince = now(); log({ t: "blocked", id: st.doing.id, why: "the chat asks a question; answer it in Agent Base (Mac mini)" }); }
+    if (rec?.state !== "blocked") st.doing.blockedSince = undefined;
+    if (!alive) finish(st, c, "exited");
+    else if (age > c.maxMinutes * 60_000) finish(st, c, "timeout");
+    else if (st.doing.sawWorking && rec?.state === "idle") finish(st, c, "ended");
+    else if (!st.doing.sawWorking && age > 10 * 60_000) finish(st, c, "never-started");
+  }
+  if (!st.doing && !fs.existsSync(d("PAUSED"))) { const f = next(st); if (f) start(st, c, f); }
+  st.tickAt = now();
+  write(d("state.json"), st);
+  render(st);
+}
+
+function render(st = read(d("state.json"), {})) {
+  const c = config(), q = ls("queue"), events = tailLog(12);
+  const done = fs.readdirSync(d("done")).filter((f) => f.endsWith(".md") && !f.endsWith(".ask.md"))
+    .map((f) => ({ f, at: fs.statSync(d("done", f)).mtimeMs })).sort((a, b) => b.at - a.at).slice(0, 10);
+  const paused = fs.existsSync(d("PAUSED")) ? fs.readFileSync(d("PAUSED"), "utf8").trim() : null;
+  const lines = [
+    `# Agent Base workshop (Mac mini)`, ``, `Updated ${now()}. Builder ${c.name} (${c.model}, ${c.effort}) on ${c.cwd}.`, ``,
+    paused ? `**PAUSED:** ${paused}` : st.doing ? `**Now:** ${st.doing.id} (${st.doing.lane}), started ${st.doing.startedAt}, attempt ${st.doing.attempt}.` : `**Now:** nothing running.`,
+    ``, `## Queue (${q.length})`, ...LANES.flatMap((l) => { const xs = q.filter((f) => laneOf(f) === l); return xs.length ? [`- ${l}: ${xs.map(idOf).join(", ")}`] : []; }),
+    ``, `## Reports (newest first)`, ...done.map(({ f }) => `- ${f.replace(/\.md$/, "")}: ${firstLine(d("done", f))} (${d("done", f)})`),
+    ``, `## Log`, ...events.map((e) => `- ${e.at} ${e.t} ${e.id ?? ""} ${e.outcome ?? e.why ?? e.lane ?? ""}`.trimEnd()), ``,
+  ];
+  write(d("STATUS.md"), lines.join("\n"));
+}
+const firstLine = (f) => { try { return fs.readFileSync(f, "utf8").split("\n").find((l) => l.trim())?.replace(/^#+\s*/, "").slice(0, 140) ?? ""; } catch { return ""; } };
+const tailLog = (n) => { try { return fs.readFileSync(d("log.jsonl"), "utf8").trim().split("\n").slice(-n).map((l) => JSON.parse(l)); } catch { return []; } };
+
+async function run() {
+  setup();
+  const c = config();
+  log({ t: "runner", pid: process.pid, name: c.name, model: c.model });
+  for (;;) {
+    try { tick(config()); } catch (e) { log({ t: "tick-error", why: String(e?.stack ?? e).slice(0, 400) }); }
+    await new Promise((r) => setTimeout(r, TICK));
+  }
+}
+
+const uid = () => process.getuid();
+const plist = () => path.join(HOME, "Library/LaunchAgents", `${LABEL}.plist`);
+function install() {
+  setup();
+  const target = path.join(HOME, ".local/share/agent-base/workshop.mjs");
+  fs.mkdirSync(path.dirname(target), { recursive: true });
+  fs.copyFileSync(import.meta.filename, target);
+  const node = sh("/bin/sh", ["-c", "command -v node"]).trim();
+  const x = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  fs.writeFileSync(plist(), `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+  <key>Label</key><string>${LABEL}</string>
+  <key>ProgramArguments</key><array><string>${x(node)}</string><string>${x(target)}</string><string>run</string></array>
+  <key>RunAtLoad</key><true/><key>KeepAlive</key><true/><key>ThrottleInterval</key><integer>10</integer>
+  <key>AbandonProcessGroup</key><true/><key>ProcessType</key><string>Background</string>
+  <key>EnvironmentVariables</key><dict><key>PATH</key><string>${x(PATHS)}</string><key>HOME</key><string>${x(HOME)}</string></dict>
+  <key>StandardOutPath</key><string>${x(d("runner.log"))}</string><key>StandardErrorPath</key><string>${x(d("runner.log"))}</string>
+</dict></plist>
+`);
+  ok("launchctl", ["bootout", `gui/${uid()}/${LABEL}`]);
+  sh("launchctl", ["bootstrap", `gui/${uid()}`, plist()]);
+  console.log(`workshop installed: ${LABEL} runs ${target}; status: ${d("STATUS.md")}`);
+}
+
+function flags(argv) { const f = {}; for (let i = 0; i < argv.length; i++) if (argv[i].startsWith("--")) { const k = argv[i].slice(2); f[k] = argv[i + 1]?.startsWith("--") || argv[i + 1] === undefined ? "1" : argv[++i]; } return f; }
+
+const [cmd, ...rest] = process.argv.slice(2);
+const f = flags(rest);
+if (cmd === "run") await run();
+else if (cmd === "add") add(f);
+else if (cmd === "status") { setup(); if (f.json) console.log(JSON.stringify({ state: read(d("state.json"), {}), queue: ls("queue"), paused: fs.existsSync(d("PAUSED")), log: tailLog(20) }, null, 2)); else { render(); process.stdout.write(fs.readFileSync(d("STATUS.md"), "utf8")); } }
+else if (cmd === "pause") { setup(); write(d("PAUSED"), `${now()} paused by hand${f.why ? `: ${f.why}` : ""}\n`); log({ t: "paused", why: f.why ?? "by hand" }); console.log("paused (the running ask finishes; nothing new starts)"); }
+else if (cmd === "resume") { if (fs.existsSync(d("PAUSED"))) fs.renameSync(d("PAUSED"), d(`done/paused-${Date.now()}.txt`)); const st = read(d("state.json"), {}); st.misses = 0; setup(); write(d("state.json"), st); log({ t: "resumed" }); console.log("resumed"); }
+else if (cmd === "install") install();
+else if (cmd === "uninstall") { ok("launchctl", ["bootout", `gui/${uid()}/${LABEL}`]); console.log("workshop unloaded (plist and queue left in place)"); }
+else { console.log(fs.readFileSync(import.meta.filename, "utf8").split("\nimport ")[0].replace(/^#!.*\n/, "")); process.exit(cmd ? 2 : 0); }

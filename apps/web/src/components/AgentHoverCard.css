@@ -1,0 +1,100 @@
+.ab-hover-trigger { display: inline-flex; min-width: 0; }
+.ab-hover-trigger.is-row { display: block; }
+.ab-hover-face.is-agent { background: none; }
+.ab-hover-trigger:focus-visible { border-radius: 4px; outline: 2px solid var(--crm-color-brand); outline-offset: 3px; }
+/* The frame (glass, border, shadow, top layer) is @siso/shell's .siso-hovercard, shared with every icon's card. */
+.ab-hover-card {
+  display: flex;
+  width: 340px;
+  flex-direction: column;
+  gap: 11px;
+  padding: 14px;
+}
+.ab-hover-card.is-preview { width: 100%; }
+.ab-hover-card::before { position: absolute; inset: 0 0 auto; height: 70px; background: linear-gradient(180deg, color-mix(in srgb, var(--agent-accent) 14%, transparent), transparent); content: ""; pointer-events: none; }
+.ab-hover-card > * { position: relative; }
+.ab-hover-head { display: flex; align-items: center; gap: 11px; }
+.ab-hover-face { position: relative; display: grid; width: 44px; height: 44px; flex: none; place-items: center; border-radius: 12px; background: linear-gradient(140deg, color-mix(in srgb, var(--agent-accent) 85%, white), color-mix(in srgb, var(--agent-accent) 45%, black)); color: var(--crm-color-canvas); font-size: 15px; font-weight: 700; }
+.ab-hover-harness { position: absolute; right: -4px; bottom: -4px; display: grid; width: 18px; height: 18px; place-items: center; border: 1px solid var(--crm-color-line); border-radius: 6px; background: var(--crm-color-chrome); color: var(--agent-accent); }
+.ab-hover-identity { display: flex; min-width: 0; flex: 1; flex-direction: column; gap: 2px; }
+.ab-hover-identity strong { overflow: hidden; color: var(--crm-color-text-strong); font-family: var(--crm-font-mono); font-size: 14px; font-weight: 600; text-overflow: ellipsis; }
+.ab-hover-identity > span { overflow: hidden; color: var(--crm-color-text-muted); font-size: 11.5px; text-overflow: ellipsis; white-space: nowrap; }
+.ab-hover-state { display: inline-flex; flex: none; align-items: center; gap: 6px; padding: 4px 7px; border: 1px solid var(--crm-color-line-subtle); border-radius: 999px; color: var(--crm-color-text-muted); font-size: 10px; }
+.ab-hover-state i { width: 6px; height: 6px; border-radius: 50%; background: var(--crm-color-text-faint); }
+.ab-hover-state.is-working i { background: var(--crm-color-brand); animation: ab-hover-pulse 1.5s ease-in-out infinite; }
+.ab-hover-state.is-done i { background: var(--crm-color-success); }
+.ab-hover-state.is-off i { background: var(--crm-color-danger); }
+.ab-hover-facts { display: flex; flex-wrap: wrap; gap: 6px; }
+.ab-hover-facts span { display: inline-flex; align-items: center; gap: 5px; padding: 4px 8px; border: 1px solid var(--crm-color-line-subtle); border-radius: 7px; background: rgb(var(--crm-white-rgb) / 5%); color: var(--crm-color-text); font-size: 11px; }
+.ab-hover-facts svg { color: var(--crm-color-text-muted); }
+.ab-hover-label { margin-bottom: 5px; color: var(--crm-color-text-faint); font-size: 10px; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; }
+.ab-hover-now { padding: 9px 10px; border: 1px solid color-mix(in srgb, var(--crm-color-brand) 15%, transparent); border-radius: 10px; background: color-mix(in srgb, var(--crm-color-brand) 6%, transparent); }
+.ab-hover-now p { margin: 5px 0 0; color: var(--crm-color-text); font-size: 12px; line-height: 1.45; }
+.ab-hover-now p.is-muted, .ab-hover-empty { margin: 0; color: var(--crm-color-text-muted); font-size: 12px; }
+.ab-plan-chip { display: inline-flex; padding: 3px 6px; border: 1px solid var(--crm-color-line); border-radius: 5px; color: var(--crm-color-text-muted); font-family: var(--crm-font-mono); font-size: 10px; }
+.ab-plan-chip.is-building { border-color: color-mix(in srgb, var(--crm-color-brand) 35%, transparent); color: var(--crm-color-brand); }
+.ab-plan-chip.is-checked, .ab-plan-chip.is-built { color: var(--crm-color-success); }
+.ab-hover-report > span { display: inline-flex; align-items: center; gap: 5px; color: var(--crm-color-text-muted); font-size: 10.5px; }
+.ab-hover-report p { display: -webkit-box; margin: 3px 0 0; overflow: hidden; color: var(--crm-color-text); font-size: 11.5px; line-height: 1.45; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
+.ab-hover-plan { display: flex; align-items: center; gap: 10px; color: var(--crm-color-text-muted); font-size: 11px; }
+.ab-hover-stack { display: flex; height: 6px; min-width: 50px; flex: 1; overflow: hidden; gap: 2px; border-radius: 5px; background: var(--crm-color-line); }
+.ab-hover-stack i { border-radius: 4px; background: var(--crm-color-text-faint); }
+.ab-hover-stack .is-asked { background: var(--crm-color-text-faint); }
+.ab-hover-stack .is-specced { background: var(--crm-color-text-muted); }
+.ab-hover-stack .is-allocated { background: var(--crm-color-brand-hover); }
+.ab-hover-stack .is-building { background: var(--crm-color-brand); }
+.ab-hover-stack .is-built, .ab-hover-stack .is-checked { background: var(--crm-color-success); }
+.ab-hover-stack .is-parked, .ab-hover-stack .is-dropped { background: var(--crm-color-text-faint); }
+.ab-hover-foot { padding-top: 9px; border-top: 1px solid var(--crm-color-line-subtle); color: var(--crm-color-text-faint); font-size: 10px; }
+@keyframes ab-hover-pulse { 50% { box-shadow: 0 0 0 4px color-mix(in srgb, var(--crm-color-brand) 18%, transparent); } }
+@media (prefers-reduced-motion: reduce) { .ab-hover-state.is-working i { animation: none; } }
+/* The side nav's additions (sidenav spec "Hover card"): its workers, its limits, three buttons. */
+.ab-hover-crew { display: flex; flex-direction: column; gap: 3px; }
+.ab-hover-crew > div { display: flex; min-width: 0; align-items: center; gap: 7px; font-size: 11.5px; }
+.ab-hover-crew b { flex: none; font: 600 11px var(--crm-font-mono); }
+.ab-hover-crew span { min-width: 0; flex: 1; overflow: hidden; color: var(--crm-color-text-faint); text-overflow: ellipsis; white-space: nowrap; }
+.ab-hover-limit { display: grid; grid-template-columns: 58px 1fr 34px; align-items: center; gap: 8px; color: var(--crm-color-text-faint); font-size: 11px; }
+.ab-hover-limit i { height: 4px; overflow: hidden; border-radius: 2px; background: rgb(var(--crm-white-rgb) / 0.08); }
+.ab-hover-limit i > b { display: block; height: 100%; border-radius: 2px; background: #34d399; }
+.ab-hover-limit i > b.is-mid { background: #f0b03f; }
+.ab-hover-limit i > b.is-high { background: #ef5b4c; }
+.ab-hover-limit em { font: 500 10.5px var(--crm-font-mono); font-style: normal; text-align: right; }
+.ab-hover-buttons { display: flex; gap: 6px; padding-top: 10px; border-top: 1px solid var(--crm-color-line-subtle); }
+.ab-hover-buttons button { flex: 1; height: 28px; border: 1px solid var(--crm-color-line-subtle); border-radius: 8px; color: var(--crm-color-text); font-size: 11.5px; }
+.ab-hover-buttons button:hover { background: rgb(var(--crm-white-rgb) / 0.06); }
+.ab-hover-buttons button.is-brand { border-color: transparent; background: var(--crm-color-brand); color: #1a1205; font-weight: 600; }
+
+/* t-0269: fields he changes in place. Plain text until hovered; a pencil shows it can be changed. */
+.ab-hover-field { display: inline-flex; min-width: 0; max-width: 100%; align-items: center; gap: 5px; margin: 0 -4px; padding: 1px 4px; border: 0; border-radius: 5px; background: none; color: inherit; font: inherit; text-align: left; cursor: text; }
+.ab-hover-field > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ab-hover-field > svg { flex: none; color: var(--crm-color-text-faint); opacity: 0; transition: opacity .12s; }
+.ab-hover-field:hover, .ab-hover-field:focus-visible { background: rgb(var(--crm-white-rgb) / 7%); outline: none; }
+.ab-hover-field:hover > svg, .ab-hover-field:focus-visible > svg { opacity: 1; }
+.ab-hover-field.is-empty > span { color: var(--crm-color-text-faint); font-style: italic; }
+.ab-hover-field.is-role { color: var(--crm-color-text); font-size: 11.5px; }
+.ab-hover-field.is-domain { font-size: 12px; }
+.ab-hover-edit { width: 100%; min-width: 0; margin: 0 -4px; padding: 1px 4px; border: 1px solid color-mix(in srgb, var(--agent-accent) 60%, transparent); border-radius: 5px; background: rgb(var(--crm-white-rgb) / 6%); color: var(--crm-color-text-strong); font: inherit; outline: none; }
+.ab-hover-edit.is-role, .ab-hover-edit.is-domain { font-size: 12px; }
+.ab-hover-domain { display: flex; min-width: 0; align-items: baseline; gap: 8px; }
+.ab-hover-domain .ab-hover-label { margin: 0; }
+
+/* Lane popups (9 Oct): the strip between row and card (it fills only the gap, hoverIntent.ts writes its box). */
+.ab-hover-bridge { position: fixed; z-index: 2147482999; }
+/* A cold open rises in (140 ms, transform and opacity only); a swap between agents is instant, so moving down the list never blinks. */
+.ab-hover-card[data-enter="cold"]:not(.is-preview) { animation: ab-hover-in 140ms cubic-bezier(.2, .8, .2, 1) both; }
+@keyframes ab-hover-in { from { opacity: 0; transform: translateX(-4px) scale(.985); } }
+/* No chat yet: one calm line, not three empty sections. */
+.ab-hover-empty.is-nochat { display: flex; align-items: flex-start; gap: 9px; padding: 10px; border: 1px dashed var(--crm-color-line); border-radius: 10px; }
+.ab-hover-empty.is-nochat svg { flex: none; margin-top: 1px; color: var(--crm-color-text-faint); }
+.ab-hover-empty.is-nochat b { display: block; margin-bottom: 2px; color: var(--crm-color-text); font-weight: 600; }
+/* The peek at its chat: four lines at most with a soft fade; a working agent's words fade in when they change. */
+.ab-hover-report p { -webkit-line-clamp: 4; }
+.ab-hover-report.is-live p { min-height: calc(11.5px * 1.45 * 2); animation: ab-hover-words 180ms ease-out both; }
+@keyframes ab-hover-words { from { opacity: .35; } }
+.ab-hover-live { margin-left: 6px; padding: 1px 5px; border-radius: 4px; background: color-mix(in srgb, var(--crm-color-brand) 14%, transparent); color: var(--crm-color-brand); font-size: 9.5px; font-style: normal; font-weight: 600; letter-spacing: .04em; }
+.ab-hover-more { display: block; margin-top: 4px; color: var(--crm-color-text-faint); font-size: 10px; }
+@media (prefers-reduced-motion: reduce) {
+  .ab-hover-card[data-enter="cold"]:not(.is-preview) { animation: ab-hover-fade 80ms linear both; }
+  .ab-hover-report.is-live p { animation: none; }
+}
+@keyframes ab-hover-fade { from { opacity: 0; } }

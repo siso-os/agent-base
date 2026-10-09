@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# Call once after a successful release receipt; no deploy/restart responsibilities.
+# Optional --companion-receipt binds the isolated Estate artifact to this preparation.
+set -euo pipefail
+exec python3 "$(dirname "$0")/ab-mini-run.py" qa "$@"

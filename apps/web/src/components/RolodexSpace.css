@@ -1,0 +1,292 @@
+/* The Rolodex v3 (ROLODEX, 7 Oct): side nav (shared SideNav) + list + person page, and the sort deck. App tokens only. */
+:root { --rx-client: #38bdf8; --rx-partner: var(--color-brand); --rx-friend: #34c38f; --rx-family: #f472b6; --rx-network: #a78bfa; --rx-want: #f0b03f;
+  --rx-off: var(--color-muted-foreground); --rx-red: #f87171; }
+[data-level="client"] { --rx: var(--rx-client); } [data-level="partner"] { --rx: var(--rx-partner); } [data-level="friend"] { --rx: var(--rx-friend); }
+[data-level="family"] { --rx: var(--rx-family); } [data-level="network"] { --rx: var(--rx-network); } [data-level="want"] { --rx: var(--rx-want); }
+[data-level="off"] { --rx: var(--rx-off); }
+
+.rolodex-navfoot { margin: 0 var(--space-3) var(--space-3); padding: 6px 10px; border-radius: 9px; font-size: 11px; color: var(--color-muted-foreground); background: var(--color-surface); }
+.rolodex-navsub { color: var(--color-muted-foreground); font-weight: 400; }
+.rolodex-navmore { font-size: 11px; color: var(--color-secondary-label); background: none; border: 0; cursor: pointer; padding: 0; }
+.rolodex-navmore:hover { color: var(--color-foreground); }
+
+.rolodex-space { container: rolodex / inline-size; --rx: var(--rx-off); position: relative; display: flex; flex-direction: column; flex: 1; min-width: 0; height: 100%; min-height: 0; padding: var(--space-4) var(--space-6) 0;
+  box-sizing: border-box; background: var(--color-page); color: var(--color-foreground); overflow: hidden; }
+.rolodex-header { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); margin-bottom: var(--space-4); flex-wrap: wrap; }
+.rolodex-heading { display: flex; align-items: center; gap: var(--space-3); min-width: 0; }
+.rolodex-heading h1 { font-size: 18px; margin: 0; font-weight: 600; letter-spacing: -.01em; }
+.rolodex-heading p { margin: 2px 0 0; color: var(--color-secondary-label); font-size: 12.5px; }
+.rolodex-error { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2) var(--space-3); margin-bottom: var(--space-3); border: 1px solid color-mix(in srgb, var(--rx-red) 50%, transparent);
+  border-radius: var(--radius-ctrl); font-size: 13px; color: var(--rx-red); background: color-mix(in srgb, var(--rx-red) 8%, transparent); }
+.rolodex-btn { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 12px; border: 1px solid var(--color-border); border-radius: var(--radius-ctrl);
+  background: var(--color-surface); color: var(--color-foreground); font: inherit; font-size: 12.5px; cursor: pointer; text-decoration: none; white-space: nowrap; }
+.rolodex-btn:hover:not(:disabled) { background: var(--color-raised); }
+.rolodex-btn:disabled { opacity: .45; cursor: default; }
+.rolodex-btn.is-primary { border-color: color-mix(in srgb, var(--color-brand) 55%, transparent); background: color-mix(in srgb, var(--color-brand) 16%, transparent); color: var(--color-brand); }
+.rolodex-btn.is-primary:hover:not(:disabled) { background: color-mix(in srgb, var(--color-brand) 24%, transparent); }
+.rolodex-sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.rolodex-faint { color: var(--color-muted-foreground); font-size: 12px; margin: 0; }
+
+/* List */
+.rolodex-body { display: flex; gap: var(--space-4); flex: 1; min-height: 0; }
+.rolodex-col { display: flex; flex-direction: column; flex: 1; min-width: 0; max-width: 760px; min-height: 0; }
+.rolodex-body.has-person .rolodex-col { flex: 0 0 340px; }
+.rolodex-tools { display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-3); }
+.rolodex-search { flex: 1; display: flex; align-items: center; gap: var(--space-2); height: 34px; padding: 0 var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-ctrl);
+  background: var(--color-surface); color: var(--color-secondary-label); }
+.rolodex-search input { flex: 1; min-width: 0; border: 0; outline: none; background: transparent; color: var(--color-foreground); font: inherit; font-size: 13px; }
+.rolodex-search:focus-within { outline: 2px solid color-mix(in srgb, var(--color-brand) 70%, transparent); outline-offset: 1px; }
+.rolodex-sort { display: inline-flex; padding: 2px; border: 1px solid var(--color-border); border-radius: var(--radius-ctrl); background: var(--color-surface); }
+.rolodex-sort button { height: 26px; padding: 0 10px; border: 0; border-radius: 6px; background: transparent; color: var(--color-secondary-label); font: inherit; font-size: 12px; cursor: pointer; }
+.rolodex-sort button[aria-pressed="true"] { background: var(--color-raised); color: var(--color-foreground); }
+.rolodex-list { flex: 1; min-height: 0; overflow-y: auto; padding-bottom: var(--space-6); }
+.rolodex-divider { position: sticky; top: 0; z-index: 1; padding: 8px 10px 4px; font-size: 11px; font-weight: 600; letter-spacing: .06em; color: var(--color-muted-foreground); background: var(--color-page); }
+.rolodex-row { display: flex; align-items: center; gap: var(--space-3); min-height: 54px; padding: 6px 10px; border-radius: 10px; cursor: pointer; position: relative; outline: none; }
+.rolodex-row:hover { background: var(--color-surface); }
+.rolodex-row:focus-visible { box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--color-brand) 60%, transparent); }
+.rolodex-row[aria-selected="true"] { background: var(--color-raised); }
+.rolodex-row[aria-selected="true"]::before { content: ""; position: absolute; left: 0; top: 12px; bottom: 12px; width: 2px; border-radius: 2px; background: var(--rx, var(--color-brand)); }
+.rolodex-row__text { display: flex; flex-direction: column; min-width: 0; flex: 1; gap: 2px; }
+.rolodex-row__name { display: flex; align-items: center; gap: 8px; font-size: 13.5px; font-weight: 550; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rolodex-row__level { font-size: 10.5px; font-weight: 500; padding: 1px 7px; border-radius: var(--radius-pill); color: var(--rx); background: color-mix(in srgb, var(--rx) 12%, transparent); }
+.rolodex-row__line { font-size: 12px; color: var(--color-muted-foreground); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rolodex-row__right { display: flex; align-items: center; gap: 8px; color: var(--color-muted-foreground); font-size: 11.5px; font-variant-numeric: tabular-nums; flex-shrink: 0; }
+.rolodex-quietdot { width: 6px; height: 6px; border-radius: 50%; background: var(--rx-want); }
+.rolodex-tile { display: grid; place-items: center; flex-shrink: 0; width: 34px; height: 34px; border-radius: 10px; font-size: 12px; font-weight: 650; letter-spacing: .02em;
+  color: var(--rx); background: color-mix(in srgb, var(--rx) 15%, transparent); border: 1px solid color-mix(in srgb, var(--rx) 32%, transparent); }
+.rolodex-tile.is-proposed { border-style: dashed; }
+.rolodex-tile.is-hero { width: 64px; height: 64px; border-radius: 18px; font-size: 22px;
+  background: radial-gradient(120% 120% at 30% 20%, color-mix(in srgb, var(--rx) 30%, transparent), color-mix(in srgb, var(--rx) 8%, transparent)); box-shadow: 0 8px 28px -12px color-mix(in srgb, var(--rx) 60%, transparent); }
+.rolodex-empty { display: flex; flex-direction: column; align-items: center; gap: var(--space-3); padding: 56px var(--space-4); color: var(--color-muted-foreground); text-align: center; font-size: 13px; }
+.rolodex-empty p { margin: 0; }
+.rolodex-skel > div { display: flex; align-items: center; gap: 12px; height: 54px; max-width: 520px; }
+.rolodex-skel span { width: 34px; height: 34px; border-radius: 10px; background: var(--color-surface); }
+.rolodex-skel i { flex: 1; height: 10px; border-radius: 5px; background: var(--color-surface); }
+
+/* Want to know bar */
+.rolodex-want { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 4px 4px 4px 12px; border: 1px solid var(--color-border); border-radius: var(--radius-ctrl);
+  background: var(--color-surface); color: var(--color-secondary-label); min-width: min(560px, 100%); }
+.rolodex-want input { flex: 1; min-width: 200px; height: 30px; border: 0; outline: none; background: transparent; color: var(--color-foreground); font: inherit; font-size: 13px; }
+.rolodex-want input.is-why { flex: .6; min-width: 120px; border-left: 1px solid var(--color-border); padding-left: 10px; }
+.rolodex-want__error { flex-basis: 100%; font-size: 12px; color: var(--rx-red); padding: 0 0 4px; }
+
+/* Person page */
+.rolodex-person { container: person / inline-size; position: relative; flex: 1; min-width: 0; min-height: 0; overflow-y: auto; padding: var(--space-4) var(--space-4) var(--space-8); border: 1px solid var(--color-border);
+  border-bottom: 0; border-radius: 16px 16px 0 0; background: linear-gradient(180deg, color-mix(in srgb, var(--rx) 7%, var(--color-surface)) 0, var(--color-surface) 180px); }
+.rolodex-person__close { position: absolute; top: 14px; right: 14px; display: grid; place-items: center; width: 28px; height: 28px; border: 0; border-radius: 8px; background: transparent; color: var(--color-muted-foreground); cursor: pointer; }
+.rolodex-person__close:hover { background: var(--color-raised); color: var(--color-foreground); }
+.rolodex-person__hero { display: flex; gap: var(--space-4); align-items: flex-start; padding-right: 36px; }
+.rolodex-person__title { min-width: 0; flex: 1; }
+.rolodex-person__name { margin: 2px 0 0; font-size: 22px; font-weight: 650; letter-spacing: -.015em; }
+.rolodex-person__name button { display: inline-flex; align-items: center; gap: 8px; border: 0; padding: 0; background: none; color: inherit; font: inherit; cursor: text; text-align: left; }
+.rolodex-person__name button svg { opacity: 0; color: var(--color-muted-foreground); transition: opacity .12s; }
+.rolodex-person__name button:hover svg { opacity: 1; }
+.rolodex-person__nameinput { font: inherit; font-size: 22px; font-weight: 650; width: 100%; background: var(--color-page); color: var(--color-foreground); border: 1px solid var(--color-border); border-radius: 8px; padding: 2px 8px; }
+.rolodex-person__full { margin: 2px 0 0; color: var(--color-secondary-label); font-size: 13px; }
+.rolodex-person__chips { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 10px; }
+.rolodex-person__actions { display: flex; flex-wrap: wrap; gap: 8px; margin: var(--space-4) 0; }
+.rolodex-person__error { margin: 0 0 var(--space-3); font-size: 12.5px; color: var(--rx-red); }
+.rolodex-person__cols { display: grid; grid-template-columns: minmax(260px, 1fr) minmax(300px, 1.25fr); gap: var(--space-4); align-items: start; }
+@container person (max-width: 640px) { .rolodex-person__cols { grid-template-columns: 1fr; } }
+.rolodex-person__right { display: flex; flex-direction: column; gap: var(--space-4); min-width: 0; }
+.rolodex-chip { display: inline-flex; align-items: center; gap: 5px; height: 24px; padding: 0 9px; border: 1px solid var(--color-border); border-radius: var(--radius-pill);
+  background: var(--color-page); color: var(--color-secondary-label); font: inherit; font-size: 11.5px; cursor: pointer; white-space: nowrap; }
+.rolodex-chip:hover:not(.is-static):not(:disabled) { color: var(--color-foreground); background: var(--color-raised); }
+.rolodex-chip.is-static { cursor: default; }
+.rolodex-chip.is-gap { border-style: dashed; color: var(--rx-want); cursor: default; }
+.rolodex-chip[data-level] { color: var(--rx); border-color: color-mix(in srgb, var(--rx) 40%, transparent); }
+.rolodex-chip a { color: inherit; text-decoration: none; }
+.rolodex-chip button { display: grid; place-items: center; border: 0; background: none; color: inherit; padding: 0; cursor: pointer; opacity: .6; }
+.rolodex-chip i { width: 7px; height: 7px; border-radius: 50%; background: var(--rx); }
+.rolodex-level { position: relative; display: inline-flex; gap: 6px; }
+.rolodex-levelpill { display: inline-flex; align-items: center; gap: 4px; height: 24px; padding: 0 10px; border-radius: var(--radius-pill); border: 1px solid color-mix(in srgb, var(--rx) 50%, transparent);
+  background: color-mix(in srgb, var(--rx) 14%, transparent); color: var(--rx); font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; }
+.rolodex-levelpill.is-proposed { border-style: dashed; }
+.rolodex-levelpill__q { opacity: .7; }
+.rolodex-menu { position: absolute; top: 30px; left: 0; z-index: 20; min-width: 200px; padding: 6px; border: 1px solid var(--color-border); border-radius: 12px; background: var(--color-raised);
+  box-shadow: 0 16px 40px -12px rgb(0 0 0 / .6); }
+.rolodex-menu p { margin: 2px 8px 6px; font-size: 11px; color: var(--color-muted-foreground); }
+.rolodex-menu button { display: flex; align-items: center; gap: 8px; width: 100%; height: 30px; padding: 0 8px; border: 0; border-radius: 8px; background: none; color: var(--color-foreground); font: inherit; font-size: 12.5px; cursor: pointer; text-align: left; }
+.rolodex-menu button:hover { background: var(--color-surface); }
+.rolodex-menu button i { width: 8px; height: 8px; border-radius: 50%; background: var(--rx); }
+.rolodex-menu button span { margin-left: auto; font-size: 10.5px; color: var(--color-muted-foreground); }
+.rolodex-panel { padding: var(--space-4); border: 1px solid var(--color-border); border-radius: 14px; background: var(--color-page); min-width: 0; }
+.rolodex-panel h3 { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin: 0 0 var(--space-3); font-size: 11.5px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--color-muted-foreground); }
+.rolodex-panel.is-next h3 { justify-content: flex-start; color: var(--color-brand); }
+.rolodex-field { display: grid; grid-template-columns: 104px 1fr; align-items: center; gap: 8px; min-height: 32px; border-bottom: 1px solid color-mix(in srgb, var(--color-border) 55%, transparent); font-size: 13px; }
+.rolodex-field:last-child { border-bottom: 0; }
+.rolodex-field > span:first-child { color: var(--color-muted-foreground); font-size: 12px; }
+.rolodex-field > button { justify-self: stretch; text-align: left; border: 0; background: none; padding: 5px 6px; margin-left: -6px; border-radius: 6px; color: var(--color-foreground); font: inherit; cursor: text; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.rolodex-field > button:hover { background: var(--color-surface); }
+.rolodex-field em { font-style: normal; color: var(--color-muted-foreground); opacity: .7; }
+.rolodex-field.is-gap em { color: var(--rx-want); opacity: 1; }
+.rolodex-field strong { font-weight: 450; }
+.rolodex-field__edit, .rolodex-field__links { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; min-width: 0; }
+.rolodex-field__edit input, .rolodex-field__links input { flex: 1; min-width: 120px; height: 28px; padding: 0 8px; border: 1px solid var(--color-border); border-radius: 7px; background: var(--color-surface); color: var(--color-foreground); font: inherit; font-size: 13px; outline: none; }
+.rolodex-field__links input { border-color: transparent; background: transparent; padding: 0; }
+.rolodex-field__edit input:focus { border-color: color-mix(in srgb, var(--color-brand) 60%, transparent); }
+.rolodex-field small { flex-basis: 100%; color: var(--rx-red); font-size: 11.5px; }
+.rolodex-next { display: flex; gap: 8px; flex-wrap: wrap; }
+.rolodex-next input, .rolodex-touch input { flex: 1; min-width: 160px; height: 32px; padding: 0 10px; border: 1px solid var(--color-border); border-radius: var(--radius-ctrl); background: var(--color-surface); color: var(--color-foreground); font: inherit; font-size: 13px; outline: none; }
+.rolodex-next input[type="date"] { flex: 0 0 150px; min-width: 0; color-scheme: dark; }
+.rolodex-next + .rolodex-faint { margin-top: 8px; }
+.rolodex-notes { width: 100%; box-sizing: border-box; resize: vertical; min-height: 88px; padding: 10px; border: 1px solid var(--color-border); border-radius: 10px; background: var(--color-surface); color: var(--color-foreground); font: inherit; font-size: 13px; line-height: 1.5; outline: none; }
+.rolodex-notes:focus, .rolodex-next input:focus, .rolodex-touch input:focus { border-color: color-mix(in srgb, var(--color-brand) 60%, transparent); }
+.rolodex-touch { display: flex; gap: 8px; margin-bottom: var(--space-3); }
+.rolodex-timeline { list-style: none; margin: 0; padding: 0 0 0 14px; border-left: 1px solid var(--color-border); display: flex; flex-direction: column; gap: 10px; }
+.rolodex-timeline li { position: relative; display: flex; flex-direction: column; gap: 1px; font-size: 13px; }
+.rolodex-timeline li::before { content: ""; position: absolute; left: -18px; top: 6px; width: 7px; height: 7px; border-radius: 50%; background: var(--color-muted-foreground); }
+.rolodex-timeline li[data-kind="move"]::before { background: var(--rx); }
+.rolodex-timeline li[data-kind="wa"]::before { background: #25d366; }
+.rolodex-timeline time { font-size: 11px; color: var(--color-muted-foreground); }
+.rolodex-proj { display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 8px; margin: 0 -8px; border-radius: 8px; color: var(--color-foreground); text-decoration: none; font-size: 13px; }
+.rolodex-proj:hover { background: var(--color-surface); }
+.rolodex-proj em { margin-left: auto; font-style: normal; font-size: 11.5px; color: var(--color-muted-foreground); }
+.rolodex-quote { display: flex; gap: 8px; margin: 8px 0 0; padding: 8px 10px; border-radius: 10px; background: var(--color-surface); font-size: 13px; color: var(--color-secondary-label); }
+.rolodex-quote p { margin: 0; }
+.rolodex-careful { display: flex; gap: 8px; align-items: flex-start; margin: 8px 0 0; font-size: 12.5px; color: var(--rx-want); }
+
+/* Decks */
+.rolodex-deck { display: flex; flex-direction: column; align-items: center; gap: var(--space-4); flex: 1; min-height: 0; overflow-y: auto; padding-bottom: var(--space-8); }
+.rolodex-deck__head { width: min(680px, 100%); }
+.rolodex-deck__head h1 { margin: 0; font-size: 18px; font-weight: 600; }
+.rolodex-deck__head p { margin: 2px 0 0; font-size: 12.5px; color: var(--color-secondary-label); }
+.rolodex-progress { margin-top: 10px; height: 4px; border-radius: 2px; background: var(--color-surface); overflow: hidden; }
+.rolodex-progress i { display: block; height: 100%; background: var(--color-brand); transform-origin: left; transition: transform .24s ease-out; }
+.rolodex-sortcard { width: min(680px, 100%); box-sizing: border-box; padding: var(--space-6); border: 1px solid var(--color-border); border-radius: 20px;
+  background: linear-gradient(180deg, var(--color-raised), var(--color-surface)); box-shadow: 0 24px 60px -30px rgb(0 0 0 / .7); }
+.rolodex-sortcard__who { display: flex; gap: var(--space-4); align-items: center; }
+.rolodex-sortcard__who h2 { margin: 0; font-size: 22px; font-weight: 650; letter-spacing: -.015em; }
+.rolodex-sortcard__who p { margin: 3px 0 0; font-size: 12.5px; color: var(--color-secondary-label); }
+.rolodex-sortcard__guess b { color: var(--rx); font-weight: 600; }
+.rolodex-levels { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: var(--space-4) 0 var(--space-4); }
+.rolodex-levels button { display: flex; align-items: center; gap: 8px; height: 44px; padding: 0 12px; border: 1px solid var(--color-border); border-radius: 12px; background: var(--color-page);
+  color: var(--color-foreground); font: inherit; font-size: 13.5px; font-weight: 550; cursor: pointer; transition: background .1s, border-color .1s, transform .06s; }
+.rolodex-levels button:hover:not(:disabled) { border-color: color-mix(in srgb, var(--rx) 60%, transparent); background: color-mix(in srgb, var(--rx) 10%, var(--color-page)); }
+.rolodex-levels button:active:not(:disabled) { transform: scale(.98); }
+.rolodex-levels button.is-guess { border-color: var(--rx); background: color-mix(in srgb, var(--rx) 16%, var(--color-page)); box-shadow: 0 0 0 3px color-mix(in srgb, var(--rx) 18%, transparent); }
+.rolodex-levels button.is-off { grid-column: 1 / -1; height: 34px; font-size: 12.5px; font-weight: 500; color: var(--color-secondary-label); }
+.rolodex-levels kbd, .rolodex-sortcard__foot kbd { display: inline-grid; place-items: center; min-width: 18px; height: 18px; padding: 0 4px; border-radius: 5px; border: 1px solid var(--color-border);
+  background: var(--color-surface); color: var(--color-muted-foreground); font: 600 10.5px/1 ui-monospace, monospace; }
+.rolodex-levels button kbd { color: var(--rx); border-color: color-mix(in srgb, var(--rx) 40%, transparent); }
+.rolodex-voice { display: flex; align-items: center; gap: 8px; padding: 4px 4px 4px 12px; border: 1px solid var(--color-border); border-radius: 12px; background: var(--color-page); color: var(--color-muted-foreground); }
+.rolodex-voice:focus-within { border-color: color-mix(in srgb, var(--color-brand) 60%, transparent); color: var(--color-brand); }
+.rolodex-voice input { flex: 1; min-width: 0; height: 34px; border: 0; outline: none; background: transparent; color: var(--color-foreground); font: inherit; font-size: 14px; }
+.rolodex-parsed { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.rolodex-parsed b { font-weight: 600; color: var(--color-muted-foreground); }
+.rolodex-sortcard__foot { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); flex-wrap: wrap; margin-top: var(--space-4); font-size: 11.5px; color: var(--color-muted-foreground); }
+.rolodex-sortcard__btns { display: flex; gap: 8px; }
+.rolodex-deck__next { width: min(680px, 100%); margin: 0; font-size: 12px; color: var(--color-muted-foreground); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rolodex-recent { width: min(680px, 100%); display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.rolodex-recent h3 { margin: 0 6px 0 0; font-size: 11.5px; font-weight: 600; color: var(--color-muted-foreground); }
+.rolodex-done { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 64px 0; color: var(--color-secondary-label); }
+.rolodex-done h2 { margin: 6px 0 0; font-size: 17px; color: var(--color-foreground); }
+.rolodex-done p { margin: 0; font-size: 13px; }
+.rolodex-ask { margin: var(--space-4) 0 var(--space-3); font-size: 17px; font-weight: 600; }
+.rolodex-linkish { border: 0; padding: 0; background: none; color: inherit; font: inherit; cursor: pointer; }
+.rolodex-linkish:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+@media (max-width: 900px) {
+  .rolodex-space { padding: var(--space-4) var(--space-3) 0; }
+  .rolodex-body.has-person .rolodex-col { display: none; }
+  .rolodex-levels { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* uihub: siso:side-nav — keep the shared desktop nav; use a native page picker when it cannot fit. */
+.rolodex-mobile-nav { display: none; }
+.rolodex-search { min-width: 0; }
+.rolodex-person__title, .rolodex-sortcard__who > div { min-width: 0; overflow-wrap: anywhere; }
+.rolodex-person__name button { max-width: 100%; overflow-wrap: anywhere; text-align: left; }
+.rolodex-want { box-sizing: border-box; max-width: 100%; }
+.rolodex-header, .rolodex-deck__head, .rolodex-sortcard, .rolodex-recent, .rolodex-deck__next { flex-shrink: 0; }
+@container rolodex (max-width: 800px) {
+  .rolodex-body.has-person .rolodex-col { display: none; }
+}
+@media (max-width: 700px) {
+  .siso-sidenav[data-rolodex-nav] { display: none; }
+  .rolodex-mobile-nav { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-shrink: 0; margin-bottom: 16px; font-size: 12px; color: var(--color-secondary-label); }
+  .rolodex-mobile-nav > svg { position: absolute; right: 10px; pointer-events: none; }
+  .rolodex-mobile-nav select { appearance: none; min-width: 0; max-width: 75%; min-height: 40px; padding: 0 32px 0 10px; border: 1px solid var(--color-border); border-radius: var(--radius-ctrl); background: var(--color-surface); color: var(--color-foreground); font: inherit; font-size: 14px; }
+  .rolodex-sortcard { padding: 16px; border-radius: 16px; }
+  .rolodex-sortcard__who { align-items: flex-start; gap: 12px; }
+  .rolodex-sortcard__who h2 { font-size: 20px; }
+  .rolodex-sortcard__who .is-hero { width: 48px; height: 48px; font-size: 18px; }
+  .rolodex-levels button { padding: 0 8px; font-size: 12.5px; }
+  .rolodex-person { padding: 16px 12px 24px; }
+  .rolodex-person__hero { padding-right: 28px; align-items: flex-start; }
+  .rolodex-person__hero .is-hero { width: 44px; height: 44px; font-size: 18px; border-radius: 12px; }
+  .rolodex-person__name { font-size: 20px; }
+  .rolodex-person__close { width: 36px; height: 36px; top: 8px; right: 8px; }
+  .rolodex-want { min-width: 0; width: 100%; padding: 8px; }
+  .rolodex-want input { min-width: 0; flex-basis: calc(100% - 32px); }
+  .rolodex-want input.is-why { border-left: 0; padding-left: 0; flex: 1; }
+  .rolodex-sortcard__btns .rolodex-btn, .rolodex-voice .rolodex-btn, .rolodex-person__actions .rolodex-btn { min-height: 36px; height: auto; }
+  .rolodex-next { flex-wrap: wrap; }
+  .rolodex-next input:first-child { flex-basis: 100%; }
+  .rolodex-row__name { flex-wrap: wrap; gap: 3px 6px; white-space: normal; }
+}
+
+/* --- 9 Oct round (lane rolodex): search, groups, glance, deck motion. Transform and opacity only, 120-240 ms. --- */
+.rolodex-search kbd { display: inline-grid; place-items: center; min-width: 18px; height: 18px; padding: 0 4px; border-radius: 5px; border: 1px solid var(--color-border);
+  color: var(--color-muted-foreground); font: 600 10.5px/1 ui-monospace, monospace; }
+.rolodex-list.is-stale { opacity: .72; transition: opacity .12s .08s; }
+/* Off-screen rows skip layout and paint: 500 people scroll and filter like 30. */
+.rolodex-row { content-visibility: auto; contain-intrinsic-size: auto 54px; }
+.rolodex-row__name { min-width: 0; }
+.rolodex-row__nm { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rolodex-row__level { flex-shrink: 0; }
+.rolodex-row mark { background: color-mix(in srgb, var(--color-brand) 26%, transparent); color: inherit; border-radius: 3px; padding: 0 1px; }
+.rolodex-divider { display: flex; align-items: center; gap: 6px; }
+.rolodex-divider[data-group] { padding: 12px 10px 6px; font-size: 11.5px; letter-spacing: .04em; text-transform: uppercase; color: var(--rx); }
+.rolodex-divider[data-group] i { width: 6px; height: 6px; border-radius: 50%; background: var(--rx); }
+.rolodex-divider span { color: var(--color-muted-foreground); font-weight: 500; letter-spacing: 0; }
+.rolodex-empty.is-book { padding-top: 72px; max-width: 460px; margin: 0 auto; }
+.rolodex-empty.is-book h2 { margin: 4px 0 0; font-size: 17px; font-weight: 600; color: var(--color-foreground); }
+.rolodex-empty.is-book p { line-height: 1.5; }
+.rolodex-empty__btns, .rolodex-done__btns { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 4px; }
+.rolodex-done__btns kbd { margin-left: 2px; }
+.rolodex-done__tally { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 6px; margin: 8px 0 4px !important; }
+
+/* Person page: what matters first */
+.rolodex-person { animation: rolodex-in .18s cubic-bezier(.2, .8, .2, 1) both; }
+.rolodex-chip { max-width: 100%; min-width: 0; }
+.rolodex-chip > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.rolodex-glance { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; margin-top: var(--space-4); border: 1px solid var(--color-border); border-radius: 14px; overflow: hidden;
+  background: var(--color-border); }
+.rolodex-glance__cell { display: flex; flex-direction: column; gap: 3px; min-width: 0; padding: 12px 14px; background: var(--color-page); }
+.rolodex-glance__label { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--color-muted-foreground); }
+.rolodex-glance__cell strong { font-size: 15px; font-weight: 600; overflow-wrap: anywhere; }
+.rolodex-glance__cell strong[data-level] { color: var(--rx); }
+.rolodex-glance__cell strong span { color: var(--color-secondary-label); font-weight: 450; font-size: 13px; }
+.rolodex-glance__cell strong.is-none { color: var(--color-secondary-label); font-weight: 500; }
+.rolodex-glance__sub { font-size: 12px; color: var(--color-muted-foreground); line-height: 1.4; overflow-wrap: anywhere; }
+button.rolodex-glance__sub { display: inline-flex; align-items: center; gap: 4px; align-self: flex-start; color: var(--color-brand); }
+.rolodex-glance__cell.is-quiet strong, .rolodex-glance__cell.is-quiet .rolodex-glance__sub { color: var(--rx-want); }
+.rolodex-glance__cell.is-late .rolodex-glance__sub { color: var(--rx-red); }
+@container person (max-width: 560px) { .rolodex-glance { grid-template-columns: 1fr; } }
+
+/* Sort deck: the card stage. The leaving card and the next one share one grid cell, so nothing reflows. */
+.rolodex-stage { display: grid; width: min(680px, 100%); flex-shrink: 0; }
+.rolodex-stage > .rolodex-sortcard { grid-area: 1 / 1; width: 100%; }
+.rolodex-sortcard { animation: rolodex-in .2s cubic-bezier(.2, .8, .2, 1) both; }
+.rolodex-sortcard[data-dir="back"] { animation-name: rolodex-in-back; }
+.rolodex-sortcard.is-leaving { align-self: start; position: relative; z-index: 2; pointer-events: none; animation: rolodex-out .22s cubic-bezier(.4, 0, 1, 1) both; }
+.rolodex-sortcard.is-leaving[data-dir="skip"] { animation-name: rolodex-out-skip; }
+.rolodex-stamp { position: absolute; top: 22px; right: 22px; padding: 4px 10px; border-radius: var(--radius-pill); font-size: 12.5px; font-weight: 650; color: var(--rx, var(--color-secondary-label));
+  border: 1px solid color-mix(in srgb, var(--rx, var(--color-border)) 55%, transparent); background: color-mix(in srgb, var(--rx, transparent) 14%, var(--color-page)); }
+.rolodex-levels button[data-chosen] { outline: 2px solid var(--rx); outline-offset: 1px; }
+.rolodex-keys kbd { margin: 0 1px; }
+@keyframes rolodex-in { from { opacity: 0; transform: translateY(10px) scale(.985); } }
+@keyframes rolodex-in-back { from { opacity: 0; transform: translateX(-28px) rotate(-1.5deg); } }
+@keyframes rolodex-out { to { opacity: 0; transform: translateX(56px) rotate(2.5deg); } }
+@keyframes rolodex-out-skip { to { opacity: 0; transform: translateY(18px) scale(.95); } }
+@keyframes rolodex-fade { from { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .rolodex-sortcard, .rolodex-sortcard[data-dir="back"], .rolodex-person { animation: rolodex-fade .12s linear both; }
+  .rolodex-sortcard.is-leaving { display: none; }
+  .rolodex-progress i, .rolodex-list.is-stale { transition: none; }
+}
+@media (max-width: 700px) {
+  .rolodex-keys { display: none; }
+  .rolodex-stamp { top: 14px; right: 14px; }
+}

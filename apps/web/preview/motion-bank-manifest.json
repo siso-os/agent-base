@@ -1,0 +1,139 @@
+{
+  "title": "Agent Base motion bank",
+  "round": 5,
+  "requestedModel": "gpt-6.1-sol",
+  "components": [
+    {
+      "id": "workspace-arrival",
+      "component": "WorkspaceArrival",
+      "demo": "WorkspaceArrivalDemo",
+      "source": "apps/web/src/components/WorkspaceArrival.tsx",
+      "style": "apps/web/src/components/WorkspaceArrival.css",
+      "preview": "http://127.0.0.1:8891/card/agent-motion-bank-20261006/html#workspace-arrival",
+      "status": "implemented; parent type, render, interaction and lifecycle checks passed",
+      "liveIntegration": "pending",
+      "interactionReceipt": "evidence/round5-interactions.json"
+    },
+    {
+      "id": "context-stack",
+      "component": "ContextStack",
+      "demo": "ContextStackDemo",
+      "source": "apps/web/src/components/ContextStack.tsx",
+      "style": "apps/web/src/components/ContextStack.css",
+      "preview": "http://127.0.0.1:8891/card/agent-motion-bank-20261006/html#context-stack",
+      "status": "implemented; parent type, render, interaction and lifecycle checks passed",
+      "liveIntegration": "pending",
+      "interactionReceipt": "evidence/round5-interactions.json"
+    },
+    {
+      "id": "change-lens",
+      "component": "ChangeLens",
+      "demo": "ChangeLensDemo",
+      "source": "apps/web/src/components/ChangeLens.tsx",
+      "style": "apps/web/src/components/ChangeLens.css",
+      "preview": "http://127.0.0.1:8891/card/agent-motion-bank-20261006/html#change-lens",
+      "status": "implemented; parent type, render, interaction and lifecycle checks passed",
+      "liveIntegration": "pending",
+      "interactionReceipt": "evidence/round5-interactions.json"
+    },
+    {
+      "id": "session-replay",
+      "component": "SessionReplay",
+      "demo": "SessionReplayDemo",
+      "source": "apps/web/src/components/SessionReplay.tsx",
+      "style": "apps/web/src/components/SessionReplay.css",
+      "preview": "http://127.0.0.1:8891/card/agent-motion-bank-20261006/html#session-replay",
+      "status": "implemented; parent type, render, interaction and lifecycle checks passed",
+      "liveIntegration": "pending",
+      "interactionReceipt": "evidence/round5-interactions.json"
+    },
+    {
+      "id": "workspace-palette",
+      "component": "WorkspaceCommandPalette",
+      "demo": "WorkspaceCommandPaletteDemo",
+      "source": "apps/web/src/components/WorkspaceCommandPalette.tsx",
+      "style": "apps/web/src/components/WorkspaceCommandPalette.css",
+      "preview": "http://127.0.0.1:8891/card/agent-motion-bank-20261006/html#workspace-palette",
+      "status": "implemented; parent type, render, interaction and lifecycle checks passed",
+      "liveIntegration": "pending",
+      "interactionReceipt": "evidence/round5-interactions-version-pulse-agent-notifications-workspace-palette-chat-link-preview.json"
+    },
+    {
+      "id": "chat-activity",
+      "component": "ChatActivityRail",
+      "demo": "ChatActivityRailDemo",
+      "source": "apps/web/src/components/ChatActivityRail.tsx",
+      "style": "apps/web/src/components/ChatActivityRail.css",
+      "preview": "http://127.0.0.1:8891/card/agent-motion-bank-20261006/html#chat-activity",
+      "status": "implemented; parent type, render, interaction and lifecycle checks passed",
+      "liveIntegration": "pending",
+      "interactionReceipt": "evidence/round5-interactions-chat-activity-infrastructure-popover-version-pulse-agent-notifications-workspace-palette.json"
+    },
+    {
+      "id": "chat-link-preview",
+      "component": "ChatLinkPreview",
+      "demo": "ChatLinkPreviewDemo",
+      "source": "apps/web/src/components/ChatLinkPreview.tsx",
+      "style": "apps/web/src/components/ChatLinkPreview.css",
+      "preview": "http://127.0.0.1:8891/card/agent-motion-bank-20261006/html#chat-link-preview",
+      "status": "implemented; parent type, render, interaction and lifecycle checks passed",
+      "liveIntegration": "pending",
+      "interactionReceipt": "evidence/round5-interactions-version-pulse-agent-notifications-workspace-palette-chat-link-preview.json"
+    },
+    {
+      "id": "infrastructure-popover",
+      "component": "InfrastructurePopover",
+      "demo": "InfrastructurePopoverDemo",
+      "source": "apps/web/src/components/InfrastructurePopover.tsx",
+      "style": "apps/web/src/components/InfrastructurePopover.css",
+      "preview": "http://127.0.0.1:8891/card/agent-motion-bank-20261006/html#infrastructure-popover",
+      "status": "implemented; parent type, render, interaction and lifecycle checks passed",
+      "liveIntegration": "pending",
+      "interactionReceipt": "evidence/round5-interactions-version-pulse-agent-notifications-infrastructure-popover.json"
+    },
+    {
+      "id": "talk-orb",
+      "component": "TalkOrb",
+      "demo": "TalkOrbDemo",
+      "source": "apps/web/src/components/TalkOrb.tsx",
+      "style": "apps/web/src/components/TalkOrb.css",
+      "preview": "http://127.0.0.1:8891/card/agent-motion-bank-20261006/html#talk-orb",
+      "status": "implemented; parent type, render, interaction and lifecycle checks passed",
+      "liveIntegration": "pending",
+      "interactionReceipt": "evidence/round5-interactions.json"
+    },
+    {
+      "id": "version-pulse",
+      "component": "VersionPulse",
+      "demo": "VersionPulseDemo",
+      "source": "apps/web/src/components/VersionPulse.tsx",
+      "style": "apps/web/src/components/VersionPulse.css",
+      "preview": "http://127.0.0.1:8891/card/agent-motion-bank-20261006/html#version-pulse",
+      "status": "implemented; parent type, render, interaction and lifecycle checks passed",
+      "liveIntegration": "pending",
+      "interactionReceipt": "evidence/round5-interactions-version-pulse-agent-notifications.json"
+    },
+    {
+      "id": "agent-notifications",
+      "component": "AgentNotificationStack",
+      "demo": "AgentNotificationStackDemo",
+      "source": "apps/web/src/components/AgentNotificationStack.tsx",
+      "style": "apps/web/src/components/AgentNotificationStack.css",
+      "preview": "http://127.0.0.1:8891/card/agent-motion-bank-20261006/html#agent-notifications",
+      "status": "implemented; parent type, render, interaction and lifecycle checks passed",
+      "liveIntegration": "pending",
+      "interactionReceipt": "evidence/round5-interactions-version-pulse-agent-notifications.json"
+    },
+    {
+      "id": "today-spend",
+      "component": "TodaySpendDial",
+      "demo": "TodaySpendDialDemo",
+      "source": "apps/web/src/components/TodaySpendDial.tsx",
+      "style": "apps/web/src/components/TodaySpendDial.css",
+      "preview": "http://127.0.0.1:8891/card/agent-motion-bank-20261006/html#today-spend",
+      "status": "implemented; parent type, render, interaction and lifecycle checks passed",
+      "liveIntegration": "pending",
+      "interactionReceipt": "evidence/round5-interactions.json"
+    }
+  ]
+}

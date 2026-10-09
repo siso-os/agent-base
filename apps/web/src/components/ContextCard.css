@@ -1,0 +1,63 @@
+/* The ctx ring's card (Opus UI wave, 9 Oct). Colours from the existing HUD: amber #fbbf24 past the compact mark, the danger
+   token at 90 %, the mix palette from context-mix's kinds. Motion is transform/opacity only, and none under reduced motion. */
+
+/* The card opens from the ring: up and out of the bottom-left corner, where the ring sits. */
+.ab-context-panel.ab-hud__card{transform-origin:22px 100%;animation:ab-ctx-open 160ms cubic-bezier(.2,.8,.2,1)}
+.ab-context-panel:focus{outline:none}
+@keyframes ab-ctx-open{from{opacity:.35;transform:translateY(6px) scale(.97)}}
+.ab-context-panel__heading:has(.ab-ctx__gauge){align-items:flex-start;gap:8px;margin-bottom:2px}
+.ab-context-panel__heading>.ab-hud__title:has(.ab-ctx__gauge){flex:1;min-width:0;margin:0;font-weight:400}
+
+.ab-ctx__gauge{display:grid;gap:6px}
+.ab-ctx__figure{color:#a5a19b;font-size:12px}
+.ab-ctx__figure b{margin-right:4px;color:var(--crm-color-text-strong);font:600 22px/1 var(--crm-font-sans);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.ab-ctx__gauge[data-level=hot] .ab-ctx__figure b{color:#fbbf24}
+.ab-ctx__gauge[data-level=full] .ab-ctx__figure b{color:rgb(var(--crm-danger-rgb))}
+/* The used part is one scaled box, so a new reading slides it with a transform, not a re-layout. */
+.ab-ctx__bar{position:relative;display:block;height:8px;border-radius:4px;background:rgb(var(--crm-white-rgb) / .08)}
+.ab-ctx__used{position:absolute;inset:0;display:flex;gap:1px;overflow:hidden;border-radius:4px;transform:scaleX(var(--used));transform-origin:left;transition:transform 240ms cubic-bezier(.2,.8,.2,1);animation:ab-ctx-fill 240ms cubic-bezier(.2,.8,.2,1)}
+.ab-ctx__used i{display:block;min-width:0;background:rgb(var(--crm-white-rgb) / .38)}
+.ab-ctx__gauge[data-level=full] .ab-ctx__used{box-shadow:inset 0 0 0 1px rgb(var(--crm-danger-rgb) / .7)}
+@keyframes ab-ctx-fill{from{transform:scaleX(0)}}
+.ab-ctx__mark{position:absolute;top:-3px;bottom:-3px;width:2px;margin-left:-1px;border-radius:1px;background:#f5dfb7;box-shadow:0 0 0 2px #1d1c1a}
+.ab-ctx__room{color:#bcb6ac;font-size:11.5px}
+.ab-ctx__gauge[data-level=hot] .ab-ctx__room{color:#fbbf24}
+.ab-ctx__gauge[data-level=full] .ab-ctx__room{color:rgb(var(--crm-danger-rgb))}
+.ab-ctx__compacted{display:inline-flex;align-items:center;gap:5px;justify-self:start;padding:2px 7px;border-radius:999px;background:rgb(var(--crm-success-rgb) / .12);color:rgb(var(--crm-success-rgb));font-size:11px}
+
+.ab-ctx>*{min-width:0}
+.ab-ctx{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;font:11px/1.45 var(--crm-font-sans);color:#bcb6ac}
+.ab-ctx h4{display:flex;align-items:baseline;gap:6px;margin:0 0 5px;color:#8f8a82;font:600 10.5px var(--crm-font-sans)}
+.ab-ctx h4 abbr{display:inline-grid;place-items:center;width:12px;height:12px;border:1px solid #ffffff22;border-radius:50%;font-size:8.5px;color:#8f8a82;font-weight:400;letter-spacing:0;text-transform:none;text-decoration:none;cursor:help}
+.ab-ctx__none{margin:0;color:#a5a19b;font-size:11.5px}
+.ab-ctx__loading{display:grid;gap:6px}
+.ab-ctx__loading i{display:block;height:9px;border-radius:4px;background:rgb(var(--crm-white-rgb) / .07);animation:ab-ctx-wait 1.1s ease-in-out infinite alternate}
+.ab-ctx__loading i:nth-child(2){width:72%;animation-delay:.15s}.ab-ctx__loading i:nth-child(3){width:48%;animation-delay:.3s}
+@keyframes ab-ctx-wait{to{opacity:.4}}
+.ab-ctx__kinds{display:grid;grid-template-columns:1fr 1fr;gap:2px 14px;margin:0 0 10px;padding:0;list-style:none}
+.ab-ctx__kinds li,.ab-ctx__top li{display:grid;grid-template-columns:8px minmax(0,1fr) auto;align-items:center;gap:7px}
+.ab-ctx__kinds i,.ab-ctx__top i{width:8px;height:8px;border-radius:2px}
+.ab-ctx__kinds b,.ab-ctx__top b{font:500 11px var(--crm-font-mono);color:#e8e5df;font-variant-numeric:tabular-nums}
+.ab-ctx__top{display:grid;gap:3px;margin:0;padding:0;list-style:none}
+.ab-ctx__top-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#d8d3cb}
+.ab-ctx__actions{display:grid;gap:6px;padding-top:10px;border-top:1px solid #ffffff12}
+.ab-ctx__actions .ab-hud__compact{margin:0}
+.ab-ctx__actions .ab-hud__compact.is-urgent{border-color:rgb(var(--crm-danger-rgb) / .5);background:rgb(var(--crm-danger-rgb) / .14);color:rgb(var(--crm-danger-rgb))}
+.ab-ctx__fork.ab-fork{margin:0;padding:0;border:0}
+.ab-ctx__fork.ab-fork summary{display:flex;align-items:center;gap:6px}
+.ab-ctx__fork.ab-fork summary::before{content:none}
+.ab-ctx__fork svg{color:#22d3ee}
+.ab-ctx__note{display:block;margin-top:3px;color:#8f8a82;font-size:10.5px}
+.ab-ctx__files{border-top:1px solid #ffffff12;padding-top:8px}
+.ab-ctx__files h4{text-transform:none;letter-spacing:0;font-size:11px;color:#bcb6ac}
+.ab-ctx__files summary{color:#8f8a82;font-size:10.5px;cursor:pointer}
+.ab-ctx__files div{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:4px 0;font-size:10.5px}
+.ab-ctx__files span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ab-ctx__files b{flex-shrink:0;color:#89939e;font-size:9.5px;font-weight:400}
+.ab-ctx__files b[data-state=changed]{color:#e9b75c}
+.ab-ctx>.ab-hud__line{padding-top:8px;border-top:1px solid #ffffff12}
+
+@media (prefers-reduced-motion: reduce){
+ .ab-context-panel.ab-hud__card,.ab-ctx__used,.ab-ctx__loading i{animation:none}
+ .ab-ctx__used{transition:none}
+}

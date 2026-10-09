@@ -1,0 +1,20 @@
+{
+ "_about": "fixture: 3 of the bank",
+ "templates": [
+  {
+   "id": "U0",
+   "family": "Shell: CRM GroupedRail + SISO tokens (the one shell)",
+   "status": "atlas: porting now. Library: siso-shell ships its own siso-rail (forest gradient, flat list, no groups) on 6 of 18 routes; 0 GroupedRail ports anywhere (REVIEW-ZERO grep)"
+  },
+  {
+   "id": "U13",
+   "family": "Reusable modules (the parts every family composes)",
+   "status": "0 built as shared partials; each page hand-writes its own"
+  },
+  {
+   "id": "U23",
+   "family": "Template gallery",
+   "status": "this page, being built now"
+  }
+ ]
+}

@@ -1,0 +1,74 @@
+[
+  {
+    "name": "hub-4",
+    "harness": "codex",
+    "state": "done",
+    "title": "Project dashboard"
+  },
+  {
+    "name": "hub-5",
+    "harness": "codex",
+    "state": "done",
+    "title": "Agent cards"
+  },
+  {
+    "name": "hub-2",
+    "harness": "codex",
+    "state": "done",
+    "title": "Agent presence & registry"
+  },
+  {
+    "name": "hub-3",
+    "harness": "codex",
+    "state": "idle",
+    "title": "Org chart"
+  },
+  {
+    "name": "hub-6",
+    "harness": "codex",
+    "state": "done",
+    "title": "Agent Zero page"
+  },
+  {
+    "name": "hub-7",
+    "harness": "codex",
+    "state": "working",
+    "title": "Agent chat"
+  },
+  {
+    "name": "t14-move",
+    "harness": "codex",
+    "state": "done",
+    "title": "Move agent UI"
+  },
+  {
+    "name": "hub-8",
+    "harness": "codex",
+    "state": "idle",
+    "title": "Agent controls"
+  },
+  {
+    "name": "t16-faces",
+    "harness": "codex",
+    "state": "idle",
+    "title": "Agent face system"
+  },
+  {
+    "name": "hub-10",
+    "harness": "codex",
+    "state": "working",
+    "title": "Agent Zero control tabs"
+  },
+  {
+    "name": "a0w-003",
+    "harness": "codex",
+    "state": "working",
+    "title": "Agent Base integration"
+  },
+  {
+    "name": "ab-022-gate",
+    "harness": "codex",
+    "state": "working",
+    "title": "Gate review"
+  }
+]

@@ -1,0 +1,5 @@
+.pg-maths-proof{transform-origin:60px 60px}
+.li[data-active=true][data-motion=on] .pg-maths-trace{animation:pg-proof-trace 1.3s ease-in-out both}
+.li[data-active=true][data-motion=on] .pg-maths-proof{animation:pg-proof-seat 1.3s ease-in-out both}
+@keyframes pg-proof-trace{0%,100%{opacity:0;stroke-dashoffset:0}12%{opacity:.85}85%{opacity:.85;stroke-dashoffset:-100}99%{stroke-dashoffset:-100;opacity:0}}
+@keyframes pg-proof-seat{0%,100%{transform:scale(1)}15%{transform:scale(.96)}68%{transform:scale(1.13)}85%{transform:scale(.99)}}

@@ -1,0 +1,19 @@
+/* mini-lanes: the Mac mini group under SISO Labs and a lane's page (MiniLanes.tsx). */
+.ab-mini__note { margin: 2px 8px 4px; color: var(--crm-color-text-muted, #8a8a8a); font-size: 11px; }
+.ab-mini__row { display: grid; width: 100%; min-width: 0; grid-template-columns: 8px minmax(0, 1fr) auto auto auto; grid-template-areas: "dot name model age state" ". goal goal goal goal"; align-items: center; column-gap: 6px; padding: 4px 8px; border-radius: 8px; color: var(--crm-color-text); font-size: 12.5px; text-align: left; }
+.ab-mini__row:hover { background: rgb(var(--crm-white-rgb) / 0.045); }
+.ab-mini__row.is-active { background: rgb(var(--crm-white-rgb) / 0.08); }
+.ab-mini__dot { grid-area: dot; width: 7px; height: 7px; border-radius: 50%; background: rgb(var(--crm-white-rgb) / 0.22); }
+.ab-mini__row.is-running .ab-mini__dot { background: var(--crm-color-success); }
+.ab-mini__name { grid-area: name; overflow: hidden; font-weight: 560; text-overflow: ellipsis; white-space: nowrap; }
+.ab-mini__model { grid-area: model; padding: 0 5px; border-radius: 5px; background: rgb(var(--crm-white-rgb) / 0.07); color: var(--crm-color-text-muted); font-size: 10px; font-weight: 600; }
+.ab-mini__age { grid-area: age; color: var(--crm-color-text-faint); font-family: var(--font-mono, ui-monospace, monospace); font-size: 10.5px; }
+.ab-mini__state { grid-area: state; color: var(--crm-color-text-faint); font-size: 10.5px; }
+.ab-mini__row.is-running .ab-mini__state { color: var(--crm-color-success); }
+.ab-mini__goal { grid-area: goal; overflow: hidden; color: var(--crm-color-text-muted); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+.ab-mini__text { margin: 0; font-size: 13px; line-height: 1.5; }
+.ab-mini__commits { display: grid; gap: 5px; margin: 0; padding: 0; list-style: none; font-size: 12px; }
+.ab-mini__commits li { display: flex; min-width: 0; gap: 6px; align-items: baseline; }
+.ab-mini__commits span { min-width: 0; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ab-mini__commits code, .ab-mini__commits small { color: var(--crm-color-text-faint); font-family: var(--font-mono, ui-monospace, monospace); font-size: 11px; }
+.ab-mini__pane { max-height: 640px; margin: 0; overflow: auto; padding: 10px 12px; border-radius: 8px; background: rgb(0 0 0 / 0.35); color: var(--crm-color-text); font-family: var(--font-mono, ui-monospace, monospace); font-size: 11.5px; line-height: 1.45; white-space: pre; }

@@ -1,0 +1,21 @@
+{
+  "label": "after",
+  "sessionMb": 5,
+  "sessionLines": 5591,
+  "openMs": 204,
+  "helloKb": 30,
+  "turnsRendered": 6,
+  "domNodes": 718,
+  "webContentMb": 262,
+  "workingNodeCpuPct": 0,
+  "workingPageCpuPct": 46,
+  "workingWsKb": 121,
+  "webContentMbAfterWork": 301,
+  "apiPer20sVisible": 15,
+  "apiPer20sHidden": 0,
+  "hiddenPageCpuPct": 41,
+  "reachedStart": true,
+  "scrollToStartMs": 5369,
+  "turnsRenderedAtStart": 546,
+  "pageErrors": []
+}

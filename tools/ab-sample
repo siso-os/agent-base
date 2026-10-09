@@ -1,0 +1,25 @@
+#!/bin/bash
+# ab-sample <sha>: after a deploy, HEALTH's terms (3 Oct): send HEALTH the pids at once, then 40 x 15 s (10 min) of every WebContent
+# footprint, the live node's RSS and avail RAM (AGENT-BASE's sample.sh), and send the lows and peaks when done.
+# AB_SAMPLE_NOTIFY is the command that takes the message as its last argument (tools/ab-queue sets `a0-tell --queue w4:p1`).
+# Writes ~/.local/state/agent-base/ship-queue/sample-<sha>.log. AB_SAMPLE_N / AB_SAMPLE_EVERY shorten it for tests.
+set -uo pipefail
+SHA=${1:?usage: tools/ab-sample <sha>}
+N=${AB_SAMPLE_N:-40}; EVERY=${AB_SAMPLE_EVERY:-15}; PORT=${AB_LIVE_PORT:-5401}
+OUT=${AB_QUEUE_STATE:-$HOME/.local/state/agent-base/ship-queue}/sample-${SHA:0:12}.log
+mkdir -p "$(dirname "$OUT")"
+say() { [ -n "${AB_SAMPLE_NOTIFY:-}" ] && $AB_SAMPLE_NOTIFY "$1" >/dev/null 2>&1; echo "$1" >> "$OUT"; }
+NODE=$(lsof -nP -iTCP:$PORT -sTCP:LISTEN -t 2>/dev/null | head -1)
+APP=$(pgrep -f "${AB_LIVE_APP_PROC:-Agent Base.app/Contents/MacOS/agent-base}" | head -1)
+wcs() { ps -axo pid,comm | awk '/XPCServices\/com.apple.WebKit.WebContent.xpc/ {print $1}'; }
+avail() { vm_stat | awk '/page size/{ps=$8} /Pages free/{f=$3} /Pages inactive/{i=$3} /Pages speculative/{s=$3} END{printf "%d", (f+i+s)*ps/1048576}'; }
+say "AGENT-BASE ship ${SHA:0:7} is live: app ${APP:-?}, node ${NODE:-?}, WebContent $(wcs | tr '\n' ' ')avail $(avail) MB; 10-min sample follows."
+lo_av=999999; hi_wc=0; hi_node=0
+for i in $(seq 1 "$N"); do
+  t=0; for p in $(wcs); do f=$(footprint "$p" 2>/dev/null | awk '/Footprint:/{for(j=1;j<=NF;j++) if($j=="Footprint:"){v=$(j+1); u=$(j+2); if(u=="GB") v=v*1024; else if(u=="KB") v=v/1024; print int(v+0.5); exit}}'); [ -n "$f" ] && t=$((t+f)); done
+  av=$(avail); nd=$( [ -n "$NODE" ] && ps -o rss= -p "$NODE" | awk '{printf "%d",$1/1024}' || echo 0)
+  echo "$(date +%H:%M:%S) wc_total=${t}MB node=${nd:-0}MB avail=${av}MB" >> "$OUT"
+  (( av < lo_av )) && lo_av=$av; (( t > hi_wc )) && hi_wc=$t; (( ${nd:-0} > hi_node )) && hi_node=${nd:-0}
+  [ "$i" -lt "$N" ] && sleep "$EVERY"
+done
+say "AGENT-BASE ship ${SHA:0:7} 10-min sample: WebContent peak ${hi_wc} MB, node peak ${hi_node} MB, avail low ${lo_av} MB (log $OUT)."

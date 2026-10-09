@@ -1,0 +1,105 @@
+#!/usr/bin/env node
+// Thirty-second boot/Agent Zero gate. Worktree probes use fake herdr; URL probes use GET only and no sockets.
+import { createRequire } from 'node:module';
+import { spawn } from 'node:child_process';
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync, existsSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import net from 'node:net';
+import path from 'node:path';
+const root = path.resolve(import.meta.dirname, '..');
+import { execFileSync } from 'node:child_process';
+// A bare worktree (the queue's ship-runner) has no node_modules: fall back to the main checkout's playwright.
+const mainRoot = () => path.dirname(execFileSync('git', ['-C', root, 'rev-parse', '--path-format=absolute', '--git-common-dir'], { encoding: 'utf8' }).trim());
+const pwFrom = [root, ...(existsSync(path.join(root, 'services/node/node_modules/playwright')) ? [] : [mainRoot()])].pop();
+const { webkit } = createRequire(path.join(pwFrom, 'services/node/package.json'))('playwright');
+const started = performance.now(), checks = [];
+let browser, child, scratch, page, finished = false;
+const record = (check, ok, detail) => checks.push({ check, ok: !!ok, ...(detail ? { detail } : {}) });
+async function finish() {
+  if (finished) return;
+  finished = true;
+  clearTimeout(deadline);
+  await browser?.close().catch(() => {});
+  if (child) {
+    child.kill('SIGTERM');
+    await Promise.race([new Promise(r => child.once('exit', r)), new Promise(r => setTimeout(r, 1000))]);
+    if (child.exitCode === null) child.kill('SIGKILL');
+  }
+  if (scratch) rmSync(scratch, { recursive: true, force: true });
+  const ok = checks.length >= 6 && checks.every(c => c.ok);
+  console.log(JSON.stringify({ ok, checks, secs: Math.round((performance.now() - started) / 10) / 100 }));
+  process.exit(ok ? 0 : 1);
+}
+const deadline = setTimeout(() => { record('deadline', false, '30 s exceeded'); void finish(); }, 29000);
+for (const signal of ['SIGTERM', 'SIGINT']) process.on(signal, () => { record('interrupted', false); void finish(); });
+try {
+  const target = process.argv[2];
+  if (!target) throw new Error('usage: tools/ab-smoke <worktree-or-url>');
+  let url = target;
+  if (!/^https?:\/\//.test(target)) {
+    const repo = path.resolve(target);
+    if (!existsSync(path.join(repo, 'apps/web/dist/index.html'))) throw new Error('built apps/web/dist/index.html missing; run pnpm check first');
+    const socket = net.createServer();
+    await new Promise((resolve, reject) => { socket.once('error', reject); socket.listen(0, '127.0.0.1', resolve); });
+    const port = socket.address().port;
+    await new Promise(resolve => socket.close(resolve));
+    url = `http://127.0.0.1:${port}`;
+    scratch = mkdtempSync(path.join(tmpdir(), '.siso-ephemeral-ab-smoke.'));
+    const session = '00000000-0000-4000-8000-0000000000a0';
+    mkdirSync(path.join(scratch, 'claude/projects/fixture'), { recursive: true });
+    writeFileSync(path.join(scratch, 'claude/projects/fixture', `${session}.jsonl`), JSON.stringify({ type: 'user', uuid: 'smoke', message: { role: 'user', content: 'Smoke fixture' } }) + '\n');
+    writeFileSync(path.join(scratch, 'seat.json'), JSON.stringify({ name: 'A0', pane: 'w1:p1', session }));
+    child = spawn(process.execPath, ['--experimental-strip-types', '--no-warnings', 'src/server.ts'], {
+      cwd: path.join(repo, 'services/node'), stdio: 'ignore', env: { ...process.env, HOME: scratch, AB_HUB_HOME: scratch,
+        AB_PORT: String(port), AB_HERDR: `${process.execPath} ${path.join(repo, 'services/node/test/fake-herdr.mjs')}`,
+        FAKE_HERDR_AGENTS: JSON.stringify([{ agent: 'claude', agent_status: 'idle', cwd: '/tmp', pane_id: 'w1:p1', terminal_id: 'term_smoke', terminal_title_stripped: 'A0', agent_session: { value: session } }]),
+        AB_CLAUDE_DIRS: path.join(scratch, 'claude'), AB_A0_SEAT: path.join(scratch, 'seat.json'), AB_STATE: path.join(scratch, 'rows.json'),
+        AB_REGISTRY: path.join(scratch, 'registry.json'), AB_HOSTS_DIR: path.join(scratch, 'hosts'), AB_RESURRECT_DIR: path.join(scratch, 'none'), AB_CONSOLE_EVENTS: path.join(scratch, 'none.jsonl') }
+    });
+    child.once('error', e => { record('boot', false, e.message); void finish(); });
+    while (true) {
+      if (await fetch(`${url}/api/health`, { signal: AbortSignal.timeout(1000) }).then(r => r.ok, () => false)) break;
+      if (child.exitCode !== null) throw new Error(`fixture node exited ${child.exitCode}`);
+      await new Promise(r => setTimeout(r, 100));
+    }
+  }
+  let agents;
+  for (const endpoint of ['health', 'version', 'agents']) {
+    // 15 s, not 4: the first /api/agents after a deploy builds its cache while the reopened app hits the server too (1.4 s on a
+    // quiet laptop, past 4 s under load); a 4 s cut rolled back healthy deploys on 4 Oct (fbb6830a, b4aa7256).
+    const response = await fetch(`${url.replace(/\/$/, '')}/api/${endpoint}`, { signal: AbortSignal.timeout(15000) });
+    const data = await response.json();
+    const valid = endpoint === 'health' ? data.ok === true : endpoint === 'version' ? typeof data.sha === 'string' && data.sha.length > 0 : Array.isArray(data.agents);
+    record(`/api/${endpoint}`, response.ok && valid, `HTTP ${response.status}`);
+    if (endpoint === 'agents') agents = data.agents;
+  }
+  const zero = agents?.find(a => a.zero || /^(Agent Zero|A0)$/.test(a.name));
+  if (!zero) throw new Error('Agent Zero absent from /api/agents');
+  browser = await webkit.launch({ headless: true });
+  page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+  page.setDefaultTimeout(12000);
+  const errors = [];
+  page.on('pageerror', e => errors.push(e.message));
+  // The already-read identity makes cold startup deterministic even when another
+  // chat is restored by the app. URL probes must never touch a live agent transport.
+  await page.addInitScript(zeroId => {
+    localStorage.setItem('agent-base:sidebar-open', 'true');
+    localStorage.setItem('agent-base:active', JSON.stringify(zeroId));
+    localStorage.setItem('agent-base:open', JSON.stringify([zeroId]));
+  }, zero.id);
+  if (/^https?:\/\//.test(target)) {
+    const origin = new URL(url).origin;
+    await page.routeWebSocket('**/*', socket => socket.close());
+    await page.route('**/*', route => route.request().method() === 'GET' && new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
+  }
+  const response = await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 6000 });
+  record('app loads', response?.ok());
+  await page.locator(`[data-testid=rail-row][data-item=${JSON.stringify(zero.id)}]`).first().click({ timeout: 20000 });
+  await page.locator('[data-testid=chat-head] .ab-head__name').filter({ hasText: 'Agent Zero' }).first().waitFor();
+  record('Agent Zero opens', true);
+  await page.getByRole('textbox', { name: 'Message', exact: true }).waitFor();
+  record('chat box', true);
+  await page.waitForTimeout(300);
+  record('no page errors', errors.length === 0, errors.join('; ').slice(0, 300));
+} catch (e) { record('smoke', false, e.message); }
+await finish();

@@ -1,0 +1,21 @@
+.checkpoint { color: var(--crm-color-text); font-size: 13px; line-height: 1.55; }
+.checkpoint__summary { margin: 0 0 7px; color: var(--crm-color-text); }
+.checkpoint__rows { display: grid; gap: 2px; }
+.checkpoint__row { border-radius: 6px; }
+.checkpoint__row > summary { display: flex; min-height: 30px; align-items: center; gap: 8px; padding: 4px 7px; color: var(--crm-color-text-muted); list-style: none; cursor: pointer; }
+.checkpoint__row > summary::-webkit-details-marker, .checkpoint-prompt > summary::-webkit-details-marker { display: none; }
+.checkpoint__row > summary:hover { background: rgb(255 255 255 / 4%); }
+.checkpoint__chevron { flex: none; color: var(--crm-color-text-faint); transition: transform 160ms ease; }
+.checkpoint__row[open] .checkpoint__chevron { transform: rotate(90deg); }
+.checkpoint__title { overflow: hidden; flex: 1; text-overflow: ellipsis; white-space: nowrap; }
+.checkpoint__state { flex: none; }
+.checkpoint__state--done { color: var(--color-done); }
+.checkpoint__state--in-progress { color: var(--color-needs); }
+.checkpoint__state--blocked { color: var(--color-failed); }
+.checkpoint__state-label { font-size: 11px; color: var(--crm-color-text-faint); }
+.checkpoint__body { margin: 0 8px 8px 29px; padding: 8px 10px; border-left: 1px solid var(--crm-color-line); color: var(--crm-color-text-muted); white-space: pre-wrap; }
+.checkpoint-prompt { color: var(--crm-color-text); font-size: 13px; line-height: 1.55; white-space: pre-wrap; }
+.checkpoint-prompt--long > summary { display: grid; gap: 5px; list-style: none; cursor: pointer; }
+.checkpoint-prompt__more { color: var(--crm-color-text-faint); font-size: 11px; }
+.checkpoint-prompt__full { margin-top: 8px; }
+@media (prefers-reduced-motion: reduce) { .checkpoint__chevron { transition: none; } }

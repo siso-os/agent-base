@@ -1,0 +1,26 @@
+.ab-codex-worker__subtitle { display: block; width: 100%; padding: 0 16px 9px 38px; text-align: left; color: var(--muted-foreground); font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ab-codex-page { display: flex; flex: 1; flex-direction: column; min-height: 0; min-width: 0; }
+.ab-codex-page header { display: flex; align-items: center; gap: 12px; padding: 18px 22px; border-bottom: 1px solid var(--border); }
+.ab-codex-heading { flex: 1; min-width: 0; }
+.ab-codex-page h2 { font-size: 17px; margin: 0 0 3px; }
+.ab-codex-page header span, .ab-codex-run-label { font-size: 12px; color: var(--muted-foreground); }
+.ab-codex-ticket { font-size: 13px; margin-bottom: 4px; overflow-wrap: anywhere; }
+.ab-codex-rate { white-space: nowrap; }
+.ab-codex-scroll { overflow-y: auto; overflow-x: hidden; min-height: 0; flex: 1; padding: 20px; }
+.ab-codex-earlier { padding: 12px; margin-bottom: 18px; border: 1px solid var(--border); border-radius: 8px; }
+.ab-codex-earlier summary { cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 13px; }
+.ab-codex-earlier summary::before { content: '›'; color: var(--muted-foreground); }
+.ab-codex-earlier[open] summary::before { transform: rotate(90deg); }
+.ab-codex-return { font-size: 11px; padding: 2px 7px; border-radius: 4px; background: var(--muted); }
+.ab-codex-return.is-done { color: #34c38f; }
+.ab-codex-return.is-blocked { color: #f0b03f; }
+.ab-codex-return.is-failed { color: #ef5b4c; }
+.ab-codex-duration { margin-left: auto; color: var(--muted-foreground); white-space: nowrap; font-size: 12px; }
+@media (max-width: 600px) { .ab-codex-page header { padding: 12px; gap: 8px; flex-wrap: wrap; } .ab-codex-scroll { padding: 12px; } }
+
+.ab-codex-hoverline { display: block; max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.siso-hovercard:has(.ab-codex-hoverline) .siso-hovercard__head { flex-direction: column; align-items: flex-start; }
+.siso-hovercard:has(.ab-codex-hoverline) .siso-hovercard__meta { width: 100%; min-width: 0; }
+
+/* Nested worker cards use the current card width for readable ticket/message text. */
+.ab-hover-card .ab-codex-hoverline { max-width: 100%; white-space: normal; overflow: visible; overflow-wrap: anywhere; line-height: 1.45; margin: 6px 0; }

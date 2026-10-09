@@ -1,0 +1,43 @@
+.project-page { min-width:0; color:var(--crm-color-text); }
+.siso-org__folder .pp-directory { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr)); gap:12px; list-style:none; padding:0; }
+.siso-org__folder .pp-directory > li { display:flex; flex-wrap:wrap; align-content:flex-start; gap:8px; padding:16px; border:1px solid rgb(255 255 255 / .08); border-radius:14px; background:rgb(255 255 255 / .025); min-width:0; }
+.siso-org__folder .pp-directory > li > button:first-child { width:100%; text-align:left; font-weight:650; overflow-wrap:anywhere; }
+.project-page .ep { max-width:none; }
+.project-page .ep .hero { grid-template-columns:minmax(0,1.15fr) minmax(0,1fr); }
+.pp-commitment { align-self:center; min-width:0; padding:26px; border-left:1px solid hsl(var(--h) 60% 65% / .18); background:radial-gradient(ellipse at top right,hsl(var(--h) 60% 40% / .12),transparent 70%); }
+.pp-commitment > small { display:block; margin:12px 0; color:var(--crm-color-text-muted); text-transform:uppercase; letter-spacing:.12em; }
+.pp-commitment h2 { font-size:25px; line-height:1.25; color:var(--crm-color-text-strong); margin:0 0 14px; overflow-wrap:anywhere; }
+.pp-commitment p { font-size:14px; line-height:1.6; }
+.pp-brief-excerpt,.pp-brief-full { white-space:pre-wrap; overflow-wrap:anywhere; }
+.pp-commitment details { margin-top:12px; font-size:12px; }
+.project-page .ep > .pp-commitment { margin:0 32px 20px; }
+.pp-commitment > span,.pp-source { font-size:11px; color:var(--crm-color-text-faint); }
+.pp-commitment button { display:flex; align-items:center; gap:8px; margin-top:20px; color:hsl(var(--h) 75% 70%); }
+.pp-crew,.pp-tabs,.pp-ledger,.pp-momentum,.pp-source,.project-page > .pp-warning { margin:0 32px; }
+.pp-section-title { display:flex; align-items:center; gap:12px; margin-bottom:12px; }
+.pp-section-title h2,.pp-ledger h2,.pp-momentum h2 { font-size:14px; font-weight:650; margin:0; }
+.pp-section-title > span,.pp-section-title button { font-size:12px; color:var(--crm-color-text-muted); }
+.pp-section-title button { margin-left:auto; }
+.pp-crew-band { display:flex; flex-wrap:wrap; gap:8px; }
+.pp-crew-band button { display:flex; align-items:center; gap:10px; padding:10px 14px; border-radius:12px; border:1px solid rgb(255 255 255 / .08); background:rgb(255 255 255 / .025); text-align:left; min-width:0; }
+.pp-crew-band button[aria-pressed=true] { border-color:hsl(var(--h) 65% 65% / .6); background:hsl(var(--h) 50% 50% / .1); }
+.pp-crew-band b,.pp-crew-band small { display:block; overflow-wrap:anywhere; }
+.pp-crew-band b { font-size:13px; }.pp-crew-band small { font-size:11px; color:var(--crm-color-text-muted); margin-top:3px; }
+.pp-tabs { display:flex; gap:22px; border-bottom:1px solid rgb(255 255 255 / .1); margin-top:22px; }
+.pp-tabs button { padding:14px 0; border-bottom:2px solid transparent; font-size:13px; color:var(--crm-color-text-muted); }
+.pp-tabs button[aria-selected=true] { color:var(--crm-color-text-strong); border-color:hsl(var(--h) 75% 65%); }
+.pp-landed { margin:20px 32px; }.pp-landed h2 { font-size:14px; font-weight:650; margin-bottom:12px; }
+.pp-summary { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); margin:20px 32px; padding:18px 0; background:linear-gradient(180deg,#1f1f1d,#1a1a18); border-radius:14px; border:1px solid rgb(255 255 255 / .07); }
+.pp-summary > div { padding:0 20px; border-left:1px solid rgb(255 255 255 / .08); }.pp-summary > div:first-child { border:0; }
+.pp-summary b { display:block; font-size:28px; color:var(--crm-color-text-strong); }.pp-summary span { font-size:12px; color:var(--crm-color-text-muted); }
+.pp-ledger { padding:20px 0 32px; }.pp-ledger section { margin-bottom:24px; }.pp-ledger h2 { display:flex; gap:10px; margin-bottom:8px; }.pp-ledger h2 span { color:var(--crm-color-text-faint); }
+.pp-task { display:grid; grid-template-columns:minmax(0,1fr) 190px; gap:24px; padding:18px 0; border-top:1px solid rgb(255 255 255 / .08); }.pp-task-main { min-width:0; }
+.pp-task-main > button { text-align:left; width:100%; }.pp-task-main strong { display:block; font-size:15px; color:var(--crm-color-text-strong); margin-top:6px; line-height:1.45; overflow-wrap:anywhere; }.pp-task-main small { font-size:11px; color:var(--crm-color-text-muted); }
+.pp-task-main > p { margin:8px 0 12px; font-size:12px; color:var(--crm-color-text-muted); line-height:1.5; overflow-wrap:anywhere; }
+.pp-plan { font-size:12px; }.pp-plan summary { color:hsl(var(--h) 55% 72%); cursor:pointer; }.pp-plan .ab-task-tree { margin-top:12px; }
+.pp-task-people { display:flex; flex-direction:column; gap:8px; font-size:11px; color:var(--crm-color-text-faint); }.pp-task-people b { color:var(--crm-color-text-muted); display:block; overflow-wrap:anywhere; font-size:12px; }
+.pp-warning { padding:12px 0; color:#efb965; font-size:13px; }.pp-empty { color:var(--crm-color-text-muted); font-size:14px; padding:24px 0; }
+.pp-momentum { padding:24px 0; }.pp-momentum > button { display:flex; width:100%; gap:14px; align-items:flex-start; text-align:left; border-bottom:1px solid rgb(255 255 255 / .08); padding:18px 0; }.pp-momentum > button > span { flex:1; min-width:0; }.pp-momentum small,.pp-momentum strong,.pp-momentum span span { display:block; }.pp-momentum small,.pp-momentum span span { font-size:12px; color:var(--crm-color-text-muted); }.pp-momentum strong { margin:6px 0; overflow-wrap:anywhere; }
+.pp-dialog { max-width:760px; width:calc(100vw - 32px); max-height:85vh; margin:auto; padding:28px; color:#eae9e5; background:#1d1d1b; border:1px solid #454540; border-radius:18px; overflow:auto; }.pp-dialog::backdrop { background:rgb(0 0 0 / .65); backdrop-filter:blur(6px); }.pp-dialog h2 { padding-right:24px; overflow-wrap:anywhere; }.pp-dialog p { overflow-wrap:anywhere; }.pp-close { position:absolute; right:14px; top:14px; }
+.project-page button:focus-visible { outline:2px solid hsl(var(--h,190) 80% 70%); outline-offset:4px; }
+@media(max-width:700px) { .project-page .ep .hero { grid-template-columns:minmax(0,1fr); padding:22px 18px; gap:20px; }.pp-commitment { padding:18px 0 8px; border-left:0; border-top:1px solid rgb(255 255 255 / .08); }.pp-commitment h2 { font-size:21px; }.pp-crew,.pp-tabs,.pp-ledger,.pp-momentum,.pp-source { margin-left:18px; margin-right:18px; }.pp-summary { margin:16px 18px; }.pp-summary > div { padding:0 10px; }.pp-summary b { font-size:24px; }.pp-task { grid-template-columns:minmax(0,1fr); gap:12px; }.pp-task-people { flex-direction:row; flex-wrap:wrap; gap:16px; }.pp-task-people span { min-width:0; max-width:100%; }.pp-crew-band button { flex:1 1 150px; }.pp-dialog { padding:20px; } }

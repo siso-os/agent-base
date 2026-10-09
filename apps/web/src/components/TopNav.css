@@ -1,0 +1,16 @@
+/* R1.2 B: Org chart · Tasks · Stats · Servers · Tokens across the top bar, 30 px tall; the open page is filled. */
+.ab-topnav { display: flex; flex: none; align-items: center; gap: 2px; margin: 0 6px 0 4px; }
+.ab-topnav button { display: inline-flex; height: 30px; align-items: center; gap: 6px; padding: 0 10px; border-radius: 8px; color: rgb(var(--crm-white-rgb) / 0.6); font-size: 12.5px; white-space: nowrap; }
+.ab-topnav button:hover { color: rgb(var(--crm-white-rgb) / 0.9); background: rgb(var(--crm-white-rgb) / 0.06); }
+.ab-topnav button[aria-pressed="true"] { color: var(--crm-color-text-strong); background: rgb(var(--crm-white-rgb) / 0.11); }
+.ab-topnav svg { width: 15px; height: 15px; flex: none; stroke-width: var(--crm-icon-stroke); }
+/* At phone width the labels go; the icons and their tooltips stay. */
+@media (max-width: 720px) { .ab-topnav button { padding: 0 8px; font-size: 0; } }
+/* In the side nav above Agent Zero's card (3 Oct 00:05): five icons in a row, no text. */
+.ab-topnav.is-icons { justify-content: space-between; margin: 0 0 6px; padding: 0 2px; }
+.ab-topnav.is-icons button { width: 44px; height: 30px; justify-content: center; padding: 0; }
+.ab-topnav.is-icons svg { width: 16px; height: 16px; }
+/* Popped out beside the side nav (SPEC-STATS-TASKS §2): a 2 px underline in the page's colour (::before: the app's hover
+   tooltip owns every button's ::after). */
+.ab-topnav button { position: relative; }
+.ab-topnav button[data-popped]::before { content: ""; position: absolute; right: 10px; bottom: 1px; left: 10px; height: 2px; border-radius: 2px; background: var(--ab-pop-hue, var(--crm-color-text-strong)); }

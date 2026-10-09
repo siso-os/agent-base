@@ -1,0 +1,29 @@
+.ip-root { width:100%; color:#e6edf7; font-family:inherit; position:relative; --ip-signal:#92a2b8; }
+.ip-trigger { width:100%; padding:13px; color:inherit; font:inherit; text-align:left; border:1px solid #455269; border-radius:13px; background:linear-gradient(155deg,#252d3b,#101620 75%); box-shadow:inset 0 1px 0 #ffffff17,0 5px 14px #00000030; cursor:pointer; }
+.ip-trigger-heading { display:flex; align-items:center; gap:9px; font-size:13px; font-weight:650; }
+.ip-chevron { margin-left:auto; color:#9baec8; font-size:18px; }
+.ip-signals { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin-top:12px; }
+.ip-signal { display:grid; grid-template-columns:5px minmax(0,1fr); align-items:center; column-gap:5px; font-size:9px; letter-spacing:.035em; }
+.ip-signal small { grid-column:2; font-size:10px; color:#a9b6c8; letter-spacing:0; margin-top:3px; }
+.ip-signal i,.ip-status i { height:5px; width:5px; border-radius:50%; background:var(--ip-signal); flex-shrink:0; }
+.ip-state-working { --ip-signal:#77cbbd; }.ip-state-needs { --ip-signal:#efc489; }.ip-state-failed { --ip-signal:#ef8e9c; }.ip-state-done { --ip-signal:#94c9ae; }.ip-state-idle { --ip-signal:#a6b5cb; }.ip-state-unknown,.ip-state-offline { --ip-signal:#8390a1; }
+.ip-panel { margin-top:8px; width:100%; box-sizing:border-box; border:1px solid #46536a; border-radius:15px; background:linear-gradient(145deg,#252f40f5,#111923fa 65%); box-shadow:inset 0 1px 0 #d6eaff1c,0 16px 36px #00000050; overflow:hidden; max-height:min(470px,65dvh); overflow-y:auto; }
+.ip-panel-header { display:flex; align-items:center; gap:8px; padding:12px 13px; font-size:11px; color:#afbed1; border-bottom:1px solid #b8cced15; }
+.ip-pin { margin-left:auto; font-size:9px; text-transform:uppercase; letter-spacing:.09em; color:#c0d2ec; }
+.ip-close { width:25px; height:25px; display:grid; place-items:center; background:#ffffff06; border:1px solid #ffffff15; border-radius:6px; color:#bccce0; font-size:18px; cursor:pointer; }
+.ip-rows { padding:5px; }.ip-row { display:flex; align-items:center; width:100%; gap:10px; text-align:left; padding:12px 8px; border:1px solid transparent; border-radius:10px; background:transparent; color:inherit; font:inherit; cursor:pointer; }
+.ip-row + .ip-row { border-top-color:#b8cced12; }.ip-row:hover,.ip-row:focus-visible { background:#cadfff08; border-color:#839ec638; }
+.ip-face { display:grid; place-items:center; width:42px; height:46px; flex-shrink:0; border-radius:10px; background:linear-gradient(145deg,#ffffff08,#00000020); }
+.ip-row-body { min-width:0; flex:1; display:flex; flex-direction:column; gap:5px; }.ip-row-heading { display:flex; align-items:center; gap:8px; justify-content:space-between; flex-wrap:wrap; }.ip-row-heading strong { font-size:11px; letter-spacing:.035em; }.ip-status { display:flex; align-items:center; gap:5px; font-size:10px; color:#ced8e6; white-space:nowrap; }.ip-domain { font-size:11px; color:#a6b9d3; }.ip-fact { font-size:11px; line-height:1.45; color:#d3dfed; overflow-wrap:anywhere; }.ip-observed { font-size:9px; line-height:1.5; color:#98a7bd; }.ip-chat { color:#9fbcdf; font-size:17px; }.ip-panel-footer { padding:10px 13px; border-top:1px solid #b8cced15; color:#97aac3; font-size:10px; }
+.ip-trigger:focus-visible,.ip-close:focus-visible,.ip-row:focus-visible,.ip-demo-controls input:focus-visible { outline:2px solid #91b8f0; outline-offset:3px; }
+.ip-root[data-motion="true"] .ip-trigger,.ip-root[data-motion="true"] .ip-row { transition:background .16s,border-color .16s; }.ip-root[data-motion="true"] .ip-panel { animation:ip-reveal .18s ease-out both; }
+@keyframes ip-reveal { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:translateY(0); } }
+.ip-sr { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+.ip-demo { width:100%; max-width:370px; margin:auto; box-sizing:border-box; }.ip-demo-label { margin-bottom:14px; color:#91a4bf; font-size:10px; text-transform:uppercase; letter-spacing:.09em; }.ip-demo-controls { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin:17px 0 12px; color:#adbcd1; font-size:11px; }.ip-demo-controls label { display:flex; gap:7px; align-items:center; }.ip-demo-controls input { accent-color:#8db1de; }.ip-demo-controls > span { font-size:10px; color:#94aac5; }.ip-receipt { display:block; padding:11px; border:1px solid #637e9a30; border-radius:9px; background:#07101a60; color:#bfd0e4; font-size:11px; line-height:1.5; overflow-wrap:anywhere; }
+@media (prefers-reduced-motion:reduce) { .ip-root .ip-panel { animation:none; }.ip-root .ip-trigger,.ip-root .ip-row { transition:none; } }
+/* t-0464: one line per server. */
+.ip-rows .ip-row { padding: 7px 8px; gap: 9px; }
+.ip-rows .ip-face { width: 30px; height: 30px; border-radius: 8px; }
+.ip-rows .ip-row-body { gap: 1px; }
+.ip-rows .ip-row-heading { flex-wrap: nowrap; }
+.ip-rows .ip-fact { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

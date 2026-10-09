@@ -1,0 +1,36 @@
+@import "@siso/tokens/siso.css";
+@import "@siso/tokens/tokens.css";
+
+:root { color-scheme: dark; font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-synthesis: none; }
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 320px; background: var(--crm-color-canvas); color: var(--crm-color-text); }
+.faces-page { width: min(960px, calc(100% - 48px)); margin: 0 auto; padding: 64px 0 32px; }
+.faces-header { padding: 0 0 32px; border-bottom: 1px solid var(--crm-color-line); }
+.faces-kicker, .faces-labels, .faces-foot { color: var(--crm-color-text-muted); font-size: 11px; font-weight: 650; letter-spacing: .14em; }
+.faces-kicker { margin: 0 0 18px; }
+h1 { margin: 0; font-size: clamp(30px, 5vw, 48px); line-height: 1.04; letter-spacing: -.045em; font-weight: 600; }
+.faces-intro { margin: 14px 0 30px; color: var(--crm-color-text-muted); font-size: 15px; }
+.faces-sample { display: flex; align-items: center; gap: 16px; padding: 16px 18px; width: fit-content; max-width: 100%; border: 1px solid var(--crm-color-line); border-radius: 14px; background: var(--crm-color-surface); }
+.faces-sample > div { display: grid; gap: 4px; }
+.faces-sample strong { font-size: 15px; letter-spacing: .02em; }
+.faces-sample span { color: var(--crm-color-text-muted); font-size: 12px; }
+.faces-sample .faces-tag { margin-left: 20px; color: var(--crm-color-brand); font-size: 10px; letter-spacing: .12em; }
+.faces-grid { padding-top: 18px; }
+.faces-row { min-height: 78px; display: grid; grid-template-columns: minmax(190px, 1fr) repeat(3, 120px); align-items: center; border-bottom: 1px solid var(--crm-color-line); }
+.faces-labels { min-height: 38px; }
+.faces-labels span:not(:first-child) { text-align: center; }
+.faces-state { display: grid; gap: 4px; }
+.faces-state strong { text-transform: capitalize; font-size: 14px; font-weight: 550; }
+.faces-state span { color: var(--crm-color-text-muted); font-size: 11px; }
+.faces-cell { display: flex; justify-content: center; align-items: center; }
+.faces-foot { display: flex; justify-content: space-between; padding-top: 18px; font-size: 10px; }
+@media (max-width: 540px) {
+  .faces-page { width: calc(100% - 32px); padding-top: 34px; }
+  .faces-intro { line-height: 1.5; }
+  .faces-sample { gap: 10px; padding: 12px; }
+  .faces-sample .faces-tag { display: none; }
+  .faces-row { grid-template-columns: minmax(92px, 1fr) repeat(3, 54px); min-height: 72px; }
+  .faces-state strong { font-size: 12px; }
+  .faces-state span { font-size: 9px; }
+  .faces-labels { font-size: 9px; }
+}

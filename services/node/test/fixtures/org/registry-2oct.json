@@ -1,0 +1,165 @@
+{
+ "projects": [
+  {
+   "id": "halo",
+   "name": "HALO",
+   "group": "agency",
+   "shown": true,
+   "order": 0,
+   "path": "/home/s/SISO_Workspace/SISO_Agency/partners/halo"
+  },
+  {
+   "id": "efficiency",
+   "name": "Efficiency",
+   "group": "labs",
+   "shown": true,
+   "order": 1,
+   "path": "/home/s/SISO_Workspace/SISO_Agents/siso-harness-lab"
+  },
+  {
+   "id": "agent-base",
+   "name": "Agent Base",
+   "group": "labs",
+   "shown": true,
+   "order": 2,
+   "path": "/home/s/SISO_Workspace/SISO_Agency/apps/siso-internal-labs/siso-internal-labs-agents"
+  },
+  {
+   "id": "estate",
+   "name": "Estate",
+   "group": "labs",
+   "shown": true,
+   "order": 3,
+   "path": "/home/s/SISO_Workspace/SISO_Agents/siso-estate"
+  },
+  {
+   "id": "fahmy-s-agency",
+   "name": "Fahmy's agency",
+   "group": "agency",
+   "shown": false,
+   "order": 4,
+   "path": "/home/s/SISO_Workspace/SISO_Agency/partners/fahmy"
+  },
+  {
+   "id": "agency-base",
+   "name": "Agency base",
+   "group": "labs",
+   "shown": true,
+   "order": 5
+  },
+  {
+   "id": "lifelog",
+   "name": "Lifelog",
+   "group": "labs",
+   "shown": true,
+   "order": 6
+  },
+  {
+   "id": "siso-internal-labs",
+   "name": "SISO Internal Labs",
+   "group": "labs",
+   "shown": true,
+   "order": 7
+  },
+  {
+   "id": "siso",
+   "name": "SISO",
+   "group": "labs",
+   "shown": true,
+   "order": 8
+  }
+ ],
+ "agents": {
+  "STREAMING-CLAUDE": {
+   "domain": "Streaming go-live",
+   "project": "HALO",
+   "kind": "owner"
+  },
+  "OPS-BUILD": {
+   "domain": "Ops Hub",
+   "project": "HALO",
+   "kind": "owner"
+  },
+  "HALO-UI": {
+   "domain": "CRM UI",
+   "project": "HALO",
+   "kind": "owner"
+  },
+  "AGENT-BASE": {
+   "project": "Agent Base",
+   "domain": "Agent Base",
+   "kind": "owner"
+  },
+  "AGENT-BASE-BUILD": {
+   "project": "Agent Base",
+   "domain": "Agent Base",
+   "owner": "AGENT-BASE",
+   "kind": "worker"
+  },
+  "BKY remaining work": {
+   "project": "Fahmy's agency",
+   "domain": "BKY",
+   "kind": "owner"
+  },
+  "HEALTH": {
+   "project": "Efficiency",
+   "domain": "Health",
+   "kind": "owner",
+   "slot": "bottom"
+  },
+  "HUB-DESIGN": {
+   "project": "SISO Internal Labs",
+   "domain": "Agent Base",
+   "owner": "AGENT-BASE",
+   "kind": "worker"
+  },
+  "AGENCY-BASE": {
+   "project": "Agency base",
+   "domain": "Agency base",
+   "kind": "owner",
+   "state": "planned"
+  },
+  "LIFELOG": {
+   "project": "Lifelog",
+   "domain": "Lifelog",
+   "kind": "owner",
+   "state": "planned"
+  },
+  "ESTATE": {
+   "project": "SISO Internal Labs",
+   "domain": "Estate",
+   "kind": "owner"
+  },
+  "EFFICIENCY": {
+   "project": "SISO Internal Labs",
+   "kind": "owner",
+   "domain": "Efficiency"
+  },
+  "efficiency": {
+   "project": "SISO Internal Labs",
+   "domain": "Efficiency",
+   "owner": "STACK-OPT",
+   "kind": "worker"
+  },
+  "a0-luna-a0w-001": {
+   "project": "SISO",
+   "domain": "Agent Zero",
+   "owner": "Agent Zero",
+   "kind": "worker"
+  },
+  "A0-DESK": {
+   "project": "SISO",
+   "domain": "Agent Zero",
+   "owner": "Agent Zero",
+   "kind": "worker"
+  },
+  "RELEASE-1": {
+   "project": "SISO Internal Labs",
+   "owner": "AGENT-BASE",
+   "kind": "worker"
+  }
+ },
+ "aliases": {
+  "STACK-OPT": "EFFICIENCY"
+ }
+}

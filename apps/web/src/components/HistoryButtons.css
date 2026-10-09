@@ -1,0 +1,4 @@
+.ab-history { display: inline-flex; align-items: center; gap: 2px; }
+.ab-history button { display: grid; width: 28px; height: 28px; place-items: center; border: 0; border-radius: 7px; background: transparent; color: var(--crm-text-secondary); cursor: pointer; }
+.ab-history button:hover:not(:disabled) { background: var(--crm-surface-hover); color: var(--crm-text-primary); }
+.ab-history button:disabled { opacity: .32; cursor: default; }

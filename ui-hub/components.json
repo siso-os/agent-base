@@ -1,0 +1,847 @@
+{
+  "hub": "Agent Base · UI hub",
+  "components": [
+    {
+      "id": "input-bar",
+      "name": "Input bar",
+      "accent": "#22d3ee",
+      "status": "v3 live",
+      "summary": "The composer: halo rim, model picker, ctx ring, 5h · wk, tokens and cost, the agents pill and popup, the artifacts shelf.",
+      "for": "“our coolest comp … highest leverage”",
+      "pages": [
+        {
+          "id": "current",
+          "title": "Current state",
+          "file": "index.html",
+          "kind": "frame"
+        },
+        {
+          "id": "readme",
+          "title": "README",
+          "file": "README.md"
+        },
+        {
+          "id": "feedback",
+          "title": "Feedback",
+          "file": "FEEDBACK.md"
+        },
+        {
+          "id": "reasoning",
+          "title": "Reasoning",
+          "file": "REASONING.md"
+        },
+        {
+          "id": "ideas",
+          "title": "Ideas log",
+          "file": "IDEAS.md"
+        },
+        {
+          "id": "ideas-r2",
+          "title": "Ideas · round 2 renders",
+          "file": "ideas.html",
+          "kind": "frame"
+        },
+        {
+          "id": "ideas-r1",
+          "title": "Ideas · round 1 renders",
+          "file": "ideas-round1.html",
+          "kind": "frame"
+        },
+        {
+          "id": "improvements",
+          "title": "Improvements",
+          "file": "IMPROVEMENTS.md"
+        }
+      ]
+    },
+    {
+      "id": "chat-header",
+      "name": "Chat header",
+      "accent": "#c084fc",
+      "status": "v1.1 live",
+      "summary": "The top bar as the input bar's twin: a capsule that says whose chat this is and what it's doing now, with ✎ for the name and face.",
+      "for": "“the text that's shown there it could be redesigned so much nicer … wrapped in its own circular thing like the input chat”",
+      "pages": [
+        {
+          "id": "readme",
+          "title": "README",
+          "file": "README.md"
+        },
+        {
+          "id": "feedback",
+          "title": "Feedback",
+          "file": "FEEDBACK.md"
+        },
+        {
+          "id": "reasoning",
+          "title": "Reasoning",
+          "file": "REASONING.md"
+        },
+        {
+          "id": "states",
+          "title": "States, edge cases, animations",
+          "file": "STATES.md"
+        },
+        {
+          "id": "improvements",
+          "title": "Improvements",
+          "file": "IMPROVEMENTS.md"
+        },
+        {
+          "id": "research",
+          "title": "Research",
+          "file": "RESEARCH.md"
+        },
+        {
+          "id": "comp",
+          "title": "Comp 1 (HTML, superseded)",
+          "file": "comp.html",
+          "kind": "frame"
+        }
+      ]
+    },
+    {
+      "id": "side-nav",
+      "name": "Side nav",
+      "accent": "#a78bfa",
+      "status": "pack ready",
+      "summary": "“not a big fan … kind of just looks the same”. Spec ready; not started.",
+      "pages": [
+        {
+          "id": "feedback",
+          "title": "Feedback · 5 Oct",
+          "file": "FEEDBACK.md"
+        },
+        {
+          "id": "readme",
+          "title": "README",
+          "file": "README.md"
+        },
+        {
+          "id": "pack",
+          "title": "Research pack",
+          "file": "pack/README.md"
+        },
+        {
+          "id": "shots",
+          "title": "Pack · all shots",
+          "file": "pack/shots/",
+          "kind": "gallery"
+        },
+        {
+          "id": "v2-reasoning",
+          "title": "v2 · reasoning",
+          "file": "rounds/v2/REASONING.md"
+        },
+        {
+          "id": "v2-spec",
+          "title": "v2 · build spec",
+          "file": "rounds/v2/SPEC.md"
+        },
+        {
+          "id": "v2",
+          "title": "Side nav v2 (spec steps 1-6)",
+          "kind": "gallery",
+          "file": "rounds/v2/"
+        },
+        {
+          "id": "dashboard-spec",
+          "title": "Dashboard page · spec",
+          "file": "rounds/dashboard/SPEC.md"
+        },
+        {
+          "id": "dashboard",
+          "title": "Dashboard page: the operation in one look",
+          "kind": "gallery",
+          "file": "rounds/dashboard/"
+        },
+        {
+          "id": "live-fixes",
+          "title": "Land the four stranded live fixes",
+          "kind": "gallery",
+          "file": "rounds/live-fixes/"
+        },
+        {
+          "id": "dash-nav",
+          "title": "Dashboard clicks go to the exact place",
+          "kind": "gallery",
+          "file": "rounds/dash-nav/"
+        },
+        {
+          "id": "base-card",
+          "title": "Agent Base card",
+          "kind": "gallery",
+          "file": "rounds/base-card/"
+        }
+      ]
+    },
+    {
+      "id": "agent-zero-board",
+      "name": "Agent Zero's board",
+      "accent": "#ffa726",
+      "status": "queued",
+      "summary": "The right pullout reborn, and the chat chrome (“no taste”). Specs ready; not started.",
+      "pages": [
+        {
+          "id": "readme",
+          "title": "README",
+          "file": "README.md"
+        }
+      ]
+    },
+    {
+      "id": "right-panel",
+      "name": "Right panel",
+      "accent": "#34d399",
+      "status": "v1 shipping",
+      "summary": "The side panel (⌘⇧B): this agent's depth, Agent Zero's board, and where the five fleet icons may go.",
+      "pages": [
+        {
+          "id": "feedback",
+          "title": "Feedback · 5 Oct",
+          "file": "FEEDBACK.md"
+        },
+        {
+          "id": "readme",
+          "title": "README",
+          "file": "README.md"
+        },
+        {
+          "id": "pack",
+          "title": "Research pack",
+          "file": "pack/README.md"
+        },
+        {
+          "id": "shots",
+          "title": "Pack · all shots",
+          "file": "pack/shots/",
+          "kind": "gallery"
+        },
+        {
+          "id": "tasks-omp",
+          "title": "Tasks · Oh My Pi round",
+          "kind": "gallery",
+          "file": "rounds/tasks-omp/"
+        },
+        {
+          "id": "fleet",
+          "title": "Fleet · spec",
+          "file": "rounds/fleet/SPEC.md"
+        },
+        {
+          "id": "tasks-tab",
+          "title": "Tasks tab: tasks with dropdowns, not a dump",
+          "kind": "gallery",
+          "file": "rounds/tasks-tab/"
+        },
+        {
+          "id": "timeline-spec",
+          "title": "Timeline · spec",
+          "file": "rounds/timeline/SPEC.md"
+        },
+        {
+          "id": "reconnect",
+          "title": "Restart → reconnected 10x faster",
+          "kind": "gallery",
+          "file": "rounds/reconnect/"
+        },
+        {
+          "id": "timeline",
+          "title": "Timeline: legible, clickable, with the pipeline",
+          "kind": "gallery",
+          "file": "rounds/timeline/"
+        },
+        {
+          "id": "taskcard",
+          "title": "Tasks card redesign",
+          "kind": "gallery",
+          "file": "rounds/taskcard/"
+        }
+      ],
+      "for": "“we had a bunch of cool stuff in there” (3 Oct)"
+    },
+    {
+      "id": "chat",
+      "name": "Chat",
+      "accent": "#60a5fa",
+      "status": "pack ready",
+      "summary": "Every state the chat page can be in, live and fixture, with its edge cases.",
+      "pages": [
+        {
+          "id": "feedback",
+          "title": "Feedback · 5 Oct",
+          "file": "FEEDBACK.md"
+        },
+        {
+          "id": "pack",
+          "title": "Research pack",
+          "file": "pack/README.md"
+        },
+        {
+          "id": "shots",
+          "title": "Pack · all shots",
+          "file": "pack/shots/",
+          "kind": "gallery"
+        }
+      ]
+    },
+    {
+      "id": "top-strip",
+      "name": "Top strip",
+      "accent": "#f472b6",
+      "status": "pack ready",
+      "summary": "Tabs, URLs, Updates, version pill, Today spend.",
+      "pages": [
+        {
+          "id": "pack",
+          "title": "Research pack",
+          "file": "pack/README.md"
+        },
+        {
+          "id": "shots",
+          "title": "Pack · all shots",
+          "file": "pack/shots/",
+          "kind": "gallery"
+        }
+      ],
+      "for": "“i like the version pill and i like the today's spend … how the tabs actually work is slightly retarded” (4 Oct ~04:15)"
+    },
+    {
+      "id": "browser",
+      "name": "Browser",
+      "accent": "#fbbf24",
+      "status": "pack ready",
+      "summary": "Agent Base's own web tabs, mapped against Arc; why the hub loads slowly in it.",
+      "pages": [
+        {
+          "id": "pack",
+          "title": "Research pack",
+          "file": "pack/README.md"
+        },
+        {
+          "id": "shots",
+          "title": "Pack · all shots",
+          "file": "pack/shots/",
+          "kind": "gallery"
+        },
+        {
+          "id": "browser-v2",
+          "title": "Browser tab: fast, clean, his pins",
+          "kind": "gallery",
+          "file": "rounds/browser-v2/"
+        }
+      ]
+    },
+    {
+      "id": "space",
+      "name": "The space",
+      "accent": "#22d3ee",
+      "status": "built · fixture verified",
+      "summary": "A project pinboard: owner chat, builders, research children and file-authored pins.",
+      "for": "“a pinned always surface pin board”",
+      "pages": [
+        {
+          "id": "space",
+          "title": "The space: infinite pinboard per project",
+          "kind": "gallery",
+          "file": "rounds/space/"
+        }
+      ]
+    },
+    {
+      "id": "_hub",
+      "name": "Whole app",
+      "accent": "#22d3ee",
+      "status": "rounds",
+      "summary": "Changes that span the app.",
+      "pages": [
+        {
+          "id": "feedback",
+          "title": "Feedback · 5 Oct",
+          "file": "FEEDBACK.md"
+        },
+        {
+          "id": "point-and-say",
+          "title": "Point and say",
+          "kind": "gallery",
+          "file": "rounds/point-and-say/"
+        }
+      ]
+    },
+    {
+      "id": "dashboard",
+      "name": "Dashboard",
+      "kind": "page",
+      "accent": "#8baeff",
+      "status": "Review not recorded",
+      "summary": "The operation in one view.",
+      "pages": [
+        {
+          "id": "files",
+          "title": "Files and data",
+          "file": "FILES.md"
+        },
+        {
+          "id": "traps",
+          "title": "Traps and invariants",
+          "file": "TRAPS.md"
+        },
+        {
+          "id": "reasoning",
+          "title": "Reasoning",
+          "file": "REASONING.md"
+        },
+        {
+          "id": "feedback",
+          "title": "Feedback and acceptance",
+          "file": "FEEDBACK.md"
+        }
+      ],
+      "proofRefs": [
+        {
+          "component": "side-nav",
+          "id": "dashboard",
+          "title": "Dashboard round",
+          "file": "rounds/dashboard/"
+        }
+      ],
+      "writerDossier": {
+        "version": 1,
+        "sourceRevision": "41d9f50e653032c4f6ac5a402e30976914959635",
+        "files": [
+          {
+            "path": "apps/web/src/components/DashboardPage.tsx",
+            "sha256": "847868d93c019aec604adc09934bb7de1787e9951bbd42972a8cde7568398304"
+          },
+          {
+            "path": "apps/web/src/components/DashboardPage.css",
+            "sha256": "b9990284b5dfda276a11aad3d7f3e200091c431f54c296f910bfab8a94b6d67d"
+          }
+        ],
+        "context": [
+          {
+            "role": "files",
+            "path": "ui-hub/dashboard/FILES.md",
+            "sha256": "73f19843adbd0b6dde1a673605794e2185ca13328dc60b0f49149630f2a2b87d"
+          },
+          {
+            "role": "traps",
+            "path": "ui-hub/dashboard/TRAPS.md",
+            "sha256": "e2575d046826aa5180244935b6a1dca0be914d6e884f45bee5266aba2ef56fc2"
+          },
+          {
+            "role": "reasoning",
+            "path": "ui-hub/dashboard/REASONING.md",
+            "sha256": "2a52bcbdc6ed4adcb00c8a0cb6fc1e8120cdb8a82d50185aaf69bf4e30affb2c"
+          },
+          {
+            "role": "feedback",
+            "path": "ui-hub/dashboard/FEEDBACK.md",
+            "sha256": "c1495bcc9092b8a422d2309854933beacd8a3cd9e382e35294e481e0b2417666"
+          }
+        ]
+      }
+    },
+    {
+      "id": "tasks",
+      "name": "Tasks",
+      "kind": "page",
+      "accent": "#8baeff",
+      "status": "Review not recorded",
+      "summary": "Task tree, owners, stages and actions.",
+      "pages": [],
+      "proofRefs": [
+        {
+          "component": "right-panel",
+          "id": "taskcard",
+          "title": "Task cards round",
+          "file": "rounds/taskcard/"
+        },
+        {
+          "component": "right-panel",
+          "id": "verbs",
+          "title": "Task actions round",
+          "file": "rounds/verbs/"
+        }
+      ]
+    },
+    {
+      "id": "timeline",
+      "name": "Timeline",
+      "kind": "page",
+      "accent": "#8baeff",
+      "status": "Review not recorded",
+      "summary": "Ordered work and event history.",
+      "pages": [],
+      "proofRefs": [
+        {
+          "component": "right-panel",
+          "id": "timeline",
+          "title": "Timeline round",
+          "file": "rounds/timeline/"
+        }
+      ]
+    },
+    {
+      "id": "servers",
+      "name": "Servers",
+      "kind": "page",
+      "accent": "#8baeff",
+      "status": "Review not recorded",
+      "summary": "Machine and service availability.",
+      "pages": []
+    },
+    {
+      "id": "tokens",
+      "name": "Tokens",
+      "kind": "page",
+      "accent": "#8baeff",
+      "status": "Review not recorded",
+      "summary": "Token usage and cost detail.",
+      "pages": []
+    },
+    {
+      "id": "stats",
+      "name": "Stats",
+      "kind": "page",
+      "accent": "#8baeff",
+      "status": "Review not recorded",
+      "summary": "Fleet activity and historical measurements.",
+      "pages": []
+    },
+    {
+      "id": "fleet",
+      "name": "Fleet",
+      "kind": "page",
+      "accent": "#8baeff",
+      "status": "Review not recorded",
+      "summary": "Project fleets and running workers.",
+      "pages": [],
+      "proofRefs": [
+        {
+          "component": "right-panel",
+          "id": "fleet",
+          "title": "Fleet round",
+          "file": "rounds/fleet/"
+        }
+      ]
+    },
+    {
+      "id": "ended",
+      "name": "Ended agents",
+      "kind": "page",
+      "accent": "#8baeff",
+      "status": "Review not recorded",
+      "summary": "Ended sessions and retained history.",
+      "pages": []
+    },
+    {
+      "id": "starred",
+      "name": "Starred",
+      "kind": "page",
+      "accent": "#8baeff",
+      "status": "Review not recorded",
+      "summary": "Saved items and starred work.",
+      "pages": []
+    },
+    {
+      "id": "research",
+      "name": "Research",
+      "kind": "page",
+      "accent": "#8baeff",
+      "status": "Review not recorded",
+      "summary": "Research jobs and their evidence.",
+      "pages": []
+    },
+    {
+      "id": "codex-work",
+      "name": "Codex Work",
+      "kind": "page",
+      "accent": "#8baeff",
+      "status": "Review not recorded",
+      "summary": "Codex work and task status.",
+      "pages": []
+    },
+    {
+      "id": "library",
+      "name": "Library",
+      "kind": "page",
+      "accent": "#8baeff",
+      "status": "Review not recorded",
+      "summary": "Existing library sources, documents and reading pages.",
+      "pages": [
+        {
+          "id": "readme",
+          "title": "Component README",
+          "file": "README.md"
+        }
+      ]
+    },
+    {
+      "id": "life",
+      "name": "Life",
+      "kind": "page",
+      "accent": "#8baeff",
+      "status": "Review not recorded",
+      "summary": "Personal routines and daily activity; gated by app configuration.",
+      "pages": []
+    },
+    {
+      "id": "voice",
+      "name": "Voice",
+      "kind": "page",
+      "accent": "#8baeff",
+      "status": "Review not recorded",
+      "summary": "Dictation history and voice service state.",
+      "pages": []
+    },
+    {
+      "id": "rolodex",
+      "name": "Rolodex",
+      "kind": "page",
+      "accent": "#8baeff",
+      "status": "Review not recorded",
+      "summary": "People, project relationships and contact records.",
+      "pages": [
+        {
+          "id": "readme",
+          "title": "Component README",
+          "file": "README.md"
+        }
+      ]
+    },
+    {
+      "id": "whatsapp",
+      "name": "WhatsApp",
+      "kind": "page",
+      "accent": "#8baeff",
+      "status": "Review not recorded",
+      "summary": "Conversations and communication context; gated by app configuration.",
+      "pages": [
+        {
+          "id": "readme",
+          "title": "Component README",
+          "file": "README.md"
+        }
+      ]
+    },
+    {
+      "id": "estate",
+      "name": "Estate",
+      "kind": "page",
+      "accent": "#8baeff",
+      "status": "Review not recorded",
+      "summary": "Estate world embedded surface.",
+      "pages": []
+    },
+    {
+      "id": "entity",
+      "name": "Project and entity pages",
+      "kind": "page",
+      "accent": "#8baeff",
+      "status": "Review not recorded",
+      "summary": "A project, owner and related work in one place.",
+      "pages": []
+    },
+    {
+      "id": "product-map",
+      "name": "Product map",
+      "kind": "page",
+      "accent": "#8baeff",
+      "status": "Review not recorded",
+      "summary": "Surface coverage, stored screenshots and user ratings.",
+      "pages": []
+    },
+    {
+      "id": "states",
+      "name": "States",
+      "kind": "manual",
+      "accent": "#8baeff",
+      "status": "Source examples",
+      "summary": "Browseable manual for the current composer shell and approved living assets.",
+      "pages": [
+        {
+          "id": "examples",
+          "title": "States · interactive examples",
+          "file": "index.html",
+          "kind": "frame"
+        },
+        {
+          "id": "readme",
+          "title": "API and source notes",
+          "file": "README.md"
+        }
+      ]
+    },
+    {
+      "id": "animations",
+      "name": "Animations",
+      "kind": "manual",
+      "accent": "#8baeff",
+      "status": "Source examples",
+      "summary": "Browseable manual for the current composer shell and approved living assets.",
+      "pages": [
+        {
+          "id": "examples",
+          "title": "Animations · interactive examples",
+          "file": "index.html",
+          "kind": "frame"
+        },
+        {
+          "id": "readme",
+          "title": "API and source notes",
+          "file": "README.md"
+        }
+      ]
+    },
+    {
+      "id": "edge-cases",
+      "name": "Edge cases",
+      "kind": "manual",
+      "accent": "#8baeff",
+      "status": "Source examples",
+      "summary": "Browseable manual for the current composer shell and approved living assets.",
+      "pages": [
+        {
+          "id": "examples",
+          "title": "Edge cases · interactive examples",
+          "file": "index.html",
+          "kind": "frame"
+        },
+        {
+          "id": "readme",
+          "title": "API and source notes",
+          "file": "README.md"
+        }
+      ]
+    },
+    {
+      "id": "org-chart",
+      "name": "Org chart",
+      "kind": "page",
+      "accent": "#8baeff",
+      "status": "Review not recorded",
+      "summary": "The organization tree and its relationships.",
+      "pages": []
+    },
+    {
+      "id": "whatsnew",
+      "name": "What’s new",
+      "kind": "page",
+      "accent": "#8baeff",
+      "status": "Review not recorded",
+      "summary": "Release notes and app updates.",
+      "pages": []
+    },
+    {
+      "id": "laptop-jobs",
+      "name": "Laptop jobs",
+      "kind": "page",
+      "accent": "#8baeff",
+      "status": "Review not recorded",
+      "summary": "Background job schedules and last runs.",
+      "pages": []
+    },
+    {
+      "id": "dictation",
+      "name": "Dictation",
+      "kind": "page",
+      "accent": "#8baeff",
+      "status": "Review not recorded",
+      "summary": "Voice transcription controls and settings within Voice.",
+      "pages": []
+    },
+    {
+      "id": "mini-lanes",
+      "name": "Mac mini lanes",
+      "kind": "page",
+      "accent": "#8baeff",
+      "status": "Review not recorded",
+      "summary": "Machine lane detail and work allocation.",
+      "pages": []
+    },
+    {
+      "id": "terminal",
+      "name": "Terminal",
+      "kind": "page",
+      "accent": "#8baeff",
+      "status": "Review not recorded",
+      "summary": "Agent terminals and task shell tabs.",
+      "pages": []
+    },
+    {
+      "id": "codex-worker",
+      "name": "Codex worker",
+      "kind": "page",
+      "accent": "#8baeff",
+      "status": "Review not recorded",
+      "summary": "A worker’s output and runtime detail.",
+      "pages": []
+    },
+    {
+      "id": "agent-zero-page",
+      "name": "Agent Zero page",
+      "kind": "page",
+      "accent": "#8baeff",
+      "status": "Review not recorded",
+      "summary": "Agent Zero’s full page and widgets.",
+      "pages": []
+    },
+    {
+      "id": "bell",
+      "name": "Bell",
+      "accent": "#f0b03f",
+      "status": "built for review",
+      "summary": "Needs you, then outcomes. Inline decisions and a visible Later shelf.",
+      "pages": [
+        {
+          "id": "current",
+          "title": "Before and after",
+          "file": "index.html"
+        },
+        {
+          "id": "readme",
+          "title": "Overview",
+          "file": "README.md"
+        },
+        {
+          "id": "spec",
+          "title": "Spec",
+          "file": "SPEC.md"
+        },
+        {
+          "id": "reasoning",
+          "title": "Reasoning",
+          "file": "REASONING.md"
+        },
+        {
+          "id": "improvements",
+          "title": "Improvements",
+          "file": "IMPROVEMENTS.md"
+        },
+        {
+          "id": "feedback",
+          "title": "Feedback",
+          "file": "FEEDBACK.md"
+        },
+        {
+          "id": "ideas",
+          "title": "Ideas",
+          "file": "IDEAS.md"
+        }
+      ]
+    }
+  ],
+  "docs": [
+    {
+      "id": "vision",
+      "title": "Vision: the wider picture",
+      "file": "VISION.md"
+    },
+    {
+      "id": "how",
+      "title": "How the hub works",
+      "file": "README.md"
+    }
+  ]
+}

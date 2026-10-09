@@ -1,0 +1,17 @@
+/* A page popped out beside the side nav (SPEC-STATS-TASKS §2): a halo-rim card, 380 px by default, the chat beside it. */
+.ab-pop { position: relative; display: flex; flex: none; min-height: 0; padding: 8px 6px 8px 8px; }
+.ab-pop__rim.siso-rim { display: flex; min-width: 0; min-height: 0; flex: 1; flex-direction: column; padding: 0; border-radius: 20px;
+  box-shadow: 0 0 0 1px rgb(255 255 255 / .02), 0 14px 40px -18px color-mix(in srgb, var(--rim-hue) 55%, transparent); }
+.ab-pop__box { display: flex; min-width: 0; min-height: 0; flex: 1; flex-direction: column; overflow: hidden; border-radius: 20px; outline: none; }
+.ab-pop__head { display: flex; flex: none; align-items: center; gap: 4px; padding: 10px 8px 8px 16px; border-bottom: 1px solid var(--crm-color-line-subtle); }
+.ab-pop__head h2 { min-width: 0; flex: 1; margin: 0; overflow: hidden; color: var(--crm-color-text-strong); font-size: 13.5px; font-weight: 650; text-overflow: ellipsis; white-space: nowrap; }
+.ab-pop__head h2 span { color: var(--crm-color-text-muted); font-weight: 500; }
+.ab-pop__head button { display: grid; flex: none; width: 28px; height: 28px; place-items: center; border-radius: 8px; color: var(--crm-color-text-muted); }
+.ab-pop__head button:hover { color: var(--crm-color-text-strong); background: rgb(var(--crm-white-rgb) / .07); }
+.ab-pop__head svg { width: 15px; height: 15px; stroke-width: var(--crm-icon-stroke); }
+.ab-pop__body { position: relative; display: flex; min-height: 0; flex: 1; flex-direction: column; overflow: auto; }
+/* Lane popups (9 Oct): the pop slides out of the side nav (180 ms, transform and opacity), a fade under reduced motion. */
+.ab-pop__rim.siso-rim { animation: ab-pop-in 180ms cubic-bezier(.2, .8, .2, 1) both; }
+@keyframes ab-pop-in { from { opacity: 0; transform: translateX(-10px); } }
+@media (prefers-reduced-motion: reduce) { .ab-pop__rim.siso-rim { animation: ab-pop-fade 100ms linear both; } }
+@keyframes ab-pop-fade { from { opacity: 0; } }

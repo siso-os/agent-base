@@ -1,0 +1,17 @@
+{
+  "source": "Approved workspace SVGs, 2026-10-05. Extracted geometry only; originals unchanged.",
+  "marks": {
+    "agent-base": {
+      "file": "agent-base.svg",
+      "sha256": "cf658c120617d8ac4bf8290a8caa4722c1d0b5a4c7abbb9cb69c20578532ed5b"
+    },
+    "siso-agency": {
+      "file": "siso-agency.svg",
+      "sha256": "38538cc3b5c7dd370114a7badb969e78f88b7f0c6e148cc7cd5d91796dbec7ec"
+    },
+    "halo": {
+      "file": "halo.svg",
+      "sha256": "0eb35f3df6343171b3109c060bf48a0d0887549a95111107edf8c9f8bce2c725"
+    }
+  }
+}

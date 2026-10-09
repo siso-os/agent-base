@@ -1,0 +1,55 @@
+.pf{--a:var(--project-a);--b:var(--project-b);--pale:var(--project-pale);--dark:#0a1821;--gx:0;--gy:0;--hx:0;--hy:0;--roll:0;--ax:0;--ay:0;--blink:1;--breath:0;display:inline-block;vertical-align:middle;flex-shrink:0;isolation:isolate;line-height:0;position:relative;contain:layout style}
+.pf svg{width:100%;height:100%;overflow:visible;display:block}
+.pf g{transform-box:view-box}
+.pf .pf-head{transform:translate(calc(var(--hx)*1px),calc(var(--hy)*1px + var(--breath)*1px)) rotate(calc(var(--roll)*1deg));transform-origin:60px 70px}
+.pf .pf-top{transform:translate(calc(var(--ax)*1px),calc(var(--ay)*1px));transform-origin:60px 25px}
+.pf .pf-gaze{transform:translate(calc(var(--gx)*1px),calc(var(--gy)*1px))}
+.pf .pf-eye{transform:scaleY(var(--blink));transform-box:view-box}
+.pf .pf-eyeglow{opacity:.6}.pf .pf-metal{opacity:.88}.pf .pf-contour{display:none}
+.pf .pf-lids,.pf .pf-happy,.pf .pf-brows,.pf .pf-work,.pf .pf-alert,.pf .pf-check,.pf .pf-sparks{display:none}
+.pf .pf-acting{transform-origin:60px 93px}
+.pf[data-direction=contour] .pf-metal{opacity:.33}
+.pf[data-direction=contour] .pf-contour{display:block;stroke-width:2}
+.pf[data-direction=contour] .pf-outer{fill:color-mix(in srgb,var(--a) 32%,#141b2a)}
+.pf[data-direction=facet] .pf-metal{opacity:1}
+.pf[data-direction=facet] .pf-outer{stroke-width:2}
+.pf[data-direction=facet] .pf-contour{display:block;stroke-dasharray:18 15;opacity:.8}
+.pf[data-state=working] .pf-work{display:block}
+.pf[data-state=working] .pf-work rect{animation:pf-focus 1.8s ease-in-out infinite}
+.pf[data-state=working] .pf-work rect:nth-child(2){animation-delay:.18s}.pf[data-state=working] .pf-work rect:nth-child(3){animation-delay:.36s}
+.pf[data-state=needs-shaan]{--a:#ffb336;--b:#e17e22;--pale:#ffe0a1}
+.pf[data-state=needs-shaan] .pf-alert{display:block}
+.pf[data-state=needs-shaan] .pf-top{animation:pf-attentive 3.8s ease-in-out infinite}
+.pf[data-state=blocked]{--a:#fa5867;--b:#b32b56;--pale:#ffc2c8}
+.pf[data-state=blocked] .pf-brows,.pf[data-state=blocked] .pf-alert{display:block}
+.pf[data-state=blocked] .pf-eyeglow{opacity:.3}
+.pf[data-state=done] .pf-check{display:block}
+.pf[data-state=done] .pf-eye{opacity:.8}
+.pf[data-state=offline]{--a:#78879a;--b:#455469;--pale:#c2cbd8;opacity:.8}
+.pf[data-state=offline] .pf-eye{display:none}.pf[data-state=offline] .pf-lids{display:block}
+.pf[data-state=offline] .pf-top,.pf[data-state=offline] .pf-ambient{opacity:.25}
+.pf[data-gesture=celebrate] .pf-acting{animation:pf-celebrate 1.55s both}
+.pf[data-gesture=celebrate] .pf-top{animation:pf-follow 1.55s both}
+.pf[data-gesture=celebrate] .pf-eye,.pf[data-gesture=boop] .pf-eye{opacity:0}
+.pf[data-gesture=celebrate] .pf-happy,.pf[data-gesture=boop] .pf-happy{display:block}
+.pf[data-gesture=celebrate] .pf-sparks{display:block;animation:pf-sparks 1.55s both}
+.pf[data-gesture=boop] .pf-acting{animation:pf-boop .78s both}
+.pf[data-tier=nav] .pf-work,.pf[data-tier=nav] .pf-chin,.pf[data-tier=nav] .pf-contour,.pf[data-tier=nav] .pf-sparks,.pf[data-tier=nav] .pf-eyeglow{display:none}
+.pf[data-tier=nav] .pf-metal{opacity:.65}
+.pf[data-tier=nav] .pf-eye{transform:scale(1.08,var(--blink))}
+.pf[data-tier=nav] .pf-lids path{stroke-width:1;vector-effect:non-scaling-stroke}
+.pf[data-tier=nav][data-gesture=celebrate] .pf-acting{animation:pf-nav-nod .7s both}
+.pf[data-tier=nav][data-gesture=celebrate] .pf-top{animation:none}
+.pf[data-motion=off] *{animation-play-state:paused!important}
+.pf:focus-visible{outline:2px solid var(--a);outline-offset:6px;border-radius:24%}
+.pf[role=button]{cursor:pointer;touch-action:manipulation}
+@keyframes pf-focus{0%,70%,100%{opacity:.25}30%{opacity:.9}}
+@keyframes pf-attentive{0%,65%,100%{opacity:1}78%{opacity:.45}88%{opacity:1}}
+@keyframes pf-celebrate{0%{transform:translateY(0) scale(1)}12%{transform:translateY(3px) scale(1.04,.94)}32%{transform:translateY(-10px) scale(.97,1.04) rotate(-4deg)}48%{transform:translateY(-5px) rotate(3deg)}64%{transform:translateY(2px) scale(1.025,.98)}82%,100%{transform:translateY(0) scale(1)}}
+@keyframes pf-follow{0%,12%{transform:translateY(0)}35%{transform:translateY(-5px) rotate(-5deg)}53%{transform:translateY(3px) rotate(3deg)}76%,100%{transform:translateY(0)}}
+@keyframes pf-sparks{0%,18%{opacity:0;transform:scale(.8);transform-origin:60px 60px}35%{opacity:1;transform:scale(1)}75%,100%{opacity:0;transform:scale(1.08)}}
+@keyframes pf-boop{0%{transform:scale(1)}20%{transform:scale(1.06,.91) translateY(3px)}46%{transform:scale(.97,1.04) translateY(-3px)}72%{transform:scale(1.015,.99)}100%{transform:scale(1)}}
+@keyframes pf-nav-nod{0%,100%{transform:translateY(0)}25%{transform:translateY(1.6px)}58%{transform:translateY(-1px)}}
+@media(prefers-reduced-motion:reduce){.pf *{animation:none!important;transition:none!important}.pf .pf-head,.pf .pf-top,.pf .pf-gaze,.pf .pf-acting,.pf .pf-eye{transform:none!important}}
+
+.pf[data-state=working] .pf-eye{transform:scaleY(calc(var(--blink)*.86))}.pf[data-state=blocked] .pf-eye{transform:scaleY(.62)}.pf[data-state=working][data-tier=nav] .pf-chin{display:block;stroke-width:4;stroke-dasharray:4 4}.pf[data-state=needs-shaan][data-tier=nav] .pf-top{animation:none}

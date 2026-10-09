@@ -1,0 +1,19 @@
+/* R1.25: the side nav's Ended group (agents that left herdr) and the read-only line in place of an ended chat's composer. */
+.ab-ended { display: flex; width: 100%; height: 30px; min-width: 0; align-items: center; gap: 8px; padding: 0 8px 0 12px; border: 0; border-radius: 8px; background: transparent; color: rgb(var(--crm-white-rgb) / 0.5); text-align: left; cursor: pointer; }
+.ab-ended:hover, .ab-ended:focus-visible { background: rgb(var(--crm-white-rgb) / 0.04); color: rgb(var(--crm-white-rgb) / 0.8); }
+.ab-ended.is-active { background: rgb(var(--crm-white-rgb) / 0.06); color: rgb(var(--crm-white-rgb) / 0.9); }
+.ab-ended__name { flex: none; max-width: 48%; overflow: hidden; font: 500 12px var(--crm-font-mono); text-overflow: ellipsis; white-space: nowrap; }
+.ab-ended__task { min-width: 0; flex: 1; overflow: hidden; color: rgb(var(--crm-white-rgb) / 0.32); font-size: 11.5px; text-overflow: ellipsis; white-space: nowrap; }
+.ab-ended__age { flex: none; color: rgb(var(--crm-white-rgb) / 0.32); font: 10.5px var(--crm-font-mono); }
+.siso-chat__ended { margin: 0 auto 14px; padding: 9px 14px; max-width: 760px; border: 1px dashed rgb(var(--crm-white-rgb) / 0.16); border-radius: 12px; color: rgb(var(--crm-white-rgb) / 0.5); font-size: 12.5px; text-align: center; }
+
+.siso-nav-footer { display: flex; min-width: 0; align-items: center; gap: 6px; }
+.siso-nav-footer .siso-infra { min-width: 0; flex: 1; }
+.ab-ended-link { flex: none; padding: 7px 8px; color: var(--crm-color-text-faint); font-size: 11px; white-space: nowrap; }
+.ab-ended-link:hover, .ab-ended-link:focus-visible { color: var(--crm-color-text-strong); }
+@media (max-width: 639px) { .ab-ended-link { min-height: 44px; } }
+/* t-0570: with HEALTH, EFFICIENCY and ESTATE back, they take the footer's first line whole, so "Agent Infrastructure" is not
+   cut off; the ended count sits under them. */
+.siso-nav-footer:has(.siso-infra) { flex-wrap: wrap; row-gap: 0; }
+.siso-nav-footer:has(.siso-infra) .siso-infra { flex-basis: 100%; }
+.siso-nav-footer:has(.siso-infra) .ab-ended-link { margin-left: auto; }

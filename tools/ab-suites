@@ -1,0 +1,179 @@
+#!/usr/bin/env python3
+"""ab-suites [--only a,b] [--parallel N] [--json] — affected suites in parallel (default 4).
+Converted/random-port suites share one WebKit server and take no machine lock.
+Legacy suites remain serial under ui-suites.lock. Scores are one JSON line, exit 0 when scored, 2 usage.
+"""
+import argparse, concurrent.futures, fcntl, json, os, re, signal, socket, subprocess, sys, time
+
+ROOT = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+LIST = os.path.join(ROOT, "tools", "ab-queue.suites")
+LOCK = os.path.expanduser(os.environ.get("AB_SUITES_LOCK") or "~/.local/state/agent-base/ui-suites.lock")
+FLOCK = LOCK + ".flock"
+TIMEOUT = int(os.environ.get("AB_SUITES_TIMEOUT_S", "420"))
+# The suites were written against a node that re-read herdr every second; live reads every 5 s (HEALTH, 3 Oct). Every
+# suite's node inherits this, so their "wait 1.1 s, then the list is fresh" steps hold (a77c2de postcheck: 7 suites worse).
+os.environ.setdefault("AB_AGENTS_MS", "1000")
+KILL_GRACE = float(os.environ.get("AB_SUITES_KILL_GRACE_S", "2"))
+SUITE_FLOCK_FD = None
+
+
+def names():
+    out = []  # in order, each once (the list merges with merge=union, so a suite can appear twice)
+    for l in open(LIST):
+        n = l.strip()
+        if n and not n.startswith("#") and n not in out:
+            out.append(n)
+    return out
+
+
+def take_lock():
+    global SUITE_FLOCK_FD
+    os.makedirs(os.path.dirname(LOCK), exist_ok=True)
+    flock_fd = open(FLOCK, "a+")
+    fcntl.flock(flock_fd.fileno(), fcntl.LOCK_EX)
+    while True:
+        try:
+            fd = os.open(LOCK, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+            os.write(fd, str(os.getpid()).encode())
+            os.close(fd)
+            SUITE_FLOCK_FD = flock_fd
+            return
+        except FileExistsError:
+            try:
+                raw_pid = open(LOCK).read().strip()
+                if raw_pid:
+                    os.kill(int(raw_pid), 0)
+                else:
+                    os.remove(LOCK)
+                    continue
+            except (OSError, ValueError):
+                os.remove(LOCK)  # holder gone
+                continue
+            time.sleep(3)
+
+
+def score(out, rc):
+    for line in reversed(out.strip().splitlines()):
+        try:
+            d = json.loads(line)
+        except ValueError:
+            continue
+        if isinstance(d, dict) and "passed" in d and "of" in d:
+            return {"passed": int(d["passed"]), "of": int(d["of"]), "exit": rc}
+        if isinstance(d, dict) and isinstance(d.get("summary"), str) and re.match(r"\d+/\d+", d["summary"]):
+            p, o = d["summary"].split()[0].split("/")
+            return {"passed": int(p), "of": int(o), "exit": rc}
+    return {"passed": 1 if rc == 0 else 0, "of": 1, "exit": rc}
+
+
+def run_suite(path, env=None):
+    """Run a suite in its own process group so timeout cleanup reaches ordinary children too."""
+    p = subprocess.Popen(["node", "--experimental-strip-types", "--no-warnings", path], cwd=ROOT,
+                         stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, start_new_session=True, env=env)
+    try:
+        out, err = p.communicate(timeout=TIMEOUT)
+        return out, err, p.returncode, False
+    except subprocess.TimeoutExpired:
+        try:
+            os.killpg(p.pid, signal.SIGTERM)
+        except ProcessLookupError:
+            pass
+        try:
+            p.wait(timeout=KILL_GRACE)
+        except subprocess.TimeoutExpired:
+            pass
+        # The parent may have exited while an ordinary child still owns stdout/stderr.
+        # Kill the group unconditionally after the grace window so communicate() cannot hang.
+        try:
+            os.killpg(p.pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+        p.wait()
+        out, err = p.communicate()
+        return out, err, "timeout", True
+
+
+def parallel_safe(path, seen=None):
+    """Conservative: unconverted fixed listening ports (including local helpers) still need the machine lock."""
+    seen = seen or set()
+    if path in seen: return True
+    seen.add(path)
+    text = open(path).read()
+    if re.search(r'const\s+(?:PORT|port)\s*=\s*\d+|listen\(\s*[1-9]\d*|AB_PORT:\s*["\']\d+', text):
+        return False
+    # Refused/mock URLs are not listening ports; only fixture bindings need isolation.
+    for name in re.findall(r'(?:from\s*|import\s*\()["\'](\.[^"\']+)', text):
+        helper = os.path.normpath(os.path.join(os.path.dirname(path), name))
+        if helper.endswith('.mjs') and os.path.isfile(helper) and not parallel_safe(helper, seen):
+            return False
+    # Unknown suite servers remain serial, even if our regex cannot see their setup.
+    return ('suitePort' in text or 'listen(0' in text or 'freePort' in text or
+            'fixtureServer' in text or not re.search(r'\bspawn\(|\blisten\(', text))
+
+
+def main(argv):
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--only')
+    parser.add_argument('--json', action='store_true')
+    parser.add_argument('--parallel', type=int, default=4)
+    args = parser.parse_args(argv)
+    if args.parallel < 1: parser.error('--parallel must be positive')
+    want = names()
+    if args.only is not None:
+        only = set(args.only.split(','))
+        unknown = only - set(want) - {'__none__', ''}
+        if unknown: parser.error('unknown suites: ' + ', '.join(sorted(unknown)))
+        want = [n for n in want if n in only]
+    res, parallel, serial = {}, [], []
+    for n in want:
+        path = os.path.join(ROOT, 'services/node/test', n + '.mjs')
+        if not os.path.isfile(path): res[n] = {'missing': True}; continue
+        (parallel if parallel_safe(path) else serial).append((n, path))
+    browser = None
+    endpoint = None
+    # One WebKit process serves the converted suites; each connection owns its contexts.
+    if any('suite-runtime.mjs' in open(p).read() and 'webkit' in open(p).read() for _, p in parallel):
+        browser = subprocess.Popen(['node', 'services/node/test/suite-runtime.mjs', '--browser-server'],
+                                   cwd=ROOT, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                   stderr=subprocess.DEVNULL, text=True, start_new_session=True)
+        import select
+        ready, _, _ = select.select([browser.stdout], [], [], 20)
+        endpoint = browser.stdout.readline().strip() if ready else ''
+        if not endpoint:
+            os.killpg(browser.pid, signal.SIGKILL); browser.wait()
+            print('ab-suites: shared WebKit did not start', file=sys.stderr); return 1
+    def run(item, shared=False):
+        n, path = item
+        env = os.environ.copy()
+        if shared:
+            with socket.socket() as port:
+                port.bind(('127.0.0.1', 0)); env['AB_PORT'] = str(port.getsockname()[1])
+            if endpoint: env['AB_WEBKIT_ENDPOINT'] = endpoint
+        out, err, rc, timed_out = run_suite(path, env)
+        result = {'passed': 0, 'of': 1, 'exit': 'timeout'} if timed_out else score(out, rc)
+        if not args.json: print(f'{n}: {result}', file=sys.stderr)
+        return n, result
+    try:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=args.parallel) as pool:
+            for n, result in pool.map(lambda item: run(item, True), parallel): res[n] = result
+        if serial:
+            take_lock()
+            try:
+                for item in serial:
+                    n, result = run(item); res[n] = result
+            finally:
+                try: os.remove(LOCK)
+                except OSError: pass
+                if SUITE_FLOCK_FD is not None: SUITE_FLOCK_FD.close()
+    finally:
+        if browser:
+            browser.stdin.close()
+            try: browser.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                os.killpg(browser.pid, signal.SIGKILL); browser.wait()
+    print(json.dumps({n: res[n] for n in want}))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))

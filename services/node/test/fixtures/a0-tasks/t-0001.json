@@ -1,0 +1,14 @@
+{
+  "id": "t-0001",
+  "title": "A0 task index reads",
+  "his": "keep Agent Zero's task index readable",
+  "stage": "thought",
+  "project": "Agent Base",
+  "priority": "P1",
+  "owner": "AGENT-BASE",
+  "agent": null,
+  "model": null,
+  "evidence": [],
+  "links": {},
+  "history": []
+}

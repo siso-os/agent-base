@@ -1,0 +1,977 @@
+/*
+ * @siso/shell materials, in the SISO CRM rail's language (values from @siso/tokens siso.css): tabs sit in a glass
+ * capsule like the rail's utility row; the active tab takes the same brand glow as an active rail icon.
+ */
+.siso-tabs {
+  display: flex;
+  min-width: 0;
+  max-width: 100%;
+  align-items: center;
+  gap: 2px;
+  overflow-x: auto;
+  padding: 3px;
+  border: 1px solid rgb(var(--crm-highlight-rgb) / 0.105);
+  border-radius: var(--crm-radius-control-lg);
+  background: var(--crm-gradient-rail-capsule);
+  box-shadow: var(--crm-shadow-capsule);
+  scrollbar-width: none;
+}
+.siso-tabs::-webkit-scrollbar { display: none; }
+.siso-tab {
+  position: relative;
+  display: flex;
+  height: 30px;
+  max-width: 230px;
+  flex: none;
+  align-items: center;
+  gap: 7px;
+  padding: 0 7px 0 11px;
+  border: 1px solid transparent;
+  border-radius: var(--crm-radius-control);
+  color: rgb(var(--crm-white-rgb) / 0.57);
+  font-size: var(--crm-text-sm);
+  font-weight: 540;
+  cursor: pointer;
+  outline: none;
+  transition: color 160ms ease, border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
+}
+.siso-tab:hover { border-color: rgb(var(--crm-white-rgb) / 0.075); color: rgb(var(--crm-white-rgb) / 0.86); background: rgb(var(--crm-white-rgb) / 0.042); }
+.siso-tab:focus-visible { outline: 2px solid rgb(var(--crm-highlight-rgb) / 0.9); outline-offset: 1px; }
+.siso-tab.is-active { border-color: rgb(var(--crm-brand-rgb) / 0.3); color: var(--crm-color-brand-hover); background: var(--crm-gradient-active-icon); box-shadow: var(--crm-shadow-active-icon); }
+.siso-tab__meta { color: rgb(var(--crm-white-rgb) / 0.38); font-family: var(--crm-font-mono); font-size: 9.5px; }
+.siso-tab__close { display: grid; width: 18px; height: 18px; place-items: center; border-radius: 6px; color: rgb(var(--crm-white-rgb) / 0.45); opacity: 0; }
+.siso-tab:hover .siso-tab__close, .siso-tab.is-active .siso-tab__close { opacity: 1; }
+.siso-tab__close:hover { color: var(--crm-color-text-strong); background: rgb(var(--crm-white-rgb) / 0.08); }
+.siso-tab__key { padding: 1px 5px; border: 1px solid rgb(var(--crm-white-rgb) / 0.1); border-radius: 5px; color: rgb(var(--crm-white-rgb) / 0.6); font-size: 9.5px; }
+.siso-tab__add { display: grid; width: 30px; height: 30px; flex: none; place-items: center; border-radius: var(--crm-radius-control); color: rgb(var(--crm-white-rgb) / 0.5); }
+.siso-tab__add:hover { color: rgb(var(--crm-white-rgb) / 0.86); background: rgb(var(--crm-white-rgb) / 0.042); }
+.siso-segment { display: flex; flex: none; gap: 2px; padding: 3px; border: 1px solid rgb(var(--crm-highlight-rgb) / 0.105); border-radius: var(--crm-radius-control-lg); background: var(--crm-gradient-rail-capsule); box-shadow: var(--crm-shadow-capsule); }
+.siso-segment button { display: grid; width: 30px; height: 30px; place-items: center; border: 1px solid transparent; border-radius: var(--crm-radius-control); color: rgb(var(--crm-white-rgb) / 0.5); }
+.siso-segment button:hover { color: rgb(var(--crm-white-rgb) / 0.86); background: rgb(var(--crm-white-rgb) / 0.042); }
+.siso-segment button[aria-pressed="true"] { border-color: rgb(var(--crm-brand-rgb) / 0.3); color: var(--crm-color-brand-hover); background: var(--crm-gradient-active-icon); }
+.siso-segment svg, .siso-tab__add svg { width: 15px; height: 15px; stroke-width: var(--crm-icon-stroke); }
+/* A panel on the canvas (the terminal, the agent's page): the CRM card's radius and edge. */
+.siso-panel { position: relative; min-width: 0; min-height: 0; overflow: hidden; border: 1px solid var(--crm-color-line-subtle); border-radius: var(--crm-radius-card); background: var(--crm-color-surface); box-shadow: inset 0 1px 0 rgb(var(--crm-white-rgb) / 0.03); }
+
+/* ===== AppFrame: top bar, icon column, one rounded frame (the Codex app's shell, in SISO materials) ===== */
+.siso-app {
+  /* The window frame must never become a programmatic scroll container. */
+  overflow: clip;
+  display: grid;
+  height: 100%;
+  grid-template-columns: 64px minmax(0, 1fr);
+  grid-template-rows: 48px minmax(0, 1fr);
+  background: rgb(var(--crm-canvas-rgb));
+}
+.siso-app__top {
+  grid-column: 1 / -1;
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 8px;
+  /* Room for the macOS traffic lights on the left. */
+  padding: 0 12px 0 84px;
+}
+.siso-app__top-btn {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  flex: none;
+  place-items: center;
+  border-radius: 8px;
+  color: rgb(var(--crm-white-rgb) / 0.55);
+}
+.siso-app__top-btn:hover { color: rgb(var(--crm-white-rgb) / 0.9); background: rgb(var(--crm-white-rgb) / 0.06); }
+.siso-app__top-btn svg { width: 17px; height: 17px; stroke-width: var(--crm-icon-stroke); }
+.siso-app__rail {
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 0 12px;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+.siso-app__rail::-webkit-scrollbar { display: none; }
+.siso-app__rail-gap { flex: 1; }
+.siso-app__rail-btn {
+  position: relative;
+  display: grid;
+  width: 42px;
+  height: 42px;
+  flex: none;
+  place-items: center;
+  border: 1px solid transparent;
+  border-radius: var(--crm-radius-control);
+  color: rgb(var(--crm-white-rgb) / 0.55);
+  transition: color 160ms ease, border-color 160ms ease, background 160ms ease;
+}
+.siso-app__rail-btn svg { width: 20px; height: 20px; stroke-width: var(--crm-icon-stroke); }
+.siso-app__rail-btn:hover { color: rgb(var(--crm-white-rgb) / 0.88); background: rgb(var(--crm-white-rgb) / 0.05); }
+.siso-app__rail-btn.is-active { border-color: rgb(var(--crm-brand-rgb) / 0.3); color: var(--crm-color-brand-hover); background: var(--crm-gradient-active-icon); box-shadow: var(--crm-shadow-active-icon); }
+.siso-app__rail-btn.is-later { opacity: 0.4; cursor: default; }
+.siso-app__rail-btn.is-later:hover { background: transparent; color: rgb(var(--crm-white-rgb) / 0.55); }
+.siso-app__rail-dot { position: absolute; top: 6px; right: 6px; width: 8px; height: 8px; border: 2px solid rgb(var(--crm-canvas-rgb)); border-radius: 50%; background: var(--crm-color-success); }
+.siso-app__rail-dot.is-alert { background: rgb(var(--crm-danger-rgb)); }
+.siso-app__rail-divider { width: 24px; height: 1px; margin: 6px 0; background: var(--crm-color-line); }
+.siso-app__frame {
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  margin: 0 8px 8px 0;
+  overflow: clip;
+  border: 1px solid var(--crm-color-line-subtle);
+  border-radius: 14px;
+  background: var(--crm-color-surface);
+  box-shadow: inset 0 1px 0 rgb(var(--crm-white-rgb) / 0.03);
+}
+/* An optional companion owns a column from the window's top line to the bottom.
+   Auto sizing follows its width grip and collapses when its content closes. */
+@media (min-width: 640px) {
+  .siso-app:has(> .siso-app__side) { grid-template-columns: 64px minmax(0, 1fr) auto; }
+  /* A wide companion can squeeze the chrome too. Horizontal scrolling and focus
+     keep every control reachable; menus/peeks already render outside the bar. */
+  .siso-app:has(> .siso-app__side) > .siso-app__top { grid-column: 1 / 3; grid-row: 1; overflow-x: auto; scrollbar-width: none; }
+  .siso-app:has(> .siso-app__side) > .siso-app__top::-webkit-scrollbar { display: none; }
+  .siso-app:has(> .siso-app__side) > .siso-app__rail { grid-column: 1; grid-row: 2; }
+  .siso-app:has(> .siso-app__side) > .siso-app__frame { grid-column: 2; grid-row: 2; }
+  .siso-app__side { display: flex; grid-column: 3; grid-row: 1 / -1; min-width: 0; min-height: 0; }
+}
+/* Phone companions keep their own overlay/sheet layout, without adding a grid row. */
+@media (max-width: 639px) { .siso-app__side { display: contents; } }
+/* The orb at the foot of the icon column: who is at the controls, with a status dot. */
+.siso-app__orb { position: relative; display: grid; width: 34px; height: 34px; place-items: center; border: 1px solid rgb(var(--crm-highlight-rgb) / 0.28); border-radius: 50%; background: var(--crm-gradient-profile-orb); color: var(--crm-color-text); font-size: 11px; font-weight: 650; }
+.siso-app__orb::after { position: absolute; right: -1px; bottom: 0; width: 9px; height: 9px; border: 2px solid rgb(var(--crm-canvas-rgb)); border-radius: 50%; background: var(--crm-color-success); content: ""; }
+.siso-app__orb.is-down::after { background: var(--crm-color-danger); }
+
+/* ===== The summary card (drops open at the top right of the work) and the side panel it opens ===== */
+.siso-card {
+  position: relative;
+  display: flex;
+  width: 330px;
+  flex: none;
+  flex-direction: column;
+  gap: 4px;
+  overflow-y: auto;
+  padding: 14px 10px 10px;
+  border-left: 1px solid var(--crm-color-line-subtle);
+  background: var(--crm-color-surface);
+  scrollbar-width: none;
+}
+.siso-card__section + .siso-card__section { margin-top: 6px; padding-top: 8px; border-top: 1px solid var(--crm-color-line-subtle); }
+.siso-card__title { margin: 0 0 4px; padding: 0 8px; color: var(--crm-color-text-muted); font-size: 12.5px; font-weight: 500; }
+.siso-card__who { display: flex; align-items: center; gap: 9px; color: var(--crm-color-text-strong); font-size: 13.5px; font-weight: 600; }
+.siso-card__row { display: flex; width: 100%; min-height: 34px; align-items: center; gap: 10px; padding: 0 8px; border-radius: 9px; color: rgb(var(--crm-white-rgb) / 0.85); font-size: 13.5px; text-align: left; }
+button.siso-card__row:hover { background: rgb(var(--crm-white-rgb) / 0.05); color: var(--crm-color-text-strong); }
+.siso-card__row svg { width: 16px; height: 16px; flex: none; color: rgb(var(--crm-white-rgb) / 0.55); stroke-width: var(--crm-icon-stroke); }
+.siso-card__label { min-width: 0; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.siso-card__detail { flex: none; color: rgb(var(--crm-white-rgb) / 0.42); font-size: 12px; font-variant-numeric: tabular-nums; }
+.siso-card__row.is-later { color: rgb(var(--crm-white-rgb) / 0.4); }
+
+.siso-side { position: relative; display: flex; min-width: 0; flex: none; flex-direction: column; border-left: 1px solid var(--crm-color-line-subtle); background: var(--crm-color-surface); }
+.siso-side.is-full { flex: 1; border-left: 0; }
+.siso-side__bar { display: flex; height: 44px; flex: none; align-items: center; gap: 8px; padding: 0 8px 0 16px; border-bottom: 1px solid var(--crm-color-line-subtle); }
+.siso-side__title { min-width: 0; flex: 1; overflow: hidden; color: var(--crm-color-text-strong); font-size: 13.5px; font-weight: 560; text-overflow: ellipsis; white-space: nowrap; }
+.siso-side__close { display: grid; width: 28px; height: 28px; place-items: center; border-radius: 8px; color: rgb(var(--crm-white-rgb) / 0.55); }
+.siso-side__close:hover { color: var(--crm-color-text-strong); background: rgb(var(--crm-white-rgb) / 0.07); }
+.siso-side__close svg { width: 16px; height: 16px; }
+.siso-side__body { min-height: 0; flex: 1; overflow: auto; }
+
+/* The top bar's title: the open agent, as in Codex's thread title. */
+.siso-app__title { min-width: 0; overflow: hidden; color: var(--crm-color-text-strong); font-size: 14px; font-weight: 560; text-overflow: ellipsis; white-space: nowrap; }
+.siso-app__subtitle { flex: none; color: rgb(var(--crm-white-rgb) / 0.4); font-size: 12.5px; }
+.siso-app__top-btn[aria-pressed="true"] { color: var(--crm-color-text-strong); background: rgb(var(--crm-white-rgb) / 0.08); }
+
+/* ===== TopTabs: the chat, then pages, in the top bar (cmux's tab strip, in SISO materials) ===== */
+.siso-toptabs { display: flex; min-width: 0; flex: 1; align-items: center; gap: 2px; overflow: hidden; }
+.siso-toptabs::-webkit-scrollbar { display: none; }
+.siso-toptabs__gap { width: 1px; height: 16px; flex: none; margin: 0 6px; background: rgb(var(--crm-white-rgb) / 0.1); }
+/* Tabs shrink like Chrome's (2 Oct 13:52): down to 90px, the label ellipsed, the × kept at the right. */
+.siso-toptab { display: flex; min-width: 120px; max-width: 220px; height: 30px; flex: 0 1 auto; align-items: center; gap: 7px; padding: 0 10px; border-radius: 8px; color: rgb(var(--crm-white-rgb) / 0.55); font-size: 12.5px; cursor: pointer; white-space: nowrap; user-select: none; }
+.siso-toptab.can-close { padding-right: 5px; }
+.siso-toptab .siso-tab-close { flex: none; margin-left: auto; opacity: 0.55; }
+.siso-toptab:hover .siso-tab-close, .siso-toptab.is-active .siso-tab-close { opacity: 1; }
+.siso-toptabs__more { position: relative; flex: none; }
+.siso-toptabs__more > .siso-toptab { min-width: 0; }
+.siso-toptabs__list { position: absolute; top: calc(100% + 4px); right: 0; z-index: 60; width: 300px; max-height: 60vh; overflow-y: auto; padding: 4px; border: 1px solid var(--crm-color-line-strong); border-radius: 10px; background: #1f1f1d; box-shadow: 0 16px 40px rgb(0 0 0 / 0.45); }
+.siso-toptabs__row { display: flex; align-items: center; gap: 2px; border-radius: 7px; }
+.siso-toptabs__row:hover, .siso-toptabs__row.is-active { background: rgb(var(--crm-white-rgb) / 0.06); }
+.siso-toptabs__row > button:first-child { display: flex; min-width: 0; flex: 1; align-items: center; gap: 8px; padding: 6px 8px; color: var(--crm-color-text); font-size: 12.5px; text-align: left; }
+.siso-toptabs__row > button:first-child span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.siso-toptabs__row svg { width: 14px; height: 14px; flex: none; opacity: 0.7; }
+.siso-toptabs__row .siso-tab-close { margin-right: 4px; }
+
+/* All tabs menu: search input, filtered tabs, keyboard navigation */
+.siso-alltabs-menu { display: flex; width: 100%; max-height: 100%; flex-direction: column; }
+.siso-alltabs-menu__search { width: 100%; padding: 8px; border: 0; border-bottom: 1px solid var(--crm-color-line-subtle); border-radius: 0; background: transparent; color: var(--crm-color-text); font-size: 12.5px; outline: none; }
+.siso-alltabs-menu__search::placeholder { color: rgb(var(--crm-white-rgb) / 0.42); }
+.siso-alltabs-menu__search:focus { border-bottom-color: rgb(var(--crm-brand-rgb) / 0.5); }
+.siso-alltabs-menu__list { min-height: 0; flex: 1; overflow-y: auto; padding: 4px; }
+.siso-alltabs-menu__row { display: flex; align-items: center; gap: 2px; border-radius: 7px; height: 40px; }
+.siso-alltabs-menu__row:hover, .siso-alltabs-menu__row.is-active { background: rgb(var(--crm-white-rgb) / 0.06); }
+.siso-alltabs-menu__row.is-highlighted { background: rgb(var(--crm-white-rgb) / 0.1); }
+.siso-alltabs-menu__row > button:first-child { display: flex; min-width: 0; flex: 1; align-items: center; gap: 8px; padding: 6px 8px; color: var(--crm-color-text); font-size: 12.5px; text-align: left; }
+.siso-alltabs-menu__row > button:first-child span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.siso-alltabs-menu__row svg { width: 14px; height: 14px; flex: none; opacity: 0.7; }
+.siso-alltabs-menu__row .siso-tab-close { margin-right: 4px; }
+.siso-alltabs-menu__empty { padding: 16px 8px; text-align: center; color: rgb(var(--crm-white-rgb) / 0.42); font-size: 12.5px; }
+/* At 390px: full-width sheet with internal scroll */
+@media (max-width: 450px) {
+  .siso-toptabs__list { max-width: calc(100vw - 16px); max-height: 70vh; }
+}
+.siso-toptab:hover { color: rgb(var(--crm-white-rgb) / 0.88); background: rgb(var(--crm-white-rgb) / 0.045); }
+.siso-toptab.is-active { color: var(--crm-color-text-strong); background: rgb(var(--crm-white-rgb) / 0.085); }
+.siso-toptab.is-chat { font-weight: 560; }
+/* The chat tab always shows the agent's whole name (HUB-DESIGN 22:18); the other tabs share what is left. */
+.siso-toptab.is-chat { flex: none; min-width: 0; max-width: none; }
+.siso-toptab:focus-visible { outline: 2px solid rgb(var(--crm-highlight-rgb) / 0.8); outline-offset: -2px; }
+.siso-toptab > svg { width: 14px; height: 14px; flex: none; opacity: 0.75; stroke-width: var(--crm-icon-stroke); }
+.siso-toptab__label { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+/* R1.22: where a dragged tab or page lands, an insertion line (Chrome's), at a tab's edge or the row's end. */
+.siso-toptab { position: relative; }
+.siso-toptab.is-drop-before::before, .siso-toptab.is-drop-after::after, .siso-toptabs__end { content: ""; position: absolute; top: 5px; bottom: 5px; width: 2px; border-radius: 1px; background: rgb(var(--crm-brand-rgb)); pointer-events: none; }
+.siso-toptab.is-drop-before::before { left: -2px; }
+.siso-toptab.is-drop-after::after { right: -2px; }
+.siso-toptabs__end { position: relative; top: auto; bottom: auto; height: 20px; flex: none; }
+.siso-toptab__actions { display: none; flex: none; margin-right: -4px; }
+.siso-toptab:hover .siso-toptab__actions { display: flex; }
+.siso-toptab__actions button { display: grid; width: 20px; height: 20px; place-items: center; border-radius: 6px; color: rgb(var(--crm-white-rgb) / 0.5); }
+.siso-toptab__actions button:hover { color: var(--crm-color-text-strong); background: rgb(var(--crm-white-rgb) / 0.08); }
+.siso-toptab__actions svg { width: 12px; height: 12px; }
+/* The chat's own head row, inside the frame (the name moved here from the top bar on 2 Oct). */
+.siso-chathead button { display: inline-flex; align-items: center; gap: 4px; color: rgb(var(--crm-white-rgb) / 0.5); }
+.siso-chathead button:hover { color: var(--crm-color-text-strong); }
+/* A page in the frame: a slim bar with its address, then the page. */
+.siso-page { display: flex; min-width: 0; flex: 1; flex-direction: column; background: var(--crm-color-surface); }
+.siso-page__bar { display: flex; height: 40px; flex: none; align-items: center; gap: 8px; padding: 0 10px 0 14px; border-bottom: 1px solid var(--crm-color-line-subtle); }
+.siso-page__url { min-width: 0; flex: 1; overflow: hidden; padding: 4px 10px; border-radius: 8px; background: rgb(var(--crm-white-rgb) / 0.04); color: rgb(var(--crm-white-rgb) / 0.55); font-family: var(--crm-font-mono); font-size: 11.5px; text-overflow: ellipsis; white-space: nowrap; user-select: text; }
+.siso-page__bar button { display: inline-flex; flex: none; align-items: center; gap: 5px; padding: 4px 8px; border-radius: 7px; color: rgb(var(--crm-white-rgb) / 0.6); font-size: 12px; }
+.siso-page__bar button:hover { color: var(--crm-color-text-strong); background: rgb(var(--crm-white-rgb) / 0.06); }
+.siso-page__bar svg { width: 14px; height: 14px; }
+.siso-page iframe { min-height: 0; flex: 1; border: 0; background: #fff; }
+.siso-drop { position: absolute; inset: 8px; z-index: 30; display: grid; place-items: center; border: 1.5px dashed rgb(var(--crm-brand-rgb) / 0.6); border-radius: 12px; background: rgb(var(--crm-brand-rgb) / 0.06); color: var(--crm-color-brand-hover); font-size: 13px; pointer-events: none; }
+.siso-addpage { display: flex; align-items: center; }
+.siso-addpage input { width: 260px; height: 28px; padding: 0 10px; border: 1px solid rgb(var(--crm-white-rgb) / 0.14); border-radius: 8px; background: rgb(var(--crm-white-rgb) / 0.04); color: var(--crm-color-text); font-size: 12px; outline: none; }
+.siso-addpage input:focus { border-color: rgb(var(--crm-brand-rgb) / 0.5); }
+
+/* Menus (2 Oct): drawn in a portal at a fixed spot so no clipped parent cuts them; each item has an icon. */
+.siso-menu-layer { position: fixed; z-index: 80; }
+.siso-menu__item { display: flex; width: 100%; align-items: center; gap: 9px; padding: 6px 8px; border-radius: 6px; color: var(--crm-color-text); font-size: 12.5px; text-align: left; }
+.siso-menu__item:hover { background: rgb(var(--crm-white-rgb) / 0.06); }
+.siso-menu__item.is-current { background: rgb(var(--crm-white-rgb) / 0.08); }
+.siso-menu__item.is-disabled { color: var(--crm-color-text-muted); cursor: default; }
+.siso-menu__item.is-disabled:hover { background: none; }
+.siso-menu__item.is-danger { color: #ff8093; }
+.siso-menu__icon { display: grid; width: 15px; flex: none; place-items: center; color: rgb(var(--crm-white-rgb) / 0.55); }
+.siso-menu__item.is-danger .siso-menu__icon { color: inherit; }
+.siso-menu__icon svg, .siso-menu__more { width: 14px; height: 14px; stroke-width: var(--crm-icon-stroke); }
+.siso-menu__label { min-width: 0; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.siso-menu__more { flex: none; color: rgb(var(--crm-white-rgb) / 0.4); }
+.siso-menu__back { margin-bottom: 2px; border-bottom: 1px solid var(--crm-color-line-subtle); border-radius: 6px 6px 0 0; color: var(--crm-color-text-muted); font-size: 11.5px; }
+.siso-menu__back svg { width: 13px; height: 13px; }
+
+.siso-card__fold { display: flex; width: 100%; align-items: center; gap: 4px; text-align: left; }
+.siso-card__fold:hover { color: var(--crm-color-text-strong); }
+.siso-card__fold svg { width: 12px; height: 12px; }
+.siso-card__note { margin-left: auto; color: rgb(var(--crm-white-rgb) / 0.42); font-size: 12px; font-variant-numeric: tabular-nums; }
+/* A side panel's title as a tab chip, Codex's "Subagents ×". */
+.siso-side__chip { display: inline-flex; min-width: 0; align-items: center; gap: 7px; padding: 3px 10px; border-radius: 8px; background: rgb(var(--crm-white-rgb) / 0.07); color: var(--crm-color-text-strong); font-size: 12.5px; font-weight: 560; }
+.siso-side__chip svg { width: 14px; height: 14px; flex: none; opacity: 0.75; }
+/* A sub-header with a back arrow (Codex: ← then the sub-agent's name and model). */
+.siso-subhead { display: flex; height: 44px; flex: none; align-items: center; gap: 10px; padding: 0 12px; border-bottom: 1px solid var(--crm-color-line-subtle); }
+.siso-subhead__back { display: grid; width: 28px; height: 28px; flex: none; place-items: center; border-radius: 8px; color: rgb(var(--crm-white-rgb) / 0.6); }
+.siso-subhead__back:hover { color: var(--crm-color-text-strong); background: rgb(var(--crm-white-rgb) / 0.06); }
+.siso-subhead__back svg { width: 16px; height: 16px; }
+.siso-subhead__name { min-width: 0; overflow: hidden; color: var(--crm-color-text-strong); font-size: 13.5px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.siso-subhead__meta { margin-left: auto; flex: none; color: rgb(var(--crm-white-rgb) / 0.42); font-size: 12px; }
+/* The page bar's address box and the new-tab page (Codex's, in SISO materials). */
+.siso-page__bar button:disabled { opacity: 0.35; cursor: default; background: none; }
+.siso-page__address { width: 100%; height: 30px; padding: 0 14px; border: 1px solid rgb(var(--crm-white-rgb) / 0.08); border-radius: 99px; background: rgb(var(--crm-white-rgb) / 0.05); color: var(--crm-color-text); font-size: 12.5px; text-align: center; outline: none; }
+.siso-page__address:focus { border-color: rgb(var(--crm-brand-rgb) / 0.45); text-align: left; }
+.siso-page__note { padding: 6px 14px; border-bottom: 1px solid var(--crm-color-line-subtle); color: rgb(var(--crm-white-rgb) / 0.45); font-size: 11.5px; }
+.siso-newtab { min-height: 0; flex: 1; overflow-y: auto; padding: 22px max(20px, calc((100% - 760px) / 2)) 40px; }
+.siso-newtab h3 { margin: 22px 0 10px; color: var(--crm-color-text); font-size: 13.5px; font-weight: 560; }
+.siso-newtab h3:first-child { margin-top: 4px; }
+.siso-newtab__tools { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.siso-newtab__tools button { display: flex; height: 44px; align-items: center; gap: 10px; padding: 0 14px; border-radius: 10px; background: rgb(var(--crm-white-rgb) / 0.04); color: var(--crm-color-text); font-size: 13px; text-align: left; }
+.siso-newtab__tools button:hover:not(:disabled) { background: rgb(var(--crm-white-rgb) / 0.07); }
+.siso-newtab__tools button:disabled { color: rgb(var(--crm-white-rgb) / 0.4); cursor: default; }
+.siso-newtab__tools button span { margin-left: auto; font-size: 11px; }
+.siso-newtab__tools svg { width: 16px; height: 16px; flex: none; color: rgb(var(--crm-white-rgb) / 0.6); }
+.siso-newtab__tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.siso-newtab__tiles button { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 16px 8px 12px; border-radius: 12px; color: var(--crm-color-text); font-size: 12.5px; }
+.siso-newtab__tiles button:hover { background: rgb(var(--crm-white-rgb) / 0.05); }
+.siso-newtab__tile-label { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.siso-newtab__icon { display: grid; width: 40px; height: 40px; flex: none; place-items: center; border-radius: 11px; background: rgb(var(--crm-white-rgb) / 0.06); color: rgb(var(--crm-white-rgb) / 0.65); }
+.siso-newtab__icon svg { width: 18px; height: 18px; }
+.siso-newtab__recents button { display: flex; width: 100%; align-items: center; gap: 12px; padding: 9px 10px; border-bottom: 1px solid var(--crm-color-line-subtle); border-radius: 0; color: var(--crm-color-text); text-align: left; }
+.siso-newtab__recents button:hover { background: rgb(var(--crm-white-rgb) / 0.035); }
+.siso-newtab__recents .siso-newtab__icon { width: 32px; height: 32px; border-radius: 9px; }
+.siso-newtab__title { display: block; overflow: hidden; font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }
+.siso-newtab__url { display: block; overflow: hidden; color: rgb(var(--crm-white-rgb) / 0.42); font-size: 11.5px; text-overflow: ellipsis; white-space: nowrap; }
+.siso-newtab__when { flex: none; color: rgb(var(--crm-white-rgb) / 0.42); font-size: 11.5px; }
+.siso-newtab__empty { color: rgb(var(--crm-white-rgb) / 0.42); font-size: 12.5px; }
+/* The side nav's brand switcher (restored 2 Oct: "you got rid of the SISO agency drop down … I like that"). */
+.siso-brand { display: flex; min-width: 0; align-items: center; gap: 9px; padding: 4px 6px 4px 4px; border-radius: 9px; }
+.siso-brand:hover { background: rgb(var(--crm-white-rgb) / 0.045); }
+.siso-brand img { width: 26px; height: 26px; flex: none; border-radius: 8px; }
+.siso-tab-close { display: grid; width: 18px; height: 18px; place-items: center; border-radius: 5px; color: rgb(var(--crm-white-rgb) / 0.45); }
+.siso-tab-close:hover { color: var(--crm-color-text-strong); background: rgb(var(--crm-white-rgb) / 0.08); }
+
+/* ===== The app's own chat (siso-host agents): the CLI's compactness, T3/Codex's folds, SISO materials (2 Oct 13:00) ===== */
+.siso-chat { display: flex; height: 100%; min-height: 0; background: var(--crm-color-surface); }
+.siso-chat__main { position: relative; display: flex; min-width: 0; flex: 1; flex-direction: column; }
+/* His messages vs another agent's: a peer's is quiet, labelled, no "❯". */
+.siso-chat__me.is-peer { flex-direction: column; gap: 3px; padding: 7px 12px; border-left: 2px solid rgb(var(--crm-white-rgb) / 0.12); border-radius: 0 10px 10px 0; background: rgb(var(--crm-white-rgb) / 0.025); color: rgb(var(--crm-white-rgb) / 0.62); font-size: 13px; }
+.siso-chat__from { color: rgb(var(--crm-white-rgb) / 0.4); font-size: 11px; font-weight: 600; letter-spacing: 0.02em; }
+/* The running step under its line: "⎿ $ command (12s)", dim, at most three lines. */
+.siso-chat__step { display: flex; gap: 8px; padding-left: 18px; color: rgb(var(--crm-white-rgb) / 0.58); font: 12px/1.5 var(--crm-font-mono); }
+.siso-chat__step > span:first-child { flex: none; }
+.siso-chat__steptext { display: -webkit-box; min-width: 0; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow-wrap: anywhere; white-space: pre-wrap; }
+.siso-chat__steptext i { font-style: normal; opacity: 0.75; }
+/* The minimap scrollbar: a bar per turn on the right edge, bigger near where you are. */
+/* On the left: the right edge is where the side panel opens (Shaan, 2 Oct 13:52). */
+.siso-chat__minimap { position: absolute; top: 50%; left: 10px; z-index: 5; width: 24px; transform: translateY(-55%); }
+/* Bars slide (top transitions) as the window moves, so his bar stays put and the history moves past it. */
+.siso-chat__minimap button { position: absolute; left: 0; height: 3px; padding: 0; border-radius: 2px; background: rgb(var(--crm-white-rgb) / 0.22); transform: translateY(-50%); transition: top 200ms ease, width 160ms ease, opacity 200ms ease, background 160ms ease; }
+.siso-chat__miniTip { position: absolute; left: 28px; z-index: 7; display: flex; max-width: 320px; flex-direction: column; gap: 2px; padding: 6px 9px; border: 1px solid var(--crm-color-line-strong); border-radius: 8px; background: #232321; box-shadow: 0 10px 28px rgb(0 0 0 / 0.45); transform: translateY(-50%); pointer-events: none; }
+.siso-chat__miniTip b { overflow: hidden; color: var(--crm-color-text-strong); font-size: 12px; font-weight: 500; text-overflow: ellipsis; white-space: nowrap; }
+.siso-chat__miniTip span { color: rgb(var(--crm-white-rgb) / 0.42); font-size: 11px; }
+.siso-chat__older { align-self: center; padding: 4px 12px; border-radius: 99px; background: rgb(var(--crm-white-rgb) / 0.05); color: rgb(var(--crm-white-rgb) / 0.55); font-size: 12px; }
+.siso-chat__older:hover { color: var(--crm-color-text); }
+.siso-chat__minimap button::before { position: absolute; inset: -5px -4px; content: ""; }
+.siso-chat__minimap button:hover { background: rgb(var(--crm-white-rgb) / 0.5); }
+.siso-chat__minimap button.is-on { background: rgb(var(--crm-brand-rgb) / 0.85); }
+.siso-chat__list { min-height: 0; flex: 1; overflow-y: auto; }
+/* ~1000px like ChatGPT and Claude desktop (2 Oct 14:00: the 820px column wasted the width); it recentres when the
+   card or a side panel squeezes the chat. */
+.siso-chat__col { display: flex; max-width: 1000px; flex-direction: column; gap: 18px; margin: 0 auto; padding: 22px 24px 12px; }
+/* New rows slide in (120ms) rather than pop; the live line's slot keeps its height. */
+/* No fill mode: a row that has not animated (a window in the background) still shows at full opacity. */
+.siso-chat__turn > *, .siso-chat__foldbody > * { animation: siso-in 120ms ease-out; }
+@keyframes siso-in { from { opacity: 0; transform: translateY(3px); } }
+/* One line, always the same height, whether the live line is there or not (nothing below the answer moves). */
+.siso-chat__liveslot { height: 22px; overflow: hidden; }
+.siso-chat__liveslot .siso-chat__working { height: 22px; overflow: hidden; white-space: nowrap; }
+.siso-chat__jump { position: absolute; bottom: calc(100% + 8px); left: 50%; z-index: 6; display: inline-flex; height: 30px; align-items: center; gap: 6px; padding: 0 12px; border: 1px solid var(--crm-color-line-strong); border-radius: 99px; background: #262624; color: var(--crm-color-text-strong); font-size: 12px; box-shadow: 0 8px 24px rgb(0 0 0 / 0.4); transform: translateX(-50%); }
+.siso-chat__jump:hover { background: #2e2e2b; }
+.siso-chat__empty { margin-top: 30vh; color: rgb(var(--crm-white-rgb) / 0.42); font-size: 13px; text-align: center; }
+.siso-chat__empty.is-side { margin-top: 24px; }
+.siso-chat__turn { display: flex; flex-direction: column; gap: 9px; }
+.siso-chat__reply { display: flex; min-width: 0; flex-direction: column; gap: 9px; -webkit-user-select: text; user-select: text; }
+.siso-chat__reply-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; color: var(--crm-color-text-muted); font-size: 11px; }
+.siso-chat__reply-actions button { display: inline-flex; min-height: 28px; align-items: center; gap: 5px; padding: 3px 6px; border-radius: 6px; }
+.siso-chat__reply-actions button:hover, .siso-chat__reply-actions button:focus-visible { color: var(--crm-color-text-strong); background: var(--crm-color-surface-raised); }
+.siso-chat__reply-actions span { color: var(--crm-color-text-muted); }
+/* His message: "❯", dim rail, folded when long. */
+.siso-chat__me { display: flex; gap: 10px; margin-left: -10px; padding: 8px 12px 8px 8px; border-left: 2px solid rgb(var(--crm-brand-rgb) / 0.45); border-radius: 0 8px 8px 0; background: rgb(var(--crm-brand-rgb) / 0.06); color: var(--crm-color-text-strong); font-size: 14px; line-height: 1.55; }
+.siso-chat__mark { width: 22px; height: 22px; flex: none; margin-top: 0; border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 1px rgb(var(--crm-white-rgb) / 0.12); }
+.siso-chat__metext { white-space: pre-wrap; overflow-wrap: anywhere; }
+/* R1.20c (A2): only a message past 40 lines folds, under a fade; "Show all N lines" opens it in place. */
+.siso-chat__metext.is-fold { max-height: calc(1.55em * 24); overflow: hidden; -webkit-mask-image: linear-gradient(to bottom, #000 72%, transparent); mask-image: linear-gradient(to bottom, #000 72%, transparent); }
+.siso-chat__showall { margin-top: 4px; color: rgb(var(--crm-brand-rgb) / 0.9); font-size: 12px; font-weight: 600; }
+.siso-chat__showall:hover { text-decoration: underline; }
+/* Another agent's message: one row, its mark and name in its project's colour, its first sentence, › for the rest. */
+.siso-chat__peer { display: flex; flex-direction: column; gap: 4px; }
+.siso-chat__peerrow { display: flex; min-width: 0; align-items: center; gap: 8px; color: rgb(var(--crm-white-rgb) / 0.66); font-size: 13px; text-align: left; }
+.siso-chat__peerrow:hover { color: var(--crm-color-text); }
+.siso-chat__peermark { display: grid; width: 20px; height: 20px; flex: none; place-items: center; border-radius: 6px; background: color-mix(in srgb, var(--peer) 22%, transparent); color: var(--peer); font-size: 11px; font-weight: 700; }
+.siso-chat__peerrow b { flex: none; color: var(--peer); font-weight: 600; }
+.siso-chat__peerline { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* R1.20c (H1/H3): ← in, → out. */
+.siso-chat__peerdir { flex: none; width: 12px; color: rgb(var(--crm-white-rgb) / 0.4); font-size: 12px; text-align: center; }
+.siso-chat__peer.is-out .siso-chat__peerdir { color: var(--peer); }
+.siso-chat__peerface { align-self: center; }
+.siso-chat__peerfull { margin-left: 28px; padding: 4px 0 4px 12px; border-left: 2px solid color-mix(in srgb, var(--peer) 35%, transparent); color: rgb(var(--crm-white-rgb) / 0.72); font-size: 13px; line-height: 1.6; white-space: pre-wrap; }
+.siso-chat__chip { display: inline-flex; align-items: center; gap: 4px; margin: 0 2px; padding: 1px 8px; border-radius: 6px; background: rgb(var(--crm-white-rgb) / 0.07); color: rgb(var(--crm-white-rgb) / 0.62); font-size: 12px; vertical-align: 1px; }
+button.siso-chat__chip:hover { color: var(--crm-color-text); background: rgb(var(--crm-white-rgb) / 0.1); }
+.siso-chat__pastedtext { display: block; max-height: 240px; margin: 6px 0; overflow: auto; padding: 8px 10px; border-left: 2px solid rgb(var(--crm-white-rgb) / 0.12); color: rgb(var(--crm-white-rgb) / 0.62); font-size: 12.5px; white-space: pre-wrap; }
+.siso-chat__thumb { display: block; max-width: 240px; max-height: 180px; margin: 6px 0; border: 1px solid var(--crm-color-line-subtle); border-radius: 8px; }
+.siso-chat__more { color: rgb(var(--crm-white-rgb) / 0.42); font-size: 12px; font-family: var(--crm-font-mono); }
+.siso-chat__more:hover { color: var(--crm-color-text); }
+/* Claude's words: a "●" paragraph of real markdown. */
+/* Three tiers only (Shaan, 13:21: "I want to still be able to tell what's going on"): the answer bright, steps
+   readable (13px, ~70%), meta dim. Narration between tools is a step. */
+.siso-chat__said { display: flex; gap: 8px; color: rgb(var(--crm-white-rgb) / 0.72); font-size: 14px; line-height: 1.6; }
+.siso-chat__bullet { width: 10px; flex: none; align-self: flex-start; color: rgb(var(--crm-white-rgb) / 0.4); text-align: center; transform: scale(0.6); }
+.siso-chat__said.is-answer { margin-top: 2px; color: rgb(var(--crm-white-rgb) / 0.93); font-size: 14.5px; line-height: 1.65; }
+.siso-chat__said.is-answer .siso-chat__bullet { color: rgb(var(--crm-white-rgb) / 0.9); }
+.siso-chat__star { width: 10px; flex: none; color: rgb(var(--crm-white-rgb) / 0.45); text-align: center; }
+.siso-chat__said.is-live .siso-chat__bullet { color: rgb(var(--crm-brand-rgb)); animation: siso-pulse 1.2s ease-in-out infinite; }
+.siso-md { min-width: 0; flex: 1; overflow-wrap: anywhere; }
+.siso-md > :first-child { margin-top: 0; }
+.siso-md > :last-child { margin-bottom: 0; }
+.siso-md p, .siso-md ul, .siso-md ol, .siso-md pre, .siso-md table, .siso-md blockquote { margin: 0 0 9px; }
+.siso-md ul, .siso-md ol { padding-left: 20px; }
+.siso-md ul { list-style: disc; }
+.siso-md ol { list-style: decimal; }
+.siso-md li { margin: 2px 0; }
+.siso-md li::marker { color: rgb(var(--crm-white-rgb) / 0.4); }
+.siso-md h1, .siso-md h2, .siso-md h3, .siso-md h4 { margin: 14px 0 6px; color: var(--crm-color-text-strong); font-weight: 650; line-height: 1.35; }
+.siso-md h1 { font-size: 17px; } .siso-md h2 { font-size: 15.5px; } .siso-md h3, .siso-md h4 { font-size: 14.5px; }
+.siso-md strong { color: var(--crm-color-text-strong); font-weight: 650; }
+.siso-md a { color: var(--crm-color-brand-hover); text-decoration: underline; text-decoration-color: rgb(var(--crm-brand-rgb) / 0.4); text-underline-offset: 2px; }
+.siso-md code { padding: 1px 5px; border-radius: 5px; background: rgb(var(--crm-white-rgb) / 0.07); font-family: var(--crm-font-mono); font-size: 0.86em; }
+.siso-md pre { padding: 10px 12px; overflow-x: auto; border: 1px solid var(--crm-color-line-subtle); border-radius: 10px; background: rgb(var(--crm-black-rgb) / 0.25); }
+.siso-md pre code { padding: 0; background: none; color: #d8d8d2; font-size: 12.5px; line-height: 1.55; }
+.siso-md blockquote { padding-left: 12px; border-left: 2px solid rgb(var(--crm-white-rgb) / 0.15); color: rgb(var(--crm-white-rgb) / 0.65); }
+.siso-md table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; font-size: 13px; }
+.siso-md th, .siso-md td { padding: 5px 10px; border: 1px solid var(--crm-color-line-subtle); text-align: left; vertical-align: top; }
+.siso-md th { background: rgb(var(--crm-white-rgb) / 0.04); color: var(--crm-color-text-strong); font-weight: 600; }
+.siso-md hr { margin: 12px 0; border: 0; border-top: 1px solid var(--crm-color-line-subtle); }
+/* The answer as a document, Notion-like. */
+.siso-md--doc p, .siso-md--doc ul, .siso-md--doc ol, .siso-md--doc table, .siso-md--doc blockquote, .siso-md--doc .siso-md__code { margin: 0 0 12px; }
+.siso-md--doc h1, .siso-md--doc h2, .siso-md--doc h3, .siso-md--doc h4 { margin: 18px 0 6px; color: #fff; letter-spacing: -0.01em; }
+.siso-md--doc h1 { font-size: 18px; } .siso-md--doc h2 { font-size: 16.5px; } .siso-md--doc h3, .siso-md--doc h4 { font-size: 15px; }
+.siso-md--doc li { margin: 6px 0; padding-left: 3px; }
+.siso-md--doc li > p { margin: 0; }
+.siso-md--doc table { border-radius: 8px; font-size: 13.5px; }
+.siso-md--doc th, .siso-md--doc td { padding: 7px 12px; }
+.siso-md--doc blockquote { padding: 2px 0 2px 14px; border-left: 2px solid rgb(var(--crm-white-rgb) / 0.2); color: rgb(var(--crm-white-rgb) / 0.75); }
+.siso-md--doc blockquote p:last-child { margin-bottom: 0; }
+.siso-md__code { overflow: hidden; border: 1px solid var(--crm-color-line-subtle); border-radius: 10px; background: rgb(var(--crm-black-rgb) / 0.28); }
+.siso-md__codehead { display: flex; align-items: center; justify-content: space-between; padding: 5px 8px 5px 12px; border-bottom: 1px solid var(--crm-color-line-subtle); color: rgb(var(--crm-white-rgb) / 0.45); font: 11px var(--crm-font-mono); }
+.siso-md__codehead button { display: inline-flex; align-items: center; gap: 4px; padding: 2px 6px; border-radius: 5px; color: rgb(var(--crm-white-rgb) / 0.55); font: 11px var(--crm-font-sans); }
+.siso-md__codehead button:hover { color: var(--crm-color-text-strong); background: rgb(var(--crm-white-rgb) / 0.07); }
+.siso-md .siso-md__code pre { margin: 0; border: 0; border-radius: 0; background: none; }
+/* Thinking, mid-turn messages, notices. */
+.siso-chat__thought { display: flex; flex-direction: column; gap: 5px; }
+.siso-chat__thoughthead { display: flex; width: fit-content; align-items: center; gap: 8px; color: rgb(var(--crm-white-rgb) / 0.55); font-size: 13px; text-align: left; }
+button.siso-chat__thoughthead:hover { color: var(--crm-color-text); }
+.siso-chat__thoughttext { max-height: 260px; overflow: auto; margin-left: 4.5px; padding: 2px 0 2px 13.5px; border-left: 1px solid var(--crm-color-line-subtle); color: rgb(var(--crm-white-rgb) / 0.55); font-size: 13px; font-style: italic; line-height: 1.6; white-space: pre-wrap; }
+.siso-chat__steer { display: flex; min-width: 0; gap: 8px; color: rgb(var(--crm-white-rgb) / 0.78); font-size: 13.5px; line-height: 1.55; }
+.siso-chat__steer > span:last-child { min-width: 0; overflow-wrap: anywhere; white-space: pre-wrap; }
+.siso-chat__steermark { min-width: 10px; flex: none; color: rgb(var(--crm-white-rgb) / 0.45); text-align: center; }
+.siso-chat__steer.is-peer { color: rgb(var(--crm-white-rgb) / 0.6); }
+.siso-chat__steer.is-me { margin-left: -10px; padding: 5px 10px 5px 8px; border-left: 2px solid rgb(var(--crm-brand-rgb) / 0.45); border-radius: 0 8px 8px 0; background: rgb(var(--crm-brand-rgb) / 0.06); }
+.siso-chat__steerface { width: 18px; height: 18px; flex: none; margin-top: 2px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 1px rgb(var(--crm-white-rgb) / 0.12); }
+.siso-chat__steer.is-peer .siso-chat__steermark { color: rgb(var(--crm-white-rgb) / 0.42); font-size: 11px; font-weight: 600; line-height: 2; }
+.siso-chat__notice { display: flex; width: fit-content; max-width: 100%; align-items: center; gap: 8px; color: rgb(var(--crm-white-rgb) / 0.62); font-size: 13px; text-align: left; }
+.siso-chat__notice:not(:disabled):hover { color: var(--crm-color-text); }
+.siso-chat__notice > span:nth-child(2) { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Tool calls: one dim mono line each; runs collapse to one counted line. */
+.siso-chat__run, .siso-chat__call, .siso-chat__edit { display: flex; min-width: 0; flex-direction: column; gap: 4px; }
+.siso-chat__runhead, .siso-chat__callhead, .siso-chat__foldhead { display: flex; min-width: 0; align-items: center; gap: 8px; color: rgb(var(--crm-white-rgb) / 0.62); font-size: 13px; text-align: left; }
+.siso-chat__runhead:hover, .siso-chat__foldhead:hover { color: var(--crm-color-text); }
+/* R1.19 (21:22: "The RAND shell command should be just a little bit lighter than the text"): tool lines sit one step
+   under the body, at 62%; their counts stay strong (.siso-chat__runlabel b). */
+.siso-chat__chev { flex: none; opacity: 0.6; transition: transform 150ms; }
+[aria-expanded="true"] > .siso-chat__chev { transform: rotate(90deg); }
+.siso-chat__runbody { display: flex; flex-direction: column; gap: 6px; margin-left: 4.5px; padding-left: 13.5px; border-left: 1px solid var(--crm-color-line-subtle); }
+.siso-chat__calltext { min-width: 0; overflow: hidden; color: rgb(var(--crm-white-rgb) / 0.7); font-family: var(--crm-font-mono); font-size: 12.5px; text-overflow: ellipsis; white-space: nowrap; }
+.siso-chat__calltext b { color: var(--crm-color-text-strong); font-weight: 560; }
+.siso-chat__out { display: flex; gap: 8px; padding-left: 18px; color: rgb(var(--crm-white-rgb) / 0.55); font: 12px/1.5 var(--crm-font-mono); }
+.siso-chat__out > span { flex: none; }
+.siso-chat__out pre { min-width: 0; max-height: 180px; margin: 0; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; cursor: default; }
+.siso-chat__runlabel b { color: rgb(var(--crm-white-rgb) / 0.92); font-weight: 650; }
+.siso-chat__out.is-bad { color: #f08a7e; }
+.siso-chat__counts { flex: none; font-family: var(--crm-font-mono); font-size: 11.5px; }
+.siso-chat__counts i { font-style: normal; }
+.is-add { color: #4ade80; } .is-del { color: #f87171; }
+.siso-chat__diff { max-height: 320px; overflow: auto; border: 1px solid var(--crm-color-line-subtle); border-radius: 8px; background: rgb(var(--crm-black-rgb) / 0.22); font: 11.5px/1.55 var(--crm-font-mono); }
+.siso-chat__diff > div { padding: 0 10px; color: rgb(var(--crm-white-rgb) / 0.55); white-space: pre-wrap; overflow-wrap: anywhere; }
+.siso-chat__diff > div > span { display: inline-block; width: 14px; opacity: 0.7; user-select: none; }
+.siso-chat__diff > .is-add { background: rgb(74 222 128 / 0.1); color: #b7f5c8; }
+.siso-chat__diff > .is-del { background: rgb(248 113 113 / 0.1); color: #fbc0c0; }
+.siso-chat__dot { width: 7px; height: 7px; flex: none; margin-inline: 1.5px; border-radius: 50%; background: rgb(var(--crm-white-rgb) / 0.3); }
+.siso-chat__dot.is-run { background: rgb(var(--crm-brand-rgb)); animation: siso-pulse 1.2s ease-in-out infinite; }
+.siso-chat__dot.is-ok { background: rgb(var(--crm-white-rgb) / 0.28); }
+.siso-chat__dot.is-bad { background: #ef5b4c; }
+@keyframes siso-pulse { 50% { opacity: 0.35; } }
+/* A finished turn's work, folded: "Worked for 3m 10s ›  13:42". */
+.siso-chat__fold { display: flex; flex-direction: column; gap: 8px; }
+.siso-chat__foldhead { width: fit-content; font-size: 12.5px; }
+.siso-chat__when { color: rgb(var(--crm-white-rgb) / 0.4); font-size: 12px; font-variant-numeric: tabular-nums; }
+.siso-chat__foldbody { display: flex; flex-direction: column; gap: 9px; margin-left: 4.5px; padding-left: 13.5px; border-left: 1px solid var(--crm-color-line-subtle); }
+/* A sub-agent: a live card that opens its transcript beside the chat. */
+.siso-chat__agent { display: flex; width: 100%; align-items: center; gap: 10px; padding: 9px 12px; border: 1px solid var(--crm-color-line-subtle); border-radius: 10px; background: rgb(var(--crm-white-rgb) / 0.03); text-align: left; }
+.siso-chat__agent:hover { background: rgb(var(--crm-white-rgb) / 0.055); }
+.siso-chat__agent.is-run { border-color: rgb(var(--crm-brand-rgb) / 0.35); }
+/* R1.20c (D8): ■ Stop on a running sub-agent, shown on hover or focus (always on touch). */
+.siso-chat__agentwrap { position: relative; }
+.siso-chat__agentstop { position: absolute; top: 50%; right: 34px; display: inline-flex; align-items: center; gap: 5px; padding: 3px 8px; border: 1px solid rgb(var(--crm-danger-rgb) / 0.45); border-radius: 6px; background: var(--crm-color-surface-raised); color: var(--crm-color-danger); font-size: 11.5px; font-weight: 600; opacity: 0; transform: translateY(-50%); transition: opacity 120ms; }
+.siso-chat__agentwrap:hover .siso-chat__agentstop, .siso-chat__agentstop:focus-visible, .siso-chat__agentstop:disabled { opacity: 1; }
+@media (hover: none) { .siso-chat__agentstop { opacity: 1; } }
+.siso-chat__agentstop:hover { background: rgb(var(--crm-danger-rgb) / 0.14); }
+/* R1.20c (F4/F5): a limit or an API error as its own card. */
+.siso-chat__errcard { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid rgb(var(--crm-danger-rgb) / 0.4); border-radius: 10px; background: rgb(var(--crm-danger-rgb) / 0.08); }
+/* A limit recovers by itself: amber (the needs-you amber); an API error stays red. */
+.siso-chat__errcard.is-limit { border-color: rgb(240 176 63 / 0.5); background: rgb(240 176 63 / 0.07); }
+.siso-chat__errcard.is-limit .siso-chat__dot { background: #f0b03f; }
+.siso-chat__errmain { display: flex; min-width: 0; flex: 1; flex-direction: column; gap: 2px; font-size: 13px; }
+.siso-chat__errmain b { color: var(--crm-color-text-strong); font-weight: 600; overflow-wrap: anywhere; }
+.siso-chat__errmain span { color: rgb(var(--crm-white-rgb) / 0.6); font-size: 12px; }
+.siso-chat__errcard > button { flex: none; padding: 5px 12px; border: 1px solid var(--crm-color-line-subtle); border-radius: 7px; color: var(--crm-color-text); font-size: 12.5px; font-weight: 600; }
+.siso-chat__errcard > button:hover { background: rgb(var(--crm-white-rgb) / 0.06); }
+.siso-chat__agenticon { flex: none; color: rgb(var(--crm-white-rgb) / 0.55); }
+.siso-chat__agentmain { display: flex; min-width: 0; flex: 1; flex-direction: column; gap: 2px; }
+.siso-chat__agenttop { display: flex; min-width: 0; gap: 8px; font-size: 13px; }
+.siso-chat__agenttop b { flex: none; color: var(--crm-color-text-strong); font-weight: 600; }
+.siso-chat__agenttop span { min-width: 0; overflow: hidden; color: var(--crm-color-text); text-overflow: ellipsis; white-space: nowrap; }
+.siso-chat__agentnow { color: rgb(var(--crm-white-rgb) / 0.45); font-size: 11.5px; font-variant-numeric: tabular-nums; }
+.siso-chat__side { display: flex; width: min(440px, 42%); flex: none; flex-direction: column; border-left: 1px solid var(--crm-color-line-subtle); background: var(--crm-color-surface); }
+.siso-chat__sidelist { display: flex; min-height: 0; flex: 1; flex-direction: column; gap: 9px; overflow-y: auto; padding: 14px 16px; }
+.siso-chat__note { margin: 4px 0; padding: 10px 12px; max-height: 320px; overflow: auto; border: 1px solid var(--crm-color-line-subtle); border-radius: 10px; background: rgb(var(--crm-black-rgb) / 0.25); color: rgb(var(--crm-white-rgb) / 0.6); font: 12.5px/1.55 var(--crm-font-mono); white-space: pre; }
+.siso-chat__divider { display: flex; align-items: center; gap: 10px; color: rgb(var(--crm-white-rgb) / 0.32); font-size: 11px; }
+.siso-chat__divider::before, .siso-chat__divider::after { height: 1px; flex: 1; background: var(--crm-color-line-subtle); content: ""; }
+.siso-chat__working { display: flex; align-items: center; gap: 8px; color: rgb(var(--crm-white-rgb) / 0.5); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+.siso-chat__spark { color: rgb(var(--crm-brand-rgb)); animation: siso-pulse 1.6s ease-in-out infinite; }
+.siso-chat__verb { color: rgb(var(--crm-brand-rgb) / 0.9); }
+.siso-chat__doing { min-width: 0; overflow: hidden; color: rgb(var(--crm-white-rgb) / 0.38); font-family: var(--crm-font-mono); font-size: 11.5px; text-overflow: ellipsis; white-space: nowrap; }
+.siso-chat__hint { margin-left: auto; color: rgb(var(--crm-white-rgb) / 0.28); font-size: 11.5px; }
+.siso-chat__ask { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 10px 12px; border: 1px solid rgb(240 176 63 / 0.4); border-radius: 12px; background: rgb(240 176 63 / 0.07); font-size: 13px; }
+.siso-chat__ask span { min-width: 0; flex: 1; overflow-wrap: anywhere; }
+.siso-chat__ask button { display: inline-flex; align-items: center; gap: 4px; padding: 5px 10px; border-radius: 8px; background: rgb(var(--crm-white-rgb) / 0.08); color: var(--crm-color-text-strong); font-size: 12.5px; }
+.siso-chat__ask button:first-of-type { background: rgb(var(--crm-brand-rgb) / 0.9); color: var(--crm-color-on-brand); }
+/* The input box: keeps taking messages while Claude works; queued ones wait above it, dim; Stop beside Send. */
+.siso-chat__composer { position: relative; max-width: 1000px; width: 100%; margin: 0 auto; padding: 0 24px 14px; }
+.siso-chat__queued { display: flex; flex-direction: column; gap: 4px; margin: 0 6px 6px; }
+.siso-chat__queued > div { display: flex; min-width: 0; align-items: center; color: rgb(var(--crm-white-rgb) / 0.45); font-size: 12.5px; }
+.siso-chat__queued em { min-width: 0; flex: 1; overflow: hidden; font-style: normal; text-overflow: ellipsis; white-space: nowrap; }
+.siso-chat__queued button { display: grid; width: 20px; height: 20px; flex: none; place-items: center; border-radius: 5px; color: rgb(var(--crm-white-rgb) / 0.4); }
+.siso-chat__queued button:hover { color: var(--crm-color-text-strong); background: rgb(var(--crm-white-rgb) / 0.08); }
+.siso-chat__queued span { margin-right: 8px; padding: 1px 6px; border-radius: 5px; background: rgb(var(--crm-white-rgb) / 0.07); font-size: 10.5px; letter-spacing: 0.02em; text-transform: uppercase; }
+/* What he just sent, shown at once (t-0105): sending, sent (typed into the pane), not sent (Retry / take back). */
+.siso-chat__pending > div { color: rgb(var(--crm-white-rgb) / 0.7); }
+.siso-chat__pending > div.is-sending span { background: rgb(var(--crm-brand-rgb) / 0.16); color: var(--crm-color-brand); }
+.siso-chat__pending > div.is-sent span { background: rgb(var(--crm-white-rgb) / 0.1); }
+.siso-chat__pending > div.is-failed { color: var(--crm-color-danger); }
+.siso-chat__pending > div.is-failed span { background: rgb(var(--crm-danger-rgb) / 0.16); }
+.siso-chat__hint { margin: 0 6px 6px; color: rgb(var(--crm-white-rgb) / 0.6); font-size: 12px; }
+.siso-chat__bg { margin: 6px 6px 0; color: rgb(var(--crm-white-rgb) / 0.38); font-size: 11.5px; }
+.siso-chat__bg > button { display: inline-flex; align-items: center; gap: 4px; }
+.siso-chat__bg > button:hover { color: var(--crm-color-text); }
+.siso-chat__bgrow { display: flex; align-items: center; gap: 8px; padding: 3px 0 0 2px; }
+.siso-chat__bgrow span { min-width: 0; flex: 1; overflow: hidden; font-family: var(--crm-font-mono); text-overflow: ellipsis; white-space: nowrap; }
+.siso-chat__bgrow button { padding: 1px 7px; border-radius: 5px; background: rgb(var(--crm-white-rgb) / 0.07); color: var(--crm-color-text); }
+.siso-chat__inputrow { display: flex; align-items: flex-end; gap: 6px; padding: 8px 8px 8px 14px; border: 1px solid rgb(var(--crm-white-rgb) / 0.1); border-radius: 18px; background: rgb(var(--crm-white-rgb) / 0.045); }
+.siso-chat__inputrow:focus-within { border-color: rgb(var(--crm-white-rgb) / 0.2); }
+.siso-chat__clip { display: grid; width: 28px; height: 28px; flex: none; place-items: center; margin-left: -6px; border-radius: 8px; color: rgb(var(--crm-white-rgb) / 0.45); }
+.siso-chat__clip:hover { color: var(--crm-color-text-strong); background: rgb(var(--crm-white-rgb) / 0.07); }
+.siso-chat__attach { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 6px 8px; }
+.siso-chat__attach > span { position: relative; }
+.siso-chat__attach img { display: block; width: 64px; height: 64px; border: 1px solid var(--crm-color-line-subtle); border-radius: 8px; object-fit: cover; }
+.siso-chat__attach button { position: absolute; top: -6px; right: -6px; display: grid; width: 18px; height: 18px; place-items: center; border-radius: 50%; background: #333; color: #fff; }
+.siso-chat__attach em { color: rgb(var(--crm-white-rgb) / 0.45); font-size: 12px; font-style: normal; }
+.siso-chat__inputrow textarea { min-height: 24px; flex: 1; resize: none; border: 0; background: transparent; color: var(--crm-color-text-strong); font: 14px/1.55 var(--crm-font-sans); outline: none; }
+.siso-chat__send { display: grid; width: 30px; height: 30px; flex: none; place-items: center; border-radius: 50%; background: var(--crm-color-text-strong); color: #111; }
+.siso-chat__send:disabled { opacity: 0.25; }
+.siso-chat__send.is-stop { background: rgb(var(--crm-white-rgb) / 0.12); color: var(--crm-color-text-strong); }
+.siso-chat__send.is-stop:hover { background: rgb(var(--crm-white-rgb) / 0.2); }
+/* The mic (t-0100): press, speak, press again. --lvl (0..1) is his loudness, drawn as the ring and the bars. */
+.siso-mic { position: relative; display: inline-flex; flex: none; }
+/* The button itself is the voice orb: apps/web/src/components/VoiceOrb.css (t-0271). */
+.siso-mic__spin { animation: siso-mic-spin 0.9s linear infinite; }
+@keyframes siso-mic-spin { to { transform: rotate(360deg); } }
+.siso-mic__pill { position: absolute; right: -4px; bottom: calc(100% + 10px); z-index: 5; display: flex; max-width: 340px; align-items: center; gap: 8px; padding: 6px 8px 6px 11px; border: 1px solid rgb(var(--crm-white-rgb) / 0.12); border-radius: 12px; background: rgb(var(--crm-chrome-rgb)); color: var(--crm-color-text-strong); font: 12.5px/1.35 var(--crm-font-sans); white-space: nowrap; box-shadow: 0 8px 24px rgb(var(--crm-black-rgb) / 0.35); }
+.siso-mic__pill.is-error { white-space: normal; width: max-content; border-color: rgb(var(--crm-danger-rgb) / 0.5); }
+.siso-mic__pill.is-error .siso-mic__msg { color: rgb(var(--crm-danger-rgb)); }
+.siso-mic__pill button { display: grid; width: 20px; height: 20px; flex: none; place-items: center; border-radius: 6px; color: rgb(var(--crm-white-rgb) / 0.5); }
+.siso-mic__pill button:hover { color: var(--crm-color-text-strong); background: rgb(var(--crm-white-rgb) / 0.08); }
+.siso-mic__msg { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.siso-mic__bars { display: inline-flex; height: 14px; align-items: center; gap: 2px; }
+.siso-mic__bars i { display: block; width: 3px; height: 14px; border-radius: 2px; background: rgb(var(--crm-danger-rgb)); transform-origin: center; transition: transform 60ms linear; }
+.siso-mic.is-face .siso-mic__pill { right: 0; }
+.siso-chat__menu { position: absolute; bottom: calc(100% + 4px); left: 18px; right: 18px; z-index: 20; max-height: 320px; overflow-y: auto; padding: 4px; border: 1px solid var(--crm-color-line-strong); border-radius: 12px; background: #1f1f1d; box-shadow: 0 16px 40px rgb(0 0 0 / 0.45); }
+.siso-chat__menu button { display: flex; width: 100%; align-items: baseline; gap: 10px; padding: 7px 10px; border-radius: 8px; text-align: left; }
+.siso-chat__menu button.is-on, .siso-chat__menu button:hover { background: rgb(var(--crm-white-rgb) / 0.07); }
+.siso-chat__menu b { flex: none; color: var(--crm-color-text-strong); font: 500 12.5px var(--crm-font-mono); }
+.siso-chat__menu span { min-width: 0; overflow: hidden; color: rgb(var(--crm-white-rgb) / 0.5); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+.siso-seg { display: inline-flex; padding: 2px; border-radius: 8px; background: rgb(var(--crm-white-rgb) / 0.05); }
+.siso-seg button { padding: 2px 9px; border-radius: 6px; font-size: 11.5px; }
+.siso-seg button[aria-pressed="true"] { background: rgb(var(--crm-white-rgb) / 0.1); color: var(--crm-color-text-strong); }
+
+/* An owner row's out-of-sight workers ("· 3 working"), clickable; Agent Zero's row on top of everything. */
+.siso-thread__badge { flex: none; margin-left: 4px; padding: 0 3px; border-radius: 5px; color: rgb(var(--crm-white-rgb) / 0.42); font-size: 11.5px; white-space: nowrap; }
+.siso-thread__badge.is-live { color: rgb(var(--crm-brand-rgb) / 0.9); }
+.siso-thread__badge:hover { color: var(--crm-color-text-strong); background: rgb(var(--crm-white-rgb) / 0.07); }
+.siso-zero { padding: 2px 0 6px; border-bottom: 1px solid var(--crm-color-line-subtle); margin-bottom: 6px; }
+.siso-chathead__rename { width: 220px; height: 26px; padding: 0 8px; border: 1px solid rgb(var(--crm-brand-rgb) / 0.5); border-radius: 7px; background: rgb(var(--crm-white-rgb) / 0.05); color: var(--crm-color-text-strong); font-size: 13.5px; font-weight: 600; outline: none; }
+.siso-seg button { display: inline-flex; align-items: center; }
+/* Codex's finished turn: the "Worked for" line, then a thin full-width rule above the answer. */
+.siso-chat__rule { width: 100%; height: 0; margin: 2px 0 4px; border: 0; border-top: 1px solid var(--crm-color-line-subtle); }
+.siso-chat__foldbody.is-closing { overflow: hidden; }
+/* Checkpoints, summaries, start prompts and command output: one quiet line that opens (2 Oct 14:37). */
+.siso-chat__quiet { display: flex; min-width: 0; flex-direction: column; gap: 6px; }
+.siso-chat__quiet > button { display: flex; min-width: 0; align-items: center; gap: 8px; color: rgb(var(--crm-white-rgb) / 0.5); font-size: 12.5px; text-align: left; }
+.siso-chat__quiet > button:hover { color: var(--crm-color-text); }
+.siso-chat__quiet b { flex: none; color: rgb(var(--crm-white-rgb) / 0.66); font-weight: 600; }
+.siso-chat__quiet.is-bad b { color: var(--crm-color-danger); }
+.siso-chat__quiet span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.siso-chat__quiettext { max-height: 320px; overflow: auto; padding: 6px 0 6px 12px; border-left: 2px solid rgb(var(--crm-white-rgb) / 0.1); color: rgb(var(--crm-white-rgb) / 0.62); font-size: 12.5px; line-height: 1.6; white-space: pre-wrap; }
+.siso-chat__quiettext.is-mono { font-family: var(--crm-font-mono); font-size: 12px; }
+/* Screen 14: a run of background events, one muted line between his messages and the replies; opens to a mono list. */
+.siso-chat__turn + .siso-chat__turn.is-quiet { padding-top: 10px; }
+.siso-chat__turn.is-quiet + .siso-chat__turn { padding-top: 8px; border-top: 0; }
+.siso-chat__qhead { display: flex; width: fit-content; max-width: 100%; min-width: 0; align-items: center; gap: 8px; color: rgb(var(--crm-white-rgb) / 0.45); font-size: 12.5px; text-align: left; }
+.siso-chat__qhead:hover { color: rgb(var(--crm-white-rgb) / 0.75); }
+.siso-chat__qhead > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.siso-chat__qlist { display: flex; flex-direction: column; gap: 2px; margin: 6px 0 0 6px; padding-left: 12px; border-left: 1px solid var(--crm-color-line-subtle); }
+.siso-chat__qrow { display: flex; min-width: 0; flex-direction: column; }
+.siso-chat__qline { display: flex; min-width: 0; align-items: center; }
+.siso-chat__qline > button:first-child { display: flex; flex: 1; min-width: 0; align-items: baseline; gap: 8px; color: rgb(var(--crm-white-rgb) / 0.5); font: 12px/1.7 var(--crm-font-mono); text-align: left; background: none; }
+.siso-chat__qline > button:first-child:not(:disabled):hover { color: rgb(var(--crm-white-rgb) / 0.8); }
+.siso-chat__qline time { flex: none; color: rgb(var(--crm-white-rgb) / 0.35); }
+.siso-chat__qline b { flex: none; font-weight: 500; color: rgb(var(--crm-white-rgb) / 0.6); }
+.siso-chat__qline b.is-bad { color: var(--crm-color-danger); }
+.siso-chat__qline span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.siso-chat__qline i { flex: none; margin-left: auto; font-style: normal; color: rgb(var(--crm-white-rgb) / 0.35); }
+.siso-chat__qopen { display: inline-flex; padding: 2px; color: rgb(var(--crm-white-rgb) / 0.5); }
+.siso-chat__qopen:hover { color: var(--crm-color-text); }
+.siso-chat__qrow > .siso-chat__runbody { margin: 4px 0 6px; }
+/* A divider between outputs: each turn is one output, separated by a 1px rule (2 Oct 14:37: "div lines"). */
+.siso-chat__turn + .siso-chat__turn { padding-top: 18px; border-top: 1px solid var(--crm-color-line-subtle); }
+/* A turn that opens with its timed divider needs no second rule above it (R1.20 review: one line between turns). */
+.siso-chat__turn + .siso-chat__turn:has(> .turn-divider) { padding-top: 0; border-top: 0; }
+/* The three groups (SIDENAV-GROUPS.md): a group header, project rows, "+ N more clients", HEALTH pinned at the bottom. */
+.siso-project__name.is-link:hover { text-decoration: underline; text-decoration-color: rgb(var(--crm-white-rgb) / 0.3); text-underline-offset: 3px; }
+.siso-project__actions { display: none; margin-left: auto; }
+.siso-project__row:hover .siso-project__actions { display: flex; }
+.siso-project__row:hover .siso-project__count { display: none; }
+.siso-group { margin-top: 10px; }
+.siso-group__head { display: flex; width: 100%; align-items: center; gap: 6px; padding: 4px 8px; border-radius: 8px; color: rgb(var(--crm-white-rgb) / 0.5); font-size: 11.5px; font-weight: 600; letter-spacing: 0.02em; }
+.siso-group__head button { display: inline-flex; align-items: center; gap: 6px; color: inherit; }
+.siso-group__head button:hover { color: var(--crm-color-text-strong); }
+.siso-group__caret { width: 14px; height: 14px; opacity: 0.6; }
+/* Projects nav A (2 Oct 22:20): folded summaries, folders, stages, client rows, the empty seat, one-owner rows. */
+.siso-group__head .siso-fold-sum, .siso-group__head .siso-amber { margin-left: auto; margin-right: 4px; }
+.siso-fold-sum { margin-left: auto; color: var(--crm-color-text-faint); font-family: var(--font-mono, ui-monospace, monospace); font-size: 10.5px; font-weight: 500; letter-spacing: 0; }
+.siso-working { color: var(--color-working, #38bdf8); }
+.siso-project__note .siso-working { font-size: 11.5px; }
+.siso-amber { display: inline-block; width: 7px; height: 7px; flex: none; margin-left: auto; border-radius: 50%; background: var(--color-needs, #f0b03f); box-shadow: 0 0 6px rgb(240 176 63 / 0.6); }
+/* One column for every row's mark or face: a group's project rows, one-owner rows and seats line up under the folders'. */
+.siso-group .siso-project__row { padding-left: 27px; }
+.siso-one .siso-thread { padding-left: 27px; }
+.siso-group__empty { margin: 0; padding: 3px 8px 6px 30px; color: var(--crm-color-text-faint); font-size: 11.5px; }
+.siso-folder__row { display: grid; width: 100%; height: 30px; grid-template-columns: 12px 16px 1fr auto; align-items: center; gap: 7px; padding: 0 8px; border-radius: 9px; color: rgb(var(--crm-white-rgb) / 0.82); font-size: 13.5px; font-weight: 560; text-align: left; }
+.siso-folder__row:hover { background: rgb(var(--crm-white-rgb) / 0.045); }
+.siso-folder__caret { width: 11px; height: 11px; color: var(--crm-color-text-faint); }
+.siso-folder__mark { width: 16px; height: 16px; color: rgb(var(--crm-white-rgb) / 0.55); stroke-width: var(--crm-icon-stroke); }
+.siso-folder__name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.siso-kids { margin: 0 0 4px 19px; padding-left: 8px; border-left: 1px solid var(--crm-color-line-subtle); }
+.siso-stage__head { display: flex; gap: 6px; padding: 7px 8px 2px; color: var(--crm-color-text-faint); font-size: 10px; font-weight: 650; letter-spacing: 0.07em; text-transform: uppercase; }
+.siso-stage__head i { font-family: var(--font-mono, ui-monospace, monospace); font-style: normal; font-weight: 500; letter-spacing: 0; }
+.siso-stage.is-past { margin-top: 2px; }
+.siso-crow { position: relative; display: flex; align-items: center; border-radius: 8px; }
+.siso-crow:hover { background: rgb(var(--crm-white-rgb) / 0.045); }
+.siso-crow__main { display: grid; min-width: 0; height: 26px; flex: 1; grid-template-columns: 16px minmax(0, 1fr) auto auto; align-items: center; gap: 7px; padding: 0 8px; color: var(--crm-color-text); font-size: 12.5px; text-align: left; }
+.siso-crow__tile { display: grid; width: 16px; height: 16px; place-items: center; border-radius: 5px; background: hsl(var(--tile-h) 45% 50% / 0.22); color: hsl(var(--tile-h) 70% 75%); font-size: 8.5px; font-weight: 700; letter-spacing: -0.02em; }
+.siso-crow__name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.siso-crow__pin svg { width: 11px; height: 11px; color: var(--crm-color-text-faint); }
+.siso-crow__word { color: var(--crm-color-text-faint); font-size: 10.5px; white-space: nowrap; }
+.siso-crow__act { display: none; width: 22px; height: 22px; flex: none; margin-right: 4px; place-items: center; border-radius: 6px; color: var(--crm-color-text-muted); }
+.siso-crow__act:hover { background: rgb(var(--crm-white-rgb) / 0.08); color: var(--crm-color-text-strong); }
+.siso-crow__act svg { width: 13px; height: 13px; }
+.siso-crow__more { margin-left: -4px; }
+.siso-crow__more > button { display: grid; width: 22px; height: 22px; place-items: center; }
+.siso-crow:hover .siso-crow__act, .siso-crow:focus-within .siso-crow__act { display: grid; }
+.siso-crow:hover .siso-crow__word { display: none; }
+.siso-crow.is-past .siso-crow__name, .siso-crow.is-past .siso-crow__word { color: var(--crm-color-text-faint); }
+.siso-crow.is-past .siso-crow__tile { opacity: 0.5; }
+.siso-seatrow { position: relative; display: flex; align-items: center; border-radius: 9px; }
+.siso-seatrow:hover { background: rgb(var(--crm-white-rgb) / 0.045); }
+.siso-seatrow__main { display: grid; min-width: 0; height: 30px; flex: 1; grid-template-columns: 12px 18px minmax(0, 1fr) auto; align-items: center; gap: 7px; padding: 0 8px; text-align: left; }
+.siso-seat { display: inline-block; width: 16px; height: 16px; justify-self: center; border: 1.3px dashed rgb(var(--crm-white-rgb) / 0.28); border-radius: 50%; }
+.siso-seatrow__name { display: flex; min-width: 0; align-items: center; gap: 5px; overflow: hidden; color: var(--crm-color-text-muted); font-size: 13.5px; font-weight: 500; text-overflow: ellipsis; white-space: nowrap; }
+.siso-seatrow.is-away .siso-seatrow__name { color: rgb(var(--crm-white-rgb) / 0.82); font-weight: 560; }
+.siso-seatrow__word { color: var(--crm-color-text-faint); font-family: var(--font-mono, ui-monospace, monospace); font-size: 10.5px; }
+.siso-seatrow__acts { display: none; align-items: center; gap: 2px; padding-right: 6px; }
+.siso-seatrow:hover .siso-seatrow__acts, .siso-seatrow:focus-within .siso-seatrow__acts { display: flex; }
+.siso-seatrow:hover .siso-seatrow__word { display: none; }
+.siso-seatrow__acts > button, .siso-seatrow__acts .siso-menu-button { display: grid; min-width: 22px; height: 22px; place-items: center; border-radius: 6px; color: var(--crm-color-text-muted); }
+.siso-seatrow__acts svg { width: 13px; height: 13px; }
+.siso-start { padding: 0 7px; border: 1px solid rgb(255 167 38 / 0.35); background: var(--crm-gradient-active-icon); color: var(--crm-color-brand-hover) !important; font-size: 11px; font-weight: 600; }
+.siso-planned { display: flex; align-items: center; gap: 8px; padding: 5px 10px 5px 30px; color: rgb(var(--crm-white-rgb) / 0.38); font-size: 13px; }
+.siso-planned i { width: 7px; height: 7px; border: 1.5px solid rgb(var(--crm-white-rgb) / 0.35); border-radius: 50%; }
+.siso-planned span:last-child { margin-left: auto; font-size: 11px; }
+.siso-health { padding: 6px 0 4px; border-top: 1px solid var(--crm-color-line-subtle); }
+/* The group and project dashboards. */
+.siso-org { max-width: 1100px; margin: 0 auto; padding: 26px 28px 60px; color: var(--crm-color-text); font-size: 13.5px; }
+.siso-org h1 { margin: 0 0 18px; color: #fff; font-size: 20px; font-weight: 650; }
+.siso-org h2 { margin: 26px 0 10px; color: rgb(var(--crm-white-rgb) / 0.7); font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+.siso-org h3 { margin: 16px 0 6px; font-size: 13px; font-weight: 600; }
+.siso-org h3.is-asked { color: var(--siso-orange); }
+.siso-org__muted { color: rgb(var(--crm-white-rgb) / 0.42); }
+.siso-org__grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+.siso-org__card { display: flex; flex-direction: column; gap: 8px; padding: 14px; border: 1px solid var(--crm-color-line-subtle); border-radius: 12px; background: rgb(var(--crm-white-rgb) / 0.025); }
+.siso-org__cardhead { display: flex; align-items: center; justify-content: space-between; color: #fff; font-size: 14.5px; text-align: left; }
+.siso-org__cardhead:hover { color: var(--siso-orange); }
+.siso-org__line { margin: 0; color: rgb(var(--crm-white-rgb) / 0.55); font-size: 12.5px; line-height: 1.5; }
+.siso-org__owners { display: flex; flex-direction: column; gap: 2px; }
+.siso-org__owner { display: flex; min-width: 0; align-items: center; gap: 8px; padding: 3px 0; color: var(--crm-color-text); text-align: left; }
+.siso-org__owner:disabled { cursor: default; }
+.siso-org__owner i { width: 7px; height: 7px; flex: none; border-radius: 50%; }
+.siso-org__owner i.is-live { background: #4ade80; }
+.siso-org__owner i.is-planned { border: 1.5px solid rgb(var(--crm-white-rgb) / 0.35); }
+.siso-org__ownername { flex: none; font-weight: 560; }
+.siso-org__owner .siso-org__muted { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.siso-org__ownerrow { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 16px; padding: 6px 0; border-bottom: 1px solid var(--crm-color-line-subtle); }
+.siso-org__plan { display: inline-flex; align-items: center; gap: 8px; color: rgb(var(--crm-white-rgb) / 0.62); font-size: 12px; }
+.siso-org__plan b { color: var(--siso-orange); font-weight: 600; }
+.siso-org__bar { display: inline-block; width: 80px; height: 5px; overflow: hidden; border-radius: 3px; background: rgb(var(--crm-white-rgb) / 0.1); }
+.siso-org__bar i { display: block; height: 100%; background: #4ade80; }
+.siso-org__report { margin: 0; overflow: hidden; color: rgb(var(--crm-white-rgb) / 0.55); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+.siso-org__crumb { margin-bottom: 10px; color: rgb(var(--crm-white-rgb) / 0.5); }
+.siso-org__crumb button:hover { color: var(--crm-color-text-strong); }
+.siso-org__crumb b { color: #fff; font-size: 18px; }
+.siso-org__door { margin: 12px 0; color: rgb(var(--crm-white-rgb) / 0.72); font-size: 12.5px; }
+.siso-org__door table { display: table; width: 100%; }
+.siso-org__door td:first-child { width: 150px; color: rgb(var(--crm-white-rgb) / 0.5); white-space: nowrap; }
+.siso-org__item > button { display: block; width: 100%; padding: 5px 0; color: var(--crm-color-text); text-align: left; }
+.siso-org__item > button:hover { color: #fff; }
+.siso-org__itembody { margin: 2px 0 10px 14px; padding-left: 12px; border-left: 2px solid rgb(var(--crm-white-rgb) / 0.1); font-size: 12.5px; }
+.siso-org__itembody blockquote { margin: 0 0 6px; color: rgb(var(--crm-white-rgb) / 0.78); font-style: italic; }
+.siso-org__itembody ul { margin: 0 0 6px; padding-left: 16px; color: rgb(var(--crm-white-rgb) / 0.6); list-style: disc; }
+.siso-org__all { margin-top: 18px; color: rgb(var(--crm-white-rgb) / 0.6); }
+.siso-org__all label { display: block; padding: 3px 0; }
+/* The side nav's fixed top: the space switcher, then Agent Zero's row under it, full width. */
+.siso-headstack { display: flex; min-width: 0; flex: 1; flex-direction: column; align-items: stretch; gap: 6px; }
+.siso-headstack > .siso-brand { align-self: flex-start; }
+.siso-headstack .siso-zero { margin: 0; padding: 0 0 6px; }
+.siso-sidenav__header:has(.siso-headstack) { height: auto; padding-top: 12px; padding-bottom: 2px; }
+/* A0's announcement board (T7, ab-127), moved from apps/web/preview/announcements.css. */
+.ab-announcements { padding: 14px 16px; background: var(--crm-color-surface); }
+.ab-announcements header { display:flex; align-items:center; justify-content:space-between; padding-bottom:12px; border-bottom:1px solid var(--crm-color-line-subtle); }
+.ab-announcements h2 { margin:0; font-size:16px; }.ab-announcements header span,.ab-announcements time { color:var(--crm-color-text-muted); font:11px var(--crm-font-mono); }
+.ab-announcements__project { margin-top:17px; }.ab-announcements__project h3 { margin:0 0 6px; color:var(--crm-color-text-muted); font-size:11px; font-weight:600; }
+.ab-announcements__item { display:flex; width:100%; gap:10px; align-items:flex-start; text-align:left; padding:10px 6px; border:0; border-top:1px solid var(--crm-color-line-subtle); background:transparent; color:inherit; cursor:pointer; }
+.ab-announcements__number { width:20px; color:var(--crm-color-text-muted); font:11px var(--crm-font-mono); }.ab-announcements__copy { display:grid; flex:1; gap:4px; font-size:12px; }.ab-announcements__copy > span { color:var(--crm-color-text-muted); line-height:1.5; }.ab-announcements__copy em { color:var(--crm-color-text); font-size:11px; font-style:normal; }.ab-announcements__item time { white-space:nowrap; }.ab-announcements__item.is-unseen .ab-announcements__number:before { content:"•"; color:#e6ba65; margin-right:4px; }.ab-announcements__item.is-seen { opacity:.65; }.ab-announcements__empty { color:var(--crm-color-text-muted); }
+
+/* Agent Infrastructure, the side nav's bottom slot (ab-148): one entry, three dots, a popover of the three. */
+.siso-infra { position: relative; }
+.siso-infra__entry { display: flex; width: 100%; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 12px; border-radius: 8px; color: var(--crm-color-text); font-size: 13px; text-align: left; }
+.siso-infra__entry:hover { background: rgb(var(--crm-white-rgb) / 0.05); }
+.siso-infra__dots { display: inline-flex; gap: 5px; }
+.siso-infra i { display: inline-block; width: 8px; height: 8px; flex: none; border-radius: 50%; background: rgb(var(--crm-white-rgb) / 0.35); }
+.siso-infra i.is-working { background: rgb(var(--crm-brand-rgb)); animation: siso-pulse 1.4s ease-in-out infinite; }
+.siso-infra i.is-needs { background: #f0b03f; }
+.siso-infra i.is-off { background: none; border: 1.5px solid rgb(var(--crm-white-rgb) / 0.3); }
+.siso-infra__pop { position: absolute; bottom: calc(100% + 4px); left: 6px; right: 6px; z-index: 40; padding: 4px; border: 1px solid var(--crm-color-line-strong); border-radius: 10px; background: #1f1f1d; box-shadow: 0 16px 40px rgb(0 0 0 / 0.45); }
+.siso-infra__pop button { display: grid; width: 100%; grid-template-columns: 20px auto 1fr auto; align-items: center; gap: 8px; padding: 5px 8px; border-radius: 7px; color: var(--crm-color-text); font-size: 12.5px; text-align: left; }
+.siso-infra__pop button:hover:not(:disabled) { background: rgb(var(--crm-white-rgb) / 0.06); }
+.siso-infra__pop button:disabled { opacity: 0.5; cursor: default; }
+.siso-infra__pop span { overflow: hidden; color: rgb(var(--crm-white-rgb) / 0.45); text-overflow: ellipsis; white-space: nowrap; }
+.siso-infra__pop em { color: rgb(var(--crm-white-rgb) / 0.42); font-size: 11px; font-style: normal; }
+.siso-infra__pop::after { position: absolute; right: 0; bottom: -10px; left: 0; height: 10px; content: ""; } /* the bridge to the entry */
+
+/* Agent Zero's face, bottom right above the HUD (16:35). */
+/* In the bottom bar's right end (the HUD keeps 64 px clear for it), below the chat's input: at bottom 40 px it sat on
+   the Send button whenever the chat was under ~1050 px wide, and a click on Send opened Agent Zero instead (t-0105). */
+.siso-zero-face { position: fixed; right: 14px; bottom: 3px; z-index: 30; display: inline-flex; padding: 0; border-radius: 50%; background: none; }
+.siso-zero-face:focus-visible { outline: 2px solid rgb(var(--crm-brand-rgb)); outline-offset: 3px; }
+/* The mic on his face (t-0100): centred above the 48 px face, clear of the chat box beside it. */
+.siso-zero-mic { position: fixed; right: 27px; bottom: 94px; z-index: 30; }
+/* Move to… (ab-131) in the chat header: the menu and its status on one line, the header keeps its height. */
+
+/* The spend chip sized for the 32 px HUD row (ab-142), never shrunk away. */
+.ab-hud-spend { display: inline-flex; flex: none; }
+.ab-hud-spend .spend-chip { min-height: 22px; padding: 2px 8px; }
+
+/* R1.21 the chat header (A0's header spec, option A "Halo bar"): 52 px, two lines like a side-nav row. Its bottom edge
+   glows in the halo face's colours: project hue into the state colour, sweeping while it works, breathing amber while it
+   needs him, resting in the project hue otherwise; still under reduced motion. --ab-hue is set inline from projectHue. */
+.ab-head { --ab-dot: rgb(var(--crm-white-rgb) / 0.4); --ab-state: hsl(var(--ab-hue) 72% 62% / 0.7); --ab-glow: 0.12; position: relative; z-index: 3; display: flex; height: 52px; flex: none; align-items: center; gap: 11px; padding: 0 10px 0 14px; border-bottom: 1px solid var(--crm-color-line-subtle); container: abhead / inline-size; }
+.ab-head[data-state="working"], .ab-head[data-state="moving"] { --ab-dot: #22D3EE; --ab-state: #22D3EE; --ab-glow: 0.45; }
+.ab-head[data-state="quiet"] { --ab-dot: rgb(34 211 238 / 0.6); --ab-state: rgb(34 211 238 / 0.5); --ab-glow: 0.2; }
+.ab-head[data-state="needs"] { --ab-dot: #f0b03f; --ab-state: #f0b03f; --ab-glow: 0.6; }
+.ab-head[data-state="done"] { --ab-dot: var(--crm-color-success); }
+.ab-head[data-state="failed"] { --ab-dot: var(--crm-color-danger); --ab-state: var(--crm-color-danger); --ab-glow: 0.35; }
+.ab-head::after { position: absolute; right: 0; bottom: -1px; left: 0; height: 1px; background: linear-gradient(90deg, transparent 0%, hsl(var(--ab-hue) 72% 62% / 0.55) 25%, var(--ab-state) 50%, hsl(var(--ab-hue) 72% 62% / 0.25) 75%, transparent 100%) 50% 0 / 200% 100%; content: ""; opacity: 0.6; pointer-events: none; }
+.ab-head::before { position: absolute; right: 12%; bottom: -7px; left: 12%; height: 12px; background: radial-gradient(50% 50% at 50% 50%, var(--ab-state), transparent); content: ""; filter: blur(5px); opacity: var(--ab-glow); pointer-events: none; }
+.ab-head[data-state="working"]::after, .ab-head[data-state="moving"]::after { opacity: 1; animation: ab-head-sweep 3.2s linear infinite; }
+.ab-head[data-state="needs"]::after { opacity: 1; }
+.ab-head[data-state="needs"]::before { animation: ab-head-breathe 2.4s ease-in-out infinite; }
+@keyframes ab-head-sweep { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+@keyframes ab-head-breathe { 0%, 100% { opacity: 0.22; } 50% { opacity: 0.8; } }
+@media (prefers-reduced-motion: reduce) { .ab-head::after, .ab-head::before { animation: none !important; } }
+.ab-head__text { display: flex; min-width: 0; flex: 1; flex-direction: column; gap: 2px; }
+.ab-head__l1 { display: flex; min-width: 0; align-items: baseline; gap: 8px; }
+.siso-chathead button.ab-head__name { display: block; max-width: 60%; flex: none; overflow: hidden; color: var(--crm-color-text-strong); font: 600 14px var(--crm-font-sans); text-overflow: ellipsis; white-space: nowrap; }
+.ab-head__name:hover { text-decoration: underline; text-decoration-color: rgb(var(--crm-white-rgb) / 0.25); text-underline-offset: 3px; }
+.ab-head__role { min-width: 0; overflow: hidden; color: rgb(var(--crm-white-rgb) / 0.45); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+.ab-head__l2 { display: flex; min-width: 0; align-items: center; gap: 6px; color: rgb(var(--crm-white-rgb) / 0.5); font-size: 12px; white-space: nowrap; }
+.ab-head__dot { width: 7px; height: 7px; flex: none; border-radius: 50%; background: var(--ab-dot); }
+.ab-head__word { flex: none; color: var(--ab-dot); font-weight: 550; }
+.ab-head[data-state="idle"] .ab-head__word { color: rgb(var(--crm-white-rgb) / 0.55); }
+.ab-head__rest { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.ab-head__right { display: flex; flex: none; align-items: center; gap: 8px; }
+.siso-chathead .ab-head__answer { height: 30px; padding: 0 12px; border-radius: 8px; background: #f0b03f; color: rgb(0 0 0 / 0.86); font-size: 12.5px; font-weight: 650; }
+.siso-chathead .ab-head__answer:hover { color: rgb(0 0 0 / 0.95); filter: brightness(1.08); }
+.siso-chathead .ab-head__tasks { position: relative; height: 30px; gap: 6px; padding: 0 10px; border: 1px solid var(--crm-color-line-subtle); border-radius: 8px; color: rgb(var(--crm-white-rgb) / 0.7); font-size: 12px; white-space: nowrap; }
+.siso-chathead .ab-head__tasks[aria-pressed="true"] { background: rgb(var(--crm-white-rgb) / 0.07); color: var(--crm-color-text-strong); }
+.ab-head__tnum.is-needs { color: #f0b03f; font-weight: 600; }
+.ab-head__tdot { display: none; }
+.ab-head__icon { display: grid !important; width: 30px; height: 30px; place-items: center; border-radius: 8px; }
+.ab-head__icon:hover, .ab-head__icon[aria-pressed="true"], .ab-head__icon[aria-expanded="true"] { background: rgb(var(--crm-white-rgb) / 0.07); }
+.ab-head__more { position: relative; }
+.ab-head__menu { position: absolute; top: 36px; right: 0; z-index: 50; display: flex; min-width: 220px; flex-direction: column; padding: 5px; border: 1px solid var(--crm-color-line-subtle); border-radius: 10px; background: var(--crm-color-surface-raised, var(--crm-color-surface)); box-shadow: 0 18px 50px rgb(0 0 0 / 0.5); }
+.siso-chathead .ab-head__mi { display: flex; width: 100%; padding: 7px 10px; border-radius: 6px; color: rgb(var(--crm-white-rgb) / 0.8); font-size: 12.5px; text-align: left; white-space: nowrap; }
+.siso-chathead .ab-head__mi:hover:not(:disabled) { background: rgb(var(--crm-white-rgb) / 0.06); }
+.siso-chathead .ab-head__mi:disabled { opacity: 0.45; cursor: default; }
+.ab-head__menu .is-tasks, .ab-head__menu .is-phone { display: none !important; }
+/* Below 900 px of header, Answer takes Tasks' place (Tasks moves into ⋯). Phone: the role goes, Tasks is an icon with an
+   amber dot, Chat/Terminal and Summary move into ⋯. */
+@container abhead (max-width: 899px) {
+  .ab-head.is-answer .ab-head__tasks { display: none; }
+  .ab-head.is-answer .ab-head__menu .is-tasks { display: flex !important; }
+}
+/* The role shortens with "…" first and goes only at phone width: beside A0's news at 1440 the header is ~630 px and still
+   carries "Owns every project". */
+@container abhead (max-width: 519px) { .ab-head__role { display: none !important; } }
+@container abhead (max-width: 639px) {
+  .ab-head__seg, .ab-head__view, .ab-head__card, .ab-head__tlabel { display: none !important; }
+  .ab-head__menu .is-phone { display: flex !important; }
+  .siso-chathead .ab-head__tasks { width: 30px; justify-content: center; padding: 0; border-color: transparent; }
+  .ab-head__tdot { position: absolute; top: 5px; right: 5px; display: block; width: 6px; height: 6px; border-radius: 50%; background: #f0b03f; }
+  /* The name takes the room the role left (no 60% cap), and the bar packs tighter. */
+  .siso-chathead button.ab-head__name { max-width: 100%; }
+  .ab-head__right { gap: 4px; }
+  /* Answer goes icon-only so the name and line 2 keep the room (HUB-DESIGN 21:47). */
+  .siso-chathead .ab-head__answer { width: 30px; justify-content: center; padding: 0; }
+  .ab-head__atext { display: none; }
+  /* On the phone Tasks stays as its icon beside Answer (HUB-DESIGN 21:41); ⋯ does not repeat it. */
+  .ab-head.is-answer .ab-head__tasks { display: inline-flex; }
+  .ab-head.is-answer .ab-head__menu .is-tasks { display: none !important; }
+}
+
+/* R1.21 the pings strip under the header, and its stack over the chat. */
+.ab-pings { position: relative; z-index: 4; flex: none; }
+.ab-strip { display: flex; height: 38px; box-sizing: border-box; align-items: center; gap: 6px; margin: 8px 14px 0; padding: 0 5px 0 9px; border: 1px solid transparent; border-radius: 10px; background: linear-gradient(var(--crm-color-surface), var(--crm-color-surface)) padding-box, linear-gradient(90deg, hsl(var(--ab-hue) 72% 62% / 0.55), hsl(var(--ab-hue) 72% 62% / 0.12)) border-box; }
+.ab-strip.is-needs { background: linear-gradient(rgb(240 176 63 / 0.06), rgb(240 176 63 / 0.06)) padding-box, linear-gradient(var(--crm-color-surface), var(--crm-color-surface)) padding-box, linear-gradient(90deg, #f0b03f, rgb(240 176 63 / 0.25)) border-box; box-shadow: 0 0 16px rgb(240 176 63 / 0.1); }
+.ab-strip__open { display: flex; height: 100%; min-width: 0; flex: 1; align-items: center; gap: 8px; text-align: left; }
+.ab-strip__kind { flex: none; color: hsl(var(--ab-hue) 72% 70%); font: 700 10.5px var(--crm-font-mono); letter-spacing: 0.08em; text-transform: uppercase; }
+.ab-strip__kind.is-needs { color: #f0b03f; }
+.ab-strip__title { min-width: 0; flex: 0 1 auto; overflow: hidden; color: var(--crm-color-text-strong); font-size: 12.5px; text-overflow: ellipsis; white-space: nowrap; }
+.ab-strip__where { flex: none; color: rgb(var(--crm-white-rgb) / 0.42); font-size: 12px; white-space: nowrap; }
+.ab-strip__count { flex: none; margin: 0 4px; color: rgb(var(--crm-white-rgb) / 0.45); font: 11px var(--crm-font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ab-strip__btn { display: grid; width: 28px; height: 28px; flex: none; place-items: center; border-radius: 7px; color: rgb(var(--crm-white-rgb) / 0.55); }
+.ab-strip__btn:hover { background: rgb(var(--crm-white-rgb) / 0.07); color: var(--crm-color-text-strong); }
+.ab-strip__btn.is-voice, .ab-ping__acts .is-voice { color: #22D3EE; }
+/* Phone: the title gets the room ("1 of N" and the place go; the stack still counts them). */
+@media (max-width: 639px) { .ab-strip__where, .ab-strip__count { display: none; } }
+.ab-stack { position: absolute; top: calc(100% + 6px); right: 14px; left: 14px; z-index: 30; display: flex; max-height: 60vh; flex-direction: column; overflow: hidden; border: 1px solid var(--crm-color-line-subtle); border-radius: 12px; background: var(--crm-color-surface-raised, var(--crm-color-surface)); box-shadow: 0 22px 60px rgb(0 0 0 / 0.55); }
+.ab-stack__head { display: flex; flex: none; align-items: center; gap: 8px; padding: 8px 8px 8px 10px; border-bottom: 1px solid var(--crm-color-line-subtle); }
+.ab-stack__tabs { display: flex; gap: 2px; padding: 2px; border-radius: 9px; background: rgb(var(--crm-white-rgb) / 0.04); }
+.ab-stack__tabs button { padding: 4px 10px; border-radius: 7px; color: rgb(var(--crm-white-rgb) / 0.55); font-size: 12px; white-space: nowrap; }
+.ab-stack__tabs button.is-needs { color: #f0b03f; }
+.ab-stack__tabs button[aria-selected="true"] { background: rgb(var(--crm-white-rgb) / 0.09); color: var(--crm-color-text-strong); }
+.ab-stack__all { margin-left: auto; color: rgb(var(--crm-white-rgb) / 0.6); font-size: 12px; white-space: nowrap; }
+.ab-stack__all:hover:not(:disabled) { color: var(--crm-color-text-strong); }
+.ab-stack__all:disabled { opacity: 0.4; }
+.ab-stack__list { min-height: 0; flex: 1; overflow-y: auto; overscroll-behavior: contain; }
+.ab-stack__empty { padding: 24px; color: rgb(var(--crm-white-rgb) / 0.45); font-size: 12px; text-align: center; }
+.ab-stack__foot { display: flex; flex: none; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 14px; border-top: 1px solid var(--crm-color-line-subtle); color: rgb(var(--crm-white-rgb) / 0.45); font-size: 11.5px; }
+.ab-stack__foot button { flex: none; color: rgb(var(--crm-white-rgb) / 0.7); white-space: nowrap; }
+.ab-stack__foot button:hover { color: var(--crm-color-text-strong); }
+.ab-ping { display: flex; gap: 10px; padding: 12px 14px; border-bottom: 1px solid var(--crm-color-line-subtle); }
+.ab-ping.is-read .ab-ping__face, .ab-ping.is-read .ab-ping__title, .ab-ping.is-read .ab-ping__body { opacity: 0.6; }
+.ab-ping__dot { width: 7px; height: 7px; flex: none; margin-top: 7px; border-radius: 50%; }
+.ab-ping__dot.is-needs { background: #f0b03f; }
+.ab-ping__dot.is-new { background: #22D3EE; }
+.ab-ping__face { display: inline-flex; flex: none; }
+.ab-ping__main { display: flex; min-width: 0; flex: 1; flex-direction: column; gap: 4px; }
+.ab-ping__meta { display: flex; gap: 6px; color: rgb(var(--crm-white-rgb) / 0.45); font-size: 11px; }
+.ab-ping__meta b { color: rgb(var(--crm-white-rgb) / 0.78); font-weight: 600; }
+.ab-ping__title { margin: 0; color: var(--crm-color-text-strong); font-size: 13px; font-weight: 600; }
+.ab-ping__body { display: -webkit-box; margin: 0; overflow: hidden; color: rgb(var(--crm-white-rgb) / 0.6); font-size: 12px; cursor: pointer; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.ab-ping__body.is-open { display: block; }
+.ab-ping__needs { align-self: flex-start; padding: 3px 9px; border: 1px solid rgb(240 176 63 / 0.45); border-radius: 7px; background: rgb(240 176 63 / 0.07); color: #f0b03f; font-size: 11.5px; }
+.ab-ping__acts { display: flex; flex-wrap: wrap; align-items: center; gap: 2px; margin-top: 2px; }
+.ab-ping__acts button, .ab-ping__acts a { display: inline-flex; height: 26px; align-items: center; gap: 5px; padding: 0 8px; border-radius: 6px; color: rgb(var(--crm-white-rgb) / 0.6); font-size: 11.5px; }
+.ab-ping__acts button:hover, .ab-ping__acts a:hover { background: rgb(var(--crm-white-rgb) / 0.06); color: var(--crm-color-text-strong); }
+.ab-ping__acts button[aria-pressed="true"] { background: rgb(var(--crm-white-rgb) / 0.07); color: var(--crm-color-text-strong); }
+.ab-ping__acts .ab-ping__react { padding: 0 7px; font-size: 13px; } /* a0-016: 👍 ✗ 🤔 */
+.ab-ping__reply { display: flex; align-items: center; gap: 8px; padding: 5px 5px 5px 8px; border: 1px solid rgb(34 211 238 / 0.35); border-radius: 9px; background: rgb(34 211 238 / 0.05); }
+.ab-ping__reply input { min-width: 0; flex: 1; border: 0; background: transparent; color: var(--crm-color-text-strong); font-size: 12.5px; outline: none; }
+.ab-ping__mic { display: grid; width: 24px; height: 24px; place-items: center; color: rgb(34 211 238 / 0.5); }
+.ab-ping__send { display: inline-flex; height: 26px; align-items: center; gap: 5px; padding: 0 10px; border-radius: 7px; background: #f0b03f; color: rgb(0 0 0 / 0.86); font-size: 12px; font-weight: 650; }
+.ab-ping__send:disabled { opacity: 0.45; }
+.ab-ping__error { margin: 0; color: var(--crm-color-danger); font-size: 11.5px; }
+
+/* Side nav polish (A0's PUNCH.md, 2 Oct 22:40): one name style, one indent, one right edge, quiet group labels. */
+.siso-sidenav .siso-sidenav__title { font-size: 15px; font-weight: 600; }
+.siso-sidenav .siso-zero { border-bottom: 0; margin-bottom: 2px; }
+.siso-sidenav .siso-group { margin-top: 14px; }
+.siso-sidenav .siso-group:first-of-type { margin-top: 6px; }
+.siso-sidenav .siso-group__head { padding: 4px 8px; color: rgb(var(--crm-white-rgb) / 0.4); font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+.siso-sidenav .siso-group__head svg { width: 13px; height: 13px; }
+.siso-sidenav .siso-group .siso-thread__name { font: 500 12.5px var(--crm-font-mono); }
+.siso-sidenav .siso-group .siso-project__row { height: 30px; gap: 7px; padding: 0 8px; font-weight: 560; }
+.siso-sidenav .siso-group .siso-project__row .siso-project__chev { order: -1; width: 12px; height: 12px; opacity: 0.55; }
+.siso-sidenav .siso-group .siso-project__note { font: 500 11px var(--crm-font-mono); }
+.siso-sidenav .siso-group .siso-project__items { position: relative; padding-left: 19px; }
+.siso-sidenav .siso-group .siso-project__items::before { position: absolute; top: 2px; bottom: 2px; left: 13px; border-left: 1px solid rgb(var(--crm-white-rgb) / 0.09); content: ""; }
+.siso-sidenav .siso-group .siso-project__items .siso-thread { height: 28px; gap: 8px; padding: 0 8px; }
+.siso-sidenav .siso-group .siso-project__items .ab-offline { padding: 0 8px; }
+/* A one-owner row stands for its project: the project's name in the project type, not the agent's mono. */
+.siso-sidenav .siso-group .siso-one .siso-thread__name { font: 560 13.5px var(--crm-font-sans); }
+.siso-sidenav .siso-group .ab-offline__name { font-size: 12.5px; }
+.siso-sidenav .siso-group .ab-ring.is-offline::after { inset: 0; }
+.siso-sidenav .siso-thread__glyph { margin-left: 4px; color: rgb(var(--crm-white-rgb) / 0.35); }
+.siso-sidenav .siso-thread__glyph svg { width: 10px; height: 10px; }
+/* A tab held over an agent in the side nav: the row lights and says what the drop does. */
+[data-tabdrop] { position: relative; outline: 1.5px dashed rgb(var(--crm-brand-rgb) / 0.7); outline-offset: -2px; border-radius: 8px; background: rgb(var(--crm-brand-rgb) / 0.08); }
+[data-tabdrop]::after { content: attr(data-tabdrop); position: absolute; top: 50%; right: 8px; z-index: 5; translate: 0 -50%; padding: 2px 7px; border-radius: 6px; background: #1f1f1d; color: var(--crm-color-text-strong); font-size: 11px; white-space: nowrap; pointer-events: none; }
+/* Accessible icon labels double as pointer tooltips (src/tooltips.ts): one element on <body>, so no side nav or clipping
+   parent can cut it; under the button, or above it at the window's foot, 8 px inside the window. */
+/* Kept from the old ::after tooltip: buttons' badges and dots are placed against the button. */
+:where(button[aria-label], button[title]) { position: relative; }
+.siso-tip { position: fixed; z-index: 2147483000; top: 0; left: 0; max-width: 240px; padding: 5px 8px; border: 1px solid var(--crm-color-line-subtle); border-radius: 6px; background: var(--crm-color-surface-raised, #202124); color: var(--crm-color-text-strong, #fff); font: 11px/1.35 var(--crm-font-sans, system-ui); white-space: normal; pointer-events: none; animation: ab-tooltip-in 80ms ease forwards; opacity: 0; }
+.siso-tip[hidden] { display: none; }
+@keyframes ab-tooltip-in { to { opacity: 1; } }
+/*
+ * HoverCard (hover-all): one card for the agent rows and every rail and side-nav icon, in document.body, above the side
+ * nav. A trigger that has one drops the CSS ::after label (the one the rail clipped), so there is never a second label.
+ */
+.siso-hovercard {
+  position: fixed;
+  z-index: 2147483000;
+  max-width: calc(100vw - 16px);
+  overflow: hidden auto;
+  overscroll-behavior: contain;
+  border: 1px solid rgb(var(--crm-white-rgb) / 12%);
+  border-radius: var(--crm-radius-card);
+  background: rgb(var(--crm-canvas-rgb) / 97%);
+  box-shadow: 0 24px 60px -12px rgb(0 0 0 / 70%), 0 0 0 1px rgb(0 0 0 / 40%);
+  backdrop-filter: blur(12px);
+  color: var(--crm-color-text);
+  font-family: var(--crm-font-sans);
+  pointer-events: auto;
+}
+.siso-hovercard.is-info { pointer-events: none; display: flex; width: max-content; max-width: min(300px, calc(100vw - 16px)); flex-direction: column; gap: 4px; padding: 10px 12px; animation: siso-hovercard-in 90ms ease; }
+.siso-hovercard__head { display: flex; align-items: center; gap: 10px; }
+.siso-hovercard__head strong { min-width: 0; flex: 1; color: var(--crm-color-text-strong); font-size: 13px; font-weight: 600; }
+.siso-hovercard__meta { flex: none; padding: 2px 6px; border: 1px solid var(--crm-color-line-subtle); border-radius: 6px; background: rgb(var(--crm-white-rgb) / 5%); color: var(--crm-color-text-muted); font: 500 10.5px var(--crm-font-mono); white-space: nowrap; }
+.siso-hovercard__line { margin: 0; color: var(--crm-color-text-muted); font-size: 11.5px; line-height: 1.45; }
+@keyframes siso-hovercard-in { from { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .siso-hovercard.is-info { animation: none; } }
+/* Existing approval/queue materials for live questions and explicit delivery. */
+.siso-chat__delivery { display:flex; gap:6px; margin:0 6px 6px; font-size:12px; }
+.siso-chat__delivery button { padding:4px 8px; border-radius:6px; background:rgb(var(--crm-white-rgb) / .07); }
+.siso-chat__delivery button[aria-pressed=true] { color:var(--crm-color-text-strong); background:rgb(var(--crm-white-rgb) / .16); }
+.siso-chat__saved button { width:auto; min-width:22px; padding:0 4px; }
+.siso-chat__question { background: linear-gradient(rgb(240 176 63 / .07), rgb(240 176 63 / .07)), var(--crm-color-surface); display:block; max-height:45vh; overflow:auto; margin:0 6px 8px; }
+.siso-chat__question header, .siso-chat__question footer { display:flex; align-items:center; gap:8px; }
+.siso-chat__question header span { text-align:right; }
+.siso-chat__question p { margin:8px 0; }
+.siso-chat__question label { display:flex; align-items:flex-start; gap:8px; padding:6px 0; }
+.siso-chat__question small { display:block; opacity:.65; }
+.siso-chat__question > input, .siso-chat__queue-edit textarea { width:100%; padding:8px; margin:6px 0; border:1px solid rgb(var(--crm-white-rgb) / .2); border-radius:8px; background:transparent; color:var(--crm-color-text-strong); }
+.siso-chat__question button:disabled, .siso-chat__saved button:disabled, .siso-chat__delivery button:disabled { opacity:.4; }
+.siso-chat__queue-edit { display:block; margin:6px 0; }
+/* A column of empty seats shouted with a solid Start each (UI review 4 Oct): Start rests as a quiet outline and lights
+   on the seat's hover or focus; touch screens keep it visible. */
+@media (hover: hover) {
+  .siso-seatrow .siso-start { border-color: rgb(var(--crm-white-rgb) / 0.12); background: transparent; color: rgb(var(--crm-white-rgb) / 0.45) !important; transition: color 0.15s, border-color 0.15s, background 0.15s; }
+  .siso-seatrow:hover .siso-start, .siso-seatrow:focus-within .siso-start { border-color: rgb(255 167 38 / 0.35); background: var(--crm-gradient-active-icon); color: var(--crm-color-brand-hover) !important; }
+}
+
+/* uihub: arc:hover-card. The same portal and material for rail and instruments. */
+.siso-peek { width: 360px; max-width: calc(100vw - 16px); outline: none; }
+.siso-peek:focus-visible { outline: 2px solid var(--crm-color-action); outline-offset: -2px; }
+.siso-peek__head { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-bottom: 1px solid var(--crm-color-line-subtle); }
+.siso-peek__head strong { flex: 1; font-size: 13px; }
+.siso-peek__head span { font-size: 10px; color: var(--crm-color-text-muted); }
+.siso-peek__head button { color: var(--crm-color-text-muted); background: transparent; border: 0; font-size: 20px; cursor: pointer; }
+.siso-app__rail-btn[aria-expanded=true] { outline: 1px solid rgb(var(--crm-white-rgb) / 35%); outline-offset: 2px; }

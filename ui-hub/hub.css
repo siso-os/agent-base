@@ -1,0 +1,8 @@
+body{margin:0;padding:28px 32px 60px;background:#0e0e0d;color:#e8e5df;font:14px/1.5 'Inter',system-ui,sans-serif}
+h1{font-size:20px;margin:0 0 4px}h2{font-size:15px;margin:38px 0 4px}p{margin:0 0 12px;color:#9a958d;font-size:13px;max-width:940px}q{color:#e6c79f}
+.row{display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start}figure{margin:0 0 14px}img{display:block;border:1px solid #ffffff18;border-radius:12px;max-width:100%}
+figcaption{font:12px ui-monospace,Menlo,monospace;color:#8a857d;margin-top:6px}.tag{margin-left:8px;padding:1px 8px;border-radius:99px;background:#35d49b22;color:#35d49b;font-size:12px}
+a{color:#ffa726}nav{display:flex;gap:16px;margin:0 0 18px;font-size:13px}nav a{color:#ffa726}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;max-width:1100px}
+.card{display:block;padding:16px;border:1px solid #ffffff14;border-top:2px solid var(--a,#ffa726);border-radius:14px;background:#141413;color:#e8e5df;text-decoration:none}
+.card b{font-size:15px}.card small{display:block;color:#9a958d;font-size:12.5px;margin-top:4px}.card i{font-style:normal;font:11px ui-monospace,Menlo,monospace;color:#35d49b}

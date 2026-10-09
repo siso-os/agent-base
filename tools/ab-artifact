@@ -1,0 +1,259 @@
+#!/usr/bin/env python3
+"""Transport the default frontend build that passed the queue's check and smoke.
+
+This is an optional release handoff, not a general build cache. Unknown inputs or
+incomplete transfer are a miss; callers keep their normal check/build gates.
+"""
+import hashlib
+import json
+import os
+from pathlib import Path
+import re
+import shutil
+import subprocess
+import sys
+import uuid
+
+SCHEMA = 1
+TRANSPORT = '.lab-checked-release'
+SKIP = {'.git', 'node_modules', 'dist', 'target', '.vite', '.ab-mini', TRANSPORT}
+
+
+def digest(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def read(path):
+    if path.is_symlink() or not path.is_file():
+        raise ValueError('missing or symbolic metadata')
+    return json.loads(path.read_text())
+
+
+def write(path, value):
+    temporary = path.with_name(path.name + '.tmp')
+    temporary.write_text(json.dumps(value, sort_keys=True))
+    os.replace(temporary, path)
+
+
+def regular(root, name):
+    parts = Path(name).parts
+    if not parts or Path(name).is_absolute() or any(p in ('..', '.') for p in parts):
+        raise ValueError('unsafe manifest path')
+    p = root
+    for part in parts:
+        p = p / part
+        if p.is_symlink():
+            raise ValueError('symbolic manifest path')
+    if not p.is_file():
+        raise ValueError('missing manifest file')
+    return p
+
+
+def git(repo, *args):
+    return subprocess.check_output(['git', '-C', str(repo), *args], stderr=subprocess.DEVNULL).decode().strip()
+
+
+def source_manifest(repo, sha):
+    if git(repo, 'rev-parse', 'HEAD') != sha:
+        raise ValueError('source commit mismatch')
+    subprocess.run(['git', '-C', str(repo), 'diff', '--quiet', sha, '--'], check=True)
+    names = git(repo, 'ls-files', '-z').split('\0')
+    return {name: digest(regular(repo, name)) for name in names if name}
+
+
+def environment():
+    if any(k.startswith('VITE_') for k in os.environ) or os.environ.get('NODE_ENV') not in (None, '', 'production') or os.environ.get('NODE_OPTIONS') or os.environ.get('NODE_PATH'):
+        raise ValueError('non-default frontend build environment')
+    return {'mode': 'production', 'vite_overrides': False}
+
+
+def check_inputs(repo, sources):
+    """Only source input roots; test screenshots/logs outside them are outputs."""
+    environment()
+    for name, checksum in sources.items():
+        if not re.fullmatch('[a-f0-9]{64}', checksum) or digest(regular(repo, name)) != checksum:
+            raise ValueError('source hash mismatch')
+    # Vite's app root, shared source packages and root-level build configuration.
+    # Include ignored files here: .env, local configs and extra source are inputs.
+    roots = [repo / p for p in ('apps/web', 'packages', 'services/node/src', 'services/host/src')]
+    files = [p for p in repo.iterdir() if p.is_file() or p.is_symlink()]
+    component_index = repo / 'ui-hub/components.json'
+    if component_index.exists():
+        files.append(component_index)
+    for root in roots:
+        if not root.exists():
+            continue
+        for current, dirs, names in os.walk(root, followlinks=False):
+            dirs[:] = [d for d in dirs if d not in SKIP and d != '.shots' and not d.startswith(('.shots-', '.lab-'))]
+            if any((Path(current) / d).is_symlink() for d in dirs):
+                raise ValueError('untracked symbolic source directory')
+            files.extend(Path(current) / n for n in names)
+    for p in files:
+        rel = p.relative_to(repo).as_posix()
+        if p.name.startswith('.env'):
+            raise ValueError('environment build input')
+        preview_output = rel.startswith('apps/web/preview/') and p.suffix.lower() in ('.png', '.webp', '.jpg', '.jpeg', '.gif', '.log')
+        if rel not in sources and p.name != '.git' and not preview_output:
+            raise ValueError('untracked or environment build input')
+        if p.is_symlink() and p.name != '.git':
+            raise ValueError('symbolic source input')
+
+
+def request_data(bundle):
+    if bundle.is_symlink():
+        raise ValueError('symbolic bundle')
+    x = read(bundle / 'request.json')
+    if x.get('schema') != SCHEMA or not re.fullmatch('[a-f0-9]{40}', x.get('sha', '')) or not re.fullmatch('[a-f0-9]{32}', x.get('nonce', '')) or not isinstance(x.get('sources'), dict) or not x['sources']:
+        raise ValueError('invalid request')
+    return x
+
+
+def reset_outputs(bundle):
+    # Only the protocol's own disposable outputs; a valid request is the owner
+    # marker. The serialized merge worktree keeps one spool on each machine.
+    request_data(bundle)
+    for name in ('payload', 'previous-output', 'receipt.json', 'begun.json'):
+        p = bundle / name
+        if p.is_symlink():
+            raise ValueError('symbolic protocol output')
+        if p.is_dir():
+            shutil.rmtree(p)
+        elif p.exists():
+            p.unlink()
+
+
+def discard_bundle(bundle):
+    request_data(bundle)
+    shutil.rmtree(bundle)
+
+
+def payload_manifest(root):
+    if root.is_symlink() or not root.is_dir():
+        raise ValueError('missing payload')
+    result = {}
+    for current, dirs, files in os.walk(root, followlinks=False):
+        if any((Path(current) / d).is_symlink() for d in dirs):
+            raise ValueError('symbolic payload directory')
+        for name in files:
+            p = Path(current) / name
+            rel = p.relative_to(root).as_posix()
+            if rel == 'DEPLOYED_SHA':
+                raise ValueError('deployment marker is not a build output')
+            result[rel] = digest(regular(root, rel))
+    if 'index.html' not in result:
+        raise ValueError('missing index.html')
+    return result
+
+
+def verify(repo, sha, bundle, nonce=None):
+    if bundle.is_symlink():
+        raise ValueError('symbolic bundle')
+    x = request_data(bundle)
+    if x['sha'] != sha or (nonce is not None and x['nonce'] != nonce):
+        raise ValueError('request identity mismatch')
+    if source_manifest(repo, sha) != x['sources']:
+        raise ValueError('tracked source set mismatch')
+    check_inputs(repo, x['sources'])
+    receipt = read(bundle / 'receipt.json')
+    if receipt.get('schema') != SCHEMA or receipt.get('request_sha256') != digest(bundle / 'request.json') or receipt.get('sha') != sha or receipt.get('nonce') != x['nonce'] or receipt.get('gates') != ['check', 'worktree-smoke']:
+        raise ValueError('invalid checked receipt')
+    if receipt.get('files') != payload_manifest(bundle / 'payload'):
+        raise ValueError('payload manifest mismatch')
+    return x
+
+
+def main(argv):
+    command, repo_arg, *args = argv
+    repo = Path(repo_arg).resolve()
+    if command == 'request':
+        sha, nonce = args
+        if not re.fullmatch('[a-f0-9]{32}', nonce):
+            raise ValueError('invalid nonce')
+        sources = source_manifest(repo, sha)
+        check_inputs(repo, sources)
+        bundle = repo / TRANSPORT / 'current'
+        if bundle.exists():
+            reset_outputs(bundle)
+        else:
+            bundle.mkdir(parents=True)
+        write(bundle / 'request.json', {'schema': SCHEMA, 'sha': sha, 'nonce': nonce, 'sources': sources, 'environment': environment()})
+        print(str(bundle.relative_to(repo)))
+    elif command in ('begin', 'seal'):
+        bundle = repo / args[0]
+        if bundle.parent != repo / TRANSPORT or bundle.name != 'current' or bundle.is_symlink():
+            raise ValueError('invalid transport location')
+        x = request_data(bundle)
+        check_inputs(repo, x['sources'])
+        marker = bundle / 'begun.json'
+        if command == 'begin':
+            reset_outputs(bundle)
+            dist = repo / 'apps/web/dist'
+            if dist.is_symlink():
+                raise ValueError('symbolic dist')
+            if dist.exists():
+                dist.rename(bundle / 'previous-output')
+            write(marker, {'request_sha256': digest(bundle / 'request.json')})
+        else:
+            if read(marker).get('request_sha256') != digest(bundle / 'request.json'):
+                raise ValueError('build not begun for request')
+            dist = repo / 'apps/web/dist'
+            files = payload_manifest(dist)
+            shutil.copytree(dist, bundle / 'payload')
+            if files != payload_manifest(bundle / 'payload'):
+                raise ValueError('copy changed output')
+            write(bundle / 'receipt.json', {'schema': SCHEMA, 'sha': x['sha'], 'nonce': x['nonce'], 'request_sha256': digest(bundle / 'request.json'), 'gates': ['check', 'worktree-smoke'], 'files': files})
+    elif command in ('verify', 'promote', 'stage'):
+        sha, bundle_arg, *extra = args
+        bundle = Path(bundle_arg).absolute()
+        verify(repo, sha, bundle, extra[0] if command == 'promote' else None)
+        if command == 'promote':
+            nonce, store = extra
+            target = Path(store) / 'current'
+            target.parent.mkdir(parents=True, exist_ok=True)
+            temporary = target.with_name('pending')
+            if temporary.exists():
+                discard_bundle(temporary)
+            temporary.mkdir()
+            try:
+                for name in ('request.json', 'receipt.json'):
+                    shutil.copyfile(bundle / name, temporary / name)
+                shutil.copytree(bundle / 'payload', temporary / 'payload')
+                verify(repo, sha, temporary, nonce)
+                previous = target.with_name('previous')
+                if previous.exists():
+                    discard_bundle(previous)
+                if target.exists():
+                    request_data(target)
+                    os.rename(target, previous)
+                os.rename(temporary, target)
+                if previous.exists():
+                    discard_bundle(previous)
+            finally:
+                if temporary.exists():
+                    shutil.rmtree(temporary)
+            print(str(target))
+        elif command == 'stage':
+            target = repo / 'apps/web/dist'
+            if target.exists() or target.is_symlink():
+                raise ValueError('deployment output already exists')
+            target.parent.mkdir(parents=True, exist_ok=True)
+            temporary = target.with_name('.lab-stage-' + uuid.uuid4().hex)
+            try:
+                shutil.copytree(bundle / 'payload', temporary)
+                if payload_manifest(temporary) != read(bundle / 'receipt.json')['files']:
+                    raise ValueError('staged output mismatch')
+                os.rename(temporary, target)
+            finally:
+                if temporary.exists():
+                    shutil.rmtree(temporary)
+            print('ab-artifact: verified checked frontend staged')
+    else:
+        raise ValueError('unknown command')
+
+
+if __name__ == '__main__':
+    try:
+        main(sys.argv[1:])
+    except (ValueError, TypeError, KeyError, OSError, subprocess.SubprocessError) as error:
+        print('ab-artifact: reuse unavailable: ' + str(error), file=sys.stderr)
+        sys.exit(1)

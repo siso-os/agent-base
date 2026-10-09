@@ -1,0 +1,22 @@
+node_modules/
+dist/
+target/
+.DS_Store
+*.log
+.env
+.lab-*
+apps/desktop/gen/
+
+# Test fixtures are data, keep them even when they end in .log
+!services/node/test/fixtures/**/*.log
+# test screenshots (AB_SHOTS=1 writes the tracked apps/web/preview ones instead)
+.shots/
+.shots-*
+services/node/test/.shots-*
+
+# Local semantic-index settings and Python bytecode are not release source.
+.serena/
+__pycache__/
+
+# Synthetic Life preview build; source and fixture scripts are tracked.
+apps/web/dist-life-preview/

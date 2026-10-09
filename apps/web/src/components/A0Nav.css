@@ -1,0 +1,25 @@
+.a0-nav { padding: 0 10px 12px; font-size: 12px; }
+.a0-nav h4, .a0-done summary { display: flex; justify-content: space-between; gap: 8px; margin: 16px 4px 6px; font-size: 11px; color: var(--muted-foreground); font-weight: 600; }
+.a0-nav h4 { text-transform: uppercase; letter-spacing: .06em; }
+.a0-nav h4 span, .a0-done summary span { font-weight: 400; }
+.a0-nav p { color: var(--muted-foreground); margin: 6px 4px; overflow-wrap: anywhere; }
+.a0-nav .a0-source-error { color: #e5a4a7; }
+.a0-need { display: block; width: 100%; text-align: left; border: 1px solid #4a2023; background: #2a1416; border-radius: 10px; padding: 8px 10px; margin: 6px 0; overflow-wrap: anywhere; }
+.a0-need small { display: block; color: #d99; margin-top: 3px; }
+.a0-lane { display: grid; grid-template-columns: 8px minmax(0, 1fr) auto; gap: 8px; align-items: start; width: 100%; text-align: left; padding: 8px; border-radius: 10px; margin: 2px 0; }
+.a0-lane:hover, .a0-lane.is-selected { background: rgba(128,128,140,.1); }
+.a0-dot { width: 8px; height: 8px; border-radius: 50%; background: #55555c; margin-top: 5px; }
+.a0-dot.is-working { background: #30a46c; box-shadow: 0 0 0 3px #30a46c33; }
+.a0-dot.is-done { background: #5b9cff; }
+.a0-dot.is-blocked, .a0-dot.is-failed { background: #e5484d; }
+.a0-lane__body { min-width: 0; }
+.a0-lane__name { display: block; font-weight: 600; overflow-wrap: anywhere; }
+.a0-lane__summary { display: block; color: var(--muted-foreground); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.a0-lane small { color: var(--muted-foreground); font-size: 10px; max-width: 50px; overflow-wrap: anywhere; }
+.a0-model { display: inline-block; font-size: 10px; border-radius: 5px; padding: 1px 5px; font-weight: 700; }
+.a0-model.is-sol { color: #f5a524; background: #f5a52422; }
+.a0-model.is-luna { color: #5b9cff; background: #5b9cff22; }
+.a0-ship { display: flex; justify-content: space-between; gap: 10px; padding: 6px 8px; color: var(--muted-foreground); }
+.a0-ship b { color: var(--foreground); font-weight: 500; text-align: right; overflow-wrap: anywhere; min-width: 0; }
+.a0-done summary { cursor: pointer; }
+.a0-projects { width: calc(100% - 20px); margin: 8px 10px; padding: 10px 4px; text-align: left; border-top: 1px solid rgba(128,128,140,.2); font-size: 12px; color: var(--muted-foreground); }

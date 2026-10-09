@@ -1,0 +1,25 @@
+#!/bin/bash
+set -euo pipefail
+LABEL=com.siso.agent-base-node
+LIVE=${AB_LIVE_WORKTREE:-$HOME/SISO_Workspace/_data/worktrees/siso-internal-labs-agent-base/live}
+AGENTS=${AB_LAUNCH_AGENTS_DIR:-$HOME/Library/LaunchAgents}
+PLIST="$AGENTS/$LABEL.plist"
+case "${1:-}" in
+  install)
+    mkdir -p "$AGENTS"
+    python3 - "$PLIST" "$LIVE" <<'PY'
+import os,plistlib,shutil,sys
+path,live=sys.argv[1:]
+node=shutil.which('node') or '/opt/homebrew/bin/node'
+data={'Label':'com.siso.agent-base-node','ProgramArguments':[node,'--experimental-strip-types','--no-warnings','services/node/src/supervise.ts'],'WorkingDirectory':live,'EnvironmentVariables':{'PATH':os.path.dirname(node)+':/opt/homebrew/bin:/usr/bin:/bin','PORT':'5401','AB_APP_ROOT':live,'AB_SERVERS_PROBE':'1'},'RunAtLoad':True,'KeepAlive':True,'StandardOutPath':live+'/services/node/agent-base-node.log','StandardErrorPath':live+'/services/node/agent-base-node.log'}
+with open(path,'wb') as f: plistlib.dump(data,f)
+PY
+    printf 'wrote %s; load only during phase 2 with launchctl bootstrap gui/$(id -u) %s\n' "$PLIST" "$PLIST"
+    ;;
+  uninstall)
+    if launchctl print "gui/$(id -u)/$LABEL" >/dev/null 2>&1; then echo "service is loaded; unload it explicitly in phase 2 first" >&2; exit 1; fi
+    rm -f "$PLIST"
+    printf 'removed %s\n' "$PLIST"
+    ;;
+  *) echo "usage: tools/ab-node-service install|uninstall" >&2; exit 2;;
+esac

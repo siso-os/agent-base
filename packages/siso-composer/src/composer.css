@@ -1,0 +1,21 @@
+/* The input row loses its own box: the rim is the box. */
+.siso-rim .siso-chat__inputrow{align-items:center;padding:4px 0 6px;border:0;border-radius:0;background:transparent}
+.siso-rim .siso-chat__clip{width:30px;height:30px;margin-left:0;border:1px solid var(--crm-color-line);border-radius:50%}
+.siso-rim .siso-chat__send:not(.is-stop){background:rgb(var(--crm-brand-rgb));color:#1a1206}
+
+.siso-rim .siso-chat__inputrow textarea{min-width:0;max-height:52px;overflow-y:auto}
+
+/* Compression follows the rim's own available width, including when the nav opens. */
+.siso-rim{container-type:inline-size;container-name:composer}
+
+
+/* Commands share the composer's surface and the existing focus glow. */
+.siso-rim>.siso-chat__menu{position:relative;inset:auto;max-height:min(240px,35vh);overflow-y:auto;margin:0 0 6px;padding:4px 0 8px;border:0;border-bottom:1px solid var(--crm-color-line);border-radius:0;background:transparent;box-shadow:none}
+.siso-rim>.siso-chat__menu button{max-width:100%;white-space:normal}
+.siso-rim>.siso-chat__menu button span{min-width:0;overflow-wrap:anywhere}
+/* Acceptance is a short receipt, supplied by ChatView after a server acknowledgement. */
+.siso-chat__receipt{position:absolute;right:12px;bottom:calc(100% + 7px);max-width:calc(100% - 24px);pointer-events:none;color:#b9e7ff;font:11px/1.4 var(--crm-font-sans)}
+.siso-chat__receipt>span{display:flex;align-items:center;gap:6px;padding:5px 9px;border:1px solid #a2e5ff30;border-radius:10px;background:var(--crm-color-surface);animation:ab-receipt-arrive 240ms ease-out both}
+.siso-chat__receipt i{font-style:normal}
+@keyframes ab-receipt-arrive{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.siso-chat__receipt>span{animation:none}}

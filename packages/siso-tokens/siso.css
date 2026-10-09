@@ -1,0 +1,303 @@
+/**
+ * @siso/tokens — THE single source of truth for SISO design values.
+ * ============================================================================
+ * LAW: no SISO app hardcodes a color/radius/font/space value. Everything reads
+ * these vars. Change a value HERE → it cascades through every consuming app.
+ * (Tokens are to the UI what DomainRefV1/IntentV1 contracts are to data.)
+ *
+ * Layer 1 (compat): exact values running in SISO Internal today — wired so
+ *   adopting this package causes ZERO visual change.
+ * Layer 2 (contract): the approved "LifeLock Quiet Dark" design-contract v1
+ *   additions (canvas, chrome, semantic accents, geometry, type) for new work.
+ *
+ * Consumers: SISO Internal (live), SISO Console / Core UI / future apps.
+ * Source lineage: SISO_Internal_Lab tailwind.config.ts + design-contract.v1.md.
+ */
+
+:root {
+  /* ========== L1 · BRAND (live values — do not drift casually) ========== */
+  --siso-red: #FF5722;            /* brand gradient start */
+  --siso-orange: #FFA726;         /* brand primary / focus / selected */
+  --siso-orange-bright: #FFB44D;  /* brand hover */
+  --siso-orange-pressed: #F59E0B; /* brand active/pressed */
+  --siso-on-brand: #1A1209;       /* text on brand-orange surfaces */
+
+  /* ========== L1 · SURFACES (live) ========== */
+  --siso-bg: #202020;             /* primary surface (tailwind siso.bg) */
+  --siso-bg-alt: #2A2A2A;         /* elevated surface (siso.bg-alt) */
+  --siso-bg-hover: #333333;       /* hover/selected neutral (siso.bg-hover) */
+
+  /* ========== L1 · TEXT (live) ========== */
+  --siso-text: #E0E0E0;           /* default text */
+  --siso-text-bold: #FFFFFF;      /* strong text */
+  --siso-text-muted: #9E9E9E;     /* muted text */
+
+  /* ========== L1 · BORDERS (live) ========== */
+  --siso-border: #3A3A3A;
+  --siso-border-hover: #454545;
+
+  /* ========== L1 · RGB CHANNEL TRIPLES ==========
+   * Required for Tailwind opacity modifiers (bg-siso-orange/20 etc. —
+   * 385 usages live). Tailwind config uses rgb(var(--siso-x-rgb) / <alpha-value>).
+   * MUST stay in sync with the hex values above. */
+  --siso-red-rgb: 255 87 34;
+  --siso-orange-rgb: 255 167 38;
+  --siso-bg-rgb: 32 32 32;
+  --siso-bg-alt-rgb: 42 42 42;
+  --siso-bg-hover-rgb: 51 51 51;
+  --siso-text-rgb: 224 224 224;
+  --siso-text-bold-rgb: 255 255 255;
+  --siso-text-muted-rgb: 158 158 158;
+  --siso-border-rgb: 58 58 58;
+  --siso-border-hover-rgb: 69 69 69;
+  --siso-canvas-rgb: 20 21 20;
+  --siso-chrome-rgb: 26 26 26;
+  --accent-today-rgb: 251 146 60;
+  --accent-tasks-rgb: 251 191 36;
+  --accent-health-rgb: 52 211 153;
+  --accent-focus-rgb: 96 165 250;
+  --accent-reflect-rgb: 167 139 250;
+  --accent-danger-rgb: 251 113 133;
+
+  /* ========== L2 · CONTRACT SURFACES (design-contract v1) ========== */
+  --siso-canvas: #141514;         /* app canvas (deeper than surface) */
+  --siso-chrome: #1A1A1A;         /* top/navigation chrome */
+  --siso-surface: var(--siso-bg);          /* alias: contract name → live value */
+  --siso-surface-raised: var(--siso-bg-alt);
+  --siso-surface-hover: var(--siso-bg-hover);
+  --siso-line: rgba(255, 255, 255, 0.10);  /* hairline border on dark */
+  --siso-line-subtle: rgba(255, 255, 255, 0.06);
+
+  /* ========== L2 · SEMANTIC ACCENTS (contract: state, not skin) ========== */
+  --accent-today: #FB923C;        /* today / morning (orange/amber) */
+  --accent-tasks: #FBBF24;        /* tasks / goals (amber) */
+  --accent-health: #34D399;       /* health / ready / success (emerald) */
+  --accent-focus: #60A5FA;        /* deep work / information (blue) */
+  --accent-reflect: #A78BFA;      /* checkout / reflection (violet) */
+  --accent-danger: #FB7185;       /* danger / blocked (rose) */
+
+  /* ========== L2 · GEOMETRY (contract scales) ========== */
+  --radius-ctrl: 8px;             /* controls */
+  --radius-card-compact: 12px;
+  --radius-card: 16px;            /* standard cards */
+  --radius-panel: 20px;           /* major panels */
+  --radius-pill: 999px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+
+  --control-h-compact: 36px;
+  --control-h: 40px;
+  --control-h-touch: 44px;        /* minimum touch target */
+  --control-h-mobile-nav: 56px;
+
+  /* ========== L2 · TYPOGRAPHY ========== */
+  --font-sans: 'Geist', ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', sans-serif;
+  --font-mono: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas,
+    monospace;
+
+  /* ========== L2 · EFFECTS ========== */
+  --siso-gradient-brand: linear-gradient(135deg, var(--siso-red), var(--siso-orange));
+  --shadow-elevated: 0 18px 60px rgba(0, 0, 0, 0.28);
+  --glass-surface: rgba(42, 42, 42, 0.72);
+
+  /* ========== L2 · REWRITE DNA (LifeLock glass recipes, rewrite-dna/01) ====
+   * Source: 1-daily/_shared verbatim extraction. Additive — nothing consumes
+   * these until the skin pass ports a component (each port records its
+   * variant + ruling per component-feedback v1). */
+  --glass-card: rgba(255, 255, 255, 0.05);          /* bg-white/5 card surface */
+  --glass-card-soft: rgba(255, 255, 255, 0.035);    /* header 'surface' mode */
+  --glass-card-strong: rgba(255, 255, 255, 0.07);   /* hover / inner glass */
+  --glass-track-sunken: rgba(0, 0, 0, 0.5);         /* sunken progress track */
+  --shadow-pill-ambient: 0 2px 8px rgba(0, 0, 0, 0.3),
+    0 0 20px rgba(255, 255, 255, 0.03),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  --shadow-track-sunken: inset 0 2px 4px rgba(0, 0, 0, 0.6),
+    inset 0 -1px 2px rgba(255, 255, 255, 0.08);
+  --shadow-modal: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+}
+
+/* ========================================================================== */
+/* SISOCRM THEME CONTRACT                                                     */
+/* ========================================================================== */
+/*
+ * Components consume only the --crm-* semantic layer below. Presets and the
+ * client theme configuration are free to change the implementation values.
+ * Structural values such as 0, percentages and grid fractions may remain in
+ * component CSS; visual decisions belong here.
+ */
+:root {
+  /* Palette channels make transparent variants follow the selected preset. */
+  --crm-white-rgb: 255 255 255;
+  --crm-black-rgb: 0 0 0;
+  --crm-brand-rgb: 255 167 38;
+  --crm-brand-hover-rgb: 255 180 77;
+  --crm-highlight-rgb: 255 229 194;
+  --crm-success-rgb: 53 212 155;
+  --crm-danger-rgb: 255 128 147;
+  --crm-canvas-rgb: 13 14 13;
+  --crm-chrome-rgb: 13 14 13;
+  --crm-rail-top-rgb: 31 29 26;
+  --crm-rail-mid-rgb: 18 18 17;
+  --crm-rail-bottom-rgb: 10 10 10;
+
+  /* Semantic color roles. */
+  --crm-color-brand: rgb(var(--crm-brand-rgb));
+  --crm-color-brand-hover: rgb(var(--crm-brand-hover-rgb));
+  --crm-color-brand-pressed: var(--siso-orange-pressed);
+  --crm-color-on-brand: #1a1209;
+  --crm-color-canvas: rgb(var(--crm-canvas-rgb));
+  --crm-color-chrome: rgb(var(--crm-chrome-rgb));
+  --crm-color-surface: #171715;
+  --crm-color-surface-raised: #20201e;
+  --crm-color-text: #ecece8;
+  --crm-color-text-strong: #f5f4ef;
+  --crm-color-text-muted: #9e9e98;
+  --crm-color-text-faint: rgb(var(--crm-white-rgb) / 0.48);
+  --crm-color-line: rgb(var(--crm-white-rgb) / 0.10);
+  --crm-color-line-subtle: rgb(var(--crm-white-rgb) / 0.06);
+  --crm-color-line-strong: rgb(var(--crm-white-rgb) / 0.16);
+  --crm-color-success: rgb(var(--crm-success-rgb));
+  --crm-color-danger: rgb(var(--crm-danger-rgb));
+
+  /* Type families, sizes, weights and tracking. */
+  --crm-font-sans: var(--font-sans);
+  --crm-font-mono: var(--font-mono);
+  --crm-text-2xs: 9px;
+  --crm-text-xs: 10px;
+  --crm-text-sm: 12px;
+  --crm-text-md: 13.5px;
+  --crm-text-lg: 19px;
+  --crm-text-xl: 30px;
+  --crm-text-display: clamp(52px, 6vw, 86px);
+  --crm-leading-relaxed: 1.6;
+  --crm-weight-regular: 500;
+  --crm-weight-medium: 560;
+  --crm-weight-semibold: 650;
+  --crm-weight-bold: 700;
+  --crm-tracking-label: 0.17em;
+  --crm-tracking-kicker: 0.18em;
+
+  /* Spacing scale. Density selectors override the semantic aliases. */
+  --crm-space-0: 0;
+  --crm-space-0-5: 2px;
+  --crm-space-1: 4px;
+  --crm-space-1-5: 6px;
+  --crm-space-2: 8px;
+  --crm-space-2-5: 10px;
+  --crm-space-3: 12px;
+  --crm-space-3-5: 14px;
+  --crm-space-4: 16px;
+  --crm-space-4-5: 18px;
+  --crm-space-5: 20px;
+  --crm-space-6: 24px;
+  --crm-space-6-5: 26px;
+  --crm-space-7: 28px;
+  --crm-space-7-5: 30px;
+  --crm-space-8: 32px;
+  --crm-space-8-5: 34px;
+  --crm-space-10: 40px;
+  --crm-space-11: 44px;
+  --crm-space-12: 48px;
+  --crm-space-16: 64px;
+  --crm-space-17-5: 70px;
+
+  --crm-rail-padding: var(--crm-space-4);
+  --crm-rail-gap: var(--crm-space-2-5);
+  --crm-nav-inline-inset: var(--crm-space-3);
+  --crm-nav-icon-label-gap: var(--crm-space-3);
+  --crm-nav-button-gutter: var(--crm-space-1);
+  --crm-nav-section-gap: var(--crm-space-4);
+  --crm-canvas-inline-padding: var(--crm-space-8-5);
+  --crm-canvas-block-padding: var(--crm-space-10);
+
+  /* Component sizing. */
+  --crm-rail-width: 232px;
+  --crm-context-rail-width: 240px;
+  --crm-rail-collapsed-width: 52px;
+  --crm-rail-screen-inset: var(--crm-space-4);
+  --crm-control-sm: 36px;
+  --crm-control-md: 40px;
+  --crm-control-touch: 44px;
+  --crm-nav-row-height: var(--crm-control-touch);
+  --crm-topbar-height: 76px;
+  --crm-profile-height: 72px;
+  --crm-auth-card-width: 440px;
+  --crm-icon-xs: 14px;
+  --crm-icon-sm: 15px;
+  --crm-icon-md: 17px;
+  --crm-icon-lg: 19px;
+  --crm-icon-stroke: 1.7;
+  --crm-opacity-disabled: 0.62;
+  --crm-z-session: 70;
+
+  /* Radius roles. Radius presets override this family as one decision. */
+  --crm-radius-xs: 7px;
+  --crm-radius-sm: 9px;
+  --crm-radius-control: 11px;
+  --crm-radius-control-lg: 13px;
+  --crm-radius-card: 18px;
+  --crm-radius-panel: 20px;
+  --crm-radius-rail: 27px;
+  --crm-radius-rail-inner: 26px;
+  --crm-radius-pill: 999px;
+  --crm-radius-round: 50%;
+
+  /* Effects and full recipes are tokens too—not just their colors. */
+  --crm-blur-glass: 32px;
+  --crm-blur-topbar: 22px;
+  --crm-blur-modal: 7px;
+  --crm-gradient-canvas: radial-gradient(circle at 64% 0%, rgb(var(--crm-brand-rgb) / 0.045), transparent 29%);
+  --crm-gradient-topbar-line: linear-gradient(90deg, rgb(var(--crm-brand-rgb) / 0.34), transparent 34%);
+  --crm-gradient-rail-active: radial-gradient(ellipse 64% 135% at 6% 48%, rgb(var(--crm-brand-rgb) / 0.13), transparent 72%), linear-gradient(90deg, rgb(var(--crm-brand-rgb) / 0.105), rgb(var(--crm-brand-rgb) / 0.04));
+  --crm-gradient-rail-control: linear-gradient(145deg, rgb(var(--crm-white-rgb) / 0.05), rgb(var(--crm-black-rgb) / 0.16));
+  --crm-gradient-rail-search: linear-gradient(112deg, rgb(var(--crm-highlight-rgb) / 0.06), rgb(var(--crm-white-rgb) / 0.027) 48%, rgb(var(--crm-black-rgb) / 0.055));
+  --crm-gradient-rail-capsule: linear-gradient(155deg, rgb(var(--crm-highlight-rgb) / 0.045), rgb(var(--crm-white-rgb) / 0.018) 46%, rgb(var(--crm-black-rgb) / 0.08));
+  --crm-gradient-rail-shell: radial-gradient(ellipse 118% 48% at -8% -7%, rgb(var(--crm-highlight-rgb) / 0.17), transparent 54%), radial-gradient(ellipse 46% 74% at 112% 58%, rgb(var(--crm-brand-rgb) / 0.095), transparent 66%), linear-gradient(180deg, rgb(var(--crm-rail-top-rgb) / 0.935) 0%, rgb(var(--crm-rail-mid-rgb) / 0.972) 43%, rgb(var(--crm-rail-bottom-rgb) / 0.992) 100%);
+  --crm-gradient-rail-border: conic-gradient(from 0deg, rgb(var(--crm-highlight-rgb) / 0.46) 0deg, rgb(var(--crm-brand-hover-rgb) / 0.32) 82deg, rgb(var(--crm-brand-rgb) / 0.27) 176deg, rgb(var(--crm-brand-rgb) / 0.22) 246deg, rgb(var(--crm-white-rgb) / 0.37) 316deg, rgb(var(--crm-highlight-rgb) / 0.46) 360deg);
+  --crm-gradient-rail-bloom: radial-gradient(ellipse 86% 36% at -7% -2%, rgb(var(--crm-highlight-rgb) / 0.12), transparent 62%), radial-gradient(ellipse 31% 62% at 110% 57%, rgb(var(--crm-brand-rgb) / 0.075), transparent 70%);
+  --crm-gradient-profile: linear-gradient(112deg, rgb(var(--crm-highlight-rgb) / 0.07), rgb(var(--crm-white-rgb) / 0.03) 43%, rgb(var(--crm-black-rgb) / 0.13) 100%);
+  --crm-gradient-profile-border: linear-gradient(135deg, rgb(var(--crm-highlight-rgb) / 0.25), rgb(var(--crm-white-rgb) / 0.095) 53%, rgb(var(--crm-brand-rgb) / 0.18) 100%);
+  --crm-gradient-rail-edge: linear-gradient(90deg, transparent, rgb(var(--crm-highlight-rgb) / 0.24) 18%, rgb(var(--crm-white-rgb) / 0.38) 47%, rgb(var(--crm-highlight-rgb) / 0.16) 80%, transparent);
+  --crm-gradient-rail-brand-tile: linear-gradient(145deg, rgb(var(--crm-white-rgb) / 0.085), rgb(var(--crm-black-rgb) / 0.74));
+  --crm-gradient-rail-hover: linear-gradient(180deg, rgb(var(--crm-white-rgb) / 0.062), rgb(var(--crm-white-rgb) / 0.025));
+  --crm-gradient-profile-overlay: radial-gradient(ellipse 76% 155% at -4% 116%, rgb(var(--crm-brand-hover-rgb) / 0.16), transparent 67%), radial-gradient(ellipse 56% 135% at 104% 50%, rgb(var(--crm-brand-rgb) / 0.08), transparent 70%), linear-gradient(104deg, rgb(var(--crm-highlight-rgb) / 0.025), transparent 54%);
+  --crm-gradient-active-icon: radial-gradient(circle at 42% 42%, rgb(var(--crm-brand-rgb) / 0.2), rgb(var(--crm-brand-rgb) / 0.105) 48%, rgb(var(--crm-brand-rgb) / 0.045) 100%);
+  --crm-gradient-profile-rings: radial-gradient(circle, transparent 0 42%, rgb(var(--crm-brand-rgb) / 0.17) 42.4% 42.9%, transparent 43.3% 58%, rgb(var(--crm-highlight-rgb) / 0.115) 58.4% 58.9%, transparent 59.3%);
+  --crm-gradient-profile-orb: linear-gradient(145deg, rgb(var(--crm-highlight-rgb) / 0.18), rgb(var(--crm-black-rgb) / 0.7));
+  --crm-texture-rail-noise: radial-gradient(rgb(var(--crm-white-rgb) / 0.38) 0.42px, transparent 0.42px);
+  --crm-shadow-focus: 0 0 0 2px rgb(var(--crm-highlight-rgb) / 0.9);
+  --crm-shadow-none: none;
+  --crm-shadow-modal: 0 30px 100px rgb(var(--crm-black-rgb) / 0.7);
+  --crm-shadow-active: inset 0 0 0 1px rgb(var(--crm-brand-rgb) / 0.2), inset 0 1px 0 rgb(var(--crm-highlight-rgb) / 0.075), inset 0 -10px 20px rgb(var(--crm-black-rgb) / 0.075), 9px 0 20px -14px rgb(var(--crm-brand-rgb) / 0.34);
+  --crm-shadow-rail-shell: inset 0 1px 0 rgb(var(--crm-white-rgb) / 0.14), inset 0 -1px 0 rgb(var(--crm-brand-rgb) / 0.075), inset 0 -34px 62px rgb(var(--crm-black-rgb) / 0.28), -13px -8px 46px rgb(var(--crm-highlight-rgb) / 0.055), 13px 6px 46px rgb(var(--crm-brand-rgb) / 0.065), 0 30px 84px rgb(var(--crm-black-rgb) / 0.58), 0 9px 27px rgb(var(--crm-black-rgb) / 0.36);
+  --crm-shadow-profile: inset 0 1px 0 rgb(var(--crm-white-rgb) / 0.095), inset 0 -16px 30px rgb(var(--crm-black-rgb) / 0.16), 0 13px 30px rgb(var(--crm-black-rgb) / 0.17);
+  --crm-shadow-rail-inner: inset 15px 0 28px -25px rgb(var(--crm-highlight-rgb) / 0.7), inset -13px 0 26px -22px rgb(var(--crm-brand-rgb) / 0.42), inset 0 -13px 28px -25px rgb(var(--crm-brand-rgb) / 0.35);
+  --crm-shadow-control: inset 0 1px 0 rgb(var(--crm-white-rgb) / 0.055), inset 0 -8px 16px rgb(var(--crm-black-rgb) / 0.12);
+  --crm-shadow-search: inset 0 1px 0 rgb(var(--crm-white-rgb) / 0.075), inset 13px 0 24px -24px rgb(var(--crm-highlight-rgb) / 0.45), inset 0 -11px 22px rgb(var(--crm-black-rgb) / 0.1), 0 11px 25px rgb(var(--crm-black-rgb) / 0.1);
+  --crm-shadow-capsule: inset 0 1px 0 rgb(var(--crm-white-rgb) / 0.06), inset 9px 0 20px -21px rgb(var(--crm-highlight-rgb) / 0.38), inset 0 -14px 25px rgb(var(--crm-black-rgb) / 0.14), 0 10px 22px rgb(var(--crm-black-rgb) / 0.11);
+  --crm-shadow-active-icon: inset 0 1px 0 rgb(var(--crm-highlight-rgb) / 0.14), inset 0 -10px 18px rgb(var(--crm-black-rgb) / 0.12), 0 0 18px rgb(var(--crm-brand-rgb) / 0.12), 0 6px 15px rgb(var(--crm-black-rgb) / 0.18);
+  --crm-shadow-brand-tile: inset 0 1px 0 rgb(var(--crm-white-rgb) / 0.2), inset 0 -9px 16px rgb(var(--crm-black-rgb) / 0.26), 0 8px 21px rgb(var(--crm-brand-rgb) / 0.1);
+  --crm-shadow-profile-orb: 0 7px 18px rgb(var(--crm-black-rgb) / 0.28), 0 0 16px rgb(var(--crm-brand-rgb) / 0.09), inset 0 1px 0 rgb(var(--crm-white-rgb) / 0.22);
+  --crm-shadow-status: 0 0 10px rgb(var(--crm-success-rgb) / 0.42);
+  --crm-shadow-kicker: 0 0 12px rgb(var(--crm-brand-rgb) / 0.65);
+
+
+  /* Compatibility: legacy SISO names now point at the active CRM preset. */
+  --siso-orange: var(--crm-color-brand);
+  --siso-orange-bright: var(--crm-color-brand-hover);
+  --siso-on-brand: var(--crm-color-on-brand);
+  --siso-text: var(--crm-color-text);
+  --siso-text-bold: var(--crm-color-text-strong);
+  --siso-text-muted: var(--crm-color-text-muted);
+  --siso-canvas: var(--crm-color-canvas);
+  --siso-chrome: var(--crm-color-chrome);
+  --siso-line: var(--crm-color-line);
+  --siso-line-subtle: var(--crm-color-line-subtle);
+}

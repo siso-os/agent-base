@@ -1,0 +1,12 @@
+/* Presentation is shared with other composer consumers. */
+@import "../../../../packages/siso-composer/src/model.css";
+/* t-0577: the Claude account rows (switch this chat's login). */
+.ab-account-switch .move-menu__labels b { display: inline-flex; align-items: center; gap: 6px; }
+.ab-account-switch__tag { padding: 0 5px; border-radius: 4px; background: rgb(var(--crm-danger-rgb, 251 113 133) / .16); color: var(--accent-danger, #FB7185); font-size: 9px; font-style: normal; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; }
+.ab-account-switch .move-menu__option[data-current] { opacity: 1; }
+.ab-account-switch__why { margin: 2px 9px 6px; color: var(--crm-color-text-muted, #aaa); font-size: 10px; }
+.ab-account-switch__status.is-failed { color: var(--accent-danger, #FB7185); }
+.ab-account-switch__status.is-done { color: var(--accent-health, #4ade80); }
+.ab-account-switch__status:not(.is-done):not(.is-failed) { animation: ab-account-switch-pulse 1.6s ease-in-out infinite; }
+@keyframes ab-account-switch-pulse { 50% { opacity: .55; } }
+@media (prefers-reduced-motion: reduce) { .ab-account-switch__status { animation: none !important; } }

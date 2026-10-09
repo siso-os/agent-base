@@ -1,0 +1,45 @@
+@import "../../../../packages/siso-composer/src/composer.css";
+/* The halo rim composer (R1.19, SPEC-CHAT-HUD §1 option A). */
+/* The rim itself (glass, ring, states, voice, reduced motion) is @siso/shell's HaloRim; this file is the chat's part. */
+/* The composer floats over the bottom of the list: messages scroll on under the glass and fade out beneath it, and the
+   list keeps its last message clear by the composer's height (--ab-composer-h, measured in ChatView). */
+.siso-chat__main:has(.siso-rim)>.siso-chat__composer{position:absolute;left:0;right:0;bottom:0;z-index:5;max-width:none;padding-top:36px;padding-left:max(24px,calc((100% - var(--ab-chat-w)) / 2 + 24px));padding-right:max(24px,calc((100% - var(--ab-chat-w)) / 2 + 24px));pointer-events:none;
+  background:linear-gradient(to bottom,transparent 0,color-mix(in srgb,var(--crm-color-surface) 55%,transparent) 48px,var(--crm-color-surface) calc(100% - 4px))}
+.siso-chat__main:has(.siso-rim)>.siso-chat__composer>*{pointer-events:auto}
+.siso-chat__main:has(.siso-rim)>.siso-chat__list .siso-chat__col{padding-bottom:calc(var(--ab-composer-h,160px) + 8px)}
+.siso-chat__main:has(.siso-rim)>.siso-chat__composer .siso-chat__jump{bottom:calc(100% - 28px)}
+/* One reading width for the messages and the bar (Shaan 4 Oct, "it's too wide ... make it less wide"): 940 px leaves the
+   bar 892 px, 869 px inside its padding, just over the 860 px tier where the HUD keeps its inline tokens and cost. On a desktop window the bar also
+   stops short of Agent Zero's face in the bottom-right corner (62 px) instead of running under it; with the side panel
+   open the face sits over the panel, so the bar stays centred. */
+.siso-chat__main:has(.siso-rim){--ab-chat-w:940px}
+.siso-chat__main:has(.siso-rim)>.siso-chat__list .siso-chat__col{max-width:var(--ab-chat-w)}
+@media (min-width:1100px){body:has(.siso-zero-face):not(:has(.ab-panel)) .siso-chat__main:has(.siso-rim)>.siso-chat__composer{padding-right:max(76px,calc((100% - var(--ab-chat-w)) / 2 + 24px))}}
+/* The live line, the transcript's last item (Shaan 3 Oct 01:10): `✻ Verb… (2m 05s · ↓ 3.0k tokens)   esc to stop`,
+   both numbers ticking, then the └ line (the current step, no clock; a tip when nothing runs). */
+.siso-chat__live{display:flex;flex-direction:column;gap:2px;--live-cyan:#22D3EE}
+.siso-chat__live .siso-chat__working{padding:0;font-size:13px;white-space:nowrap;overflow:hidden}
+.siso-chat__live .siso-chat__spark{color:var(--live-cyan)}
+.siso-chat__live .siso-chat__verb{color:var(--live-cyan);font-weight:500}
+.siso-chat__live .siso-chat__doing{color:rgb(var(--crm-white-rgb) / .62);font-size:12px}
+.siso-chat__live .siso-chat__doing b{color:var(--crm-color-text-strong);font-weight:500}
+.siso-chat__live .siso-chat__hint{flex:none;margin:0 0 0 auto;font-size:11px}
+.siso-chat__livestep{padding:0 0 0 2px;overflow:hidden;color:rgb(var(--crm-white-rgb) / .4);font:12px var(--crm-font-mono);text-overflow:ellipsis;white-space:nowrap}
+.siso-chat__livestep i{font-style:normal;color:rgb(var(--crm-white-rgb) / .62)}
+/* The voice orb is VoiceOrb.css (t-0271); while it listens the rim turns violet and faster (HaloRim reads its data-phase). */
+/* Phone: a narrower gutter, so the HUD's two lines fit. */
+@media (max-width:640px){.siso-chat__main:has(.siso-rim)>.siso-chat__composer{padding:28px 10px 10px}.siso-chat__live .siso-chat__hint{display:none}}
+
+/* The rim's top edge is a grab line: drag up for a taller box, double-click to reset (ui-hub VISION §5). */
+.siso-rim>.siso-chat__grab{position:absolute;left:50%;top:-1px;z-index:3;width:120px;height:12px;margin-left:-60px;cursor:ns-resize;touch-action:none}
+.siso-chat__grab::after{content:"";position:absolute;left:44px;right:44px;top:4px;height:3px;border-radius:2px;background:rgb(255 255 255 / .18);opacity:0;transition:opacity .15s}
+.siso-rim:hover .siso-chat__grab::after,.siso-chat__grab:focus-visible::after{opacity:1}
+.siso-chat__grab:focus-visible{outline:none}
+/* Writing mode: past half the window the box is an editor and the transcript steps back. */
+.siso-chat__main.is-writing .siso-chat__list{opacity:.35;transition:opacity .2s}
+.siso-chat__main.is-writing .siso-chat__inputrow textarea{font-size:15px;line-height:1.6}
+/* Phone (ui-hub VISION §7F): Agent Zero's face sits bottom-right over the bar's right end, which is where the agents
+   pill lives; the bar stops short of it instead. */
+@media (max-width:640px){body:has(.siso-zero-face) .siso-chat__main:has(.siso-rim)>.siso-chat__composer{padding-right:80px}}
+/* Talking into the rim (ideas r2 #6): while the mic listens the rim takes the voice colour and breathes with his level. */
+.siso-chat__composer[data-voice="on"] .siso-rim{box-shadow:0 0 0 1.5px #a78bfa,0 0 calc(18px + var(--lvl,0) * 40px) #a78bfa66;transition:box-shadow .08s}

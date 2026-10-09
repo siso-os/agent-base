@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# rolodex-pull [--from <snapshot.sqlite>] — write the Rolodex's WhatsApp cache (spec rolodex §4).
+# Default: runs tools/rolodex-export.py on ${ROLODEX_HOST:-siso-vps} over ssh against the siso-contact snapshot (read-only).
+# --from: runs it locally against a snapshot file. Writes ${AB_ROLODEX_WA:-~/.local/state/agent-base/rolodex/whatsapp.json}
+# atomically (tmp + rename) at mode 0600. No message bodies are ever selected. Exit 0 written, 1 failed, 2 usage.
+set -euo pipefail
+here="$(cd "$(dirname "$0")" && pwd)"
+from=""
+case "${1:-}" in
+  --from) [ -n "${2:-}" ] || { echo "usage: rolodex-pull [--from <snapshot.sqlite>]" >&2; exit 2; }; from="$2" ;;
+  "") ;;
+  *) echo "usage: rolodex-pull [--from <snapshot.sqlite>]" >&2; exit 2 ;;
+esac
+out="${AB_ROLODEX_WA:-$HOME/.local/state/agent-base/rolodex/whatsapp.json}"
+umask 077
+mkdir -p "$(dirname "$out")"
+tmp="$(mktemp "$(dirname "$out")/.whatsapp.XXXXXX")"
+trap 'rm -f "$tmp"' EXIT
+if [ -n "$from" ]; then
+  [ -f "$from" ] || { echo "rolodex-pull: no such snapshot: $from" >&2; exit 1; }
+  python3 "$here/rolodex-export.py" "$from" > "$tmp"
+else
+  ssh "${ROLODEX_HOST:-siso-vps}" python3 - < "$here/rolodex-export.py" > "$tmp"
+fi
+# Only a well-formed cache replaces the old one.
+python3 -c 'import json,sys; d=json.load(open(sys.argv[1])); assert isinstance(d.get("contacts"), list)' "$tmp" \
+  || { echo "rolodex-pull: export was not a cache" >&2; exit 1; }
+chmod 600 "$tmp"
+mv -f "$tmp" "$out"
+trap - EXIT
+echo "rolodex-pull: wrote $out ($(python3 -c 'import json,sys; print(len(json.load(open(sys.argv[1]))["contacts"]))' "$out") contacts)"

@@ -1,0 +1,23 @@
+{
+  "name": "@siso/composer",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Reusable composer presentation: rim frame, context and usage HUD, model cast, activity pill and popup, artifact shelf. Data and actions supplied by the application.",
+  "exports": {
+    ".": "./src/index.ts",
+    "./composer.css": "./src/composer.css",
+    "./hud.css": "./src/hud.css",
+    "./model.css": "./src/model.css",
+    "./activity.css": "./src/activity.css",
+    "./shelf.css": "./src/shelf.css"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0"
+  }
+}

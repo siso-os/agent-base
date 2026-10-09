@@ -1,0 +1,18 @@
+/* t-0139: a new agent from his words, under Agent Zero's strip. */
+.ab-saynew { margin: 6px 8px 2px 9px; padding: 7px; border: 1px solid var(--crm-color-line); border-radius: 10px; background: rgb(var(--crm-white-rgb) / 0.03); }
+.ab-saynew__form { display: flex; min-width: 0; align-items: center; gap: 5px; }
+.ab-saynew__form input { min-width: 0; flex: 1; height: 26px; padding: 0 6px; border: 0; border-radius: 6px; background: transparent; color: var(--crm-color-text-strong); font-size: 12px; outline: none; }
+.ab-saynew__form input::placeholder { color: var(--crm-color-text-faint); }
+.ab-saynew__go, .ab-saynew__x { display: grid; width: 24px; height: 24px; flex: none; place-items: center; border-radius: 6px; color: var(--crm-color-text-muted); }
+.ab-saynew__go { background: var(--crm-color-brand); color: #1a1205; }
+.ab-saynew__go:disabled { background: rgb(var(--crm-white-rgb) / 0.08); color: var(--crm-color-text-faint); }
+.ab-saynew__x:hover { background: rgb(var(--crm-white-rgb) / 0.07); color: var(--crm-color-text-strong); }
+.ab-saynew__foot { display: flex; min-width: 0; align-items: center; gap: 6px; margin-top: 5px; padding-left: 2px; }
+.ab-saynew__foot p { min-width: 0; flex: 1; margin: 0; color: var(--crm-color-text-faint); font-size: 10.5px; line-height: 1.35; }
+.ab-saynew__foot p.is-ok { color: var(--crm-color-text); }
+.ab-saynew__foot p.is-err { color: var(--crm-color-danger); }
+.ab-saynew__foot button { flex: none; padding: 2px 7px; border: 1px solid var(--crm-color-line-subtle); border-radius: 6px; color: var(--crm-color-text-muted); font-size: 10.5px; }
+.ab-saynew__foot button:hover:not(:disabled) { color: var(--crm-color-text-strong); background: rgb(var(--crm-white-rgb) / 0.06); }
+.ab-saynew__foot button:disabled { opacity: 0.45; }
+.ab-zero-strip__new + .ab-zero-strip__org { margin-left: 0; }
+.ab-zero-strip__new[aria-expanded="true"] { background: rgb(var(--crm-white-rgb) / 0.1); color: var(--crm-color-text-strong); }

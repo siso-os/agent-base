@@ -1,0 +1,70 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import { syncBuiltinESMExports } from 'node:module';
+import { mkdtempSync, mkdirSync, writeFileSync, appendFileSync, renameSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
+import http from 'node:http';
+import { ActivityCollector } from '../src/activity.ts';
+import { ActivityJournal } from '../../host/src/activity.ts';
+import { readCodexRuns } from '../src/codex-runs.ts';
+import { readServiceHosts } from '../src/service-hosts.ts';
+const root=mkdtempSync(path.join(tmpdir(),'.siso-ephemeral-stalls-'));
+const hosts=path.join(root,'hosts');mkdirSync(hosts);
+process.env.AB_ACTIVITY_DIR=path.join(root,'activity');
+const journal=new ActivityJournal('Worker');
+writeFileSync(path.join(hosts,'Worker.json'),JSON.stringify({name:'Worker',hostInstanceId:journal.hostInstanceId,activityJournal:journal.journal,session:'s'}));
+journal.start('s','initial');journal.finish('completed');
+const originalRead=fs.readFileSync,originalReadSync=fs.readSync;
+let journalReads=0;const readFiles=[];
+fs.readSync=(...args)=>{journalReads++;return originalReadSync(...args);};
+fs.readFileSync=(...args)=>{readFiles.push(String(args[0]));return originalRead(...args);};
+syncBuiltinESMExports();
+let collector;
+try {
+ collector=new ActivityCollector(hosts,path.join(root,'state'),()=>null);collector.close();
+ journalReads=0;readFiles.length=0;collector.poll();
+ assert.equal(journalReads,0);assert.ok(!readFiles.some(f=>f.endsWith('Worker.json')));
+ journal.start('s','partial');journal.finish('failed');
+ let raw=originalRead(journal.journal,'utf8');writeFileSync(journal.journal,raw.trimEnd());
+ collector.poll();assert.equal(collector.list().length,1);
+ appendFileSync(journal.journal,'\n');collector.poll();assert.equal(collector.list().length,2);
+ assert.equal(journalReads,2);journalReads=0;collector.poll();assert.equal(journalReads,0);
+ renameSync(journal.journal,journal.journal+'.old');writeFileSync(journal.journal,raw);
+ collector.poll();assert.equal(collector.list().length,2);
+ writeFileSync(path.join(root,'state/state.json'),JSON.stringify({cursors:{},items:[],settings:{}}));
+ collector.poll();assert.equal(collector.list().length,2);assert.ok(collector.list().every(i=>!i.buzz));
+ writeFileSync(path.join(root,'state/state.json'),JSON.stringify({cursors:{[journal.hostInstanceId]:0},items:[],settings:{}}));
+ collector.poll();assert.equal(collector.list().length,2);
+ console.log('PASS incremental activity: zero unchanged journal/host reads, partial tails, rotation, empty and retained-key cursor resets');
+ const runs=path.join(root,'runs');mkdirSync(runs);const now=Date.now();
+ for(const [id,session] of [['mine','parent'],['other','unrelated']]){
+  writeFileSync(path.join(runs,id+'.meta.json'),JSON.stringify({parent_session:session,started:now,pid:process.pid}));
+  writeFileSync(path.join(runs,id+'.jsonl'),JSON.stringify({type:'item.completed',item:{id:'answer',type:'agent_message',text:id}})+'\n');
+ }
+ readFiles.length=0;assert.equal(readCodexRuns(now,runs,{session:'parent'}).length,1);
+ assert.ok(!readFiles.some(f=>f.endsWith('other.jsonl')));
+ readFiles.length=0;readCodexRuns(now+1000,runs,{session:'parent'});
+ assert.ok(!readFiles.some(f=>f.endsWith('.jsonl')));
+ writeFileSync(path.join(runs,'old.meta.json'),JSON.stringify({parent_session:'parent',started:now-86400000}));
+ writeFileSync(path.join(runs,'old.last.md'),'STATUS: done');
+ assert.ok(readCodexRuns(now,runs,{session:'parent'}).some(r=>r.id==='old'));
+ console.log('PASS parent filtering precedes unrelated transcript reads; unchanged parse reused; historical details retained');
+} finally {collector?.close();fs.readFileSync=originalRead;fs.readSync=originalReadSync;syncBuiltinESMExports();}
+let probes=0;
+const api=http.createServer((req,res)=>{probes++;res.writeHead(200,{'content-type':'application/json'}).end(JSON.stringify({pid:process.pid}));});
+await new Promise(r=>api.listen(0,'127.0.0.1',r));
+const dir=path.join(root,'probe-hosts');mkdirSync(dir);
+const counter=path.join(root,'launch-count');const launchctl=path.join(root,'launchctl');
+writeFileSync(launchctl,`#!${process.execPath}\nrequire('fs').appendFileSync(${JSON.stringify(counter)},'x');\n`,{mode:0o700});
+process.env.AB_LAUNCHCTL=launchctl;
+writeFileSync(path.join(dir,'Probe.json'),JSON.stringify({name:'Probe',pid:process.pid,port:api.address().port,token:'fixture-only'}));
+try {
+ const [a,b]=await Promise.all([readServiceHosts({dir}),readServiceHosts({dir})]);
+ assert.equal(a.hosts[0].state,'live');assert.equal(b.hosts[0].state,'live');assert.equal(probes,1);assert.equal(fs.existsSync(counter),false);
+ await new Promise(r=>setTimeout(r,3100));await readServiceHosts({dir});assert.equal(probes,2);
+ await Promise.all([readServiceHosts({dir,portHealthy:()=>false}),readServiceHosts({dir,portHealthy:()=>false})]);assert.equal(fs.readFileSync(counter,'utf8'),'x');
+ let injected=0;await readServiceHosts({dir,portHealthy:()=>{injected++;return false;},launchdLoaded:()=>false});
+ await readServiceHosts({dir,portHealthy:()=>{injected++;return false;},launchdLoaded:()=>false});assert.equal(injected,2);
+ console.log('PASS host probes: live hosts skip launchctl, unhealthy probes coalesce, TTL expiry, injected checks bypass cache');
+} finally {api.close();delete process.env.AB_LAUNCHCTL;delete process.env.AB_ACTIVITY_DIR;}

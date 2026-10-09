@@ -1,0 +1,10 @@
+// Standalone kit entry: imports no legacy HaloFace global controller.
+export { AgentFace, projectHue } from './AgentFace'
+export type { AgentFaceProps, AgentStatus, FaceDirection, FaceFamily, FaceFeatures } from './AgentFace'
+export { WorkspaceMark } from './WorkspaceMark'
+export type { WorkspaceMarkProps, WorkspaceBrand, WorkspaceMarkLook } from './WorkspaceMark'
+export { LivingIcon } from './LivingIcon'
+export type { LivingIconProps } from './LivingIcon'
+export { LIVING_ICONS, INDUSTRY_ICON_NAMES, NAVIGATION_ICON_NAMES } from './icon-catalog'
+export type { LivingIconName } from './icon-catalog'
+export { colourways } from './identity'

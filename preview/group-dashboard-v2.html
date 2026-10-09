@@ -1,0 +1,9 @@
+<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Group dashboard v2 · Agent Base</title>
+<style>
+#root { display:grid; grid-template-columns:244px minmax(0,1fr); grid-template-rows:46px minmax(0,1fr); background:var(--siso-canvas); }
+.preview-bar { grid-column:1/-1; display:flex; align-items:center; justify-content:space-between; padding:0 24px; border-bottom:1px solid var(--siso-line); font-size:12px; color:var(--siso-text-muted); }
+.preview-sidebar { padding:24px 18px; border-right:1px solid var(--siso-line); background:var(--siso-chrome); display:flex; flex-direction:column; gap:8px; }
+.preview-sidebar strong { font-size:15px; margin-bottom:20px; }.preview-sidebar a { text-decoration:none; color:var(--siso-text-muted); padding:12px; border-radius:var(--radius-ctrl); font-size:13px; }.preview-sidebar a.active { background:var(--siso-surface-raised); color:var(--siso-text-bold); }.preview-sidebar small { margin:22px 12px 0; font-size:11px; line-height:1.7; color:var(--siso-text-muted); }
+#dashboard { min-height:0; min-width:0; }#action { color:var(--accent-health); }
+@media(max-width:700px){#root{grid-template-columns:150px minmax(0,1fr)}}
+</style></head><body><div id="root"><header class="preview-bar"><span>Agent Base · Group dashboard v2 · fixture snapshot 2 Oct 2026</span><span id="action" aria-live="polite">Preview callbacks ready</span></header><nav class="preview-sidebar"><strong>Agent Base</strong><a href="?group=agency" data-group="agency">SISO Agency</a><a href="?group=labs" data-group="labs">SISO Labs</a><a href="?group=family" data-group="family">SISO Family</a><small>Latest amendment: every client is visible by kind. No dropdown or “more clients” toggle.<br>Counts are snapshot fixtures, not live telemetry.</small></nav><div id="dashboard"></div></div><script type="module" src="./group-dashboard-v2.tsx"></script></body></html>

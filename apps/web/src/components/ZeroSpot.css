@@ -1,0 +1,15 @@
+/* t-0301: the desktop panel reaches the right edge; Agent Zero no longer reserves a dark gutter. */
+@media (min-width:1100px){
+  body:has(.siso-zero-face) .siso-app__frame{margin-right:0}
+}
+/* Under 1100 px a gutter costs too much of the page: the face (at 48 px) and its orb dock at the foot of the icon
+   column, above the SS orb, and the column keeps that room clear of its own buttons. The needs ring, the mic's pill
+   and the new-build pill follow them to the left. A phone keeps its own layout (VoiceOrb.css). */
+@media (min-width:640px) and (max-width:1099px){
+  body:has(.siso-zero-face) .siso-app__rail-gap{min-height:104px}
+  html body:has(.siso-zero-face) .siso-zero-face{right:auto;bottom:52px;left:13px;transform:scale(.8);transform-origin:left bottom}
+  html body:has(.siso-zero-face) .siso-zero-mic{right:auto;bottom:112px;left:20px}
+  html body:has(.ab-zorbit) .ab-zorbit{right:auto;bottom:76px;left:37px;transform:translate(-50%,50%) scale(.8)}
+  .siso-zero-mic .siso-mic.is-face .siso-mic__pill{right:auto;left:0}
+  html body .ab-ready{right:auto;bottom:58px;left:70px;transform-origin:left bottom}
+}

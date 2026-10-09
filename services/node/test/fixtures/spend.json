@@ -1,0 +1,1657 @@
+{
+  "day": "2026-10-02",
+  "claude_usd_equiv": 8753.1,
+  "codex_credits": [
+    97.6,
+    139.3
+  ],
+  "attributed_to_plan_items": 0.5,
+  "finished": 52,
+  "projects": [
+    {
+      "project": "HALO",
+      "claude_usd_equiv": 6710.0,
+      "codex_credits": [
+        0.0,
+        0.0
+      ],
+      "finished": 28,
+      "owners": [
+        {
+          "owner": "STREAMING-CLAUDE",
+          "claude_usd_equiv": 2861.0,
+          "codex_credits": [
+            0.0,
+            0.0
+          ],
+          "finished": 7,
+          "agents": [
+            {
+              "agent": "STREAM-B",
+              "claude_usd_equiv": 1409.3,
+              "codex_credits": [
+                0.0,
+                0.0
+              ],
+              "steps": 3018,
+              "finished": 3,
+              "items": {
+                "T-0074": 2400,
+                "sgl-022": 600,
+                "unattributed": 0
+              }
+            },
+            {
+              "agent": "STREAMING-CLAUDE",
+              "claude_usd_equiv": 605.5,
+              "codex_credits": [
+                0.0,
+                0.0
+              ],
+              "steps": 1139,
+              "finished": 2,
+              "items": {
+                "unattributed": 1100
+              }
+            },
+            {
+              "agent": "AUTO-VIEWER",
+              "claude_usd_equiv": 500.3,
+              "codex_credits": [
+                0.0,
+                0.0
+              ],
+              "steps": 1173,
+              "finished": 1,
+              "items": {
+                "unattributed": 500,
+                "T-0067": 300,
+                "T-0066": 200,
+                "T-0061": 100,
+                "T-0063": 100
+              }
+            },
+            {
+              "agent": "STREAM-A",
+              "claude_usd_equiv": 345.9,
+              "codex_credits": [
+                0.0,
+                0.0
+              ],
+              "steps": 749,
+              "finished": 1,
+              "items": {
+                "unattributed": 700
+              }
+            }
+          ]
+        },
+        {
+          "owner": "OPS-BUILD",
+          "claude_usd_equiv": 1450.0,
+          "codex_credits": [
+            0.0,
+            0.0
+          ],
+          "finished": 13,
+          "agents": [
+            {
+              "agent": "OPS-WORKSPACE",
+              "claude_usd_equiv": 878.6,
+              "codex_credits": [
+                0.0,
+                0.0
+              ],
+              "steps": 1704,
+              "finished": 7,
+              "items": {
+                "unattributed": 1700
+              }
+            },
+            {
+              "agent": "OPS-BUILD",
+              "claude_usd_equiv": 406.6,
+              "codex_credits": [
+                0.0,
+                0.0
+              ],
+              "steps": 922,
+              "finished": 6,
+              "items": {
+                "op-012": 900
+              }
+            },
+            {
+              "agent": "OPS-UX",
+              "claude_usd_equiv": 164.8,
+              "codex_credits": [
+                0.0,
+                0.0
+              ],
+              "steps": 411,
+              "finished": 0,
+              "items": {
+                "unattributed": 400
+              }
+            }
+          ]
+        },
+        {
+          "owner": "HALO-UI",
+          "claude_usd_equiv": 1368.2,
+          "codex_credits": [
+            0.0,
+            0.0
+          ],
+          "finished": 1,
+          "agents": [
+            {
+              "agent": "HALO-UI",
+              "claude_usd_equiv": 1129.1,
+              "codex_credits": [
+                0.0,
+                0.0
+              ],
+              "steps": 2310,
+              "finished": 1,
+              "items": {
+                "T-0068": 1700,
+                "unattributed": 600
+              }
+            },
+            {
+              "agent": "HALO-FACE",
+              "claude_usd_equiv": 239.1,
+              "codex_credits": [
+                0.0,
+                0.0
+              ],
+              "steps": 446,
+              "finished": 0,
+              "items": {
+                "T-0058": 400,
+                "unattributed": 0
+              }
+            }
+          ]
+        },
+        {
+          "owner": "LIVE-FP",
+          "claude_usd_equiv": 640.8,
+          "codex_credits": [
+            0.0,
+            0.0
+          ],
+          "finished": 2,
+          "agents": [
+            {
+              "agent": "LIVE-FP",
+              "claude_usd_equiv": 640.8,
+              "codex_credits": [
+                0.0,
+                0.0
+              ],
+              "steps": 1206,
+              "finished": 2,
+              "items": {
+                "unattributed": 1200
+              }
+            }
+          ]
+        },
+        {
+          "owner": "ONBOARD-FP",
+          "claude_usd_equiv": 229.0,
+          "codex_credits": [
+            0.0,
+            0.0
+          ],
+          "finished": 2,
+          "agents": [
+            {
+              "agent": "ONBOARD-FP",
+              "claude_usd_equiv": 229.0,
+              "codex_credits": [
+                0.0,
+                0.0
+              ],
+              "steps": 655,
+              "finished": 2,
+              "items": {
+                "unattributed": 700
+              }
+            }
+          ]
+        },
+        {
+          "owner": "WIDGET-MAP",
+          "claude_usd_equiv": 83.0,
+          "codex_credits": [
+            0.0,
+            0.0
+          ],
+          "finished": 1,
+          "agents": [
+            {
+              "agent": "WIDGET-MAP",
+              "claude_usd_equiv": 83.0,
+              "codex_credits": [
+                0.0,
+                0.0
+              ],
+              "steps": 226,
+              "finished": 1,
+              "items": {
+                "T-0064": 200,
+                "unattributed": 0
+              }
+            }
+          ]
+        },
+        {
+          "owner": "OPS-REASON",
+          "claude_usd_equiv": 43.0,
+          "codex_credits": [
+            0.0,
+            0.0
+          ],
+          "finished": 1,
+          "agents": [
+            {
+              "agent": "OPS-REASON",
+              "claude_usd_equiv": 43.0,
+              "codex_credits": [
+                0.0,
+                0.0
+              ],
+              "steps": 141,
+              "finished": 1,
+              "items": {
+                "T-0065": 100
+              }
+            }
+          ]
+        },
+        {
+          "owner": "HALO-DEV",
+          "claude_usd_equiv": 20.6,
+          "codex_credits": [
+            0.0,
+            0.0
+          ],
+          "finished": 1,
+          "agents": [
+            {
+              "agent": "HALO-DEV",
+              "claude_usd_equiv": 20.6,
+              "codex_credits": [
+                0.0,
+                0.0
+              ],
+              "steps": 63,
+              "finished": 1,
+              "items": {
+                "unattributed": 100
+              }
+            }
+          ]
+        },
+        {
+          "owner": "GO-LIVE-PLAN",
+          "claude_usd_equiv": 14.4,
+          "codex_credits": [
+            0.0,
+            0.0
+          ],
+          "finished": 0,
+          "agents": [
+            {
+              "agent": "GO-LIVE-PLAN",
+              "claude_usd_equiv": 14.4,
+              "codex_credits": [
+                0.0,
+                0.0
+              ],
+              "steps": 45,
+              "finished": 0,
+              "items": {
+                "T-0062": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "project": "Agent Base",
+      "claude_usd_equiv": 1199.5,
+      "codex_credits": [
+        88.9,
+        129.2
+      ],
+      "finished": 1,
+      "owners": [
+        {
+          "owner": "AGENT-BASE",
+          "claude_usd_equiv": 1199.5,
+          "codex_credits": [
+            88.9,
+            129.2
+          ],
+          "finished": 1,
+          "agents": [
+            {
+              "agent": "AGENT-BASE",
+              "claude_usd_equiv": 697.5,
+              "codex_credits": [
+                0.0,
+                0.0
+              ],
+              "steps": 1445,
+              "finished": 1,
+              "items": {
+                "ab-112": 200,
+                "ab-125": 200,
+                "ab-126": 200,
+                "ab-127": 200,
+                "ab-087": 200,
+                "ab-099": 200,
+                "ab-101": 200,
+                "ab-123": 200,
+                "ab-023": 100,
+                "unattributed": 0,
+                "ab-022": 0,
+                "ab-130": 0,
+                "ab-131": 0
+              }
+            },
+            {
+              "agent": "AGENT-BASE-BUILD",
+              "claude_usd_equiv": 471.0,
+              "codex_credits": [
+                0.0,
+                0.0
+              ],
+              "steps": 852,
+              "finished": 0,
+              "items": {
+                "ab-112": 800,
+                "unattributed": 0,
+                "ab-023": 0
+              }
+            },
+            {
+              "agent": "HUB-DESIGN",
+              "claude_usd_equiv": 31.0,
+              "codex_credits": [
+                0.0,
+                0.0
+              ],
+              "steps": 118,
+              "finished": 0,
+              "items": {
+                "unattributed": 100
+              }
+            },
+            {
+              "agent": "s2-stuck",
+              "claude_usd_equiv": 0.0,
+              "codex_credits": [
+                30.2,
+                45.4
+              ],
+              "steps": 71,
+              "finished": 0,
+              "items": {
+                "unattributed": 100
+              }
+            },
+            {
+              "agent": "luna-t12-checkpoints",
+              "claude_usd_equiv": 0.0,
+              "codex_credits": [
+                0.0,
+                0.0
+              ],
+              "steps": 12,
+              "finished": 0,
+              "items": {
+                "unattributed": 0
+              }
+            },
+            {
+              "agent": "sol-t10-rolodex",
+              "claude_usd_equiv": 0.0,
+              "codex_credits": [
+                3.8,
+                4.4
+              ],
+              "steps": 7,
+              "finished": 0,
+              "items": {
+                "unattributed": 0
+              }
+            },
+            {
+              "agent": "luna-t13-update",
+              "claude_usd_equiv": 0.0,
+              "codex_credits": [
+                0.1,
+                0.1
+              ],
+              "steps": 14,
+              "finished": 0,
+              "items": {
+                "unattributed": 0
+              }
+            },
+            {
+              "agent": "sol-hub-4",
+              "claude_usd_equiv": 0.0,
+              "codex_credits": [
+                4.3,
+                5.0
+              ],
+              "steps": 7,
+              "finished": 0,
+              "items": {
+                "unattributed": 0
+              }
+            },
+            {
+              "agent": "luna-t11-spend",
+              "claude_usd_equiv": 0.0,
+              "codex_credits": [
+                0.1,
+                0.1
+              ],
+              "steps": 8,
+              "finished": 0,
+              "items": {
+                "unattributed": 0
+              }
+            },
+            {
+              "agent": "luna-hub-6",
+              "claude_usd_equiv": 0.0,
+              "codex_credits": [
+                0.0,
+                0.0
+              ],
+              "steps": 12,
+              "finished": 0,
+              "items": {
+                "unattributed": 0
+              }
+            },
+            {
+              "agent": "luna-l1-tokens",
+              "claude_usd_equiv": 0.0,
+              "codex_credits": [
+                1.7,
+                1.7
+              ],
+              "steps": 137,
+              "finished": 0,
+              "items": {
+                "unattributed": 100
+              }
+            },
+            {
+              "agent": "luna-hub-2",
+              "claude_usd_equiv": 0.0,
+              "codex_credits": [
+                0.1,
+                0.1
+              ],
+              "steps": 6,
+              "finished": 0,
+              "items": {
+                "unattributed": 0
+              }
+            },
+            {
+              "agent": "luna-hub-7",
+              "claude_usd_equiv": 0.0,
+              "codex_credits": [
+                0.0,
+                0.0
+              ],
+              "steps": 10,
+              "finished": 0,
+              "items": {
+                "unattributed": 0
+              }
+            },
+            {
+              "agent": "sol-hub-3",
+              "claude_usd_equiv": 0.0,
+              "codex_credits": [
+                3.9,
+                4.7
+              ],
+              "steps": 7,
+              "finished": 0,
+              "items": {
+                "unattributed": 0
+              }
+            },
+            {
+              "agent": "luna-hub-1",
+              "claude_usd_equiv": 0.0,
+              "codex_credits": [
+                0.2,
+                0.2
+              ],
+              "steps": 17,
+              "finished": 0,
+              "items": {
+                "unattributed": 0
+              }
+            },
+            {
+              "agent": "sol-s1-browser",
+              "claude_usd_equiv": 0.0,
+              "codex_credits": [
+                44.3,
+                67.3
+              ],
+              "steps": 91,
+              "finished": 0,
+              "items": {
+                "unattributed": 100
+              }
+            },
+            {
+              "agent": "luna-l2-ci",
+              "claude_usd_equiv": 0.0,
+              "codex_credits": [
+                0.1,
+                0.1
+              ],
+              "steps": 88,
+              "finished": 0,
+              "items": {
+                "unattributed": 100
+              }
+            },
+            {
+              "agent": "luna-hub-5",
+              "claude_usd_equiv": 0.0,
+              "codex_credits": [
+                0.1,
+                0.1
+              ],
+              "steps": 9,
+              "finished": 0,
+              "items": {
+                "unattributed": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "project": "Agent Zero",
+      "claude_usd_equiv": 601.1,
+      "codex_credits": [
+        0.0,
+        0.0
+      ],
+      "finished": 0,
+      "owners": [
+        {
+          "owner": "A0 092b7ffb",
+          "claude_usd_equiv": 597.7,
+          "codex_credits": [
+            0.0,
+            0.0
+          ],
+          "finished": 0,
+          "agents": [
+            {
+              "agent": "A0 092b7ffb",
+              "claude_usd_equiv": 597.7,
+              "codex_credits": [
+                0.0,
+                0.0
+              ],
+              "steps": 942,
+              "finished": 0,
+              "items": {
+                "unattributed": 900
+              }
+            }
+          ]
+        },
+        {
+          "owner": "A0 38c5acb9",
+          "claude_usd_equiv": 3.4,
+          "codex_credits": [
+            0.0,
+            0.0
+          ],
+          "finished": 0,
+          "agents": [
+            {
+              "agent": "A0 38c5acb9",
+              "claude_usd_equiv": 3.4,
+              "codex_credits": [
+                0.0,
+                0.0
+              ],
+              "steps": 4,
+              "finished": 0,
+              "items": {
+                "unattributed": 0
+              }
+            }
+          ]
+        },
+        {
+          "owner": "cwd:siso-agent-zero",
+          "claude_usd_equiv": 0.0,
+          "codex_credits": [
+            0.0,
+            0.0
+          ],
+          "finished": 0,
+          "agents": [
+            {
+              "agent": "cwd:siso-agent-zero",
+              "claude_usd_equiv": 0.0,
+              "codex_credits": [
+                0.0,
+                0.0
+              ],
+              "steps": 1,
+              "finished": 0,
+              "items": {
+                "unattributed": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "project": "SISO Internal Labs",
+      "claude_usd_equiv": 114.3,
+      "codex_credits": [
+        8.5,
+        9.9
+      ],
+      "finished": 5,
+      "owners": [
+        {
+          "owner": "STACK-OPT",
+          "claude_usd_equiv": 62.1,
+          "codex_credits": [
+            0.0,
+            0.0
+          ],
+          "finished": 5,
+          "agents": [
+            {
+              "agent": "STACK-OPT",
+              "claude_usd_equiv": 62.1,
+              "codex_credits": [
+                0.0,
+                0.0
+              ],
+              "steps": 184,
+              "finished": 5,
+              "items": {
+                "T-0068": 0,
+                "T-0074": 0,
+                "sgl-022": 0,
+                "unattributed": 0,
+                "so-000": 0,
+                "so-009": 0,
+                "so-011": 0,
+                "so-014": 0
+              }
+            }
+          ]
+        },
+        {
+          "owner": "SISO-ESTATE",
+          "claude_usd_equiv": 37.4,
+          "codex_credits": [
+            0.0,
+            0.0
+          ],
+          "finished": 0,
+          "agents": [
+            {
+              "agent": "SISO-ESTATE",
+              "claude_usd_equiv": 37.4,
+              "codex_credits": [
+                0.0,
+                0.0
+              ],
+              "steps": 75,
+              "finished": 0,
+              "items": {
+                "unattributed": 100
+              }
+            }
+          ]
+        },
+        {
+          "owner": "ESTATE",
+          "claude_usd_equiv": 9.1,
+          "codex_credits": [
+            0.0,
+            0.0
+          ],
+          "finished": 0,
+          "agents": [
+            {
+              "agent": "ESTATE",
+              "claude_usd_equiv": 9.1,
+              "codex_credits": [
+                0.0,
+                0.0
+              ],
+              "steps": 52,
+              "finished": 0,
+              "items": {
+                "unattributed": 100
+              }
+            }
+          ]
+        },
+        {
+          "owner": "cwd:siso-harness-lab",
+          "claude_usd_equiv": 5.3,
+          "codex_credits": [
+            0.0,
+            0.0
+          ],
+          "finished": 0,
+          "agents": [
+            {
+              "agent": "cwd:siso-harness-lab",
+              "claude_usd_equiv": 5.3,
+              "codex_credits": [
+                0.0,
+                0.0
+              ],
+              "steps": 21,
+              "finished": 0,
+              "items": {
+                "unattributed": 0
+              }
+            }
+          ]
+        },
+        {
+          "owner": "cwd:siso-internal-labs-agent-base",
+          "claude_usd_equiv": 0.3,
+          "codex_credits": [
+            0.0,
+            0.0
+          ],
+          "finished": 0,
+          "agents": [
+            {
+              "agent": "cwd:siso-internal-labs-agent-base",
+              "claude_usd_equiv": 0.3,
+              "codex_credits": [
+                0.0,
+                0.0
+              ],
+              "steps": 52,
+              "finished": 0,
+              "items": {
+                "unattributed": 100
+              }
+            }
+          ]
+        },
+        {
+          "owner": "cwd:out",
+          "claude_usd_equiv": 0.1,
+          "codex_credits": [
+            0.0,
+            0.0
+          ],
+          "finished": 0,
+          "agents": [
+            {
+              "agent": "cwd:out",
+              "claude_usd_equiv": 0.1,
+              "codex_credits": [
+                0.0,
+                0.0
+              ],
+              "steps": 3,
+              "finished": 0,
+              "items": {
+                "unattributed": 0
+              }
+            }
+          ]
+        },
+        {
+          "owner": "codex cwd:l3-org",
+          "claude_usd_equiv": 0.0,
+          "codex_credits": [
+            0.3,
+            0.3
+          ],
+          "finished": 0,
+          "agents": [
+            {
+              "agent": "codex cwd:l3-org",
+              "claude_usd_equiv": 0.0,
+              "codex_credits": [
+                0.3,
+                0.3
+              ],
+              "steps": 27,
+              "finished": 0,
+              "items": {
+                "unattributed": 0
+              }
+            }
+          ]
+        },
+        {
+          "owner": "codex cwd:l4-dev",
+          "claude_usd_equiv": 0.0,
+          "codex_credits": [
+            0.4,
+            0.4
+          ],
+          "finished": 0,
+          "agents": [
+            {
+              "agent": "codex cwd:l4-dev",
+              "claude_usd_equiv": 0.0,
+              "codex_credits": [
+                0.4,
+                0.4
+              ],
+              "steps": 48,
+              "finished": 0,
+              "items": {
+                "unattributed": 0
+              }
+            }
+          ]
+        },
+        {
+          "owner": "codex cwd:laptop-health",
+          "claude_usd_equiv": 0.0,
+          "codex_credits": [
+            0.2,
+            0.2
+          ],
+          "finished": 0,
+          "agents": [
+            {
+              "agent": "codex cwd:laptop-health",
+              "claude_usd_equiv": 0.0,
+              "codex_credits": [
+                0.2,
+                0.2
+              ],
+              "steps": 21,
+              "finished": 0,
+              "items": {
+                "unattributed": 0
+              }
+            }
+          ]
+        },
+        {
+          "owner": "codex cwd:t3-group-dash",
+          "claude_usd_equiv": 0.0,
+          "codex_credits": [
+            0.1,
+            0.1
+          ],
+          "finished": 0,
+          "agents": [
+            {
+              "agent": "codex cwd:t3-group-dash",
+              "claude_usd_equiv": 0.0,
+              "codex_credits": [
+                0.1,
+                0.1
+              ],
+              "steps": 24,
+              "finished": 0,
+              "items": {
+                "unattributed": 0
+              }
+            }
+          ]
+        },
+        {
+          "owner": "codex cwd:t4-project-page",
+          "claude_usd_equiv": 0.0,
+          "codex_credits": [
+            0.2,
+            0.2
+          ],
+          "finished": 0,
+          "agents": [
+            {
+              "agent": "codex cwd:t4-project-page",
+              "claude_usd_equiv": 0.0,
+              "codex_credits": [
+                0.2,
+                0.2
+              ],
+              "steps": 31,
+              "finished": 0,
+              "items": {
+                "unattributed": 0
+              }
+            }
+          ]
+        },
+        {
+          "owner": "codex cwd:t5-menu-picker",
+          "claude_usd_equiv": 0.0,
+          "codex_credits": [
+            0.2,
+            0.2
+          ],
+          "finished": 0,
+          "agents": [
+            {
+              "agent": "codex cwd:t5-menu-picker",
+              "claude_usd_equiv": 0.0,
+              "codex_credits": [
+                0.2,
+                0.2
+              ],
+              "steps": 16,
+              "finished": 0,
+              "items": {
+                "unattributed": 0
+              }
+            }
+          ]
+        },
+        {
+          "owner": "codex cwd:t6-owner-tasks",
+          "claude_usd_equiv": 0.0,
+          "codex_credits": [
+            0.1,
+            0.1
+          ],
+          "finished": 0,
+          "agents": [
+            {
+              "agent": "codex cwd:t6-owner-tasks",
+              "claude_usd_equiv": 0.0,
+              "codex_credits": [
+                0.1,
+                0.1
+              ],
+              "steps": 59,
+              "finished": 0,
+              "items": {
+                "unattributed": 100
+              }
+            }
+          ]
+        },
+        {
+          "owner": "codex cwd:t7-announce",
+          "claude_usd_equiv": 0.0,
+          "codex_credits": [
+            0.0,
+            0.0
+          ],
+          "finished": 0,
+          "agents": [
+            {
+              "agent": "codex cwd:t7-announce",
+              "claude_usd_equiv": 0.0,
+              "codex_credits": [
+                0.0,
+                0.0
+              ],
+              "steps": 79,
+              "finished": 0,
+              "items": {
+                "unattributed": 100
+              }
+            }
+          ]
+        },
+        {
+          "owner": "codex cwd:t8-crew-codex",
+          "claude_usd_equiv": 0.0,
+          "codex_credits": [
+            7.0,
+            8.4
+          ],
+          "finished": 0,
+          "agents": [
+            {
+              "agent": "codex cwd:t8-crew-codex",
+              "claude_usd_equiv": 0.0,
+              "codex_credits": [
+                7.0,
+                8.4
+              ],
+              "steps": 14,
+              "finished": 0,
+              "items": {
+                "unattributed": 0
+              }
+            }
+          ]
+        },
+        {
+          "owner": "cwd:s2-stuck",
+          "claude_usd_equiv": 0.0,
+          "codex_credits": [
+            0.0,
+            0.0
+          ],
+          "finished": 0,
+          "agents": [
+            {
+              "agent": "cwd:s2-stuck",
+              "claude_usd_equiv": 0.0,
+              "codex_credits": [
+                0.0,
+                0.0
+              ],
+              "steps": 2,
+              "finished": 0,
+              "items": {
+                "unattributed": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "project": "Unassigned",
+      "claude_usd_equiv": 68.6,
+      "codex_credits": [
+        0.1,
+        0.1
+      ],
+      "finished": 0,
+      "owners": [
+        {
+          "owner": "Shaan's MacBook laptop-health check",
+          "claude_usd_equiv": 40.2,
+          "codex_credits": [
+            0.0,
+            0.0
+          ],
+          "finished": 0,
+          "agents": [
+            {
+              "agent": "Shaan's MacBook laptop-health check",
+              "claude_usd_equiv": 40.2,
+              "codex_credits": [
+                0.0,
+                0.0
+              ],
+              "steps": 80,
+              "finished": 0,
+              "items": {
+                "unattributed": 100
+              }
+            }
+          ]
+        },
+        {
+          "owner": "cwd:temp",
+          "claude_usd_equiv": 28.4,
+          "codex_credits": [
+            0.0,
+            0.0
+          ],
+          "finished": 0,
+          "agents": [
+            {
+              "agent": "cwd:temp",
+              "claude_usd_equiv": 28.4,
+              "codex_credits": [
+                0.0,
+                0.0
+              ],
+              "steps": 362,
+              "finished": 0,
+              "items": {
+                "unattributed": 400
+              }
+            }
+          ]
+        },
+        {
+          "owner": "codex cwd:temp",
+          "claude_usd_equiv": 0.0,
+          "codex_credits": [
+            0.1,
+            0.1
+          ],
+          "finished": 0,
+          "agents": [
+            {
+              "agent": "codex cwd:temp",
+              "claude_usd_equiv": 0.0,
+              "codex_credits": [
+                0.1,
+                0.1
+              ],
+              "steps": 1,
+              "finished": 0,
+              "items": {
+                "unattributed": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "project": "Efficiency",
+      "claude_usd_equiv": 59.6,
+      "codex_credits": [
+        0.0,
+        0.0
+      ],
+      "finished": 0,
+      "owners": [
+        {
+          "owner": "HEALTH",
+          "claude_usd_equiv": 59.6,
+          "codex_credits": [
+            0.0,
+            0.0
+          ],
+          "finished": 0,
+          "agents": [
+            {
+              "agent": "HEALTH",
+              "claude_usd_equiv": 59.6,
+              "codex_credits": [
+                0.0,
+                0.0
+              ],
+              "steps": 124,
+              "finished": 0,
+              "items": {
+                "unattributed": 100
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "project": "SISO",
+      "claude_usd_equiv": 0.0,
+      "codex_credits": [
+        0.1,
+        0.1
+      ],
+      "finished": 0,
+      "owners": [
+        {
+          "owner": "Agent Zero",
+          "claude_usd_equiv": 0.0,
+          "codex_credits": [
+            0.1,
+            0.1
+          ],
+          "finished": 0,
+          "agents": [
+            {
+              "agent": "a0-luna-a0w-001",
+              "claude_usd_equiv": 0.0,
+              "codex_credits": [
+                0.1,
+                0.1
+              ],
+              "steps": 1,
+              "finished": 0,
+              "items": {
+                "unattributed": 0
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "plan_items": [
+    {
+      "id": "unattributed:HALO",
+      "title": "Plan item unattributed:HALO",
+      "plan": null,
+      "claude_usd_equiv": 3365.2,
+      "codex_credits": [
+        0.0,
+        0.0
+      ],
+      "steps": 7000,
+      "finished": false
+    },
+    {
+      "id": "T-0074",
+      "title": "Plan item T-0074",
+      "plan": "a0/tasks.json",
+      "claude_usd_equiv": 1080.1,
+      "codex_credits": [
+        0.0,
+        0.0
+      ],
+      "steps": 2400,
+      "finished": true
+    },
+    {
+      "id": "T-0068",
+      "title": "Plan item T-0068",
+      "plan": "a0/tasks.json",
+      "claude_usd_equiv": 879.4,
+      "codex_credits": [
+        0.0,
+        0.0
+      ],
+      "steps": 1800,
+      "finished": true
+    },
+    {
+      "id": "unattributed:Agent Zero",
+      "title": "Plan item unattributed:Agent Zero",
+      "plan": null,
+      "claude_usd_equiv": 601.1,
+      "codex_credits": [
+        0.0,
+        0.0
+      ],
+      "steps": 900,
+      "finished": false
+    },
+    {
+      "id": "ab-112",
+      "title": "Plan item ab-112",
+      "plan": "agent-base.json",
+      "claude_usd_equiv": 465.7,
+      "codex_credits": [
+        0.0,
+        0.0
+      ],
+      "steps": 1000,
+      "finished": false
+    },
+    {
+      "id": "op-012",
+      "title": "Plan item op-012",
+      "plan": "operator.json",
+      "claude_usd_equiv": 406.6,
+      "codex_credits": [
+        0.0,
+        0.0
+      ],
+      "steps": 900,
+      "finished": false
+    },
+    {
+      "id": "sgl-022",
+      "title": "Plan item sgl-022",
+      "plan": "streaming-go-live.json",
+      "claude_usd_equiv": 359.6,
+      "codex_credits": [
+        0.0,
+        0.0
+      ],
+      "steps": 700,
+      "finished": true
+    },
+    {
+      "id": "T-0058",
+      "title": "Plan item T-0058",
+      "plan": "a0/tasks.json",
+      "claude_usd_equiv": 220.3,
+      "codex_credits": [
+        0.0,
+        0.0
+      ],
+      "steps": 400,
+      "finished": false
+    },
+    {
+      "id": "T-0067",
+      "title": "Plan item T-0067",
+      "plan": "a0/tasks.json",
+      "claude_usd_equiv": 164.5,
+      "codex_credits": [
+        0.0,
+        0.0
+      ],
+      "steps": 300,
+      "finished": false
+    },
+    {
+      "id": "unattributed:Agent Base",
+      "title": "Plan item unattributed:Agent Base",
+      "plan": null,
+      "claude_usd_equiv": 94.5,
+      "codex_credits": [
+        88.9,
+        129.2
+      ],
+      "steps": 700,
+      "finished": false
+    },
+    {
+      "id": "ab-125",
+      "title": "Plan item ab-125",
+      "plan": "agent-base.json",
+      "claude_usd_equiv": 84.3,
+      "codex_credits": [
+        0.0,
+        0.0
+      ],
+      "steps": 200,
+      "finished": false
+    },
+    {
+      "id": "ab-126",
+      "title": "Plan item ab-126",
+      "plan": "agent-base.json",
+      "claude_usd_equiv": 84.3,
+      "codex_credits": [
+        0.0,
+        0.0
+      ],
+      "steps": 200,
+      "finished": false
+    },
+    {
+      "id": "ab-127",
+      "title": "Plan item ab-127",
+      "plan": "agent-base.json",
+      "claude_usd_equiv": 84.3,
+      "codex_credits": [
+        0.0,
+        0.0
+      ],
+      "steps": 200,
+      "finished": false
+    },
+    {
+      "id": "ab-087",
+      "title": "Plan item ab-087",
+      "plan": "agent-base.json",
+      "claude_usd_equiv": 82.0,
+      "codex_credits": [
+        0.0,
+        0.0
+      ],
+      "steps": 200,
+      "finished": false
+    },
+    {
+      "id": "ab-099",
+      "title": "Plan item ab-099",
+      "plan": "agent-base.json",
+      "claude_usd_equiv": 82.0,
+      "codex_credits": [
+        0.0,
+        0.0
+      ],
+      "steps": 200,
+      "finished": false
+    },
+    {
+      "id": "ab-101",
+      "title": "Plan item ab-101",
+      "plan": "agent-base.json",
+      "claude_usd_equiv": 82.0,
+      "codex_credits": [
+        0.0,
+        0.0
+      ],
+      "steps": 200,
+      "finished": false
+    },
+    {
+      "id": "ab-123",
+      "title": "Plan item ab-123",
+      "plan": "agent-base.json",
+      "claude_usd_equiv": 82.0,
+      "codex_credits": [
+        0.0,
+        0.0
+      ],
+      "steps": 200,
+      "finished": false
+    },
+    {
+      "id": "T-0064",
+      "title": "Plan item T-0064",
+      "plan": "a0/tasks.json",
+      "claude_usd_equiv": 80.6,
+      "codex_credits": [
+        0.0,
+        0.0
+      ],
+      "steps": 200,
+      "finished": false
+    },
+    {
+      "id": "T-0066",
+      "title": "Plan item T-0066",
+      "plan": "a0/tasks.json",
+      "claude_usd_equiv": 71.6,
+      "codex_credits": [
+        0.0,
+        0.0
+      ],
+      "steps": 200,
+      "finished": false
+    },
+    {
+      "id": "unattributed:Unassigned",
+      "title": "Plan item unattributed:Unassigned",
+      "plan": null,
+      "claude_usd_equiv": 68.6,
+      "codex_credits": [
+        0.1,
+        0.1
+      ],
+      "steps": 400,
+      "finished": false
+    },
+    {
+      "id": "unattributed:Efficiency",
+      "title": "Plan item unattributed:Efficiency",
+      "plan": null,
+      "claude_usd_equiv": 59.6,
+      "codex_credits": [
+        0.0,
+        0.0
+      ],
+      "steps": 100,
+      "finished": false
+    },
+    {
+      "id": "unattributed:SISO Internal Labs",
+      "title": "Plan item unattributed:SISO Internal Labs",
+      "plan": null,
+      "claude_usd_equiv": 59.3,
+      "codex_credits": [
+        8.5,
+        9.9
+      ],
+      "steps": 600,
+      "finished": false
+    },
+    {
+      "id": "ab-023",
+      "title": "Plan item ab-023",
+      "plan": "agent-base.json",
+      "claude_usd_equiv": 51.6,
+      "codex_credits": [
+        0.0,
+        0.0
+      ],
+      "steps": 100,
+      "finished": true
+    },
+    {
+      "id": "T-0065",
+      "title": "Plan item T-0065",
+      "plan": "a0/tasks.json",
+      "claude_usd_equiv": 43.0,
+      "codex_credits": [
+        0.0,
+        0.0
+      ],
+      "steps": 100,
+      "finished": false
+    },
+    {
+      "id": "T-0061",
+      "title": "Plan item T-0061",
+      "plan": "a0/tasks.json",
+      "claude_usd_equiv": 42.0,
+      "codex_credits": [
+        0.0,
+        0.0
+      ],
+      "steps": 100,
+      "finished": false
+    },
+    {
+      "id": "T-0063",
+      "title": "Plan item T-0063",
+      "plan": "a0/tasks.json",
+      "claude_usd_equiv": 33.0,
+      "codex_credits": [
+        0.0,
+        0.0
+      ],
+      "steps": 100,
+      "finished": false
+    },
+    {
+      "id": "T-0062",
+      "title": "Plan item T-0062",
+      "plan": "a0/tasks.json",
+      "claude_usd_equiv": 14.4,
+      "codex_credits": [
+        0.0,
+        0.0
+      ],
+      "steps": 0,
+      "finished": false
+    },
+    {
+      "id": "ab-022",
+      "title": "Plan item ab-022",
+      "plan": "agent-base.json",
+      "claude_usd_equiv": 2.3,
+      "codex_credits": [
+        0.0,
+        0.0
+      ],
+      "steps": 0,
+      "finished": false
+    },
+    {
+      "id": "ab-130",
+      "title": "Plan item ab-130",
+      "plan": "agent-base.json",
+      "claude_usd_equiv": 2.3,
+      "codex_credits": [
+        0.0,
+        0.0
+      ],
+      "steps": 0,
+      "finished": false
+    },
+    {
+      "id": "ab-131",
+      "title": "Plan item ab-131",
+      "plan": "agent-base.json",
+      "claude_usd_equiv": 2.3,
+      "codex_credits": [
+        0.0,
+        0.0
+      ],
+      "steps": 0,
+      "finished": false
+    },
+    {
+      "id": "so-000",
+      "title": "Plan item so-000",
+      "plan": "EFFICIENCY.json",
+      "claude_usd_equiv": 1.2,
+      "codex_credits": [
+        0.0,
+        0.0
+      ],
+      "steps": 0,
+      "finished": true
+    },
+    {
+      "id": "so-009",
+      "title": "Plan item so-009",
+      "plan": "EFFICIENCY.json",
+      "claude_usd_equiv": 1.2,
+      "codex_credits": [
+        0.0,
+        0.0
+      ],
+      "steps": 0,
+      "finished": true
+    },
+    {
+      "id": "so-011",
+      "title": "Plan item so-011",
+      "plan": "EFFICIENCY.json",
+      "claude_usd_equiv": 1.2,
+      "codex_credits": [
+        0.0,
+        0.0
+      ],
+      "steps": 0,
+      "finished": true
+    },
+    {
+      "id": "so-014",
+      "title": "Plan item so-014",
+      "plan": "EFFICIENCY.json",
+      "claude_usd_equiv": 1.2,
+      "codex_credits": [
+        0.0,
+        0.0
+      ],
+      "steps": 0,
+      "finished": true
+    },
+    {
+      "id": "unattributed:SISO",
+      "title": "Plan item unattributed:SISO",
+      "plan": null,
+      "claude_usd_equiv": 0.0,
+      "codex_credits": [
+        0.1,
+        0.1
+      ],
+      "steps": 0,
+      "finished": false
+    }
+  ],
+  "note": "claude_usd_equiv is a relative weight for comparing spend, not a bill"
+}

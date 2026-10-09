@@ -1,0 +1,44 @@
+{
+  "label": "dbg2",
+  "sessionMb": 5,
+  "sessionLines": 5591,
+  "openMs": 86,
+  "helloKb": 30,
+  "turnsRendered": 6,
+  "domNodes": 720,
+  "webContentMb": 203,
+  "workingNodeCpuPct": 1,
+  "workingPageCpuPct": 22,
+  "workingWsKb": 121,
+  "webContentMbAfterWork": 258,
+  "soak": [
+    {
+      "s": 0,
+      "mb": 258,
+      "turns": 33,
+      "dom": 1144,
+      "gap": 0
+    },
+    {
+      "s": 20,
+      "mb": 296,
+      "turns": 64,
+      "dom": 1564,
+      "gap": 135
+    },
+    {
+      "s": 40,
+      "mb": 299,
+      "turns": 76,
+      "dom": 1724,
+      "gap": 0
+    }
+  ],
+  "apiPer20sVisible": 15,
+  "apiPer20sHidden": 0,
+  "hiddenPageCpuPct": 6,
+  "reachedStart": true,
+  "scrollToStartMs": 5257,
+  "turnsRenderedAtStart": 705,
+  "pageErrors": []
+}

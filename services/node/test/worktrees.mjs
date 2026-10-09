@@ -1,0 +1,116 @@
+import assert from 'node:assert/strict';
+import { execFileSync, spawn } from 'node:child_process';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync, symlinkSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
+import { acceptLaunch, archiveWorkspace, cancelPreparation, getWorkspace, prepareWorkspace, receiptFile, save, snapshot, withLaunch } from '../src/worktrees.ts';
+import { launchAgent } from '../src/agent-launch.ts';
+import { validateWorkspaceReceipt } from '../../host/src/worktree-contract.ts';
+const scratch=mkdtempSync(path.join(tmpdir(),'ab-worktree-contract-'));
+process.env.AB_WORKSPACES_DIR=path.join(scratch,'receipts');process.env.AB_WORKTREE_ROOT=path.join(scratch,'worktrees');
+const repo=path.join(scratch,'repo with spaces'),remote=path.join(scratch,'remote.git');mkdirSync(repo);
+const git=(cwd,args)=>execFileSync('git',['-C',cwd,...args],{encoding:'utf8',stdio:['ignore','pipe','pipe']}).trim();
+git(scratch,['init','--bare',remote]);git(repo,['init','-b','main']);git(repo,['config','user.name','Fixture']);git(repo,['config','user.email','fixture@example.invalid']);
+writeFileSync(path.join(repo,'same.txt'),'base\n');writeFileSync(path.join(repo,'.gitignore'),'.env.local\nsetup.txt\n');git(repo,['add','.']);git(repo,['commit','-m','fixture']);git(repo,['remote','add','origin',remote]);git(repo,['push','-u','origin','main']);
+const input=(launchId,name=launchId,extra={})=>({launchId,name,repo,harness:'codex',model:'gpt-6.1-sol',workspace:{type:'isolated'},...extra});
+let count=0;const ok=label=>{count++;console.log(`PASS ${count}: ${label}`);};
+const r=await acceptLaunch(input('one'));
+assert.equal((await acceptLaunch(input('one'))).workspaceId,r.workspaceId);
+await assert.rejects(()=>acceptLaunch(input('one','changed')),/different input/);ok('immutable launch identity and changed-input conflict');
+const other=await acceptLaunch(input('two','one'));assert.notEqual(other.worktreePath,r.worktreePath);ok('equal display names, independent identities');
+await Promise.all([withLaunch(r,async()=>{}),withLaunch(other,async()=>{})]);
+const ready=getWorkspace(r.workspaceId);assert.equal(ready.phase,'ready');assert.equal(getWorkspace(other.workspaceId).phase,'ready');
+validateWorkspaceReceipt(receiptFile(r.workspaceId),ready.worktreePath);ok('concurrent registered worktrees, spaces and main fallback');
+writeFileSync(path.join(ready.worktreePath,'same.txt'),'one\n');writeFileSync(path.join(other.worktreePath,'same.txt'),'two\n');
+assert.equal(readFileSync(path.join(repo,'same.txt'),'utf8'),'base\n');assert.equal(readFileSync(path.join(ready.worktreePath,'same.txt'),'utf8'),'one\n');ok('same-file edits isolated from sibling and source');
+await withLaunch(ready,async()=>{});assert.equal(getWorkspace(r.workspaceId).worktreePath,ready.worktreePath);ok('preparation retry preserves dirty worktree');
+await assert.rejects(()=>archiveWorkspace(r.workspaceId,async()=>false),/dirty/);ok('archive refuses dirty checkout');
+await assert.rejects(()=>archiveWorkspace(other.workspaceId,async()=>true),/active/);ok('archive refuses active host');
+const clean=await acceptLaunch(input('clean'));await withLaunch(clean,async()=>{});
+await assert.rejects(()=>archiveWorkspace(clean.workspaceId,async()=>false),/not pushed/);
+git(repo,['push','origin',getWorkspace(clean.workspaceId).branch]);await archiveWorkspace(clean.workspaceId,async()=>false);assert.equal(getWorkspace(clean.workspaceId).phase,'archived');assert.equal(existsSync(clean.worktreePath),false);ok('archive refuses unpushed, removes clean pushed worktree only');
+const linked=await acceptLaunch(input('linked','linked',{repo:ready.worktreePath}));assert.equal(linked.repoPath,ready.repoPath);await withLaunch(linked,async()=>{});assert.equal(getWorkspace(linked.workspaceId).phase,'ready');ok('linked source resolves canonical repository');
+const foreign=await acceptLaunch(input('foreign'));mkdirSync(foreign.worktreePath,{recursive:true});writeFileSync(path.join(foreign.worktreePath,'keep'),'owned by someone else');await withLaunch(foreign,async()=>{});assert.equal(getWorkspace(foreign.workspaceId).phase,'failed');assert.ok(existsSync(path.join(foreign.worktreePath,'keep')));ok('foreign path preserved');
+const collision=await acceptLaunch(input('collision'));const branch=`job/${collision.name}-${collision.workspaceId.slice(-12)}`;git(repo,['branch',branch]);await withLaunch(collision,async()=>{});assert.match(getWorkspace(collision.workspaceId).error,/branch collision/);ok('foreign branch preserved');
+await assert.rejects(()=>acceptLaunch(input('shared','shared',{workspace:{type:'shared',reason:''}})),/reason/);
+const shared=await acceptLaunch(input('shared','shared',{workspace:{type:'shared',reason:'read-only discussion'}}));await withLaunch(shared,async()=>{});assert.equal(getWorkspace(shared.workspaceId).worktreePath,ready.repoPath);ok('shared intent requires a reason and retains canonical cwd');
+const moved=getWorkspace(linked.workspaceId);git(moved.worktreePath,['checkout','-b','foreign-change']);assert.throws(()=>validateWorkspaceReceipt(receiptFile(moved.workspaceId),moved.worktreePath),/ownership changed/);ok('startup guard rejects changed branch');
+const malformed=await acceptLaunch(input('malformed'));writeFileSync(receiptFile(malformed.workspaceId),'{broken');await assert.rejects(()=>acceptLaunch(input('malformed')));assert.equal(readFileSync(receiptFile(malformed.workspaceId),'utf8'),'{broken');ok('malformed receipt retained');
+// Source-only work can explicitly defer the generated pnpm install, while the
+// default still installs and repository-owned recipes remain mandatory.
+writeFileSync(path.join(repo,'pnpm-lock.yaml'),'lockfileVersion: 9\n');
+git(repo,['add','pnpm-lock.yaml']);git(repo,['commit','-m','fixture dependency marker']);git(repo,['push','origin','main']);
+const installDefault=await acceptLaunch(input('install-default'));
+assert.equal(installDefault.config.setup[0].required,true);assert.equal(installDefault.config.setup[0].argv[0],'heavy');
+const defer=await acceptLaunch(input('defer','defer',{deferDefaultInstall:true}));
+assert.deepEqual(defer.config.setup,[]);await withLaunch(defer,async()=>{});
+const deferred=getWorkspace(defer.workspaceId);assert.equal(deferred.phase,'ready');
+assert.equal(deferred.stages.find(s=>s.id==='setup').status,'skipped');validateWorkspaceReceipt(receiptFile(defer.workspaceId),deferred.worktreePath);
+await assert.rejects(()=>acceptLaunch(input('defer','defer',{deferDefaultInstall:false})),/different input/);
+await assert.rejects(()=>acceptLaunch(input('bad-defer','bad-defer',{deferDefaultInstall:'yes'})),/policy/);
+await assert.rejects(()=>acceptLaunch(input('shared-defer','shared-defer',{deferDefaultInstall:true,workspace:{type:'shared',reason:'fixture'}})),/isolated/);
+ok('explicit deferred default install preserves ready receipt, identity and normal default');
+// Config is committed in the source before pinning the base; setup receipts prevent replay.
+mkdirSync(path.join(repo,'.agents'));
+function recipe(c){writeFileSync(path.join(repo,'.agents/workspace.json'),JSON.stringify({version:1,fetch:false,...c}));git(repo,['add','.agents/workspace.json']);git(repo,['commit','-m','recipe']);git(repo,['push','origin','main']);}
+recipe({setup:[{id:'counter',label:'Prepare fixture',argv:[process.execPath,'-e',"require('fs').appendFileSync('setup.txt','once\\n')"],timeoutMs:10000,required:true}]});
+await assert.rejects(()=>acceptLaunch(input('no-skip-recipe','no-skip-recipe',{deferDefaultInstall:true})),/repository-owned/);
+ok('deferred default install cannot bypass repository-owned preparation');
+const setup=await acceptLaunch(input('setup'));await withLaunch(setup,async()=>{});const settled=getWorkspace(setup.workspaceId);assert.equal(settled.phase,'ready');await withLaunch(settled,async()=>{});assert.equal(readFileSync(path.join(settled.worktreePath,'setup.txt'),'utf8'),'once\n');ok('setup cwd and successful-step receipt reused');
+let launches=0;const adapters={find:async()=>null,start:async()=>{launches++;return {};}};
+recipe({setup:[{id:'fail',label:'Fail',argv:[process.execPath,'-e','process.exit(7)'],timeoutMs:10000,required:true}]});
+const failed=await acceptLaunch(input('failed'));await withLaunch(failed,async()=>{launches++;});assert.equal(getWorkspace(failed.workspaceId).phase,'failed');assert.equal(launches,0);ok('failed required setup starts no host');
+recipe({setup:[{id:'wait',label:'Wait',argv:[process.execPath,'-e','setTimeout(()=>{},10000)'],timeoutMs:80,required:true}]});
+const timed=await acceptLaunch(input('timed'));await withLaunch(timed,async()=>{launches++;});assert.equal(getWorkspace(timed.workspaceId).phase,'failed');assert.equal(launches,0);ok('timeout starts no host');
+recipe({copyFiles:[{relativePath:'.env.local',private:true,required:true}]});
+writeFileSync(path.join(repo,'.env.local'),'private-fixture-value');const copy=await acceptLaunch(input('copy'));await withLaunch(copy,async()=>{});const copied=getWorkspace(copy.workspaceId);assert.equal(copied.phase,'ready');assert.equal(readFileSync(path.join(copied.worktreePath,'.env.local'),'utf8'),'private-fixture-value');assert.ok(!JSON.stringify(snapshot(copied)).includes('private-fixture-value'));ok('required ignored copy, no private contents in snapshot');
+writeFileSync(path.join(copied.worktreePath,'.env.local'),'keep');copied.stages.find(s=>s.id==='copy-files').status='pending';copied.phase='preparing';save(copied);await withLaunch(copied,async()=>{});assert.match(getWorkspace(copied.workspaceId).error,/differs/);assert.equal(readFileSync(path.join(copied.worktreePath,'.env.local'),'utf8'),'keep');ok('required differing destination preserved');
+const symlinked=await acceptLaunch(input('symlink'));symlinkSync('/tmp',path.join(repo,'escape'));await assert.rejects(()=>acceptLaunch(input('badpath','badpath',{workspace:{type:'shared',reason:''}})));
+const unsafe=getWorkspace(symlinked.workspaceId);unsafe.config.copyFiles=[{relativePath:'escape/file',required:true,private:false}];unsafe.recipeHash='changed';save(unsafe);await withLaunch(unsafe,async()=>{});assert.equal(getWorkspace(unsafe.workspaceId).phase,'failed');ok('changed recipe does not silently re-prepare');
+recipe({setup:[{id:'wait',label:'Wait',argv:[process.execPath,'-e',"require('fs').writeFileSync('cancel-setup-started','ready');setTimeout(()=>{},10000)"],timeoutMs:20000,required:true}]});
+const cancel=await acceptLaunch(input('cancel'));const pending=withLaunch(cancel,async()=>{launches++;});
+// Cancel the setup process, not a machine-speed-dependent earlier checkout stage.
+const cancelDeadline=Date.now()+15000;
+while(!getWorkspace(cancel.workspaceId).setupPid && Date.now()<cancelDeadline) await new Promise(r=>setTimeout(r,25));
+assert.ok(getWorkspace(cancel.workspaceId).setupPid,'owned setup must start before cancellation');
+assert.equal(cancelPreparation(cancel.workspaceId),true);await pending;assert.equal(getWorkspace(cancel.workspaceId).phase,'cancelled');assert.equal(launches,0);assert.ok(existsSync(cancel.worktreePath));ok('cancel stops owned setup, preserves worktree, starts no host');
+// Source/destination symlinks and traversal are rejected using real configured policies.
+recipe({copyFiles:[{relativePath:'missing-required',private:false,required:true}]});
+const missing=await acceptLaunch(input('missing-copy'));await withLaunch(missing,async()=>{launches++;});assert.match(getWorkspace(missing.workspaceId).error,/missing/);ok('missing required copy blocks launch');
+recipe({copyFiles:[{relativePath:'escape/file',private:false,required:true}]});await assert.rejects(()=>acceptLaunch(input('source-symlink')),/symlink/);ok('source symlink refused');
+recipe({copyFiles:[{relativePath:'../escape',private:false,required:true}]});await assert.rejects(()=>acceptLaunch(input('traversal')),/Unsafe/);ok('source traversal refused');
+recipe({copyFiles:[{relativePath:'.env.local',private:true,required:true}]});
+const destlink=await acceptLaunch(input('dest-symlink'));await withLaunch(destlink,async()=>{});
+const d=getWorkspace(destlink.workspaceId);symlinkSync('/tmp',path.join(d.worktreePath,'destination'));recipe({copyFiles:[{relativePath:'destination/file',private:false,required:true}]});
+const freshlink=await acceptLaunch(input('fresh-dest'));freshlink.config.copyFiles=[{relativePath:'.env.local',private:true,required:true}];
+// Replace only our fixture's ignored file with a dangling link to prove lstat-based checks.
+const {unlinkSync}=await import('node:fs');unlinkSync(path.join(d.worktreePath,'.env.local'));symlinkSync('/tmp/ab-nonexistent-fixture-target',path.join(d.worktreePath,'.env.local'));
+d.stages.find(s=>s.id==='copy-files').status='pending';d.phase='preparing';save(d);
+// Restore original repo recipe so the containment guard is the reason for failure.
+recipe({copyFiles:[{relativePath:'.env.local',private:true,required:true}]});await withLaunch(d,async()=>{});assert.match(getWorkspace(d.workspaceId).error,/symlink/);ok('dangling destination symlink refused');
+recipe({setup:[{id:'barrier',label:'Barrier',argv:[process.execPath,'-e','setTimeout(()=>{},1000)'],timeoutMs:10000,required:true}]});
+let started=false;
+const isolatedAdapters={find:async r=>started?{id:'fixture-agent',session:'fixture-session'}:null,start:async r=>{assert.equal(getWorkspace(r.workspaceId).phase,'starting');assert.equal(r.stages.find(s=>s.id==='setup').status,'done');started=true;launches++;return {};}};
+const accepted=await launchAgent(input('gated'),isolatedAdapters);await new Promise(r=>setTimeout(r,200));assert.equal(started,false);
+for(let i=0;i<100 && getWorkspace(accepted.workspaceId).phase!=='active';i++)await new Promise(r=>setTimeout(r,50));
+assert.equal(getWorkspace(accepted.workspaceId).phase,'active');assert.equal(started,true);ok('barrier: zero handoffs until setup, then one observed host');
+const duplicate=await Promise.all([acceptLaunch(input('parallel-duplicate')),acceptLaunch(input('parallel-duplicate'))]);assert.equal(duplicate[0].workspaceId,duplicate[1].workspaceId);ok('simultaneous duplicate reservations converge');
+const foreignRegistration=await acceptLaunch(input('registered-foreign'));const expectedBranch=`job/${foreignRegistration.name}-${foreignRegistration.workspaceId.slice(-12)}`;mkdirSync(path.dirname(foreignRegistration.worktreePath),{recursive:true});git(repo,['worktree','add','-b',expectedBranch,foreignRegistration.worktreePath,'origin/main']);await withLaunch(foreignRegistration,async()=>{});assert.match(getWorkspace(foreignRegistration.workspaceId).error,/Foreign registered/);assert.ok(existsSync(foreignRegistration.worktreePath));ok('foreign matching registration without saved checkout intent preserved');
+const cliInput=path.join(scratch,'cli-input.json');writeFileSync(cliInput,JSON.stringify(input('cli-shared','cli',{workspace:{type:'shared',reason:'CLI inspection'}})));const result=JSON.parse(execFileSync(path.resolve(import.meta.dirname,'../bin/ab-worktree'),[cliInput],{env:process.env,encoding:'utf8'}));assert.equal(result.phase,'ready');assert.equal(getWorkspace(result.workspaceId).worktreePath,result.cwd);ok('CLI uses the same durable receipt and preparation implementation');
+recipe({setup:[]});
+const runnerReceipt=await acceptLaunch(input('runner','RUNNER'));await withLaunch(runnerReceipt,async()=>{});
+const runnerReady=getWorkspace(runnerReceipt.workspaceId),runnerHosts=path.join(scratch,'runner-hosts');mkdirSync(runnerHosts);
+const runner=spawn(process.execPath,['--experimental-strip-types','--no-warnings',path.resolve(import.meta.dirname,'../../host/src/service-runner.ts'),'--harness','codex','--name','RUNNER','--model','gpt-6.1-sol'],{cwd:runnerReady.worktreePath,env:{...process.env,AB_HOSTS_DIR:runnerHosts,AB_PROMPT_QUEUE_DIR:path.join(scratch,'runner-queue'),AB_WORKSPACE_RECEIPT:receiptFile(runnerReady.workspaceId),AB_CODEX_BIN:path.resolve(import.meta.dirname,'../../host/test/fake-codex.mjs')},stdio:'ignore'});
+const hfile=path.join(runnerHosts,'name-RUNNER.json'),readHost=()=>JSON.parse(readFileSync(hfile,'utf8'));
+const waitUntil=async fn=>{for(let i=0;i<150;i++){if(await fn())return;await new Promise(r=>setTimeout(r,50));}throw Error('runner fixture timed out');};
+try {
+ await waitUntil(()=>{try{return readHost().session==='test-thread';}catch{return false;}});const first=readHost();
+ runnerReady.phase='active';runnerReady.agent={name:'RUNNER',session:first.session};save(runnerReady);
+ process.kill(first.pid,'SIGTERM');await waitUntil(()=>readHost().pid!==first.pid && readHost().session==='test-thread');
+ assert.equal(readHost().cwd,runnerReady.worktreePath);assert.equal(readHost().workspaceId,runnerReady.workspaceId);ok('guarded runner restart retains owned cwd, branch, workspace and thread');
+ assert.throws(()=>validateWorkspaceReceipt(receiptFile(runnerReady.workspaceId),runnerReady.worktreePath,'RUNNER','different-session'),/session changed/);
+ assert.throws(()=>validateWorkspaceReceipt(receiptFile(runnerReady.workspaceId),runnerReady.worktreePath,'RUNNER'),/session changed/);ok('bound host cannot silently start or resume another native thread');
+}finally{runner.kill('SIGTERM');await new Promise(resolve=>runner.once('exit',resolve));}
+writeFileSync(path.join(repo,'same.txt'),'dirty source\n');const dirtySource=await acceptLaunch(input('dirty-source'));await withLaunch(dirtySource,async()=>{});assert.equal(readFileSync(path.join(repo,'same.txt'),'utf8'),'dirty source\n');assert.equal(readFileSync(path.join(dirtySource.worktreePath,'same.txt'),'utf8'),'base\n');ok('dirty source preserved; isolated checkout starts from pinned base');
+const resumed=await acceptLaunch({...input('one'),workspace:{type:'existing',workspaceId:ready.workspaceId}});assert.equal(resumed.workspaceId,ready.workspaceId);await assert.rejects(()=>acceptLaunch({...input('new-id'),workspace:{type:'existing',workspaceId:ready.workspaceId}}),/original launch/);ok('existing mode reuses original identity; new task cannot claim another task worktree');
+console.log(`Worktree contract: ${count} checks passed; fixture ${scratch}`);

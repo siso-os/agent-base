@@ -1,0 +1,10 @@
+import { createRequire } from 'node:module';
+import path from 'node:path';
+import { spawnSync } from 'node:child_process';
+const root=path.resolve(import.meta.dirname,'..'),deps=process.env.AB_DEPENDENCY_ROOT??root;
+const out=process.env.AB_ACTIVITY_OUTPUT??path.join(root,'.agents/scratchpads/agents-working');
+const webRequire=createRequire(path.join(deps,'apps/web/package.json'));
+const {build}=createRequire(webRequire.resolve('vite'))('esbuild');
+const file=path.join(out,'reader-test.mjs');
+await build({entryPoints:[path.join(root,'services/node/test/subagent-rate-reader.test.mjs')],bundle:true,platform:'node',format:'esm',target:'node22',outfile:file,nodePaths:[path.join(deps,'services/node/node_modules'),path.join(deps,'node_modules')],banner:{js:'import { createRequire as readerRequire } from "node:module"; const require = readerRequire(import.meta.url);'}});
+const result=spawnSync(process.execPath,['--test',file],{stdio:'inherit'});process.exitCode=result.status??1;

@@ -1,0 +1,10 @@
+{
+  "cards": [
+    { "id": "agent-base-asks-review", "kind": "html", "title": "Your asks card: review", "agent": "AGENT-BASE", "ts": 1790906400000, "session": "s-1" },
+    { "id": "halo-next", "kind": "html", "title": "HALO next screens", "agent": "HALO", "ts": 1790816400, "status": "approved" },
+    { "id": "estate-backups", "kind": "url", "url": "https://example.com/backups", "title": "Nightly backups plan", "by": "ESTATE", "created_at": "2026-10-01T22:00:00Z", "answers": [{ "text": "Move it to 03:00 and keep 14 days", "ts": 1790895600000 }] },
+    { "id": "spend-week", "kind": "html", "title": "Spend this week", "from": "AGENT-BASE", "at": "2026-09-29T08:00:00Z", "feedback": "LGTM, ship it" },
+    { "kind": "html", "title": "a card with no id is dropped" },
+    "not a card"
+  ]
+}

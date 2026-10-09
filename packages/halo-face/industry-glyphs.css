@@ -1,0 +1,53 @@
+/* Unique gesture targets only: the shared host owns lifecycle and looping. */
+.ig-wheel, .ig-headlight, .ig-spotlight, .ig-creator-star, .ig-parcel-lid,
+.ig-cloche, .ig-steam, .ig-compass-needle, .ig-candle {
+  transform-box: view-box;
+  animation-duration: 1.2s;
+  animation-timing-function: cubic-bezier(.22,.65,.3,1);
+  animation-iteration-count: 1;
+}
+.ig-wheel-left { transform-origin: 39px 76px; }
+.ig-wheel-right { transform-origin: 81px 76px; }
+.ig-headlight { transform-origin: 60px 61px; }
+.ig-spotlight { transform-origin: 60px 31px; }
+.ig-creator-star { transform-origin: 84px 50px; }
+.ig-parcel-lid { transform-origin: 60px 44px; }
+.ig-cloche { transform-origin: 60px 72px; }
+.ig-steam { transform-origin: 62px 60px; opacity: 0; }
+.ig-compass-needle { transform-origin: 60px 60px; }
+.ig-candle-one { transform-origin: 45px 66px; }
+.ig-candle-two { transform-origin: 65px 58px; }
+.ig-candle-three { transform-origin: 85px 67px; }
+.li[data-active="true"][data-motion="on"] .ig-wheel { animation-name: ig-wheel-turn; }
+.li[data-active="true"][data-motion="on"] .ig-headlight { animation-name: ig-light-answer; }
+.li[data-active="true"][data-motion="on"] .ig-spotlight { animation-name: ig-spot-open; }
+.li[data-active="true"][data-motion="on"] .ig-creator-star { animation-name: ig-star-answer; }
+.li[data-active="true"][data-motion="on"] .ig-parcel-lid { animation-name: ig-lid-open; }
+.li[data-active="true"][data-motion="on"] .ig-cloche { animation-name: ig-cloche-lift; }
+.li[data-active="true"][data-motion="on"] .ig-steam { animation-name: ig-steam-release; }
+.li[data-active="true"][data-motion="on"] .ig-compass-needle { animation-name: ig-find-bearing; }
+.li[data-active="true"][data-motion="on"] .ig-candle-one { animation-name: ig-candle-redraw; }
+.li[data-active="true"][data-motion="on"] .ig-candle-two { animation-name: ig-candle-redraw-middle; }
+.li[data-active="true"][data-motion="on"] .ig-candle-three { animation-name: ig-candle-redraw-last; }
+@keyframes ig-wheel-turn { 0%,100% { transform: rotate(0); } 14% { transform: rotate(-12deg); } 65% { transform: rotate(100deg); } 85% { transform: rotate(88deg); } 99% { transform: rotate(90deg); } }
+@keyframes ig-light-answer { 0%,100% { opacity: 1; } 18% { opacity: .4; } 40%,62% { opacity: 1; stroke-width: 3; } }
+@keyframes ig-spot-open { 0%,100% { transform: scaleX(1); opacity: 1; } 15% { transform: scaleX(.84); opacity: .65; } 48% { transform: scaleX(1.12); opacity: 1; } 76% { transform: scaleX(.98); } }
+@keyframes ig-star-answer { 0%,100% { transform: scale(1); } 17% { transform: scale(.85); } 47% { transform: scale(1.16); } 73% { transform: scale(.98); } }
+@keyframes ig-lid-open { 0%,100% { transform: translateY(0); } 15% { transform: translateY(1px); } 46%,57% { transform: translateY(-5px); } 80% { transform: translateY(.6px); } }
+@keyframes ig-cloche-lift { 0%,100% { transform: translateY(0) rotate(0); } 14% { transform: translateY(1px); } 44%,56% { transform: translateY(-8px) rotate(-3deg); } 82% { transform: translateY(.7px) rotate(.5deg); } }
+@keyframes ig-steam-release { 0%,20%,100% { opacity: 0; transform: translateY(5px) scaleY(.7); } 43% { opacity: .55; } 70% { opacity: .2; transform: translateY(-7px) scaleY(1.1); } 88% { opacity: 0; transform: translateY(-10px) scaleY(1.1); } }
+@keyframes ig-find-bearing { 0%,100% { transform: rotate(0); } 14% { transform: rotate(-9deg); } 45% { transform: rotate(25deg); } 68% { transform: rotate(-6deg); } 85% { transform: rotate(2deg); } }
+@keyframes ig-candle-redraw { 0%,100% { transform: scaleY(1); } 16% { transform: scaleY(1.03); } 36% { transform: scaleY(.66); } 68% { transform: scaleY(1.03); } }
+@keyframes ig-candle-redraw-middle { 0%,100% { transform: scaleY(1); } 24% { transform: scaleY(1.03); } 44% { transform: scaleY(.66); } 76% { transform: scaleY(1.03); } }
+@keyframes ig-candle-redraw-last { 0%,100% { transform: scaleY(1); } 32% { transform: scaleY(1.03); } 52% { transform: scaleY(.66); } 84% { transform: scaleY(1.03); } }
+@media (prefers-reduced-motion: reduce) {
+  .li[data-active="true"][data-motion="on"] .ig-wheel,
+  .li[data-active="true"][data-motion="on"] .ig-headlight,
+  .li[data-active="true"][data-motion="on"] .ig-spotlight,
+  .li[data-active="true"][data-motion="on"] .ig-creator-star,
+  .li[data-active="true"][data-motion="on"] .ig-parcel-lid,
+  .li[data-active="true"][data-motion="on"] .ig-cloche,
+  .li[data-active="true"][data-motion="on"] .ig-steam,
+  .li[data-active="true"][data-motion="on"] .ig-compass-needle,
+  .li[data-active="true"][data-motion="on"] .ig-candle { animation: none; }
+}

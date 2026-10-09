@@ -1,0 +1,55 @@
+/* The chat header capsule (ui-hub/chat-header). The strip is transparent; the capsule is @siso/shell's HaloRim at the
+   chat's reading width (--ab-chat-w, shared with the messages and the input bar), so the chat reads as one object with a
+   rim at the top and one at the bottom. The input bar's typing glow stays the input bar's: this rim only turns (working),
+   turns amber (needs you) or rests (idle). */
+.ab-cap-strip{position:relative;z-index:6;flex:none;padding:10px 24px 6px;--ab-chat-w:940px;container:ab-cap-strip/inline-size}
+/* A narrow chat column keeps the name: only Answer and the panel toggle stay on the right. */
+@container ab-cap-strip (max-width:560px){.ab-cap__right>:not([data-testid=chat-panel-toggle]):not(.ab-cap__answer){display:none}}
+.ab-cap.siso-rim{container-type:normal;display:grid;grid-template-columns:minmax(max-content,1fr) minmax(0,4fr) minmax(max-content,1fr);align-items:center;gap:10px;max-width:calc(var(--ab-chat-w) - 48px);margin:0 auto;min-height:54px;padding:6px 8px 6px 7px;border-radius:27px}
+.ab-cap.is-idle,.ab-cap.is-done,.ab-cap.is-quiet{box-shadow:0 10px 30px -18px rgb(0 0 0/.8)}
+.ab-cap__face{flex:none;display:grid;place-items:center;width:40px;height:40px;padding:0;border:0;border-radius:50%;background:none;cursor:pointer}
+.ab-cap__text{min-width:0;display:flex;flex-direction:column;justify-content:center;text-align:center;gap:1px}
+.ab-cap__l1,.ab-cap__l2{display:flex;justify-content:center;align-items:center;gap:7px;min-width:0;white-space:nowrap}
+.ab-cap .ab-head__name{min-width:0;overflow:hidden;text-overflow:ellipsis;color:var(--crm-color-text-strong);font:600 14.5px var(--crm-font-sans)}
+.ab-cap__machine{display:inline-flex;flex:none;align-items:center;gap:4px;margin:0 6px 0 2px;padding:1px 7px 1px 5px;border-radius:999px;background:rgb(var(--crm-white-rgb)/.07);color:rgb(var(--crm-white-rgb)/.72);font-size:11px;line-height:16px;white-space:nowrap}
+.ab-cap__identity{position:relative;display:flex;min-width:0;align-items:center;padding-right:20px}
+.ab-cap__state{flex:none;display:flex;align-items:center;gap:7px;font-size:12px}
+.ab-cap__pen{position:absolute;right:0;top:50%;transform:translateY(-50%);flex:none;align-self:center;display:grid;place-items:center;width:20px;height:20px;padding:0;border:0;border-radius:6px;background:none;color:rgb(var(--crm-white-rgb)/.45);opacity:0;cursor:pointer;transition:opacity .15s}
+.ab-cap:hover .ab-cap__pen,.ab-cap__pen:focus-visible{opacity:1}.ab-cap__pen:hover{background:rgb(var(--crm-white-rgb)/.08);color:#fff}
+.ab-cap__word{flex:none;color:rgb(var(--crm-white-rgb)/.6)}
+.ab-cap.is-working .ab-cap__word,.ab-cap.is-moving .ab-cap__word{color:#67e8f9}
+.ab-cap.is-needs .ab-cap__word{color:#f5b544}.ab-cap.is-failed .ab-cap__word{color:#f87171}
+.ab-cap__rest{min-width:0;overflow:hidden;text-overflow:ellipsis;color:rgb(var(--crm-white-rgb)/.45)}
+.ab-cap__clock{flex:none;color:rgb(var(--crm-white-rgb)/.42);font:11px var(--crm-font-mono);font-variant-numeric:tabular-nums}
+.ab-cap__on{min-width:0;overflow:hidden;text-overflow:ellipsis;color:rgb(var(--crm-white-rgb)/.42);font-size:12px}
+.ab-cap__branch{font:11px var(--crm-font-mono)}
+.ab-cap__l2{align-items:center;font-size:12px}
+.ab-cap__dot{flex:none;width:6px;height:6px;border-radius:50%;background:rgb(var(--crm-white-rgb)/.35)}
+.ab-cap.is-working .ab-cap__dot,.ab-cap.is-moving .ab-cap__dot{background:#22d3ee;box-shadow:0 0 8px #22d3ee}
+.ab-cap.is-needs .ab-cap__dot{background:#f5b544;box-shadow:0 0 8px #f5b544}.ab-cap.is-failed .ab-cap__dot{background:#f87171}
+.ab-cap__right{justify-self:end;display:flex;align-items:center;gap:6px}
+.ab-cap__icon{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:4px;min-width:34px;height:34px;padding:0 9px;border:1px solid rgb(var(--crm-white-rgb)/.08);border-radius:17px;background:rgb(var(--crm-white-rgb)/.03);color:rgb(var(--crm-white-rgb)/.6);cursor:pointer}
+.ab-cap__icon:hover,.ab-cap__icon[aria-pressed="true"]{background:rgb(var(--crm-white-rgb)/.09);color:#fff}
+.ab-cap__answer{display:inline-flex;align-items:center;gap:5px;height:30px;padding:0 12px;border:0;border-radius:15px;background:#f5b544;color:#1b1404;font:600 12px var(--crm-font-sans);cursor:pointer}
+/* Its card: the big face, the name, Randomize. */
+.ab-cap__pop{position:absolute;top:calc(100% - 2px);left:max(24px,calc((100% - var(--ab-chat-w)) / 2 + 24px));z-index:40;width:280px;padding:14px;border:1px solid rgb(var(--crm-white-rgb)/.1);border-radius:18px;background:#1f1f1c;box-shadow:0 24px 60px rgb(0 0 0/.55),0 0 40px -14px var(--cap-hue)}
+.ab-cap__big{display:grid;place-items:center;height:116px;margin-bottom:12px;border-radius:14px;background:radial-gradient(circle at 50% 62%,color-mix(in srgb,var(--cap-hue) 22%,#1a1a18),#1a1a18 70%)}
+.ab-cap__input{width:100%;padding:8px 10px;border:1px solid rgb(var(--crm-white-rgb)/.12);border-radius:10px;outline:none;background:#151514;color:#fff;font:600 15px var(--crm-font-sans)}
+.ab-cap__input:focus{border-color:var(--cap-hue)}.ab-cap__input:disabled{opacity:.7}
+.ab-cap__foot{display:flex;justify-content:space-between;margin-top:12px}
+.ab-cap__roll{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border:1px solid rgb(var(--crm-white-rgb)/.14);border-radius:10px;background:#262623;color:#fff;font:600 12.5px var(--crm-font-sans);cursor:pointer}
+.ab-cap__roll:hover{border-color:var(--cap-hue)}
+.ab-cap__done{padding:7px 14px;border:0;border-radius:10px;background:#fff;color:#111;font:600 12.5px var(--crm-font-sans);cursor:pointer}
+.ab-cap__soon{margin:10px 0 0;color:rgb(var(--crm-white-rgb)/.35);font-size:11px}
+.ab-cap__menu{position:fixed;z-index:60;display:flex;min-width:200px;flex-direction:column;padding:5px;border:1px solid rgb(var(--crm-white-rgb)/.1);border-radius:12px;background:#232321;box-shadow:0 18px 44px rgb(0 0 0/.5)}
+.ab-cap__mi{padding:7px 10px;border:0;border-radius:8px;background:none;color:var(--crm-color-text);font:13px var(--crm-font-sans);text-align:left;cursor:pointer}
+.ab-cap__mi:hover:not(:disabled){background:rgb(var(--crm-white-rgb)/.07)}.ab-cap__mi:disabled{opacity:.45}
+.ab-cap__menu-head{padding:7px 10px;color:rgb(var(--crm-white-rgb)/.45);font-size:12px}
+@media (max-width:640px){.ab-cap-strip{padding:8px 10px 4px}.ab-cap.siso-rim{grid-template-columns:40px minmax(0,1fr) auto;gap:6px}.ab-cap__l2{display:none}.ab-cap__l1,.ab-cap__state{gap:4px}.ab-cap .ab-head__name{font-size:12px}.ab-cap__state{font-size:11px}}
+/* t-0532 item 3: the fleet arrow by the name, and its rows. */
+.ab-cap__fleet > button { display: grid; place-items: center; width: 20px; height: 20px; border-radius: 6px; color: var(--crm-color-text-muted); }
+.ab-cap__fleet > button:hover, .ab-cap__fleet > button[aria-expanded="true"] { background: rgb(var(--crm-white-rgb) / 0.08); color: var(--crm-color-text); }
+.ab-fleet__row { display: flex; min-width: 0; align-items: center; gap: 8px; }
+.ab-fleet__row b { overflow: hidden; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.ab-fleet__row small { margin-left: auto; padding-left: 8px; color: var(--crm-color-text-faint); font-size: 10.5px; white-space: nowrap; }
+.ab-fleet__menu { width: 280px; }

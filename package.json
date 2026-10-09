@@ -1,0 +1,13 @@
+{
+  "name": "siso-internal-labs-agent-base",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "node": "pnpm --filter @agent-base/node start",
+    "web": "pnpm --filter @agent-base/web dev",
+    "dev:app": "node scripts/dev-app.mjs",
+    "build": "pnpm --filter @agent-base/web build",
+    "desktop": "pnpm build && cd apps/desktop && cargo tauri build --bundles app",
+    "check": "node services/node/test/check.mjs"
+  }
+}

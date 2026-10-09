@@ -1,0 +1,39 @@
+/* Navigation scenes are still until the shared host explicitly activates motion. */
+.ng-library-page { transform-origin: 61px 62px; }
+.ng-estate-lock { transform-origin: 60px 62px; }
+.ng-web-meridian, .ng-web-travel { transform-origin: 60px 60px; }
+.ng-whatsapp-handset { transform-origin: 60px 59px; }
+.ng-lifelog-hand { transform-origin: 61px 56px; }
+.ng-rolodex-back, .ng-rolodex-mid { transform-origin: 60px 84px; }
+.ng-voice-wave-a { transform-origin: 60px 57px; }
+.ng-voice-wave-b { transform-origin: 60px 47px; }
+.ng-agentbase-core { transform-origin: 60px 64px; }
+.li[data-active="true"][data-motion="on"] .ng-library-page { animation: ng-page-turn 1.2s ease-in-out both; }
+.li[data-active="true"][data-motion="on"] .ng-estate-lock { animation: ng-lock-seat 1.1s ease-in-out both; }
+.li[data-active="true"][data-motion="on"] .ng-estate-scan { animation: ng-estate-glint 1.1s ease-in-out both; }
+.li[data-active="true"][data-motion="on"] .ng-web-meridian { animation: ng-meridian-pass 1.25s ease-in-out both; }
+.li[data-active="true"][data-motion="on"] .ng-web-travel { animation: ng-orbit-pass 1.25s ease-in-out both; }
+.li[data-active="true"][data-motion="on"] .ng-whatsapp-handset { animation: ng-call-ring 1s ease-in-out both; }
+.li[data-active="true"][data-motion="on"] .ng-lifelog-hand { animation: ng-clock-tick 1.3s cubic-bezier(.4,0,.25,1) both; }
+.li[data-active="true"][data-motion="on"] .ng-rolodex-back { animation: ng-card-fan-back 1.15s ease-in-out both; }
+.li[data-active="true"][data-motion="on"] .ng-rolodex-mid { animation: ng-card-fan-mid 1.15s ease-in-out both; }
+.li[data-active="true"][data-motion="on"] .ng-voice-wave-a { animation: ng-voice-answer 1.15s ease-in-out both; }
+.li[data-active="true"][data-motion="on"] .ng-voice-wave-b { animation: ng-voice-reply 1.15s ease-in-out both; }
+.li[data-active="true"][data-motion="on"] .ng-agentbase-core { animation: ng-core-rise 1.25s ease-in-out both; }
+.li[data-active="true"][data-motion="on"] .ng-agentbase-beam { animation: ng-beacon-rays 1.25s ease-in-out both; }
+@keyframes ng-page-turn { 0%,100% { transform: skewY(0deg) scaleX(1); } 18% { transform: skewY(2deg) scaleX(.96); } 48% { transform: skewY(-10deg) scaleX(.48); } 72% { transform: skewY(-3deg) scaleX(.87); } }
+@keyframes ng-lock-seat { 0%,100% { transform: translateY(0); } 20% { transform: translateY(1px); } 48% { transform: translateY(-4px); } 78% { transform: translateY(1px); } }
+@keyframes ng-estate-glint { 0%,20%,100% { opacity: 0; transform: translateY(7px) scaleX(.6); transform-origin:60px 64px; } 45% { opacity: .8; } 75% { opacity: 0; transform: translateY(-18px) scaleX(1); } }
+@keyframes ng-meridian-pass { 0%,100% { transform: scaleX(1); } 25% { transform: scaleX(.9); } 50% { transform: scaleX(.18); } 75% { transform: scaleX(.8); } }
+@keyframes ng-orbit-pass { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+@keyframes ng-call-ring { 0%,100% { transform: rotate(0deg); } 20% { transform: rotate(-9deg); } 35% { transform: rotate(8deg); } 50% { transform: rotate(-6deg); } 65% { transform: rotate(4deg); } 82% { transform: rotate(-1deg); } }
+@keyframes ng-clock-tick { 0%,10% { transform: rotate(0deg); } 70% { transform: rotate(370deg); } 85%,100% { transform: rotate(360deg); } }
+@keyframes ng-card-fan-back { 0%,100% { transform: rotate(0deg) translateY(0); } 42%,58% { transform: rotate(-13deg) translateY(-2px); } }
+@keyframes ng-card-fan-mid { 0%,100% { transform: rotate(0deg); } 42%,58% { transform: rotate(10deg); } }
+@keyframes ng-voice-answer { 0%,100% { transform: scaleY(1); opacity: 1; } 20% { transform: scaleY(.6); } 38% { transform: scaleY(1.6); } 56% { transform: scaleY(.8); } 72% { transform: scaleY(1.35); } }
+@keyframes ng-voice-reply { 0%,100% { transform: scaleY(1); } 28% { transform: scaleY(1.8); } 46% { transform: scaleY(.6); } 65% { transform: scaleY(2.1); } 82% { transform: scaleY(.8); } }
+@keyframes ng-core-rise { 0%,100% { transform: translateY(0) scale(1); } 18% { transform: translateY(1px) scale(.96); } 48%,60% { transform: translateY(-6px) scale(1.12); } 82% { transform: translateY(1px) scale(1); } }
+@keyframes ng-beacon-rays { 0%,20%,100% { opacity: 0; } 46%,62% { opacity: .9; } 84% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .li[data-active="true"][data-motion="on"] :is(.ng-library-page,.ng-estate-lock,.ng-estate-scan,.ng-web-meridian,.ng-web-travel,.ng-whatsapp-handset,.ng-lifelog-hand,.ng-rolodex-back,.ng-rolodex-mid,.ng-voice-wave,.ng-agentbase-core,.ng-agentbase-beam) { animation: none; }
+}

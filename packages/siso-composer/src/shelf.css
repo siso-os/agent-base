@@ -1,0 +1,13 @@
+/* The artifacts shelf: chips just above the rim, quiet until hovered. */
+.ab-shelf{display:flex;flex-wrap:wrap;gap:6px;margin:0 6px 8px;pointer-events:auto}
+.ab-shelf__chip{display:inline-flex;align-items:center;max-width:280px;border:1px solid rgb(255 255 255 / .1);border-radius:99px;background:rgb(26 26 25 / .92);backdrop-filter:blur(8px);box-shadow:0 4px 14px #0006;overflow:hidden}
+.ab-shelf__chip.is-hub{border-color:rgb(34 211 238 / .3)}.ab-shelf__chip.is-pr{border-color:rgb(167 139 250 / .35)}
+.ab-shelf__open{display:inline-flex;align-items:center;gap:6px;min-width:0;padding:4px 4px 4px 10px;border:0;background:transparent;color:#d8d3cb;font:11.5px var(--crm-font-sans);cursor:pointer}
+.ab-shelf__open span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ab-shelf__open i{font-style:normal;color:#8f8a82}.ab-shelf__open svg{flex:none;color:#8f8a82}
+.ab-shelf__chip.is-hub svg{color:#22d3ee}.ab-shelf__chip.is-pr svg{color:#a78bfa}
+.ab-shelf__open:hover{color:#fff}.ab-shelf__open:hover i{color:#ffa726}
+.ab-shelf__x{display:grid;width:20px;height:20px;margin-right:3px;flex:none;place-items:center;border:0;border-radius:50%;background:transparent;color:#77736c;cursor:pointer;opacity:0;transition:opacity .12s}
+.ab-shelf__chip:hover .ab-shelf__x,.ab-shelf__x:focus-visible{opacity:1}.ab-shelf__x:hover{background:#ffffff12;color:#e8e5df}
+.ab-shelf__more{padding:3px 10px;border:1px dashed rgb(255 255 255 / .16);border-radius:99px;background:transparent;color:#a8a39b;font:11px var(--crm-font-mono);cursor:pointer}
+@media (hover:none){.ab-shelf__x{opacity:1}}

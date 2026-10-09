@@ -1,0 +1,225 @@
+#!/bin/bash
+# ab-switch: put a sha live with zero downtime (t-0539). Replaces tools/ab-live's quit-swap-reopen for web and node.
+#
+# Shaan, 8 Oct 19:17: "my agent base keeps reloading like every 60 seconds, it takes 60 to 120 seconds to reload every
+# single time and it takes down the voice app as well". ab-live quit the app, checked the new files out over the running
+# checkout (only the paths it knew: c250e705 left a file node imports behind and node exited 1, three times) and waited
+# for the app to start node again. Now:
+#   1. the sha gets its own release dir, a whole worktree (deps offline, web built), so nothing is half swapped;
+#   2. its node starts under launchd in the free slot (5411 or 5412) BESIDE the live one, which keeps serving;
+#   3. it must answer /api/version with the sha and serve /, /api/releases and /api/agents, fast, or it is stopped and
+#      nothing else changed (exit 1; it is never retried by itself);
+#   4. active.json now names its port, so the front on 5401 (services/front) sends every new connection there;
+#   5. after AB_SWITCH_DRAIN_S the old slot is stopped; the page's sockets reconnect, to the new node.
+# The app is never quit. Its window keeps 127.0.0.1:5401, and the page offers the reload for new screens (useVersion.ts).
+#
+#   tools/ab-switch <sha>               deploy (refuses a sha that does not descend from live)
+#   tools/ab-switch --rollback <sha>    deploy an older sha on purpose (its release dir is reused when kept)
+#   tools/ab-switch status              what is live, in which slot, and what the front answers
+#   tools/ab-switch install-front       copy services/front/front.mjs to its stable home and (re)load its launchd job
+#   tools/ab-switch install-voice       copy Agent Base Voice.app out of the app and run it as its own launchd job
+# Exit 0 live, 1 failed (live untouched), 2 usage, 4 refused.
+set -euo pipefail
+HERE=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
+REPO=${AB_SWITCH_REPO:-$HOME/SISO_Workspace/SISO_Agency/apps/siso-internal-labs/siso-internal-labs-agent-base}
+STATE=${AB_SWITCH_STATE:-$HOME/.local/state/agent-base/live}
+RELEASES=${AB_SWITCH_RELEASES:-$HOME/SISO_Workspace/_data/worktrees/siso-internal-labs-agent-base}
+LABEL=${AB_SWITCH_LABEL:-com.siso.agent-base.node}
+FRONT_LABEL=${AB_SWITCH_FRONT_LABEL:-com.siso.agent-base.front}
+AGENTS=${AB_SWITCH_AGENTS_DIR:-$HOME/Library/LaunchAgents}
+LOGS=${AB_SWITCH_LOGS:-$HOME/Library/Logs/com.siso.agent-base}
+FRONT_HOME=${AB_SWITCH_FRONT_HOME:-$HOME/.local/share/agent-base}
+PUBLIC=${AB_SWITCH_PUBLIC_PORT:-5401}
+read -r -a SLOTS <<<"${AB_SWITCH_SLOTS:-5411 5412}"
+HEALTH_S=${AB_SWITCH_HEALTH_S:-45}
+DRAIN_S=${AB_SWITCH_DRAIN_S:-3}
+KEEP=${AB_SWITCH_KEEP:-3}
+NODE=${AB_SWITCH_NODE:-$HOME/.local/bin/node}
+BUILD=${AB_SWITCH_BUILD:-heavy -- pnpm --filter @agent-base/web build}
+NODE_PATH_ENV=${AB_SWITCH_PATH:-$HOME/.local/bin:/opt/homebrew/opt/node@22/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin}
+ACTIVE="$STATE/active.json"
+DOMAIN="gui/$(id -u)"
+mkdir -p "$STATE" "$LOGS"; touch "$STATE/live.jsonl"   # /api/releases answers 503 without it
+say() { printf 'ab-switch: %s\n' "$*"; }
+# Same rows as ab-live, so the Releases page and the queue read one deploy log.
+log() { python3 -c 'import json,sys,time;print(json.dumps({"at":time.strftime("%Y-%m-%dT%H:%M:%S%z"),"sha":sys.argv[1],"kind":sys.argv[2],"result":sys.argv[3],"why":sys.argv[4] if len(sys.argv)>4 else "","via":"ab-switch"}))' "$@" >> "$STATE/live.jsonl"; }
+active() { python3 -c 'import json,sys;d=json.load(open(sys.argv[1]));print(d.get(sys.argv[2],""))' "$ACTIVE" "$1" 2>/dev/null || true; }
+loaded() { launchctl print "$DOMAIN/$1" >/dev/null 2>&1; }
+plist() { # plist <file> <label> <workdir> <log> <env json> <args...>
+  python3 - "$@" <<'PY'
+import json,plistlib,sys
+path,label,cwd,log,env,*args=sys.argv[1:]
+data={'Label':label,'ProgramArguments':args,'WorkingDirectory':cwd,'EnvironmentVariables':json.loads(env),'RunAtLoad':True,
+      # Restart after a crash, not after a clean stop; a slot that never came up is booted out by the deploy, so it never loops.
+      'KeepAlive':{'SuccessfulExit':False},'ThrottleInterval':5,'ProcessType':'Interactive','StandardOutPath':log,'StandardErrorPath':log}
+with open(path,'wb') as f: plistlib.dump(data,f)
+PY
+}
+timed() { python3 -c 'import sys,time,urllib.request
+t=time.time()
+try:
+  with urllib.request.urlopen(sys.argv[1],timeout=float(sys.argv[2])) as r: body=r.read(); code=r.status
+except Exception as e: print("fail %.2f %s"%(time.time()-t,str(e)[:80])); sys.exit(1)
+print("%d %.2f %d"%(code,time.time()-t,len(body)))' "$@"; }
+
+case "${1:-}" in
+  status)
+    printf 'active: %s\n' "$(cat "$ACTIVE" 2>/dev/null || echo none)"
+    for p in "${SLOTS[@]}"; do printf 'slot %s: %s\n' "$p" "$(loaded "$LABEL.$p" && echo loaded || echo stopped)"; done
+    printf 'front %s: %s, answers %s\n' "$PUBLIC" "$(loaded "$FRONT_LABEL" && echo loaded || echo stopped)" "$(curl -s -m 3 "127.0.0.1:$PUBLIC/api/version" | head -c 120 || echo nothing)"
+    exit 0;;
+  install-front)
+    mkdir -p "$FRONT_HOME" "$AGENTS"
+    cp "$HERE/services/front/front.mjs" "$FRONT_HOME/front.mjs.new" && mv "$FRONT_HOME/front.mjs.new" "$FRONT_HOME/front.mjs"
+    env_json=$(python3 -c 'import json,sys;print(json.dumps({"AB_FRONT_PORT":sys.argv[1],"AB_FRONT_ACTIVE":sys.argv[2],"PATH":"/usr/bin:/bin"}))' "$PUBLIC" "$ACTIVE")
+    plist "$AGENTS/$FRONT_LABEL.plist" "$FRONT_LABEL" "$FRONT_HOME" "$LOGS/front.log" "$env_json" "$NODE" "$FRONT_HOME/front.mjs"
+    # The front must survive anything (KeepAlive true): it is the one thing the window talks to.
+    /usr/libexec/PlistBuddy -c 'Delete :KeepAlive' -c 'Add :KeepAlive bool true' "$AGENTS/$FRONT_LABEL.plist"
+    loaded "$FRONT_LABEL" && launchctl bootout "$DOMAIN/$FRONT_LABEL" 2>/dev/null || true
+    launchctl bootstrap "$DOMAIN" "$AGENTS/$FRONT_LABEL.plist"
+    say "front loaded on 127.0.0.1:$PUBLIC from $FRONT_HOME/front.mjs (active: $ACTIVE)"
+    exit 0;;
+  install-voice)
+    # Voice as its own app (t-0539 (3); Shaan: "we've got our own voice app that somehow like runs regardless"). launchd
+    # keeps exactly one running, whatever the app does; an app built with this change sees the plist and never starts
+    # its own (lib.rs voice_runs_on_its_own). The helper already is its own responsible process (com.siso.voice, t-0505),
+    # so macOS keeps the permissions it has. A previous copy is archived, never deleted.
+    VLABEL=${AB_SWITCH_VOICE_LABEL:-com.siso.agent-base.voice}
+    SRC=${AB_SWITCH_VOICE_SRC:-$HOME/Applications/Agent Base.app/Contents/Resources/Agent Base Voice.app}
+    DST=${AB_SWITCH_VOICE_APP:-$HOME/Applications/Agent Base Voice.app}
+    [ -x "$SRC/Contents/MacOS/agent-base-dictation" ] || { say "no voice helper at $SRC"; exit 2; }
+    mkdir -p "$AGENTS" "$STATE/_archive"
+    ditto "$SRC" "$DST.new"
+    [ -d "$DST" ] && mv "$DST" "$STATE/_archive/voice-$(date +%Y%m%dT%H%M%S).app"
+    mv "$DST.new" "$DST"
+    env_json=$(python3 -c 'import json,sys;print(json.dumps({"AB_PORT":sys.argv[1],"PATH":"/usr/bin:/bin"}))' "$PUBLIC")
+    plist "$AGENTS/$VLABEL.plist" "$VLABEL" "$HOME" "$LOGS/voice.log" "$env_json" "$DST/Contents/MacOS/agent-base-dictation"
+    /usr/libexec/PlistBuddy -c 'Delete :KeepAlive' -c 'Add :KeepAlive bool true' -c 'Add :LimitLoadToSessionType string Aqua' "$AGENTS/$VLABEL.plist"
+    loaded "$VLABEL" && launchctl bootout "$DOMAIN/$VLABEL" 2>/dev/null || true
+    launchctl bootstrap "$DOMAIN" "$AGENTS/$VLABEL.plist"
+    say "voice loaded from $DST ($VLABEL); an app started before this build still starts its own: restart it once with the new build"
+    exit 0;;
+esac
+
+ROLLBACK=0; ARGS=()
+for a in "$@"; do if [ "$a" = --rollback ]; then ROLLBACK=1; else ARGS+=("$a"); fi; done
+[ -n "${ARGS[0]:-}" ] || { echo "usage: tools/ab-switch [--rollback] <sha> | status | install-front" >&2; exit 2; }
+cd "$REPO"
+SHA=$(git rev-parse --verify "${ARGS[0]}^{commit}") || { say "unknown sha ${ARGS[0]}"; exit 2; }
+SHORT=${SHA:0:12}
+
+# One deploy at a time; a lock left by a dead run is taken over.
+LOCK="$STATE/switch.lock"
+if ! mkdir "$LOCK" 2>/dev/null; then
+  holder=$(cat "$LOCK/pid" 2>/dev/null || true)
+  if [ -n "$holder" ] && kill -0 "$holder" 2>/dev/null; then say "refused: deploy $holder is running"; log "$SHA" node refused "another ab-switch is running"; exit 4; fi
+  rm -f "$LOCK/pid"; rmdir "$LOCK" 2>/dev/null; mkdir "$LOCK"
+fi
+echo $$ > "$LOCK/pid"
+CAND_LABEL=''
+finish() { rc=$?; if ((rc)) && [ -n "$CAND_LABEL" ] && [ "${SWITCHED:-0}" != 1 ]; then launchctl bootout "$DOMAIN/$CAND_LABEL" 2>/dev/null || true; fi; rm -f "$LOCK/pid"; rmdir "$LOCK" 2>/dev/null || true; exit $rc; }
+trap finish EXIT
+fail() { say "FAILED: $1; live is untouched (${OLD_SHA:-none} on ${OLD_PORT:-?})"; log "$SHA" node failed "$1"; exit 1; }
+
+loaded "$FRONT_LABEL" || [ -n "${AB_SWITCH_NO_FRONT_CHECK:-}" ] || { say "refused: the front ($FRONT_LABEL) is not loaded; run tools/ab-switch install-front first"; log "$SHA" node refused "front not loaded"; exit 4; }
+OLD_PORT=$(active port); OLD_SHA=$(active sha); OLD_DIR=$(active dir)
+if [ -n "$OLD_SHA" ] && [ "$OLD_SHA" = "$SHA" ] && curl -sf -m 3 "127.0.0.1:$OLD_PORT/api/version" | grep -q "\"sha\":\"$SHA"; then say "$SHORT is already live on $OLD_PORT"; exit 0; fi
+if [ -n "$OLD_SHA" ] && ! git merge-base --is-ancestor "$OLD_SHA" "$SHA" 2>/dev/null && [ "$ROLLBACK" != 1 ]; then
+  say "refused: $SHORT does not descend from live ${OLD_SHA:0:12}; pass --rollback if that is meant"; log "$SHA" node refused "not a descendant of live $OLD_SHA"; exit 4
+fi
+AVAIL=$(vm_stat | awk '/page size/{ps=$8} /Pages free/{f=$3} /Pages inactive/{i=$3} /Pages speculative/{s=$3} END{printf "%d", (f+i+s)*ps/1048576}')
+[ "${AB_LIVE_SKIP_RAM:-}" = 1 ] || [ "$AVAIL" -gt "${AB_LIVE_MIN_FREE_MB:-3072}" ] || { say "refused: avail RAM $AVAIL MB <= ${AB_LIVE_MIN_FREE_MB:-3072} (HEALTH's bar)"; log "$SHA" node refused "avail RAM $AVAIL MB"; exit 4; }
+PORT=''
+for p in "${SLOTS[@]}"; do [ "$p" != "$OLD_PORT" ] && { PORT=$p; break; }; done
+CAND_LABEL="$LABEL.$PORT"
+T0=$(date +%s)
+
+# 1. The release dir: a whole worktree at the sha, kept for rollback. A dir is reused only once it was finished.
+DIR="$RELEASES/release-$SHORT"
+READY="$DIR/apps/web/dist/.ab-release-ready" BUILD_LOG="$STATE/build-$SHORT.log"   # inside the ignored dist, so the worktree stays clean
+if [ ! -f "$READY" ]; then
+  if [ ! -d "$DIR" ]; then git worktree add -q --detach "$DIR" "$SHA" || fail "worktree add"; fi
+  [ "$(git -C "$DIR" rev-parse HEAD)" = "$SHA" ] || fail "$DIR is not at $SHORT"
+  (cd "$DIR" && { pnpm install --frozen-lockfile --offline >/dev/null 2>&1 || pnpm install --frozen-lockfile --prefer-offline >/dev/null; }) || fail "pnpm install"
+  (cd "$DIR" && bash -c "$BUILD" >"$BUILD_LOG" 2>&1) || fail "web build (see $BUILD_LOG)"
+  [ -f "$DIR/apps/web/dist/index.html" ] || fail "no apps/web/dist/index.html after the build"
+  echo "$SHA" > "$DIR/apps/web/dist/DEPLOYED_SHA"
+  touch "$READY"
+fi
+# An open page still asks for its own chunks after the switch: keep the old release's assets beside the new ones.
+[ -n "$OLD_DIR" ] && [ -d "$OLD_DIR/apps/web/dist/assets" ] && rsync -a --ignore-existing "$OLD_DIR/apps/web/dist/assets/" "$DIR/apps/web/dist/assets/" || true
+T_BUILD=$(( $(date +%s) - T0 ))
+
+# 2. Its node, beside the live one. Published notes stay with the checkout (releases.ts hashes the repo path).
+PUBLISHED=$(cd "$REPO/services/node" && "$NODE" --experimental-strip-types --no-warnings -e 'import("./src/releases.ts").then(m=>console.log(m.releasePublicationFile(process.argv[1])))' "$REPO" 2>/dev/null || true)
+env_json=$(python3 - "$PORT" "$PUBLIC" "$DIR" "$NODE_PATH_ENV" "$PUBLISHED" "$STATE/live.jsonl" <<'PY'
+import json,os,sys
+port,public,d,path,published,live_log=sys.argv[1:]
+env={'AB_PORT':port,'AB_PUBLIC_PORT':public,'AB_LIVE_LOG':live_log,'AB_APP_ROOT':d,'AB_WEB_DIST':d+'/apps/web/dist','PATH':path,'HOME':os.environ['HOME'],
+     'TERM':'xterm-256color','LANG':os.environ.get('LANG','en_GB.UTF-8'),
+     # What the app's own node gets (apps/desktop/src/lib.rs launch_node): only the live node probes and reads remotes.
+     'AB_SERVERS_PROBE':'1','AB_REMOTE_INVENTORY':'1','AB_MINI_LANES':'1'}
+if published: env['AB_RELEASE_PUBLISHED']=published
+for k,v in json.loads(os.environ.get('AB_SWITCH_NODE_ENV') or '{}').items(): env[k]=v
+print(json.dumps(env))
+PY
+)
+loaded "$CAND_LABEL" && launchctl bootout "$DOMAIN/$CAND_LABEL" 2>/dev/null || true
+plist "$AGENTS/$CAND_LABEL.plist" "$CAND_LABEL" "$DIR/services/node" "$LOGS/node-$PORT.log" "$env_json" "$NODE" --experimental-strip-types --no-warnings src/server.ts
+echo "--- $(date '+%F %T') ab-switch $SHORT" >> "$LOGS/node-$PORT.log"
+launchctl bootstrap "$DOMAIN" "$AGENTS/$CAND_LABEL.plist" || fail "launchctl bootstrap $CAND_LABEL"
+T1=$(date +%s)
+
+# 3. Health: the sha answers, the first page's heavy reads come back, and the node is not blocked afterwards.
+up=0
+for _ in $(seq 1 $((HEALTH_S * 4))); do
+  curl -sf -m 2 "127.0.0.1:$PORT/api/version" 2>/dev/null | grep -q "\"sha\":\"$SHA" && { up=1; break; }
+  if ! loaded "$CAND_LABEL" || launchctl print "$DOMAIN/$CAND_LABEL" 2>/dev/null | grep -q 'last exit code = [1-9]'; then
+    fail "node exited during startup: $(grep -m2 -E 'Error|Cannot' "$LOGS/node-$PORT.log" | tail -1 | cut -c1-160)"
+  fi
+  sleep 0.25
+done
+((up)) || fail "no /api/version with $SHORT on $PORT within ${HEALTH_S}s"
+T_UP=$(( $(date +%s) - T1 ))
+# The first page asks for these at once; asked here, their cold reads are paid before anyone is switched over.
+for path in / /api/releases /api/agents /api/fleet-board /api/org /api/attention; do
+  r=$(timed "http://127.0.0.1:$PORT$path" "$HEALTH_S") || fail "GET $path: $r"
+  set -- $r; [ "$1" = 200 ] || fail "GET $path answered $1"
+  say "  $path $1 in $2 s"
+done
+r=$(timed "http://127.0.0.1:$PORT/api/version" 2) || fail "blocked after warm-up: $r"
+say "  /api/version after warm-up in $(set -- $r; echo $2) s"
+
+# 4. Switch: the front reads active.json for every new connection.
+python3 - "$ACTIVE" "$PORT" "$SHA" "$DIR" "$CAND_LABEL" <<'PY'
+import json,os,sys,time
+f,port,sha,d,label=sys.argv[1:]
+with open(f+'.tmp','w') as o: json.dump({'port':int(port),'sha':sha,'dir':d,'label':label,'at':time.strftime('%Y-%m-%dT%H:%M:%S%z')},o)
+os.replace(f+'.tmp',f)
+PY
+SWITCHED=1
+if [ -z "${AB_SWITCH_NO_FRONT_CHECK:-}" ]; then
+  ok=0; for _ in $(seq 1 20); do curl -sf -m 2 "127.0.0.1:$PUBLIC/api/version" | grep -q "\"sha\":\"$SHA" && { ok=1; break; }; sleep 0.25; done
+  ((ok)) || say "warning: the front on $PUBLIC does not answer with $SHORT yet (active.json is written)"
+fi
+log "$SHA" node live "switched $OLD_PORT -> $PORT"
+git update-ref refs/live "$SHA"
+printf 'live %s\nThis checkout runs nothing now: the live node runs from %s (tools/ab-switch). `git rev-parse live` says the same.\n' "$SHA" "$DIR" > LIVE
+
+# 5. Drain, then stop the old slot. Its release dir stays for a rollback.
+if [ -n "$OLD_PORT" ] && [ "$OLD_PORT" != "$PORT" ]; then
+  sleep "$DRAIN_S"
+  loaded "$LABEL.$OLD_PORT" && launchctl bootout "$DOMAIN/$LABEL.$OLD_PORT" 2>/dev/null || true
+  # A node takes up to 2.5 s to exit on SIGTERM (server.ts); launchd lists the job until it has.
+  for _ in $(seq 1 40); do loaded "$LABEL.$OLD_PORT" || break; sleep 0.25; done
+  loaded "$LABEL.$OLD_PORT" && say "warning: old slot $OLD_PORT still running 10 s after bootout"
+fi
+say "$SHORT live on $PORT behind :$PUBLIC (build ${T_BUILD}s, node up ${T_UP}s, total $(( $(date +%s) - T0 ))s; old ${OLD_SHA:0:12} on ${OLD_PORT:-none} stopped)"
+
+# Keep the newest KEEP release dirs that are not live; a dir with edits in it is kept and named.
+ls -dt "$RELEASES"/release-* 2>/dev/null | while read -r d; do
+  [ "$d" = "$DIR" ] && continue
+  KEEP=$((KEEP - 1)); ((KEEP >= 0)) && continue
+  git worktree remove "$d" 2>/dev/null || say "kept $d (not clean)"
+done
+exit 0

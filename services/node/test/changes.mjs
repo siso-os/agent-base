@@ -1,0 +1,88 @@
+// All repo edits and provider input belong to this /tmp fixture; no live project or model is used.
+import assert from 'node:assert/strict';
+import { execFileSync, spawn } from 'node:child_process';
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, realpathSync, statSync, existsSync, symlinkSync, unlinkSync, rmdirSync } from 'node:fs';
+import { hostname } from 'node:os';
+import path from 'node:path';
+import http from 'node:http';
+import { once } from 'node:events';
+import { createChangesService } from '../src/changes.ts';
+import { readServiceHosts } from '../src/service-hosts.ts';
+import { acceptLaunch, withLaunch, getWorkspace, save } from '../src/worktrees.ts';
+import { parseDiffHunks } from '../../../apps/web/src/lib/changes.ts';
+const root=path.resolve(import.meta.dirname,'../../..');
+const scratch=realpathSync(mkdtempSync('/tmp/ab-changes-'));
+process.env.AB_WORKSPACES_DIR=path.join(scratch,'receipts');process.env.AB_WORKTREE_ROOT=path.join(scratch,'worktrees');
+const repo=path.join(scratch,'repo');mkdirSync(repo);
+const git=(cwd,args)=>execFileSync('git',['-C',cwd,...args],{encoding:'utf8',stdio:['ignore','pipe','pipe']}).trim();
+const write=(cwd,file,data)=>writeFileSync(path.join(cwd,file),data);
+let count=0;const ok=name=>console.log(`PASS ${++count}: ${name}`);
+const until=async fn=>{for(let i=0;i<200;i++){if(await fn())return;await new Promise(r=>setTimeout(r,50));}throw Error('fixture timeout');};
+git(repo,['init','-b','dev']);git(repo,['config','user.name','Fixture']);git(repo,['config','user.email','fixture@example.invalid']);
+write(repo,'sample.txt','one\nold\nthree\n');write(repo,'other.txt','unrelated\n');write(repo,'shape','old shape\n');write(repo,'.gitignore','.env\n');git(repo,['add','.']);git(repo,['commit','-m','base']);git(repo,['update-ref','refs/remotes/origin/dev','HEAD']);
+const accepted=await acceptLaunch({launchId:'changes-fixture',name:'CHANGES',repo,harness:'codex',model:'fixture-model',workspace:{type:'isolated'}});
+await withLaunch(accepted,async()=>{});const receipt=getWorkspace(accepted.workspaceId),cwd=receipt.worktreePath;
+assert.equal(receipt.phase,'ready');const index=path.resolve(cwd,git(cwd,['rev-parse','--git-path','index']));
+write(cwd,'sample.txt','one\nnew\nthree\n');git(cwd,['add','sample.txt']);write(cwd,'sample.txt','one\nnew\nthree\nfour\n');
+write(cwd,'new file.txt','untracked\n');write(cwd,'binary.bin',Buffer.from([0,1,2,3]));write(cwd,'large.txt','x'.repeat(1024*1024+1));write(cwd,'.env','synthetic secret ignored');
+write(cwd,'-odd\n名.txt','literal filename\n');
+const before=readFileSync(index),headBefore=git(cwd,['rev-parse','HEAD']);
+const hostsDir=path.join(scratch,'hosts');mkdirSync(hostsDir);
+const hostFile=path.join(hostsDir,'name-CHANGES.json');
+writeFileSync(hostFile,JSON.stringify({pid:process.pid,session:'fixture-session',cwd,workspaceId:receipt.workspaceId}));
+let hosts=[{name:'CHANGES',session:'fixture-session',state:'live',cwd,file:hostFile,pid:process.pid,port:1,token:'fixture-only',pane:null}];
+let rows=[{id:'service-CHANGES',session:'fixture-session',machineKey:'fixture',cwd,workspaceId:receipt.workspaceId}];
+let service=createChangesService({rows:async()=>rows,hosts:async()=>hosts,machineId:'fixture'});
+const emptyTurns=await service.turns(rows[0].id,'fixture-session');assert.deepEqual(emptyTurns.turns,[]);assert.equal(existsSync(path.join(process.env.AB_WORKSPACES_DIR,'changes',receipt.workspaceId,emptyTurns.identity.reviewKey,'review.json')),false);ok('empty turn inventory is read-only and does not create a review store');
+let preview=await service.preview('service-CHANGES','fixture-session');
+assert.equal(preview.files.length,5);assert.equal(preview.files.find(f=>f.newPath==='binary.bin').content,'binary');assert.equal(preview.files.find(f=>f.newPath==='large.txt').content,'too-large');assert.equal(preview.files.find(f=>f.newPath==='new file.txt').untracked,true);assert.ok(preview.files.some(f=>f.newPath==='-odd\n名.txt'));assert.ok(!preview.files.some(f=>f.newPath==='.env'));
+assert.deepEqual(readFileSync(index),before);assert.equal(git(cwd,['rev-parse','HEAD']),headBefore);ok('worktree edits/untracked/binary/large/literal paths; real index and HEAD unchanged; ignored secret excluded');
+let f=preview.files.find(f=>f.newPath==='sample.txt');let expanded=await service.file(rows[0].id,rows[0].session,preview.revision.id,f.id);
+assert.equal(expanded.oldText,'one\nold\nthree\n');assert.equal(expanded.newText,'one\nnew\nthree\nfour\n');assert.equal(expanded.hunks[0].rows.find(r=>r.kind==='deleted').oldLine,2);ok('pinned old/new file contents and exact semantic hunk coordinates');
+const input={sessionId:rows[0].session,reviewKey:preview.identity.reviewKey,revisionId:preview.revision.id,fileId:f.id};
+const deleted=await service.createComment(rows[0].id,{...input,start:{side:'old',line:2},text:'Retain this old-side behavior.'});
+const added=await service.createComment(rows[0].id,{...input,start:{side:'new',line:2},text:'Clarify ``` and <xml> literally.'});
+assert.match(deleted.capturedHunk,/-old/);assert.equal(deleted.oldRange.start,2);assert.equal(deleted.newRange.count,0);assert.equal(deleted.newRange.start,1);assert.equal(added.oldRange.start,2);
+service=createChangesService({rows:async()=>rows,hosts:async()=>hosts,machineId:'fixture'});assert.equal((await service.comments(rows[0].id,rows[0].session)).length,2);
+const storage=path.join(process.env.AB_WORKSPACES_DIR,'changes',receipt.workspaceId,preview.identity.reviewKey,'review.json');assert.equal(statSync(storage).mode&0o777,0o600);ok('old/new side comments persist across service reload in private receipt-side storage');
+write(cwd,'sample.txt','disk changed later\n');assert.equal((await service.file(rows[0].id,rows[0].session,preview.revision.id,f.id)).newText,expanded.newText);write(cwd,'sample.txt',expanded.newText);ok('disk writes after preview do not change pinned expansion');
+// Rebase committed agent changes onto an unrelated target edit; captured anchors survive by exact content hash.
+git(cwd,['add','sample.txt']);git(cwd,['commit','-m','agent edit']);write(repo,'other.txt','upstream unrelated change\n');git(repo,['add','other.txt']);git(repo,['commit','-m','unrelated upstream']);git(cwd,['rebase','dev']);
+preview=await service.preview(rows[0].id,rows[0].session);const comments=await service.comments(rows[0].id,rows[0].session);assert.equal(comments.length,2);for(const c of comments){assert.notEqual(c.state,'obsolete');assert.equal(c.anchor.revisionId,preview.revision.id);assert.equal(c.contentHash,[deleted,added].find(x=>x.id===c.id).contentHash);}ok('two exact-content comment anchors survive unrelated real rebase');
+await assert.rejects(()=>service.preview(rows[0].id,'wrong-session'),e=>e.code==='stale-recipient');const keep=rows;rows=[{...rows[0],machineKey:'remote'}];await assert.rejects(()=>service.preview(rows[0].id,'fixture-session'),e=>e.code==='remote-unavailable');rows=keep;
+const oldHosts=hosts;hosts=[...hosts,{...hosts[0]}];await assert.rejects(()=>service.preview(rows[0].id,'fixture-session'),e=>e.code==='mapping-unavailable');hosts=oldHosts;ok('stale session, remote cwd and ambiguous host mapping fail closed');
+unlinkSync(path.join(cwd,'shape'));mkdirSync(path.join(cwd,'shape'));write(cwd,'shape/child','new child\n');
+const shaped=await service.preview(rows[0].id,'fixture-session');const removed=shaped.files.find(f=>f.oldPath==='shape'&&f.change==='deleted'),child=shaped.files.find(f=>f.newPath==='shape/child');assert.equal(removed.deletions,1);assert.equal(removed.additions,0);assert.equal(child.additions,1);assert.equal((await service.file(rows[0].id,'fixture-session',shaped.revision.id,removed.id)).newText,'');unlinkSync(path.join(cwd,'shape/child'));rmdirSync(path.join(cwd,'shape'));write(cwd,'shape','old shape\n');ok('file-to-directory replacement has exact per-file stats and immutable deletion expansion');
+const intact=readFileSync(storage,'utf8');writeFileSync(storage,'{broken');await assert.rejects(()=>service.comments(rows[0].id,'fixture-session'),e=>e.code==='store-unavailable');assert.equal(readFileSync(storage,'utf8'),'{broken');writeFileSync(storage,intact);ok('corrupted review store blocks reads and retains original bytes');
+symlinkSync('/tmp',path.join(cwd,'escape'));await assert.rejects(()=>service.preview(rows[0].id,'fixture-session'),e=>e.code==='mapping-unavailable'||e.code==='invalid-input');unlinkSync(path.join(cwd,'escape'));ok('escaping symlink cannot expose external content');
+// A real Codex host uses a fake app-server subprocess. The fake records its native RPC intake under /tmp.
+const fake=path.join(scratch,'fake-codex.mjs'),received=path.join(scratch,'received.jsonl');
+writeFileSync(fake,`#!/usr/bin/env node\nimport readline from 'node:readline';import {appendFileSync,writeFileSync} from 'node:fs';let turns=0;const send=x=>process.stdout.write(JSON.stringify(x)+'\\n');readline.createInterface({input:process.stdin}).on('line',line=>{const m=JSON.parse(line);if(m.method==='initialize')send({id:m.id,result:{}});if(m.method==='thread/start')send({id:m.id,result:{thread:{id:'fixture-session',turns:[]}}});if(m.method==='turn/start'){appendFileSync(process.env.FIXTURE_RECEIVED,JSON.stringify(m)+'\\n');const id='native-'+(++turns);send({method:'turn/started',params:{threadId:'fixture-session',turn:{id}}});send({id:m.id,result:{turn:{id}}});setTimeout(()=>{writeFileSync('turn-only.txt','native turn changed this\\n');send({method:'turn/completed',params:{threadId:'fixture-session',turn:{id,status:'completed'}}});},200);}});`,{mode:0o700});
+let hostChild,boundaryServer;
+try {
+  boundaryServer=http.createServer(async(req,res)=>{try{let body='';for await(const b of req)body+=b;const v=JSON.parse(body);await service.turnBoundary(rows[0].id,v.sessionId,String(req.headers.authorization).slice(7),v.turnId,v.phase,v.providerTurnId,v.status);res.writeHead(200).end('{}');}catch{res.writeHead(409).end('{}');}});boundaryServer.listen(0,'127.0.0.1');await once(boundaryServer,'listening');
+  // Ready receipt can be adopted by its matching host; no production host or launchd job is touched.
+  writeFileSync(hostFile,JSON.stringify({pid:2147483647}));
+  hostChild=spawn(process.execPath,['--experimental-strip-types','--no-warnings',path.join(root,'services/host/src/codex-host.ts'),'--name','CHANGES','--model','fixture-model'],{cwd,env:{...process.env,HERDR_ENV:'0',AB_HOSTS_DIR:hostsDir,AB_PROMPT_QUEUE_DIR:path.join(scratch,'queues'),AB_ACTIVITY_DIR:path.join(scratch,'activity'),AB_CODEX_BIN:fake,FIXTURE_RECEIVED:received,AB_WORKSPACE_RECEIPT:path.join(process.env.AB_WORKSPACES_DIR,receipt.workspaceId+'.json'),AB_CHANGES_URL:`http://127.0.0.1:${boundaryServer.address().port}`},stdio:'ignore'});
+  await until(()=>{try{return JSON.parse(readFileSync(hostFile)).pid===hostChild.pid;}catch{return false;}});
+  hosts=(await readServiceHosts({dir:hostsDir,launchdLoaded:()=>false})).hosts;assert.equal(hosts[0].state,'live');
+  preview=await service.preview(rows[0].id,'fixture-session');
+  const batch={version:1,clientKey:'batch-fixture',sessionId:'fixture-session',reviewKey:preview.identity.reviewKey,revisionId:preview.revision.id,commentIds:[deleted.id,added.id]};
+  const delivery=await service.dispatchReviewFeedback(rows[0].id,batch);assert.ok(['queued','submitted'].includes(delivery.status));
+  await until(()=>existsSync(received));const native=JSON.parse(readFileSync(received,'utf8').trim());assert.equal(native.method,'turn/start');assert.equal(native.params.input.length,1);
+  const message=native.params.input[0].text;assert.match(message,/-old/);assert.match(message,/"side":"old"/);assert.match(message,/"side":"new"/);assert.match(message,/```/);assert.match(message,new RegExp(deleted.contentHash));assert.match(message,new RegExp(preview.revision.id));
+  const retry=await service.dispatchReviewFeedback(rows[0].id,batch);assert.equal(retry.batchId,delivery.batchId);assert.equal(readFileSync(received,'utf8').trim().split('\n').length,1);ok('two persisted comments arrive through real Codex host as ONE native turn/start; next default; same-key retry does not resend');
+  await until(async()=>{const d=await service.deliveries(rows[0].id,'fixture-session',batch.clientKey);return d.status==='submitted'&&d.providerTurnId==='native-1';});ok('durable host queue reconciles exact submitted receipt and provider turn ID');
+  await until(()=>JSON.parse(readFileSync(storage)).turns[delivery.batchId]?.completion);
+  // Simulate a restart after host acceptance but before the node saved that receipt.
+  const interrupted=JSON.parse(readFileSync(storage));interrupted.batches[batch.clientKey].delivery.status='uncertain';for(const c of interrupted.comments)c.state='draft';writeFileSync(storage,JSON.stringify(interrupted));
+  assert.equal((await service.deliveries(rows[0].id,'fixture-session',batch.clientKey)).status,'submitted');assert.ok((await service.comments(rows[0].id,'fixture-session')).every(c=>c.state==='sent'));assert.equal(readFileSync(received,'utf8').trim().split('\n').length,1);ok('receipt reconciliation persists sent comments after restart without replaying feedback');
+  const turn=await service.preview(rows[0].id,'fixture-session',{kind:'turn',turnId:'native-1'});assert.deepEqual(turn.files.map(f=>f.newPath),['turn-only.txt']);assert.equal(turn.files[0].additions,1);ok('awaited baseline and native completion produce immutable per-turn diff');
+  const inventory=await service.turns(rows[0].id,'fixture-session');assert.equal(inventory.identity.sessionId,'fixture-session');assert.deepEqual(inventory.turns,[{id:delivery.batchId,label:'Turn 1 · captured edits',available:true,status:'completed'}]);await assert.rejects(()=>service.turns(rows[0].id,'wrong-session'),e=>e.code==='stale-recipient');ok('turn inventory returns exact-session canonical selectors and human labels');
+  const withIncomplete=JSON.parse(readFileSync(storage));withIncomplete.turns['fixture-incomplete']={baseline:'a',status:'private prompt text'};writeFileSync(storage,JSON.stringify(withIncomplete));const inventoryBytes=readFileSync(storage);const listed=await service.turns(rows[0].id,'fixture-session');assert.equal(listed.turns[0].available,false);assert.equal(listed.turns[0].label,'Turn 2 · completion not captured');assert.ok(!JSON.stringify(listed).includes('private prompt text'));assert.deepEqual(readFileSync(storage),inventoryBytes);ok('incomplete turns are explicit, private status is not exposed and inventory preserves store bytes');
+  await assert.rejects(()=>service.preview(rows[0].id,'fixture-session',{kind:'turn',turnId:'missing'}),e=>e.code==='snapshot-unavailable');
+  await assert.rejects(()=>service.dispatchReviewFeedback(rows[0].id,{...batch,clientKey:'other-key'}),e=>e.code==='unstable-source');ok('missing turn baseline and stale workspace feedback reject without another provider turn');
+  const resolved=await service.resolveComment(rows[0].id,'fixture-session',deleted.id,preview.identity.reviewKey);assert.equal(resolved.state,'resolved');ok('explicit resolve persists without equating send with resolution');
+} finally {if(hostChild && hostChild.exitCode===null){const exited=once(hostChild,'exit');hostChild.kill('SIGTERM');await exited;}if(boundaryServer){boundaryServer.closeAllConnections();await new Promise(r=>boundaryServer.close(r));}}
+const marker=parseDiffHunks('@@ -1 +1 @@\n-old\n+new\n\\ No newline at end of file\n');assert.equal(marker[0].rows[2].kind,'marker');ok('no-newline markers retain semantic side counters');
+console.log(`RESULT: ${count} checks passed; scratch=${scratch}; machine=${hostname()}`);

@@ -1,0 +1,166 @@
+#!/bin/bash
+# ab-live <sha>: put <sha> live in the installed app. AGENT-BASE's deploy.sh (option B: the main checkout's HEAD stays; only the
+# live paths change and apps/web/dist/DEPLOYED_SHA says what is live), committed so it survives a reboot, with one change:
+# a web-only ship swaps the dist and does NOT restart Shaan's app (the app polls /api/version and offers the reload itself,
+# apps/web/src/lib/useVersion.ts). Node, host or stack changes need the app restarted (it starts node as a plain child), as before.
+# A change under apps/desktop needs a built .app (AB_LIVE_APP=path); without one it refuses (exit 4) and nothing changes.
+# Called by tools/ab-queue after a lane lands on main; safe to run by hand. Exit 0 live, 1 failed (old dist restored), 4 refused.
+set -euo pipefail
+HOOK_ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
+ARTIFACT_TOOL="$(cd "$(dirname "$0")" && pwd)/ab-artifact"
+# Live never moves backwards by accident (3 Oct 14:12: a deliberate rollback to e6d8e1b, and nothing stopped the next
+# deploy of an older sha doing the same by mistake): a sha that does not descend from what is live is refused unless
+# --rollback says it is meant.
+ROLLBACK=0; ARGS=()
+for a in "$@"; do if [ "$a" = --rollback ]; then ROLLBACK=1; else ARGS+=("$a"); fi; done
+SHA=${ARGS[0]:-}; [ -n "$SHA" ] || { echo "usage: tools/ab-live [--rollback] <sha>" >&2; exit 2; }
+M=${AB_LIVE_CHECKOUT:-$HOME/SISO_Workspace/SISO_Agency/apps/siso-internal-labs/siso-internal-labs-agent-base}
+APP=${AB_LIVE_INSTALLED_APP:-$HOME/Applications/Agent Base.app}
+APP_NEW=${AB_LIVE_APP:-}
+STATE=${AB_LIVE_STATE:-$HOME/.local/state/agent-base/live}
+MINI=${AB_MINI:-$HOME/SISO_Workspace/SISO_Agency/apps/siso-internal-labs/siso-internal-labs-agents/.agents/luna/ab-mini}
+PORT=${AB_LIVE_PORT:-5401}
+mkdir -p "$STATE"
+# Every row says why (3 Oct: 13 bare "desktop refused" rows in 4 min and nobody could tell what was blocking).
+log() { python3 -c 'import json,sys,time;print(json.dumps({"at":time.strftime("%Y-%m-%dT%H:%M:%S%z"),"sha":sys.argv[1],"kind":sys.argv[2],"result":sys.argv[3],"why":sys.argv[4] if len(sys.argv)>4 else "","desktop_pending":sys.argv[5] if len(sys.argv)>5 else ""}))' "$@" >> "$STATE/live.jsonl"; }
+# A0, 3 Oct: the checkout's HEAD stays (option B), so git reads it as hundreds of commits behind what runs. Every deploy that goes
+# live records its sha where a reader of the checkout finds it: refs/live (`git rev-parse live`) and LIVE at the root (git-ignored).
+mark() {
+  git update-ref refs/live "$1"
+  printf 'live %s\nThis checkout runs %s, not its HEAD (%s): tools/ab-live swaps only the live paths. `git rev-parse live` says the same.\n' "$1" "$1" "$(git rev-parse --short HEAD)" > LIVE
+  local ex; ex=$(git rev-parse --git-path info/exclude); mkdir -p "$(dirname "$ex")"; grep -qxF /LIVE "$ex" 2>/dev/null || echo /LIVE >> "$ex"
+}
+# Called only in successful branches, after the rollback trap is disarmed.
+# This validates the build against installed files and exact API readback itself.
+mini_followup() {
+  python3 "$HOOK_ROOT/tools/ab-after-install-qa.py" --revision "$SHA" --source "$TMP" \
+    --dist "$TMP/apps/web/dist" --installed-dist "$M/apps/web/dist" \
+    --readback-url "http://127.0.0.1:$PORT/api/version" || echo 'ab-live: Mini follow-up unavailable; installation remains successful' >&2
+}
+# 8 Oct (t-0539): once the front and a release slot run the node (tools/ab-switch), quitting the app and swapping files
+# here would put back the 60-120 s outage: web and node go live through ab-switch, with no restart. A desktop build still
+# needs the app restarted, which no longer touches node or voice; that is done by hand, so it is refused here.
+if [ -f "$STATE/active.json" ] && [ "${AB_LIVE_LEGACY:-}" != 1 ]; then
+  if [ -n "$APP_NEW" ]; then
+    echo "ab-live: refused: a desktop build with the front live is installed by hand (quit the app, copy, open); node and voice keep running" >&2
+    log "$SHA" desktop refused "front is live: desktop installs by hand" ""
+    exit 4
+  fi
+  if ((ROLLBACK)); then exec "$HOOK_ROOT/tools/ab-switch" --rollback "$SHA"; else exec "$HOOK_ROOT/tools/ab-switch" "$SHA"; fi
+fi
+cd "$M"
+# 7 Oct (AGENT-BASE, t-0497): two desktop ships built the app without AB_REPO_ROOT, so the installed app ran its node and dist
+# from the builder's worktree and every later deploy to this checkout "did not come up". The root is compiled in
+# (option_env!), so a new app must name this checkout or it never goes in.
+if [ -n "$APP_NEW" ] && [ "${AB_LIVE_ANY_ROOT:-}" != 1 ]; then
+  BIN="$APP_NEW/Contents/MacOS/agent-base"
+  if [ ! -f "$BIN" ] || ! grep -aqF "$M" "$BIN"; then
+    echo "ab-live: refused: $APP_NEW was not built for $M (build with AB_REPO_ROOT=$M); nothing changed" >&2
+    log "${ARGS[0]:-?}" desktop refused "app not built for $M (AB_REPO_ROOT)" ""
+    exit 4
+  fi
+fi
+SHA=$(git rev-parse --verify "$SHA^{commit}")
+PREV=$(cat apps/web/dist/DEPLOYED_SHA 2>/dev/null || git rev-parse HEAD)
+git cat-file -e "$PREV^{commit}" 2>/dev/null || PREV=$(git rev-parse HEAD)
+if [ -s apps/web/dist/DEPLOYED_SHA ] && ! git merge-base --is-ancestor "$PREV" "$SHA" 2>/dev/null; then
+  if [ "$ROLLBACK" != 1 ]; then
+    echo "ab-live: refused: $SHA does not descend from the live $PREV, so this would move live backwards (or sideways). Pass --rollback if that is meant." >&2
+    log "$SHA" "${KIND:-web}" refused "not a descendant of live $PREV" ""
+    exit 4
+  fi
+  echo "ab-live: --rollback: moving live from $PREV back to $SHA"
+fi
+CHANGED=$(git diff --name-only "$PREV" "$SHA")
+# Web files the node imports (grep 'apps/web/src/lib/...' in services/node/src) travel with the node.
+WEBLIB=$(git grep -hoE 'apps/web/src/lib/[a-z-]+\.ts' "$SHA" -- services/node/src | sed "s|^$SHA:||" | sort -u || true)
+KIND=web
+grep -qE '^(services/node|services/host|stack|domain-base)/' <<<"$CHANGED" && KIND=node
+for f in $WEBLIB; do grep -qxF "$f" <<<"$CHANGED" && KIND=node; done
+# A desktop change never blocks web and node (3 Oct: one browser.rs change held 20+ web/node commits off the app for 75 min).
+# Without a built .app (AB_LIVE_APP, HEALTH's GO) the web and node ship now and the desktop files are logged as pending.
+DESKTOP_PENDING=""
+if grep -q '^apps/desktop/' <<<"$CHANGED"; then
+  if [ -n "$APP_NEW" ]; then KIND=desktop
+  else DESKTOP_PENDING=$(grep '^apps/desktop/' <<<"$CHANGED" | grep -v '/test/' | tr '\n' ' ' || true); echo "ab-live: apps/desktop changed (${DESKTOP_PENDING:-tests only}); web+node ship now, the desktop follows with a built app (AB_LIVE_APP)"
+  fi
+fi
+echo "ab-live: $PREV -> $SHA ($KIND)"
+AVAIL=$(vm_stat | awk '/page size/{ps=$8} /Pages free/{f=$3} /Pages inactive/{i=$3} /Pages speculative/{s=$3} END{printf "%d", (f+i+s)*ps/1048576}')
+[ "${AB_LIVE_SKIP_RAM:-}" = 1 ] || [ "$AVAIL" -gt "${AB_LIVE_MIN_FREE_MB:-3072}" ] || { echo "ab-live: avail RAM ${AVAIL} MB <= ${AB_LIVE_MIN_FREE_MB:-3072} (HEALTH's bar); nothing changed"; log "$SHA" "$KIND" refused "avail RAM ${AVAIL} MB <= ${AB_LIVE_MIN_FREE_MB:-3072}"; exit 4; }
+# "Clean" = matches HEAD, or matches what the last deploy put there; anything else is someone's edit, never overwritten.
+same() { local want; want=$(git rev-parse -q --verify "$1:$2" 2>/dev/null) || { [ ! -e "$2" ]; return; }; [ -e "$2" ] && [ "$(git hash-object "$2")" = "$want" ]; }
+PATHS=()
+for p in services/node services/host stack domain-base; do git cat-file -e "$SHA:$p" 2>/dev/null && PATHS+=("$p"); done
+for f in $WEBLIB; do git cat-file -e "$SHA:$f" 2>/dev/null && PATHS+=("$f"); done
+# A newly packaged path may not exist in the previous release. Keep rollback of
+# the existing node paths working without deleting new source-owned documents.
+RESTORE_PATHS=()
+if ((${#PATHS[@]})); then
+  for p in "${PATHS[@]}"; do git cat-file -e "$PREV:$p" 2>/dev/null && RESTORE_PATHS+=("$p"); done
+fi
+# Never overwrite someone's edit (AGENT-BASE, 3 Oct: A0's helper has uncommitted edits in this checkout): every file the checkout
+# below would rewrite must match HEAD or what the last deploy put there; anything else refuses the whole ship.
+if ((${#PATHS[@]})) && [ "$KIND" != web ]; then
+  for f in $( { git diff --name-only "$SHA" -- "${PATHS[@]}"; git ls-files --others --exclude-standard -- "${PATHS[@]}"; } | sort -u); do
+    git cat-file -e "$SHA:$f" 2>/dev/null || continue   # checkout <sha> -- paths only writes files that exist at <sha>
+    same HEAD "$f" || same "$PREV" "$f" || { echo "ab-live: $f is edited in the checkout (not HEAD, not $PREV); refusing"; log "$SHA" "$KIND" refused "edited in the checkout: $f"; exit 4; }
+  done
+fi
+# Build the web dist for SHA in a throwaway worktree (on the mini when ab-mini is there, so the laptop is spared).
+WORKTREES=${AB_LIVE_WORKTREES:-$HOME/SISO_Workspace/_data/worktrees/siso-internal-labs-agent-base}
+mkdir -p "$WORKTREES"
+TMP="$WORKTREES/live-build-$$"
+cleanup() { git -C "$M" worktree remove "$TMP" >/dev/null 2>&1 || echo "ab-live: build worktree retained for inspection: $TMP" >&2; }
+trap cleanup EXIT
+git worktree add -q --detach "$TMP" "$SHA"
+if [ "$ROLLBACK" != 1 ] && [ -n "${AB_LIVE_CHECKED_ARTIFACT:-}" ] && python3 "$ARTIFACT_TOOL" stage "$TMP" "$SHA" "$AB_LIVE_CHECKED_ARTIFACT"; then
+  echo "ab-live: reused the checked frontend for $SHA"
+elif [ -n "${AB_LIVE_BUILD:-}" ]; then (cd "$TMP" && bash -c "$AB_LIVE_BUILD") || { log "$SHA" "$KIND" build-failed; echo "ab-live: build failed; nothing changed"; exit 1; }
+elif [ -x "$MINI" ]; then
+  (cd "$TMP" && "$MINI" 'pnpm install --frozen-lockfile --prefer-offline && pnpm build') || { log "$SHA" "$KIND" build-failed; echo "ab-live: build failed on the mini; nothing changed"; exit 1; }
+  # ab-mini builds on this machine when the mini is unreachable (agents cce303b); the dist is then already here, and
+  # copying it back from the mini is what failed every deploy on 3 Oct from 15:3x. Fetch only when it is missing.
+  [ -f "$TMP/apps/web/dist/index.html" ] || rsync -az -e 'ssh -o RemoteCommand=none -o ConnectTimeout=10' "mac-mini-ts:$TMP/apps/web/dist/" "$TMP/apps/web/dist/"
+else
+  (cd "$TMP" && heavy -- bash -lc 'pnpm install --frozen-lockfile --prefer-offline && pnpm build') || { log "$SHA" "$KIND" build-failed; echo "ab-live: build failed; nothing changed"; exit 1; }
+fi
+[ -f "$TMP/apps/web/dist/index.html" ] || { log "$SHA" "$KIND" build-failed; echo "ab-live: no dist/index.html after the build; nothing changed"; exit 1; }
+BACKUP="$STATE/_archive/$(date +%Y%m%dT%H%M%S)-$$"
+mkdir -p "$BACKUP"
+printf "Previous release: %s\nCandidate: %s\nPurpose: deployment rollback artifacts\n" "$PREV" "$SHA" > "$BACKUP/MANIFEST.md"
+cp -cR apps/web/dist "$BACKUP/dist" 2>/dev/null || cp -R apps/web/dist "$BACKUP/dist"
+if [ "$KIND" = web ]; then
+  rsync -a --delete "$TMP/apps/web/dist/" apps/web/dist/
+  echo "$SHA" > apps/web/dist/DEPLOYED_SHA
+  log "$SHA" web live "" "$DESKTOP_PENDING"
+  mark "$SHA"
+  mini_followup
+  echo "ab-live: $SHA live (web only: the app offers the reload; no restart)"
+  exit 0
+fi
+# Real commands, not strings: "Agent Base" has a space (3 Oct: as strings, osascript got a broken -e and open got two paths,
+# so the first real deploy failed; the app was untouched). AB_LIVE_QUIT / AB_LIVE_OPEN (tests) are shell snippets.
+quit_app() { if [ -n "${AB_LIVE_QUIT:-}" ]; then bash -c "$AB_LIVE_QUIT"; else osascript -e "quit app \"$(basename "$APP" .app)\""; fi; }
+open_app() { if [ -n "${AB_LIVE_OPEN:-}" ]; then bash -c "$AB_LIVE_OPEN"; else open -g "$APP"; fi; }
+OLD=$(pgrep -f "${AB_LIVE_APP_PROC:-Agent Base.app/Contents/MacOS/agent-base}" | head -1 || true)
+[ -n "$APP_NEW" ] && { cp -cR "$APP" "$BACKUP/AgentBase.app"; }
+# From here the app is down: any failure puts the previous dist and paths back and reopens it, so it is never left closed.
+restore() { rsync -a --delete "$BACKUP/dist/" apps/web/dist/ 2>/dev/null || true; ((${#RESTORE_PATHS[@]})) && git checkout "$PREV" -- "${RESTORE_PATHS[@]}" 2>/dev/null || true; [ -n "$APP_NEW" ] && rsync -a --delete "$BACKUP/AgentBase.app/" "$APP/" || true; open_app || true; log "$SHA" "$KIND" rolled-back; cleanup; }
+trap 'rc=$?; ((rc)) && restore; exit $rc' EXIT
+quit_app || true
+for i in $(seq 1 60); do { [ -z "$OLD" ] || ! kill -0 "$OLD" 2>/dev/null; } && break; sleep 1; done
+if [ -n "$OLD" ] && kill -0 "$OLD" 2>/dev/null; then log "$SHA" "$KIND" refused "the app did not quit"; echo "ab-live: the app did not quit; nothing changed"; exit 1; fi
+rsync -a --delete "$TMP/apps/web/dist/" apps/web/dist/
+echo "$SHA" > apps/web/dist/DEPLOYED_SHA
+((${#PATHS[@]})) && git checkout "$SHA" -- "${PATHS[@]}"
+[ -n "$APP_NEW" ] && rsync -a --delete "$APP_NEW/" "$APP/"
+open_app
+for i in $(seq 1 ${AB_LIVE_WAIT_S:-60}); do
+  if curl -sf "127.0.0.1:$PORT/api/version" 2>/dev/null | grep -q "\"sha\":\"$SHA"; then trap cleanup EXIT; log "$SHA" "$KIND" live "" "$DESKTOP_PENDING"; mark "$SHA"; mini_followup; echo "ab-live: $SHA live ($KIND) after ${i}s"; exit 0; fi
+  sleep 1
+done
+# Not up on the new sha: quit what came up, then the EXIT trap restores the previous dist and paths and reopens.
+quit_app || true; sleep 2
+echo "ab-live: $SHA did not come up; restoring $PREV"
+exit 1

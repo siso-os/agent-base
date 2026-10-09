@@ -1,0 +1,84 @@
+/* Timeline uses the panel's existing surfaces, bar chart and shell hover placement. */
+.tl-row { display: flex; width: 100%; gap: 9px; align-items: flex-start; padding: 10px 6px; border-radius: 8px; text-align: left; color: var(--crm-color-text); }
+.tl-row:hover, .tl-row:focus-visible { background: rgb(var(--crm-white-rgb) / .045); }
+.tl-row > svg { margin-top: 2px; flex: none; color: rgb(var(--crm-white-rgb) / .45); }
+.tl-row__body { display: block; min-width: 0; flex: 1; }
+.tl-row strong { display: block; font-size: 12px; font-weight: 550; line-height: 1.45; overflow-wrap: anywhere; color: var(--crm-color-text-strong); }
+.tl-row small { display: block; margin-top: 4px; font-size: 11px; line-height: 1.5; color: rgb(var(--crm-white-rgb) / .42); overflow-wrap: anywhere; }
+.tl-state { color: rgb(var(--crm-white-rgb) / .65); text-transform: capitalize; }
+.tl-row > time { flex: none; padding-top: 2px; font: 11px var(--crm-font-mono); color: rgb(var(--crm-white-rgb) / .35); }
+.tl-pipeline { margin-bottom: 12px; padding: 9px 6px; border: 1px solid rgb(var(--crm-white-rgb) / .09); border-radius: 10px; background: rgb(var(--crm-white-rgb) / .018); }
+.tl-pipeline h4, .tl-recent h4 { display: flex; align-items: center; gap: 6px; margin: 0 6px 3px; color: rgb(var(--crm-white-rgb) / .6); font-size: 11px; font-weight: 500; }
+.tl-pipeline h4 span, .tl-recent h4 span { margin-left: auto; color: rgb(var(--crm-white-rgb) / .35); font-size: 11px; }
+.tl-pipeline .tl-row { padding-top: 8px; padding-bottom: 8px; }
+.tl-recent { min-height: 0; overflow: auto; }
+.tl-more, .tl-back { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; padding: 10px 6px; color: rgb(var(--crm-white-rgb) / .5); font-size: 11px; }
+.tl-more:hover, .tl-back:hover { color: var(--crm-color-text-strong); }
+.tl-pair { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; margin: 14px 0; }
+.tl-pair figure { min-width: 0; margin: 0; }
+.tl-pair img { display: block; width: 100%; border: 1px solid rgb(var(--crm-white-rgb) / .12); border-radius: 6px; }
+.tl-pair figcaption { margin-top: 4px; color: rgb(var(--crm-white-rgb) / .45); font-size: 11px; }
+.tl-pair.is-small { margin: 8px 0 0; gap: 6px; }
+.tl-pair.is-small img { max-height: 64px; object-fit: cover; object-position: top; }
+.tl-pair.is-small figcaption { font-size: 9px; }
+.tl-hover { position: fixed; z-index: 2147483000; width: min(330px,calc(100vw - 16px)); padding: 16px; overflow-y: auto; background: var(--crm-color-surface-raised, #161617); border: 1px solid rgb(var(--crm-white-rgb) / .12); border-radius: 14px; box-shadow: 0 12px 40px #0008; pointer-events: none; }
+.tl-hover > strong { color: var(--crm-color-text-strong); font-size: 13px; line-height: 1.45; }
+.tl-hover > small { display: block; margin-top: 12px; color: rgb(var(--crm-white-rgb) / .4); font-size: 11px; }
+.tl-facts { margin: 9px 0; font-size: 11px; line-height: 1.7; color: rgb(var(--crm-white-rgb) / .5); overflow-wrap: anywhere; }
+.tl-fulltext, .tl-files { margin: 12px 0; white-space: pre-wrap; overflow-wrap: anywhere; color: var(--crm-color-text); font-size: 12px; line-height: 1.6; }
+.tl-files { color: rgb(var(--crm-white-rgb) / .5); font: 11px/1.7 var(--crm-font-mono); }
+.tl-hover .tl-fulltext { max-height: 200px; overflow: hidden; }
+.tl-commits { padding: 0; margin: 12px 0; list-style: none; }
+.tl-commits li { display: flex; align-items: baseline; gap: 8px; padding: 6px 0; font-size: 11px; line-height: 1.5; }
+.tl-commits code { flex: none; color: rgb(var(--crm-white-rgb) / .4); font-size: 11px; }
+.tl-commits span { min-width: 0; overflow-wrap: anywhere; }
+.tl-detail { min-width: 0; container-type: inline-size; }
+.tl-detail .tl-pair img[role=button] { cursor: zoom-in; }
+@container (max-width: 420px) { .tl-detail .tl-pair { grid-template-columns: 1fr; } }
+.tl-detail h3 { margin: 10px 0; color: var(--crm-color-text-strong); font-size: 14px; line-height: 1.4; font-weight: 550; }
+.tl-back { justify-content: flex-start; }
+.tl-links { display: flex; flex-wrap: wrap; gap: 12px; padding: 8px 0; }
+.tl-links button { display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--crm-color-text); }
+.tl-day > h3 { display: flex; justify-content: space-between; align-items: baseline; margin: 16px 6px 8px; font-size: 12px; font-weight: 550; }
+.tl-day > h3 span { font-size: 11px; color: rgb(var(--crm-white-rgb) / .35); font-weight: 400; }
+.tl-hour { display: flex; align-items: center; gap: 7px; width: 100%; min-height: 36px; padding: 6px; border-top: 1px solid rgb(var(--crm-white-rgb) / .07); text-align: left; color: rgb(var(--crm-white-rgb) / .5); }
+.tl-hour time { font: 11px var(--crm-font-mono); flex: none; }
+.tl-hour span { margin-left: auto; font-size: 11px; line-height: 1.5; }
+.tl-unavailable { padding: 10px 6px; font-size: 11px; line-height: 1.6; color: rgb(var(--crm-white-rgb) / .4); }
+@media (max-width:640px) { .tl-detail .tl-pair { grid-template-columns: 1fr; } .tl-row { padding: 12px 6px; } .tl-page { background: var(--crm-color-surface, #0a0a0a); } }
+/* A pipeline must leave room for the chart and recent evidence in the dashboard card. */
+.ab-panel__scroll > .ab-fold.is-widget[data-testid="fold-timeline"]:has(.tl-recent) { min-height: 480px; flex-basis: 480px; }
+.ab-fold__widget .tl-pipeline, .ab-fold__widget > .tl-more { flex-shrink: 0; }
+.ab-fold__widget .tl-recent { flex: 1; overflow: hidden; mask-image: linear-gradient(#000 calc(100% - 20px), transparent); }
+.ab-fold__widget > .tl-detail { min-height: 0; overflow: auto; }
+@media (max-width:640px) {
+  .ab-fold.is-card[data-testid="fold-timeline"], .ab-fold.is-card[data-testid="fold-timeline"]:hover { background: var(--crm-color-surface, #0a0a0a); }
+}
+
+/* A ship's release note in its detail (5 Oct): why in his words, what changed, how to see it. */
+.tl-note { margin: 8px 0 10px; padding: 10px 12px; border-radius: 10px; background: rgb(var(--crm-white-rgb) / .04); font-size: 12px; }
+.tl-note p, .tl-note ul { margin: 0; color: rgb(var(--crm-white-rgb) / .62); }
+.tl-note ul { margin-top: 6px; padding-left: 16px; list-style: disc; }
+.tl-note__why { font-style: italic; }
+.tl-note__see { margin-top: 6px !important; color: rgb(var(--crm-white-rgb) / .8) !important; }
+
+/* Outcome, evidence and lifecycle stay separate; record text is folded by default. */
+.tl-row__why { display: block; margin-top: 4px; font-size: 12px; line-height: 1.5; color: rgb(var(--crm-white-rgb) / .65); overflow-wrap: anywhere; }
+.tl-evidence, .tl-row small.tl-evidence { font-size: 11px; line-height: 1.6; color: rgb(var(--crm-white-rgb) / .7); overflow-wrap: anywhere; }
+.tl-record { margin-top: 12px; border-top: 1px solid rgb(var(--crm-white-rgb) / .09); }
+.tl-record > summary { padding: 12px 0; cursor: pointer; font-size: 12px; color: var(--crm-color-text); }
+.tl-row:focus-visible, .tl-back:focus-visible, .tl-record > summary:focus-visible, .tl-hour:focus-visible, .tl-links button:focus-visible, .tl-more:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+
+/* uihub: arc:timeline — marker and connecting rail use the existing panel materials. */
+.tl-item { position: relative; min-width: 0; padding-left: 24px; }
+.tl-item:not(:last-child)::before { content: ""; position: absolute; top: 30px; bottom: -5px; left: 9px; width: 1px; background: var(--crm-color-line-subtle); }
+.tl-marker { position: absolute; top: 12px; left: 2px; color: var(--crm-color-text-muted); }
+.tl-row .tl-chevron { flex: none; margin-top: 3px; transition: transform 120ms ease; }
+.tl-row[aria-expanded="true"] .tl-chevron { transform: rotate(180deg); }
+.tl-inline-detail { margin: 0 4px 10px; border-left: 1px solid var(--crm-color-line-subtle); padding-left: 10px; }
+.tl-inline-detail[hidden] { display: none; }
+.tl-inline-detail .tl-detail { padding: 4px 0; }
+@media (prefers-reduced-motion: reduce) { .tl-row .tl-chevron { transition: none; } }
+
+/* Keep the inline list and its evidence to three readable type sizes. */
+.tl-page .ab-hours__axis, .tl-page .ab-tl__chips button { font-size: 11px; }

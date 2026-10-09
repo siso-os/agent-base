@@ -1,0 +1,93 @@
+.oid-dock {
+  display: grid;
+  grid-template-columns: 232px minmax(0, 1fr);
+  min-width: 0;
+  color: #e1e5eb;
+  border: 1px solid #434a56;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #1f242c;
+  box-shadow: inset 0 1px 0 #ffffff0a;
+}
+.oid-shelf { min-width: 0; display: flex; flex-direction: column; gap: 10px; padding: 15px; border-right: 1px solid #414854; background: #191e25; }
+.oid-tile { --oid-accent: #9bb9d8; position: relative; width: 100%; display: flex; flex-direction: column; text-align: left; min-width: 0; padding: 7px; border: 1px solid #3a424e; border-radius: 8px; color: inherit; background: #252a33; cursor: pointer; box-shadow: inset 0 1px 0 #ffffff08; }
+.oid-tile[data-kind=code] { --oid-accent: #a9cbb3; }
+.oid-tile[data-kind=log] { --oid-accent: #d6c19e; }
+.oid-tile[aria-selected=true] { border-color: var(--oid-accent); background: color-mix(in srgb, var(--oid-accent) 9%, #252a33); box-shadow: inset 0 1px 0 #ffffff10, 0 3px 0 -1px #0b1119; }
+.oid-tile:hover { border-color: #909cab; }
+.oid-cover { position: relative; display: block; height: 84px; width: 100%; overflow: hidden; border-radius: 4px; background: #121922; border: 1px solid color-mix(in srgb, var(--oid-accent) 30%, #28313e); pointer-events: none; }
+.oid-thumbnail { display: block; opacity: .9; height: 100%; padding: 10px 12px; overflow: hidden; color: var(--oid-accent); }
+.oid-object { position: absolute; right: 5px; bottom: 3px; display: block; padding: 1px; background: #141c25e8; border-radius: 9px; }
+.oid-tile-copy { display: block; padding: 10px 6px 5px; }
+.oid-kind { display: block; text-transform: uppercase; color: var(--oid-accent); font: 9px ui-monospace, monospace; letter-spacing: .1em; margin-bottom: 4px; }
+.oid-tile strong { display: block; font-size: 13px; line-height: 1.4; font-weight: 550; margin-bottom: 8px; }
+.oid-state { font: 10px ui-monospace, monospace; color: #b0b8c5; display: flex; gap: 6px; align-items: center; }
+.oid-state i { width: 4px; height: 4px; border-radius: 50%; background: #b8c3d3; }
+.oid-tile[data-state=pending] .oid-state i { background: #e0bd83; }
+.oid-tile[data-state=failed] .oid-state { color: #e8b0a8; }
+.oid-tile[data-state=failed] .oid-state i { background: #e8b0a8; }
+.oid-tile-open { position: absolute; right: 13px; bottom: 13px; color: var(--oid-accent); font-size: 15px; }
+.oid-inspector { position: relative; min-width: 0; padding: 23px 25px 18px; background: #232931; }
+.oid-inspector-head { display: flex; gap: 15px; align-items: center; }
+.oid-inspector-head > div { flex: 1; min-width: 0; }
+.oid-eyebrow { font: 10px ui-monospace, monospace; letter-spacing: .08em; color: #aebccd; }
+.oid-inspector[data-kind=code] .oid-eyebrow { color: #b6cdbc; }
+.oid-inspector[data-kind=log] .oid-eyebrow { color: #d6c4a7; }
+.oid-inspector-head h3 { font-size: 22px; font-weight: 550; letter-spacing: -.025em; margin: 7px 0 0; }
+.oid-close { padding: 2px 9px; background: #ffffff03; border: 1px solid #4b5462; border-radius: 6px; color: #bbc4d1; font-size: 24px; cursor: pointer; }
+.oid-detail { color: #acb4c1; font-size: 12px; line-height: 1.6; margin: 10px 0 0; }
+.oid-view-controls { display: flex; gap: 6px; align-items: center; margin: 17px 0; flex-wrap: wrap; }
+.oid-view-controls > button { background: none; border: 1px solid #4a5464; border-radius: 5px; padding: 8px 11px; color: #b6c0cf; font-size: 11px; cursor: pointer; }
+.oid-view-controls > button[aria-pressed=true] { color: #f0f3f8; background: #afc3dd1a; border-color: #8195af; }
+.oid-view-controls > .cr-copy { margin-left: auto; }
+.oid-raw { margin: 0; padding: 20px; background: #11161d; border: 1px solid #3a4656; border-radius: 7px; color: #d3dce9; font: 12px/1.9 ui-monospace, monospace; white-space: pre-wrap; overflow-wrap: anywhere; max-height: 480px; overflow: auto; user-select: text; }
+.oid-preview, .oid-inspect-body { min-width: 0; }
+.oid-checks { margin-top: 18px; padding-top: 16px; border-top: 1px solid #ffffff12; }
+.oid-checks > span { font: 10px ui-monospace, monospace; color: #a3b3c6; letter-spacing: .06em; }
+.oid-checks > div { display: flex; justify-content: space-between; gap: 12px; font-size: 12px; padding: 10px 0; border-bottom: 1px solid #ffffff0c; }
+.oid-checks > div strong { font-weight: 400; color: #bdc9d8; }
+.oid-checks > div > span { color: #d8dfe9; }
+.oid-no-checks { margin: 12px 0 0; font-size: 11px; color: #a0abbc; }
+.oid-notice { padding: 14px 16px; margin-bottom: 15px; border: 1px solid #9e835956; background: #aa865510; border-radius: 7px; font-size: 13px; color: #e3c69c; }
+.oid-notice p { font-size: 12px; line-height: 1.6; margin: 7px 0 0; color: #ccbea7; }
+.oid-failed { border-color: #ad716465; background: #c77e6410; color: #edb6a9; }
+.oid-failed p { color: #d2b4af; }
+.oid-inspector-footer { display: flex; justify-content: space-between; gap: 15px; color: #99a5b6; font: 10px ui-monospace, monospace; margin-top: 20px; }
+.oid-empty { min-width: 0; padding: 60px 25px; align-self: center; text-align: center; font-size: 13px; color: #bbc5d4; }
+.oid-compact { grid-template-columns: 205px minmax(0, 1fr); }
+.oid-compact .oid-shelf { gap: 7px; padding: 11px; }
+.oid-compact .oid-cover { height: 44px; }
+.oid-compact .oid-thumbnail { padding: 7px 10px; }
+.oid-compact .oid-tile-copy { padding: 8px 6px 3px; }
+.oid-compact .oid-kind { font-size: 8px; }
+.oid-compact .oid-tile strong { font-size: 12px; margin-bottom: 5px; }
+.oid-compact .oid-inspector { padding: 19px 21px 16px; }
+.oid-compact .oid-object { right: 2px; bottom: 1px; }
+.oid-dock[data-motion=on] .oid-inspector { animation: oid-open .38s cubic-bezier(.2,.8,.2,1) both; }
+.oid-dock[data-motion=on] .oid-tile[aria-selected=true] { animation: oid-selected .32s ease-out both; }
+.oid-dock[data-motion=off] *, .oid-tile[data-state=failed] *, .oid-inspector[data-state=failed] * { animation: none !important; transition: none !important; }
+.oid-dock[data-motion=on] .oid-tile[data-state=failed] { animation: none !important; }
+.oid-dock button:focus-visible, .oid-inspector:focus-visible { outline: 2px solid #c7dcf5; outline-offset: -3px; }
+@keyframes oid-open { from { transform: translateY(6px); opacity: .85; } to { transform: none; opacity: 1; } }
+@keyframes oid-selected { from { transform: translateY(3px); } to { transform: none; } }
+@media (max-width: 1100px) and (min-width: 801px) {
+  .oid-dock, .oid-compact { grid-template-columns: 190px minmax(0, 1fr); }
+  .oid-shelf { padding: 11px; }
+  .oid-inspector { padding: 20px; }
+}
+@media (max-width: 800px) {
+  .oid-dock, .oid-compact { display: flex; flex-direction: column; }
+  .oid-shelf, .oid-compact .oid-shelf { flex-direction: row; overflow-x: auto; gap: 9px; padding: 12px; border-right: 0; border-bottom: 1px solid #414854; scroll-padding: 12px; }
+  .oid-tile { flex: 0 0 150px; width: 150px; }
+  .oid-cover { height: 70px; }
+  .oid-tile strong { font-size: 12px; }
+  .oid-compact .oid-tile { flex-basis: 140px; width: 140px; }
+  .oid-inspector, .oid-compact .oid-inspector { padding: 20px 16px 17px; }
+  .oid-inspector-head h3 { font-size: 21px; }
+  .oid-raw { padding: 15px; font-size: 12px; }
+  .oid-view-controls > .cr-copy { margin-left: 0; }
+  .oid-inspector-footer { flex-wrap: wrap; font-size: 9px; gap: 7px; }
+}
+@media (prefers-reduced-motion: reduce) { .oid-dock * { animation: none !important; transition: none !important; } }
+.oid-chat { max-height: min(48vh, 520px); overflow: auto; margin-top: 8px; }
+.siso-chat__inspect-outputs { border: 1px solid #5c697950; border-radius: 8px; color: inherit; background: #202833; font: inherit; padding: 5px 9px; font-size: 11px; }

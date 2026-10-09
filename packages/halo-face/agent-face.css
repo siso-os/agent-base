@@ -1,0 +1,18 @@
+/* Agent faces (Agent Base, 2 Oct): the Halo Face per agent. Two channels, as the face's own rules say:
+   the BODY carries the project (every agent of a project shares one colour; the hue comes from the project name, the
+   same hash Agent Base already colours its chat with), and the STATE is carried by motion and the halo ring:
+     working     thinking: squinted eyes, the halo ring runs, the glow pulses       (project colour)
+     waiting     standby: breathing, idle glances                                  (project colour)
+     needs-shaan standby + an amber ring and rim that pulse (the fact channel)    (project colour, amber ring)
+     blocked     problem: red and still (red never moves)                          (red: outranks the project)
+     done        asleep: grey, dimmed, z's; a nod as it finishes                    (grey)
+     offline     asleep, darker                                                    (grey)
+   Only the self states take the project colour; gold, amber, red and grey always keep their meaning. */
+.hf[data-tint]:is([data-state=standby], [data-state=thinking], [data-state=talking], [data-state=listening]) {
+  --c1: var(--t1); --c2: var(--t2); --c3: var(--t3); --c4: var(--t4);
+}
+.hf[data-tint]:is([data-state=standby], [data-state=thinking], [data-state=talking], [data-state=listening]):not([data-fact]) { --halo: var(--t2); }
+.hf[data-agent=done] { opacity: .7; }
+/* "needs you" must read at list size: at 28 px a 2.2-unit rim is under 1 px, so small agent faces get a thicker rim */
+.hf[data-agent=needs-shaan]:is([data-tier=xs], [data-tier=sm]) .hf-rim { stroke-width: 6; }
+.hf[data-agent=needs-shaan][data-tier=md] .hf-rim { stroke-width: 3.5; }

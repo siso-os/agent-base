@@ -1,0 +1,9 @@
+[[permission]]
+identifier = "browser"
+description = "The local app windows (Agent Base and its SISO Browser window) may control its native pages (one per web tab). Remote child pages have no capability."
+commands.allow = ["browser_open", "browser_bounds", "browser_visible", "browser_close", "browser_navigate", "browser_action", "browser_url", "browser_title", "browser_google_account", "browser_audio", "browser_session_state", "browser_adblock", "browser_window", "browser_prefetch", "browser_auth", "browser_auth_pending"]
+
+[[permission]]
+identifier = "browser-test"
+description = "Hidden fixture observation; command exists only in debug builds with browser-test."
+commands.allow = ["browser_test_observe", "browser_test_status", "browser_test_pages", "browser_test_media", "browser_test_google"]

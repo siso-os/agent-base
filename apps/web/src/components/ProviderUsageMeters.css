@@ -1,0 +1,63 @@
+.ab-provider-meters{display:inline-flex;align-items:center;gap:5px;flex:none;min-width:0;font:10.5px/1.2 var(--crm-font-mono);font-variant-numeric:tabular-nums}
+.ab-provider-meter{display:inline-flex;align-items:center;gap:4px;padding:4px 5px;max-width:100%;border:1px solid rgb(var(--crm-white-rgb)/.08);border-radius:8px;background:rgb(var(--crm-white-rgb)/.025);color:var(--crm-color-text);font:inherit;white-space:nowrap;cursor:pointer}
+.ab-provider-meter:hover,.ab-provider-meter[aria-expanded=true]{background:rgb(var(--crm-white-rgb)/.065)}.ab-provider-meter:focus-visible{outline:2px solid rgb(var(--crm-brand-rgb));outline-offset:2px}.ab-provider-meter b{font-weight:550}.ab-provider-meter .ab-hud__ring{width:12px;height:12px;-webkit-mask:radial-gradient(circle,transparent 3px,#000 3.5px);mask:radial-gradient(circle,transparent 3px,#000 3.5px)}
+.ab-provider-meter[data-tone=warn] b{color:#fbbf24}.ab-provider-meter[data-tone=bad] b{color:rgb(var(--crm-danger-rgb))}.ab-provider-meter[data-tone=ok] b{color:rgb(var(--crm-success-rgb))}.ab-provider-meter[data-state=stale]{border-style:dashed}.ab-provider-meter[data-state=unknown] b{color:rgb(var(--crm-white-rgb)/.5)}.ab-provider-meter small{font-size:8px;color:#fbbf24}
+.ab-provider-card{position:fixed;z-index:12000;box-sizing:border-box;overflow:auto;padding:12px;border:1px solid rgb(var(--crm-white-rgb)/.12);border-radius:14px;background:linear-gradient(160deg,#252422,#1a1918);box-shadow:0 22px 60px rgb(0 0 0/.6);color:var(--crm-color-text);font:12px/1.5 var(--crm-font-sans);white-space:normal;overflow-wrap:anywhere}
+.ab-provider-card header{display:flex;align-items:center;justify-content:space-between;gap:12px}.ab-provider-card header strong{color:var(--crm-color-text-strong)}.ab-provider-card header button{width:26px;height:26px;padding:0;border:0;border-radius:7px;background:transparent;color:inherit;font-size:20px;cursor:pointer}.ab-provider-card header button:hover{background:rgb(var(--crm-white-rgb)/.08)}.ab-provider-card article{padding:10px 0;border-top:1px solid rgb(var(--crm-white-rgb)/.08)}.ab-provider-card article:last-child{padding-bottom:0}.ab-provider-card h3{margin:0;color:var(--crm-color-text-strong);font-size:12px}.ab-provider-card p{margin:4px 0}.ab-provider-card__note{font-size:10.5px;color:rgb(var(--crm-white-rgb)/.52)}.ab-provider-card__state{font-size:10.5px;color:#fbbf24}.ab-provider-card__state.is-unknown{color:rgb(var(--crm-white-rgb)/.55)}.ab-provider-card .ab-hud__rings{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:8px 0}.ab-provider-card .ab-ring{min-width:0}.ab-provider-card .ab-ring__text{min-width:0}.ab-provider-card .ab-ring__text small{white-space:normal;line-height:1.4}
+
+.ab-provider-card .ab-ring svg{flex:none}
+
+/* Merged item (6 Oct 21:00): two rings and two numbers in one chip. */
+.ab-provider-meter{gap:7px}.ab-provider-meter__one{display:inline-flex;align-items:center;gap:3px}
+.ab-provider-meter__one[data-tone=warn] b{color:#fbbf24}.ab-provider-meter__one[data-tone=bad] b{color:rgb(var(--crm-danger-rgb))}.ab-provider-meter__one[data-tone=ok] b{color:rgb(var(--crm-success-rgb))}
+.ab-provider-meter__one[data-state=stale]{opacity:.55}.ab-provider-meter__one[data-state=unknown] b{color:rgb(var(--crm-white-rgb)/.5)}
+.ab-provider-meter[data-tone]{border-style:solid}.ab-provider-card__provider+.ab-provider-card__provider{margin-top:6px;padding-top:6px;border-top:1px solid rgb(var(--crm-white-rgb)/.14)}
+.ab-provider-card h2{margin:6px 0 0;font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:rgb(var(--crm-white-rgb)/.6)}
+
+/* Usage orbs (6 Oct 22:10): TodaySpend's pie-orb look; fewer words in the card, one row per account. */
+.ab-usage-orb { flex: none; overflow: visible; }
+.ab-usage-orb__arc { stroke: rgb(var(--crm-success-rgb)); }
+.ab-usage-orb.is-warn .ab-usage-orb__arc { stroke: #fbbf24; }
+.ab-usage-orb.is-bad .ab-usage-orb__arc { stroke: rgb(var(--crm-danger-rgb)); }
+.ab-usage-orb.is-stale { opacity: .55; }
+.ab-usage-orb__n { fill: #e7ecf3; font: 600 11px var(--crm-font-mono); }
+.ab-usage-row { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 12px; padding: 8px 0; border-top: 1px solid rgb(var(--crm-white-rgb) / 0.07); }
+.ab-usage-row.is-own { border-top: 0; }
+.ab-usage-row.is-stale .ab-usage-row__who small { color: #fbbf24; }
+.ab-usage-row__who { display: grid; min-width: 0; color: var(--crm-color-text-strong); font-size: 12px; overflow-wrap: anywhere; }
+.ab-usage-row__who small { color: rgb(var(--crm-white-rgb) / 0.45); font-size: 10.5px; }
+.ab-usage-win { display: flex; align-items: center; gap: 6px; }
+.ab-usage-win > span { display: grid; }
+.ab-usage-win b { font-size: 11px; font-weight: 600; }
+.ab-usage-win small { color: rgb(var(--crm-white-rgb) / 0.5); font-size: 10px; white-space: nowrap; }
+.ab-provider-meter__one .ab-usage-orb { margin-right: 1px; }
+
+.ab-provider-card__windows{margin-top:10px}.ab-provider-card__windows summary{cursor:pointer;font-size:11px;color:#aeb7c5}
+
+/* t-0570 (Shaan, 9 Oct: "It's quite hard to see when my 5-hour resets for multiple counts ... make it nicer, use some cool
+   graphs"): every account's 5-hour and week windows side by side, nothing folded; the soonest 5-hour reset on top. */
+.ab-provider-card{background:#0b0b0b;padding:14px 16px}
+.ab-usage-next{margin:10px 0 2px;padding:8px 10px;border-radius:10px;background:rgb(var(--crm-success-rgb) / .07);color:var(--crm-color-text);font-size:12px}
+.ab-usage-next b{color:var(--crm-color-text-strong);font-weight:600}
+.ab-usage-next small{color:rgb(var(--crm-white-rgb) / .5);font-size:11px}
+.ab-provider-card .ab-provider-card__provider{margin-top:10px}
+.ab-provider-card h2{margin:0 0 2px}
+.ab-provider-card .ab-usage-row{grid-template-columns:minmax(0,1fr) 168px 168px;gap:14px;padding:10px 0}
+.ab-usage-row.is-chat .ab-usage-row__who>b{color:#9eddf5}
+.ab-usage-row__who b{font-weight:600;font-size:12.5px;overflow:hidden;text-overflow:ellipsis}
+.ab-usage-row__who small{margin-top:2px}
+.ab-usage-row__money{color:rgb(var(--crm-white-rgb) / .55)!important}
+.ab-uw{display:flex;align-items:center;gap:8px;min-width:0}
+.ab-uw__text{display:grid;min-width:0;gap:1px;flex:1}
+.ab-uw__text b{color:rgb(var(--crm-white-rgb) / .55);font-size:10px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.ab-uw__left{color:var(--crm-color-text-strong);font-size:12px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.ab-uw__text small{color:rgb(var(--crm-white-rgb) / .5);font-size:10.5px;line-height:1.35;white-space:normal}
+.ab-uw__bar{display:block;height:3px;margin-top:3px;overflow:hidden;border-radius:2px;background:rgb(var(--crm-white-rgb) / .08)}
+.ab-uw__bar u{display:block;height:100%;border-radius:2px;background:rgb(var(--crm-white-rgb) / .35);text-decoration:none}
+.ab-uw[data-state=stale]{opacity:.6}
+.ab-uw.is-note .ab-uw__text small{max-width:168px}
+/* Narrow windows: the name on its own line, the two windows under it. */
+@media (max-width:520px){
+ .ab-provider-card .ab-usage-row{grid-template-columns:1fr 1fr;row-gap:8px}
+ .ab-provider-card .ab-usage-row__who{grid-column:1/-1}
+}

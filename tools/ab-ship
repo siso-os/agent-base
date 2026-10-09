@@ -1,0 +1,99 @@
+#!/bin/bash
+set -euo pipefail
+
+die() { printf 'ab-ship: %s\n' "$*" >&2; exit 1; }
+ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
+BRANCH=${1:?usage: tools/ab-ship <branch>}
+REMOTE=${AB_REMOTE:-origin}
+MAIN_REF=${AB_MAIN_REF:-refs/heads/main}
+MERGE=${AB_MERGE_WORKTREE:-$HOME/SISO_Workspace/_data/worktrees/siso-internal-labs-agent-base/merge}
+MINI=${AB_MINI:-$HOME/SISO_Workspace/SISO_Agency/apps/siso-internal-labs/siso-internal-labs-agents/.agents/luna/ab-mini}
+LOG=${AB_SHIP_LOG:-$ROOT/.agents/ship.log.jsonl}
+
+[[ -d "$MERGE/.git" || -f "$MERGE/.git" ]] || die "merge worktree missing: $MERGE"
+if [[ "${AB_ON_MINI:-0}" != 1 ]]; then [[ -x "$MINI" ]] || die "ab-mini is not executable: $MINI"; fi
+git -C "$ROOT" fetch "$REMOTE" || die "fetch failed"
+git -C "$ROOT" show-ref --verify --quiet "refs/remotes/$REMOTE/$BRANCH" || die "branch not found on $REMOTE: $BRANCH"
+SOURCE=$(git -C "$ROOT" rev-parse "refs/remotes/$REMOTE/$BRANCH^{commit}")
+BASE=$(git -C "$ROOT" rev-parse "$REMOTE/${MAIN_REF#refs/heads/}^{commit}")
+git -C "$ROOT" merge-base "$BASE" "$SOURCE" >/dev/null || die "branch and main have no common history"
+
+result=$(git -C "$ROOT" show "$SOURCE:.agents/ship.json" 2>/dev/null || true)
+test_cmd=$(python3 -c 'import json,sys; d=json.load(sys.stdin); print(d.get("tests", ""))' <<<"$result" 2>/dev/null || true)
+if [[ -z "$test_cmd" ]]; then
+  result=$(git -C "$ROOT" show "$SOURCE:RESULT.md" 2>/dev/null || true)
+  test_cmd=$(python3 -c 'import re,sys; m=re.search(r"(?m)^\.agents/tests:\s*(.+?)\s*$", sys.stdin.read()); print(m.group(1) if m else "")' <<<"$result")
+fi
+[[ -n "$test_cmd" ]] || die "declare tests in .agents/ship.json (tests) or RESULT.md (.agents/tests: <command>)"
+[[ "$test_cmd" != *$'\n'* && "$test_cmd" != *$'\r'* ]] || die "test command must be one line"
+
+mkdir -p "$(dirname "$LOG")"
+start=$(date +%s)
+tests=''
+outcome=refused
+merged=''
+attempt=0
+while (( attempt < 2 )); do
+  attempt=$((attempt + 1))
+  BASE=$(git -C "$ROOT" rev-parse "$REMOTE/${MAIN_REF#refs/heads/}^{commit}")
+  if git -C "$ROOT" merge-base --is-ancestor "$SOURCE" "$BASE"; then
+    merged=$BASE
+    tests='not run: branch already contained in main'
+    outcome=already_merged
+    break
+  fi
+  node --experimental-strip-types --no-warnings "$ROOT/services/node/src/writer-gates.ts" --landing "$ROOT" "refs/remotes/$REMOTE/$BRANCH" "$SOURCE" "$BASE" >/dev/null || die "writer evidence is missing or stale; return to the author"
+  [[ -z "$(git -C "$MERGE" status --porcelain)" ]] || die "merge worktree is dirty"
+  git -C "$MERGE" switch --detach "$BASE" >/dev/null
+  if ! git -C "$MERGE" merge --no-ff --no-commit "$SOURCE"; then
+    conflicts=$(git -C "$MERGE" diff --name-only --diff-filter=U)
+    printf 'ab-ship: merge refused; conflicts:\n%s\n' "$conflicts" >&2
+    git -C "$MERGE" merge --abort || true
+    break
+  fi
+  conflicts=$(git -C "$MERGE" diff --name-only --diff-filter=U)
+  if [[ -n "$conflicts" ]]; then printf 'ab-ship: unresolved files:\n%s\n' "$conflicts" >&2; git -C "$MERGE" merge --abort || true; break; fi
+  git -C "$MERGE" commit --no-edit >/dev/null
+  merged=$(git -C "$MERGE" rev-parse HEAD)
+  printf -v command 'cd %q && bash -lc %q && pnpm check' "$MERGE" "$test_cmd"
+  if [[ "${AB_ON_MINI:-0}" == 1 ]]; then
+    if (cd "$MERGE" && bash -lc "$test_cmd" && pnpm check); then
+      tests="declared and pnpm check passed (attempt $attempt)"
+    else
+      tests="failed (attempt $attempt)"
+      break
+    fi
+  elif (cd "$MERGE" && "$MINI" "$command"); then
+    tests="declared and pnpm check passed (attempt $attempt)"
+  else
+    tests="failed (attempt $attempt)"
+    break
+  fi
+  git -C "$ROOT" fetch "$REMOTE" || { tests='fetch after checks failed'; break; }
+  latest=$(git -C "$ROOT" rev-parse "$REMOTE/${MAIN_REF#refs/heads/}^{commit}")
+  if [[ "$latest" != "$BASE" ]]; then
+    if (( attempt == 1 )); then continue; fi
+    tests='main moved twice; refused'
+    break
+  fi
+  if git -C "$ROOT" push "$REMOTE" "$merged:$MAIN_REF"; then outcome=shipped; break; fi
+  git -C "$ROOT" fetch "$REMOTE" || { tests='push failed and fetch failed'; break; }
+  latest=$(git -C "$ROOT" rev-parse "$REMOTE/${MAIN_REF#refs/heads/}^{commit}")
+  if [[ "$latest" != "$BASE" && $attempt -eq 1 ]]; then continue; fi
+  tests='push rejected (main moved or remote refused); refused'
+  break
+done
+seconds=$(( $(date +%s) - start ))
+python3 - "$LOG" "$BRANCH" "$SOURCE" "$merged" "$tests" "$outcome" "$seconds" <<'PY'
+import json,sys
+path,branch,sha,merged,tests,result,seconds=sys.argv[1:]
+with open(path,'a') as f:
+    f.write(json.dumps({'branch':branch,'sha':sha,'merged_sha':merged,'tests':tests,'result':result,'seconds':int(seconds)})+'\n')
+PY
+[[ "$outcome" == shipped || "$outcome" == already_merged ]] || die "$outcome: $tests"
+# A push alone has no installed artifact/readback: persist a deferred follow-up.
+# ab-live or the preserving installer's caller completes this same revision later.
+if [[ "$outcome" == shipped ]]; then
+  python3 "$ROOT/tools/ab-after-install-qa.py" --revision "$merged" || printf 'ab-ship: Mini follow-up unavailable; ship remains successful\n' >&2
+fi
+printf '%s %s as %s\n' "$outcome" "$BRANCH" "$merged"

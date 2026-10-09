@@ -1,0 +1,19 @@
+/* 6 Oct 21:10 ("those icons aren't centered ... they should be like 30-40% bigger"): the shell's 20 px rail-svg rule
+   was shrinking the living icon inside its box and pinning it left. The art now fills a centred 27 px box (the ink
+   was ~15 px, now ~20 px: +35%), and plain rail icons go from 20 to 26 px. */
+.siso-app__rail-art { display: grid; place-items: center; width: 27px; height: 27px; line-height: 0; }
+.siso-app__rail-art > .wm { display: grid; place-items: center; width: 27px; height: 27px; }
+.siso-app__rail-btn .siso-app__rail-art svg { width: 27px; height: 27px; }
+.siso-app__rail-btn > svg { width: 26px; height: 26px; }
+.ab-nav-context { display: none; }
+@media (max-width: 639px) {
+  .ab-nav-context { display: inline-flex; flex: none; color: var(--muted-foreground); font-size: 10px; font-variant-numeric: tabular-nums; }
+  .ab-nav-context.is-high { color: #f0b17c; }
+}
+.siso-app__rail-btn:is(:hover, :focus-visible) .wm[data-motion="on"] .wm-event,
+.ab-workspace__name:is(:hover, :focus-visible) .wm[data-motion="on"] .wm-event { animation: wm-arrive 1.3s both; }
+.siso-app__rail-btn:is(:hover, :focus-visible) .wm[data-motion="on"] .wm-polish,
+.ab-workspace__name:is(:hover, :focus-visible) .wm[data-motion="on"] .wm-polish { animation: wm-flash 1.3s both; }
+@media (prefers-reduced-motion: reduce) {
+  .siso-app__rail-art *, .ab-workspace__logo * { animation: none !important; transition: none !important; }
+}

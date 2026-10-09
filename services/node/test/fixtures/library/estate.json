@@ -1,0 +1,26 @@
+{
+ "generated_at": "2026-09-21T17:11:20.000Z",
+ "repositories": [
+  {
+   "repository": "herdr",
+   "url": "https://github.com/herdrdev/herdr",
+   "work_slug": "herdr",
+   "work_name": "Herdr",
+   "lifecycle_status": "active"
+  },
+  {
+   "repository": "great-library-of-siso",
+   "url": "https://github.com/sisodias/great-library-of-siso",
+   "work_slug": "great-library-of-siso",
+   "work_name": "The Great Library of SISO",
+   "lifecycle_status": "active"
+  },
+  {
+   "repository": "siso-agent-base",
+   "url": "https://github.com/sisodias/siso-agent-base",
+   "work_slug": "siso-agent-base-warehouse",
+   "work_name": "SISO Agent Base Source Warehouse",
+   "lifecycle_status": "retired"
+  }
+ ]
+}

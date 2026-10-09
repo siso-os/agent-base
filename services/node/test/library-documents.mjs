@@ -1,0 +1,65 @@
+import assert from 'node:assert/strict';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import path from 'node:path';
+import { catalogDocuments, documentUrl, domainDocuments } from '../src/library-documents.ts';
+const root = process.env.LIBRARY_TEST_ROOT;
+assert.ok(root?.includes('.siso-ephemeral-library.'));
+for (const bad of ['javascript:alert(1)', 'data:text/html,test', 'file:///etc/passwd', '//evil.test/x', 'https://user:pass@example.test', ' https://example.test', 'https:\\evil.test', '/local']) assert.equal(documentUrl(bad), null, bad);
+assert.equal(documentUrl('/works/test/', 'https://library.example'), 'https://library.example/works/test/');
+const rows = catalogDocuments([{ id: 'work-1', slug: 'demo', name: 'Demo', section: 'Research', owner_entry: { owner: 'Fixture owner', reference: 'registry/works/demo.json', source_revision: 'abc' }, source_links: [{ kind: 'readme', url: 'https://source.example/readme', visibility: 'private' }, { kind: 'documentation', url: 'javascript:alert(1)' }, { kind: 'documentation', url: 'https://source.example/readme' }] }], 'https://library.example');
+assert.equal(rows.length, 3); assert.equal(rows[0].privacy, 'public'); assert.equal(rows[1].privacy, 'private'); assert.equal(rows[1].availability, 'unverified'); assert.equal(rows[1].owner, 'Fixture owner'); assert.equal(rows[1].reference, 'registry/works/demo.json'); assert.equal(rows[2].url, null); assert.equal(rows[2].availability, 'unavailable');
+const absent = domainDocuments(root);
+assert.equal(absent.length, 10);
+assert(absent.every(r => r.availability === 'unavailable'));
+assert.deepEqual([...new Set(absent.map(r => r.owner))].sort(), ['ASTRA-APP', 'ASTRA-BROWSER', 'ASTRA-COMMS', 'ASTRA-LIBRARY']);
+const dir = path.join(root, 'domain-base/library'); mkdirSync(dir, { recursive: true });
+writeFileSync(path.join(dir, 'README.md'), '<script>window.pwned=1</script>\n[click](javascript:alert(1))');
+writeFileSync(path.join(dir, 'STATE.md'), 'x'.repeat(65537));
+mkdirSync(path.join(dir, 'SPEC.md'));
+const local = domainDocuments(root);
+const readable = local.find(r => r.id === 'astra-library:README.md');
+assert.equal(readable.availability, 'local'); assert.ok(readable.text.includes('<script>')); assert.equal(readable.url, null); assert.equal(readable.privacy, 'internal');
+assert.equal(local.filter(r => r.availability === 'local').length, 1);
+assert(local.filter(r => r.id !== readable.id).every(r => r.availability === 'unavailable' && r.text === undefined));
+console.log('PASS: URL scheme/credential guards, duplicate locators, privacy/provenance, missing/oversized/non-file local sources, inert content contract');
+
+// Exercise the existing composition with synthetic HTTP, register, surfaces and disk cache.
+const { createServer } = await import('node:http');
+const { utimesSync } = await import('node:fs');
+const fixtureCatalog = { generated_at: '2026-10-06', works: [{ slug: 'fixture', name: 'Fixture book', library_url: '/works/fixture/', source_links: [{ kind: 'readme', url: 'https://example.test/readme', visibility: 'private' }] }] };
+const server = createServer((req, res) => { res.setHeader('content-type', 'application/json'); const answer = () => res.end(JSON.stringify(req.url === '/catalog.json' ? fixtureCatalog : req.url === '/estate.json' ? { repositories: [] } : { templates: [] })); if (req.url === '/catalog.json') setTimeout(answer, 250); else answer(); });
+await new Promise(r => server.listen(0, '127.0.0.1', r));
+try {
+  const site = `http://127.0.0.1:${server.address().port}`;
+  const cache = path.join(root, 'cache'); mkdirSync(cache);
+  writeFileSync(path.join(root, 'register.json'), JSON.stringify({ buildings: [] }));
+  writeFileSync(path.join(root, 'surfaces.json'), '[]');
+  const cf = path.join(cache, `${site.replace(/^https?:\/\//, '').replace(/[^A-Za-z0-9.-]+/g, '_')}_catalog.json.json`);
+  writeFileSync(cf, JSON.stringify(fixtureCatalog)); utimesSync(cf, new Date(0), new Date(0));
+  Object.assign(process.env, { AB_LIBRARY_SITE: site, AB_SHELL_SITE: site, AB_ESTATE_REGISTER: path.join(root, 'register.json'), AB_SURFACES: path.join(root, 'surfaces.json'), AB_LIBRARY_CACHE: cache });
+  const { library } = await import('../src/library.ts');
+  const first = await library();
+  assert.equal(first.documents.stale, true, 'expired disk copy remains stale during refresh');
+  assert.equal(first.documents.fetchedAt, 0, 'preserve last successful fetch time');
+  await new Promise(r => setTimeout(r, 300));
+  assert.equal((await library()).documents.stale, false, 'successful refresh becomes fresh');
+  assert.equal(first.built.source, 'register'); assert.equal(first.live.rows.length, 0);
+  assert.equal(first.documents.rows.filter(r => r.source === 'Great Library catalogue').length, 2);
+  assert.equal(first.documents.rows.find(r => r.url === 'https://example.test/readme').privacy, 'private');
+  assert.equal(first.documents.rows.find(r => r.title === 'Fixture book').availability, 'unverified');
+  console.log('PASS: existing /api/library composition, expired disk cache, successful refresh, Docs provenance and privacy using synthetic sources');
+} finally { await new Promise(r => server.close(r)); }
+
+const identityWork = { id: 'stable-work', slug: 'renamable', name: 'Fixture', source_links: [{ kind: 'readme', url: 'https://example.test/a', visibility: 'private' }, { kind: 'documentation', url: 'https://example.test/b' }] };
+const original = catalogDocuments([identityWork], 'https://library.example');
+const reordered = catalogDocuments([{ ...identityWork, name: 'Renamed', source_links: [...identityWork.source_links].reverse() }], 'https://library.example');
+for (const d of original) assert.equal(reordered.find(x => x.url === d.url)?.id, d.id, 'document identity survives link reordering and title changes');
+assert(original.every(d => d.workId === 'stable-work'));
+const { libraryRoute, libraryHref, isLibraryLocation } = await import('../../../apps/web/src/components/LibraryNavigation.ts');
+assert.equal(isLibraryLocation('#library/docs'), true);
+assert.equal(isLibraryLocation('#library-other'), false);
+assert.equal(libraryRoute('#project/demo'), null);
+assert.deepEqual(libraryRoute(libraryHref('document', 'astra-library:README.md')), { kind: 'document', id: 'astra-library:README.md' });
+for (const id of ['../secret', '%2e%2e%2fsecret', '%252e%252e%252fsecret', '%00', '%E0%A4%A', 'x%5cy', '/absolute']) assert.deepEqual(libraryRoute('#library/document/' + id), { kind: 'invalid' }, id);
+assert.deepEqual(libraryRoute('#library/work/unknown'), { kind: 'work', id: 'unknown' }, 'valid unknown ID can only resolve against existing metadata');
+console.log('PASS: stable catalogue identities, Work joins and Library route traversal/encoding guards');

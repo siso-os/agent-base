@@ -1,0 +1,181 @@
+{
+ "source": "fixture of SISO_Agency/clients/CLIENTS.json, 2 Oct 2026",
+ "clients": [
+  {
+   "folder": "../partners/halo",
+   "kind": "partner",
+   "note": "fixture note",
+   "people": [
+    "Cam Kellman"
+   ],
+   "place": "agency"
+  },
+  {
+   "folder": "../partners/fahmy",
+   "kind": "partner",
+   "note": "fixture note",
+   "people": [
+    "Fahmy"
+   ],
+   "place": "agency"
+  },
+  {
+   "folder": "buildstockpro",
+   "kind": "friend-favour",
+   "note": "fixture note",
+   "people": [
+    "Ray Cannon"
+   ],
+   "place": "agency"
+  },
+  {
+   "folder": "construction-rc",
+   "kind": "friend-favour",
+   "note": "fixture note",
+   "people": [
+    "Ray Cannon"
+   ],
+   "place": "agency"
+  },
+  {
+   "folder": "cafe-89",
+   "kind": "friend-favour",
+   "note": "fixture note",
+   "people": [
+    "Ha",
+    "Fang"
+   ],
+   "place": "agency"
+  },
+  {
+   "folder": "visa-run-da-nang",
+   "kind": "friend-favour",
+   "note": "fixture note",
+   "people": [],
+   "place": "agency"
+  },
+  {
+   "folder": "siso-fullora",
+   "kind": "lead",
+   "note": "'for Laura': fixture",
+   "people": [
+    "Tristan"
+   ],
+   "place": "agency"
+  },
+  {
+   "folder": "provider-compliance-2026-08",
+   "kind": "client",
+   "note": "fixture note",
+   "people": [
+    "Harrison"
+   ],
+   "place": "agency"
+  },
+  {
+   "folder": "five-star-hire",
+   "kind": "template",
+   "note": "car hire template; may become live: fixture",
+   "people": [
+    "Nick Mearson"
+   ],
+   "place": "agency"
+  },
+  {
+   "folder": "restaurant-app",
+   "kind": "template",
+   "note": "fixture note",
+   "people": [
+    "Dickie"
+   ],
+   "place": "agency"
+  },
+  {
+   "folder": "bike-rental",
+   "kind": "template",
+   "note": "fixture note",
+   "people": [],
+   "place": "agency"
+  },
+  {
+   "folder": "tour-guides",
+   "kind": "template",
+   "note": "fixture note",
+   "people": [],
+   "place": "agency"
+  },
+  {
+   "folder": "lumelle",
+   "kind": "offboarded",
+   "note": "fixture note (now an e-commerce template)",
+   "people": [
+    "Sam (patchwork)"
+   ],
+   "place": "agency"
+  },
+  {
+   "folder": "patchwork-store",
+   "kind": "client",
+   "note": "fixture note",
+   "people": [
+    "Sam (patchwork)"
+   ],
+   "place": "agency"
+  },
+  {
+   "folder": "business-to-government",
+   "kind": "declined",
+   "note": "fixture note",
+   "people": [
+    "the 'my gum' affiliate"
+   ],
+   "place": "agency"
+  },
+  {
+   "folder": "thehrworld",
+   "kind": "unknown",
+   "note": "fixture note",
+   "people": [],
+   "place": "agency"
+  },
+  {
+   "folder": "blackbox4",
+   "kind": "moved",
+   "note": "the black boxes: fixture",
+   "people": [],
+   "place": "labs"
+  },
+  {
+   "folder": "../partners/fahmy/(melanotresses)",
+   "kind": "partner-client",
+   "note": "MelanoTresses: fixture",
+   "people": [
+    "Fahmy"
+   ],
+   "place": "agency"
+  },
+  {
+   "folder": "../partners/halo/clients/college-besties",
+   "kind": "partner-client",
+   "note": "College Besties: fixture",
+   "people": [
+    "Cam Kellman"
+   ],
+   "place": "agency"
+  },
+  {
+   "folder": "actionmodel",
+   "kind": "unknown",
+   "note": "fixture note",
+   "people": [],
+   "place": "agency"
+  },
+  {
+   "folder": "home-essentials",
+   "kind": "unknown",
+   "note": "fixture note",
+   "people": [],
+   "place": "agency"
+  }
+ ]
+}

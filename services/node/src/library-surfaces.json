@@ -1,0 +1,11 @@
+[
+  { "id": "great-library", "name": "Great Library of SISO", "group": "labs", "url": "https://great-library-of-siso.pages.dev", "host": "cloudflare", "machine": "cloudflare", "path": "Great_Library_of_SISO", "edit": "Great_Library_of_SISO/site", "deploy": "npm run build && npm run deploy:cloudflare", "auth": "public" },
+  { "id": "siso-shell", "name": "SISO templates · the bank", "group": "labs", "url": "https://siso-shell.pages.dev", "host": "cloudflare", "machine": "cloudflare", "path": "Great_Library_of_SISO/banks/siso-shell", "edit": "Great_Library_of_SISO/banks/siso-shell/site", "auth": "public" },
+  { "id": "halo-face", "name": "HALO face", "group": "agency", "project": "halo", "url": "https://halo-face.pages.dev", "host": "cloudflare", "machine": "cloudflare", "auth": "public" },
+  { "id": "sisolabs", "name": "sisolabs.space", "group": "labs", "project": "labs", "url": "https://sisolabs.space", "host": "vps", "machine": "siso-vps", "auth": "login", "note": "the old Agent Base and the Work page" },
+  { "id": "estate-centre", "name": "Estate operations centre", "group": "stack", "project": "siso", "url": "http://127.0.0.1:8895", "host": "local", "machine": "laptop", "path": "SISO_Agents/siso-estate", "owner_seat": "ESTATE", "auth": "public" },
+  { "id": "console", "name": "SISO console", "group": "stack", "project": "labs", "owner_seat": "EFFICIENCY", "url": "http://127.0.0.1:8891", "host": "local", "machine": "laptop", "edit": "~/.claude/console/server.mjs", "auth": "public" },
+  { "id": "halo-crm", "name": "HALO CRM", "group": "agency", "project": "halo", "url": "http://127.0.0.1:3199", "host": "local", "machine": "laptop", "auth": "tunnel", "note": "needs the tunnel" },
+  { "id": "mission-control", "name": "Client platform mission control", "group": "agency", "url": "http://127.0.0.1:4177", "host": "local", "machine": "laptop", "auth": "public" },
+  { "id": "lifelog", "name": "Lifelog", "group": "labs", "project": "lifelog", "host": "app", "app": "SISO Internal", "machine": "laptop", "path": "SISO_Agency/apps/siso-internal/codebase", "note": "opens SISO Internal" }
+]

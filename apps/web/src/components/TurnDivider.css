@@ -1,0 +1,2 @@
+.turn-divider { display: flex; align-items: center; gap: 10px; margin: 14px 0; color: var(--crm-color-text-faint); font-size: 11px; line-height: 1; }
+.turn-divider::before, .turn-divider::after { height: 1px; flex: 1; background: var(--crm-color-line); content: ""; }

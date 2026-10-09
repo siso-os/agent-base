@@ -1,0 +1,53 @@
+/*
+ * Tailwind 4 names over the SISO tokens (siso.css, the SISO CRM's tokens file, verbatim). Import siso.css first.
+ * Colour is only ever a state (working, needs you, failed, done) or a project/tool identity; surfaces, text and the
+ * brand come from the SISO tokens. Names follow T3 Code's tokens so its lifted rows keep their classes.
+ */
+@theme {
+  --color-sidebar: var(--crm-color-chrome);
+  --color-page: var(--crm-color-canvas);
+  --color-raised: var(--crm-color-surface-raised);
+  --color-surface: var(--crm-color-surface);
+  --color-action: var(--crm-color-brand);
+  --color-brand: var(--crm-color-brand);
+  --color-brand-hover: var(--crm-color-brand-hover);
+  --color-working: #38bdf8;
+  --color-needs: #f0b03f;
+  --color-failed: #ef5b4c;
+  --color-done: #34c38f;
+
+  --color-foreground: var(--crm-color-text);
+  --color-secondary-label: var(--crm-color-text-muted);
+  --color-muted-foreground: var(--crm-color-text-faint);
+  --color-border: var(--crm-color-line);
+  --color-sidebar-row-hover: rgb(255 255 255 / 3.5%);
+  --color-sidebar-row-active: rgb(255 255 255 / 7%);
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --text-2xs: 0.6875rem;
+  --text-2xs--line-height: calc(1 / 0.6875);
+  --text-3xs: 0.625rem;
+  --text-3xs--line-height: calc(0.875 / 0.625);
+
+  --animate-spin-slow: spin 1.6s linear infinite;
+  --animate-pulse-once: pulse-once 0.6s ease-out 1;
+}
+
+@keyframes pulse-once {
+  0% { box-shadow: 0 0 0 0 rgb(74 108 247 / 0.6); }
+  100% { box-shadow: 0 0 0 8px rgb(74 108 247 / 0); }
+}
+
+/* Page basics every SISO app shares. */
+html, body, #root { height: 100%; }
+body {
+  margin: 0;
+  background: var(--color-page);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+  user-select: none;
+}
+/* Thin, quiet scrollbars, as in Codex. */
+* { scrollbar-width: thin; scrollbar-color: rgb(255 255 255 / 12%) transparent; }

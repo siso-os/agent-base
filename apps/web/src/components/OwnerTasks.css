@@ -1,0 +1,15 @@
+.owner-tasks { color: var(--crm-text-primary, #e8e8ed); font-size: 12px; }
+.owner-tasks__owner, .owner-tasks__item { display: flex; width: 100%; align-items: center; gap: 8px; min-height: 32px; padding: 5px 8px; border: 0; border-radius: var(--crm-radius-control, 8px); color: inherit; background: transparent; text-align: left; cursor: pointer; }
+.owner-tasks__owner:hover, .owner-tasks__item:hover { background: rgb(var(--crm-highlight-rgb, 255 255 255) / .07); }
+.owner-tasks__caret { width: 10px; color: var(--crm-text-muted, #999); }
+.owner-tasks__dot { flex: none; width: 7px; height: 7px; border-radius: 50%; background: #777; }
+.owner-tasks__dot.is-live, .owner-tasks__dot.is-building, .owner-tasks__dot.is-claimed { background: #57c785; }
+.owner-tasks__dot.is-planned, .owner-tasks__dot.is-asked, .owner-tasks__dot.is-open { background: #e2aa4c; }
+.owner-tasks__dot.is-review, .owner-tasks__dot.is-specced { background: #8b9cff; }
+.owner-tasks__dot.is-failed { background: #ed6b6b; }
+.owner-tasks__count, .owner-tasks__progress, .owner-tasks__state, .owner-tasks__empty { color: var(--crm-text-muted, #999); font-size: 11px; }
+.owner-tasks__count { margin-left: auto; }
+.owner-tasks__children { margin-left: 18px; padding-left: 9px; border-left: 1px solid rgb(var(--crm-highlight-rgb, 255 255 255) / .12); }
+.owner-tasks__item { min-height: 29px; }
+.owner-tasks__title { overflow: hidden; flex: 1; text-overflow: ellipsis; white-space: nowrap; }
+.owner-tasks__empty { display: block; padding: 7px 10px; }

@@ -1,0 +1,27 @@
+.ab-bank-spend{position:relative;flex:none}.ab-bank-spend .td-root{width:auto}.ab-bank-spend .td-trigger{min-height:34px;min-width:0;padding:3px 8px;gap:6px;border-radius:10px}.ab-bank-spend .td-icon{width:24px;height:24px}.ab-bank-spend .td-value{font-size:12px}.ab-bank-spend .td-trigger-copy>span{font-size:10px}.ab-bank-spend .td-panel{position:absolute;right:0;top:100%;width:min(430px,calc(100vw - 24px));z-index:1100;max-height:min(560px,calc(100dvh - 80px))}.ab-bank-version{position:fixed;right:18px;bottom:82px;z-index:1100}.ab-bank-version .vp-panel{position:absolute;right:0;bottom:calc(100% + 8px);width:min(410px,calc(100vw - 24px));max-height:calc(100dvh - 160px);overflow:auto}.ab-bank-arrival{min-width:0;width:100%}@media(max-width:600px){.ab-bank-spend .td-trigger-copy small,.ab-bank-spend .td-chevron{display:none}.ab-bank-spend .td-panel{position:fixed;top:54px;right:12px}.ab-bank-version{right:12px;bottom:90px}}
+
+.ab-bank-palette--hidden>.wp-root>.wp-trigger{display:none}
+.ab-bank-palette--hidden .wp-dialog { margin: auto; }
+
+/* t-0570 (Shaan, 9 Oct: "it shouldn't be that color it should be black and the thing which pops up should be nice and black
+   and fit our thing and maybe actually be a pop-up which is a bit wider"): the top bar's Today chip and its pop-up, black. */
+.ab-bank-spend .td-trigger{background:#0b0b0b;border-color:rgb(var(--crm-white-rgb) / .12);box-shadow:none;color:var(--crm-color-text)}
+.ab-bank-spend .td-root[data-motion=on] .td-trigger:hover,.ab-bank-spend .td-trigger:hover{border-color:rgb(var(--crm-white-rgb) / .24);background:#141414}
+.ab-bank-spend .td-trigger-copy>span{color:var(--crm-color-text-muted)}
+.ab-bank-spend .td-trigger-copy small{color:var(--crm-color-text-muted)}
+.ab-bank-spend .td-value{color:var(--crm-color-text-strong);font-weight:600}
+.ab-bank-spend .td-chevron{color:var(--crm-color-text-muted);font-size:16px}
+.siso-peek.td-peek{width:min(520px,calc(100vw - 16px));max-height:min(680px,calc(100dvh - 72px));overflow:auto;background:#0b0b0b;border-color:rgb(var(--crm-white-rgb) / .12)}
+.td-peek .td-panel{padding:14px 16px 16px;background:transparent;color:var(--crm-color-text);font-size:13px}
+.td-peek .td-header{display:none}
+.td-peek .td-totals{grid-template-columns:1fr 1fr;border-bottom-color:rgb(var(--crm-white-rgb) / .08)}
+.td-peek [data-testid=spend-total]{grid-template-columns:1fr;padding-top:2px}
+.td-peek .td-totals span,.td-peek .td-totals small,.td-peek .td-observed,.td-peek .td-project small,.td-peek .td-note{color:var(--crm-color-text-muted)}
+.td-peek .td-totals strong{color:var(--crm-color-text-strong)}
+.td-peek [data-testid=spend-total] strong{font-size:26px;font-weight:650}
+.td-peek .td-notice{border-color:rgb(var(--crm-white-rgb) / .1);background:rgb(var(--crm-white-rgb) / .04);color:var(--crm-color-text-muted)}
+.td-peek .td-filter{color:var(--crm-color-text-muted)}
+.td-peek .td-filter select{border-color:rgb(var(--crm-white-rgb) / .14);background:#141414;color:var(--crm-color-text)}
+.td-peek .td-dashboard{background:rgb(var(--crm-white-rgb) / .05);border-color:rgb(var(--crm-white-rgb) / .14);color:var(--crm-color-text)}
+.td-share{display:flex;gap:2px;height:8px;margin:14px 0 2px;overflow:hidden;border-radius:4px;background:rgb(var(--crm-white-rgb) / .06)}
+.td-share i{display:block;min-width:4px}

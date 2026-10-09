@@ -1,0 +1,194 @@
+{
+  "schema": 1,
+  "approvedSourceCommit": "c2231117feaef7e955cd7385c391b9a755d3cdb0",
+  "importedFromCommit": "fe66e0ec285a074d83a61fa54651ca91aeb3cb42",
+  "componentCount": 15,
+  "components": [
+    {
+      "component": "WorkspaceArrival",
+      "state": "production-caller-connected",
+      "callers": [
+        "apps/web/src/components/BankWorkspaceChooser.tsx",
+        "apps/web/src/App.tsx"
+      ],
+      "contract": "Current workspace owner and nested workers; no inferred primary owners.",
+      "adaptedSourceHashes": {
+        "apps/web/src/components/WorkspaceArrival.tsx": "4b2da0855b5a809ea0d592f723e52ec6102586f8ce93dee32d4a7cd8fcf4331e",
+        "apps/web/src/components/WorkspaceArrival.css": "bca0c418a7f63bc6906fff68cd5b707ac5b0098f2f200f3f6b9270e932edf12a"
+      }
+    },
+    {
+      "component": "ContextStack",
+      "state": "production-caller-connected",
+      "callers": [
+        "apps/web/src/components/ChatView.tsx"
+      ],
+      "contract": "Existing attachments and retained upload failures; remove and retry keep the current draft.",
+      "adaptedSourceHashes": {
+        "apps/web/src/components/ContextStack.tsx": "23c8cb7c5d50357fa5b5b645d6331b56164298264fb3f21b8f96bdd83f9d5b1c",
+        "apps/web/src/components/ContextStack.css": "725510082e92f11db6ba1d24ec0d13d306dea2e24fbe9b6ad77eb3971bf7800e"
+      }
+    },
+    {
+      "component": "ChangeLens",
+      "state": "production-caller-connected",
+      "callers": [
+        "apps/web/src/components/ChangesPanel.tsx"
+      ],
+      "contract": "Existing revision-bound code before and after; review comments and stale revision gates retained.",
+      "adaptedSourceHashes": {
+        "apps/web/src/components/ChangeLens.tsx": "1aa543963e1676d7b619d3cd51d926a63a39ef9df07f7a719534e773a4ca0e21",
+        "apps/web/src/components/ChangeLens.css": "e961bd9be3f973a50de19cbb7cc5b9c8f191aa035b69d499be843e2da90d9d74"
+      }
+    },
+    {
+      "component": "SessionReplay",
+      "state": "production-caller-connected",
+      "callers": [
+        "apps/web/src/components/RecordedSessionReplay.tsx",
+        "apps/web/src/components/ChatView.tsx"
+      ],
+      "contract": "Read-only existing timestamped session events with explicit omitted-history coverage.",
+      "adaptedSourceHashes": {
+        "apps/web/src/components/SessionReplay.tsx": "f63509f80b52663f48d23dd9840117e11bae1a4d8a98711c82a0617ae63efac2",
+        "apps/web/src/components/SessionReplay.css": "ba8ed37377487de2daac9c076681ec390a497d318145f2d86009b86d70df4d67"
+      }
+    },
+    {
+      "component": "WorkspaceCommandPalette",
+      "state": "production-caller-connected",
+      "callers": [
+        "apps/web/src/components/BankNavigationAdapters.tsx",
+        "apps/web/src/App.tsx"
+      ],
+      "contract": "Existing destinations and current workspace identities; keyboard and focus handling.",
+      "adaptedSourceHashes": {
+        "apps/web/src/components/WorkspaceCommandPalette.tsx": "f9474875861f66793615398e3ba341ac656343f89fb5072d02056ca6d9a7b3ce",
+        "apps/web/src/components/WorkspaceCommandPalette.css": "733d3dba59744e01c287b9146e1d6b40a3c725714cb2d56ddaf191f8bc4c7438"
+      }
+    },
+    {
+      "component": "ChatActivityRail",
+      "state": "production-caller-connected",
+      "callers": [
+        "apps/web/src/components/ChatView.tsx"
+      ],
+      "contract": "Recorded current-turn activity; no estimated progress.",
+      "adaptedSourceHashes": {
+        "apps/web/src/components/ChatActivityRail.tsx": "8e01518656703ed996d04edc1467fc8d776ea0dd2584e9b9c0a68b6df91cca3a",
+        "apps/web/src/components/ChatActivityRail.css": "cc417f2addd0e6448a16893e7aab1f89d917379eef21b31c1864eb3215ab61e9"
+      }
+    },
+    {
+      "component": "ChatLinkPreview",
+      "state": "production-caller-connected",
+      "callers": [
+        "apps/web/src/components/ChatView.tsx"
+      ],
+      "contract": "Safe existing response links; no automatic third-party fetching.",
+      "adaptedSourceHashes": {
+        "apps/web/src/components/ChatLinkPreview.tsx": "d8ba33fd00b1b1f537c5f51e19e032cd9f4942527e962d5353a62a792f7d3f4f",
+        "apps/web/src/components/ChatLinkPreview.css": "55b5ce32030be54226fefd075976de8b013290778c1819b69ad7566ff62352cb"
+      }
+    },
+    {
+      "component": "InfrastructurePopover",
+      "state": "production-caller-connected",
+      "callers": [
+        "apps/web/src/components/BankWorkspaceChooser.tsx",
+        "apps/web/src/components/BankNavigationAdapters.tsx"
+      ],
+      "contract": "Supplied infrastructure identities and observation text.",
+      "adaptedSourceHashes": {
+        "apps/web/src/components/InfrastructurePopover.tsx": "2839145a7e82809ee6a6f6b9f4a8cad30344d448e96951d6c287d9b10a99e30c",
+        "apps/web/src/components/InfrastructurePopover.css": "88c8a93811a3c1aac100fe95dc1536834e86eac6f4ff08591ad17b22dbdaf00c"
+      }
+    },
+    {
+      "component": "TalkOrb",
+      "state": "production-caller-connected",
+      "callers": [
+        "apps/web/src/components/MicButton.tsx"
+      ],
+      "contract": "Existing tap, hold, stop, cancel and accept actions; transcript failure preserves the draft.",
+      "adaptedSourceHashes": {
+        "apps/web/src/components/TalkOrb.tsx": "d4257406c9fe87eecd70e458176b8717ceda7959e8d5b4b11971117270c6c8e9",
+        "apps/web/src/components/TalkOrb.css": "4263ff4758913614835c59626cf51146ea4121ee046cc8ca808c219e16b07ab2"
+      }
+    },
+    {
+      "component": "VersionPulse",
+      "state": "production-caller-connected",
+      "callers": [
+        "apps/web/src/components/UpdateToast.tsx"
+      ],
+      "contract": "Actual release availability and existing update callback.",
+      "adaptedSourceHashes": {
+        "apps/web/src/components/VersionPulse.tsx": "0be26b2c7be235754f714f52d2a7a69fe5f4b491909093a792c107eb9e6f9d0e",
+        "apps/web/src/components/VersionPulse.css": "3109431cd63db89f9c74c833ea5003d3c151afe86d327615049b72f39c290999"
+      }
+    },
+    {
+      "component": "AgentNotificationStack",
+      "state": "production-caller-connected",
+      "callers": [
+        "apps/web/src/components/AttentionPanel.tsx"
+      ],
+      "contract": "Current attention records and identity-bound actions; no invented read or reaction writes.",
+      "adaptedSourceHashes": {
+        "apps/web/src/components/AgentNotificationStack.tsx": "845716b06df489626b0cf444a459479b21b5804d0530135547dac50a2406e632",
+        "apps/web/src/components/AgentNotificationStack.css": "6f98daee724b06a9a32fdab349fea354e68e9b45b939b3b8f6d9b3c02553df5b"
+      }
+    },
+    {
+      "component": "TodaySpendDial",
+      "state": "production-caller-connected",
+      "callers": [
+        "apps/web/src/components/SpendChip.tsx"
+      ],
+      "contract": "Tokens today and dated attribution remain independent; currencies are not added together.",
+      "adaptedSourceHashes": {
+        "apps/web/src/components/TodaySpendDial.tsx": "e025ec1765d8489032296235868c0da6a24530c4fb19494609505f43b63f8ca1",
+        "apps/web/src/components/TodaySpendDial.css": "c23b307600ec060a085d49deb0ae17bfd6f0875256ea041cb080f19b50816ae7"
+      }
+    },
+    {
+      "component": "TaskWorkspaceDeck",
+      "state": "production-caller-connected",
+      "callers": [
+        "apps/web/src/components/TaskWorkspaceGroups.tsx"
+      ],
+      "contract": "Canonical root hierarchy, ordering and task renderer; children do not inflate root counts.",
+      "adaptedSourceHashes": {
+        "apps/web/src/components/TaskWorkspaceDeck.tsx": "208ce62b9be0694dcd5c8b5d298dbb8ba740ab4f48f2bc2989bd9c3067e61d75",
+        "apps/web/src/components/TaskWorkspaceDeck.css": "a0638c5ac97972b608cf70023db1f6f6dfbca7f7280dbcc1b4f1ddf8c58af316"
+      }
+    },
+    {
+      "component": "ChatResponseScene",
+      "state": "production-caller-connected",
+      "callers": [
+        "apps/web/src/components/ChatView.tsx"
+      ],
+      "contract": "Result receipts govern completion; streaming, pending and errors stay distinct.",
+      "adaptedSourceHashes": {
+        "apps/web/src/components/ChatResponseScene.tsx": "6cbac94d703273e1f31406c9b30f5138263a909f361495d041dcfc637ae7d37f",
+        "apps/web/src/components/ChatResponseScene.css": "bc3f7fad2c4e8090b2c1238db7d904df304a3f6ded91e8bb7aaf26a10c97e309"
+      }
+    },
+    {
+      "component": "OutputInspectDock",
+      "state": "production-caller-connected",
+      "callers": [
+        "apps/web/src/components/ArtifactShelf.tsx",
+        "apps/web/src/components/ChatView.tsx"
+      ],
+      "contract": "Existing output references, safe previews and explicit open callbacks.",
+      "adaptedSourceHashes": {
+        "apps/web/src/components/OutputInspectDock.tsx": "0a9421d3bdd2423f0806fff51f8e793e801a0a3623c8708a7bff8aa1d3c4386e",
+        "apps/web/src/components/OutputInspectDock.css": "a2ee4204fc3b3d9bdaf957f8f9ba671eb3832413577f47f6d868a94f7a131f38"
+      }
+    }
+  ],
+  "verification": "Focused component contracts and actual-app synthetic desktop/phone checks. Installed release hashes are recorded separately; this manifest does not claim installation."
+}

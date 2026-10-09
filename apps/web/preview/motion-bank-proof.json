@@ -1,0 +1,127 @@
+{
+  "verifiedAt": "2026-10-05T23:10:58.671722+00:00",
+  "scope": "12 reusable components and local synthetic review gallery; production integration pending",
+  "requestedWorkerModel": "gpt-6.1-sol",
+  "workersReturned": 12,
+  "preview": {
+    "url": "http://127.0.0.1:8891/card/agent-motion-bank-20261006/html",
+    "bytes": 473329,
+    "sha256": "9e10c89d80ca011d80459d40e72e0539aa4de658347e7568120d0932ace630a8"
+  },
+  "typecheck": {
+    "result": "passed",
+    "config": "tsconfig-round5.json",
+    "log": "round5-typecheck.log",
+    "strict": true,
+    "unusedSymbols": true
+  },
+  "build": {
+    "result": "passed",
+    "script": "round5-build.mjs"
+  },
+  "render": {
+    "result": "passed",
+    "components": 12,
+    "viewportWidths": [
+      1440,
+      1008,
+      390
+    ],
+    "receipt": "evidence/round5-smoke.json",
+    "visualReview": "Desktop and mobile captures inspected; open overlays inspected after interaction"
+  },
+  "interactions": {
+    "result": "12 of 12 passed",
+    "receiptsByComponent": {
+      "chat-link-preview": "evidence/round5-interactions-version-pulse-agent-notifications-workspace-palette-chat-link-preview.json",
+      "talk-orb": "evidence/round5-interactions.json",
+      "today-spend": "evidence/round5-interactions.json",
+      "workspace-arrival": "evidence/round5-interactions.json",
+      "context-stack": "evidence/round5-interactions.json",
+      "change-lens": "evidence/round5-interactions.json",
+      "session-replay": "evidence/round5-interactions.json",
+      "chat-activity": "evidence/round5-interactions-chat-activity-infrastructure-popover-version-pulse-agent-notifications-workspace-palette.json",
+      "infrastructure-popover": "evidence/round5-interactions-version-pulse-agent-notifications-infrastructure-popover.json",
+      "workspace-palette": "evidence/round5-interactions-version-pulse-agent-notifications-workspace-palette-chat-link-preview.json",
+      "version-pulse": "evidence/round5-interactions-version-pulse-agent-notifications.json",
+      "agent-notifications": "evidence/round5-interactions-version-pulse-agent-notifications.json"
+    },
+    "externalRequests": 0,
+    "browserErrors": 0
+  },
+  "lifecycle": {
+    "result": "12 of 12 passed",
+    "checks": [
+      "pause",
+      "live reduced motion",
+      "hidden document",
+      "offscreen",
+      "listener and observer cleanup",
+      "no frames after unmount"
+    ],
+    "receipts": [
+      "evidence/round5-lifecycle.json",
+      "evidence/round5-lifecycle-version-pulse-agent-notifications.json"
+    ],
+    "note": "The original 12 component lifecycle checks passed. Its final gallery assertion used a nonexistent data attribute; the corrected gallery checks passed in the later receipt. The two changed popovers were also rerun with click listener tracking."
+  },
+  "gallery": {
+    "result": "passed",
+    "checks": [
+      "pause/resume",
+      "reset",
+      "hash navigation",
+      "browser back",
+      "keyboard skip"
+    ],
+    "receipt": "evidence/round5-lifecycle-version-pulse-agent-notifications.json"
+  },
+  "preserved": {
+    "trackedBaselineFiles": 196,
+    "changed": [],
+    "receipt": "round5-baseline.json"
+  },
+  "sourceSha256": {
+    "apps/web/preview/MOTION-BANK-BRIEFS.md": "4da749ed6b7c34cc5efc690c3e3da130a5db7e61812ff0d450a4c1319ba4026b",
+    "apps/web/preview/MOTION-BANK.md": "ba96401c2f9c596c1da39f57d9171748e35807badec2da80a4f4f00db82ab800",
+    "apps/web/preview/motion-bank-manifest.json": "2308918954afc43fd5fb486b1cd87ab176846e571f52d8140afe97ec90db0b17",
+    "apps/web/preview/motion-bank.tsx": "192302e875dd5af50621d18ccdcb3352e409e46009f78621c7193439e700505a",
+    "apps/web/preview/motion-bank.css": "f61e24154a29d1e1d120642af118560df4a4560912a51f056e6f0498acebd28d",
+    "apps/web/preview/motion-bank.html": "cb101e4cce0fd7c47a00c013f23bc8da06a18ec7525320f05da80733dc115792",
+    "apps/web/src/components/motion-bank-shared.ts": "b1a9dcde053805c723b9f7851db3f20286227be3d3eefe75a39237cb9c8d71b8",
+    "apps/web/src/components/WorkspaceArrival.tsx": "0e8d753998ba5472abe238b865dd8dfa1a1a098f6248c395cbee52cf51adff4f",
+    "apps/web/src/components/WorkspaceArrival.css": "bca0c418a7f63bc6906fff68cd5b707ac5b0098f2f200f3f6b9270e932edf12a",
+    "apps/web/src/components/ContextStack.tsx": "c1f889050ec24027ffb379eee93995ee33bfb0d5b6c19c47e56d0f40132ad382",
+    "apps/web/src/components/ContextStack.css": "8b91bf7abfc18981d0713ccf44a7f84007cdb4d0bfbb244a3d327a7dbbc1ad5e",
+    "apps/web/src/components/ChangeLens.tsx": "a9a473870fabee41e29c82c93c82ae387021b18b921ba098ca0fc9c6cf121155",
+    "apps/web/src/components/ChangeLens.css": "0348104db75836162354f2a78d8ab7c383ad93a361e25c01a82873af8f123556",
+    "apps/web/src/components/SessionReplay.tsx": "f63509f80b52663f48d23dd9840117e11bae1a4d8a98711c82a0617ae63efac2",
+    "apps/web/src/components/SessionReplay.css": "ba8ed37377487de2daac9c076681ec390a497d318145f2d86009b86d70df4d67",
+    "apps/web/src/components/WorkspaceCommandPalette.tsx": "f9474875861f66793615398e3ba341ac656343f89fb5072d02056ca6d9a7b3ce",
+    "apps/web/src/components/WorkspaceCommandPalette.css": "733d3dba59744e01c287b9146e1d6b40a3c725714cb2d56ddaf191f8bc4c7438",
+    "apps/web/src/components/ChatActivityRail.tsx": "8e01518656703ed996d04edc1467fc8d776ea0dd2584e9b9c0a68b6df91cca3a",
+    "apps/web/src/components/ChatActivityRail.css": "cd5fe1b6fdb7107ff9a156d14f118b7fe0594d8382c6943bc88666935f734a52",
+    "apps/web/src/components/ChatLinkPreview.tsx": "d8ba33fd00b1b1f537c5f51e19e032cd9f4942527e962d5353a62a792f7d3f4f",
+    "apps/web/src/components/ChatLinkPreview.css": "55b5ce32030be54226fefd075976de8b013290778c1819b69ad7566ff62352cb",
+    "apps/web/src/components/InfrastructurePopover.tsx": "0bbbcdce2895cbfd021c61485efac2d9e1dea3808a5f53df4adc7962422fb7b5",
+    "apps/web/src/components/InfrastructurePopover.css": "88c8a93811a3c1aac100fe95dc1536834e86eac6f4ff08591ad17b22dbdaf00c",
+    "apps/web/src/components/TalkOrb.tsx": "41053c6b27584e7cfc9ec4d4e910cd76f4178751946c279087d497e534b42423",
+    "apps/web/src/components/TalkOrb.css": "9688b25ea31565df806b204da7af4f6131fc8189f644ed285e0890d0384564ac",
+    "apps/web/src/components/VersionPulse.tsx": "0be26b2c7be235754f714f52d2a7a69fe5f4b491909093a792c107eb9e6f9d0e",
+    "apps/web/src/components/VersionPulse.css": "3109431cd63db89f9c74c833ea5003d3c151afe86d327615049b72f39c290999",
+    "apps/web/src/components/AgentNotificationStack.tsx": "dcfca7605fde979e34f96f49b9fd2874be0168f675913d87fcc9acdc1807cd13",
+    "apps/web/src/components/AgentNotificationStack.css": "0281c01701dce84b2c19abb35c9e3156d9f0ff1b367f985c105c6c64247ea472",
+    "apps/web/src/components/TodaySpendDial.tsx": "bd0f45a919005adf8dfc3a5f4b59989f40595df262147620f94b03dedcc9afd6",
+    "apps/web/src/components/TodaySpendDial.css": "c23b307600ec060a085d49deb0ae17bfd6f0875256ea041cb080f19b50816ae7"
+  },
+  "unverified": [
+    "Main application data wiring",
+    "Live microphone and transcript integration",
+    "Real page-tab routing",
+    "Live notification delivery",
+    "Updater execution",
+    "Live spend data",
+    "Production deployment"
+  ],
+  "evidenceDirectory": "~/SISO_Workspace/_data/faces/original-evolved-20261005"
+}

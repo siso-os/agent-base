@@ -1,0 +1,28 @@
+#!/usr/bin/env node
+// who <words> — who is this person to Shaan? One line per match from the Rolodex (spec rolodex §5), via the local node.
+// Run it before messaging, drafting for, or acting on behalf of a person. Private people are never returned.
+// Exit 0 found, 1 no match, 2 node not running (or usage).
+const q = process.argv.slice(2).join(" ").trim();
+if (!q) {
+  console.error("usage: who <name or words>");
+  process.exit(2);
+}
+const port = process.env.AB_PORT || "5401";
+let res;
+try {
+  res = await fetch(`http://127.0.0.1:${port}/api/rolodex/lookup?q=${encodeURIComponent(q.slice(0, 200))}`, { signal: AbortSignal.timeout(5000) });
+} catch {
+  console.error(`who: the Agent Base node is not running on port ${port}`);
+  process.exit(2);
+}
+if (!res.ok) {
+  console.error(`who: the node answered ${res.status}`);
+  process.exit(2);
+}
+const { matches = [] } = await res.json();
+if (!matches.length) {
+  console.log(`not on the Rolodex: ${q}`);
+  process.exit(1);
+}
+for (const m of matches) console.log(m.line);
+process.exit(0);

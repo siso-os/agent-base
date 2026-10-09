@@ -1,0 +1,5 @@
+# Snapshots belong in the owner's external returns/s1 folder; probe JSON stays here.
+test/evidence/*.tiff
+test/evidence/*.png
+
+test/__pycache__/

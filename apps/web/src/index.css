@@ -1,0 +1,27 @@
+@import "tailwindcss";
+@import "@siso/tokens/siso.css";
+@import "@siso/tokens/tokens.css";
+@import "@siso/shell/shell.css";
+@import "@siso/side-nav/grouped-rail.css";
+@import "@siso/side-nav/rail-extras.css";
+@import "@siso/terminal/terminal.css";
+
+/* Tailwind only scans this app by default; the @siso packages' classes live in their own sources. */
+@source "../../../packages";
+
+/* The crumb on an app page that opens in the main area (the org chart): back to where he came from. */
+.siso-apppage__crumb { display: flex; align-items: center; gap: 8px; padding: 18px 24px 0; color: var(--crm-color-text-faint); font-size: var(--crm-text-sm); }
+.siso-apppage__crumb button { display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px 4px 4px; border-radius: var(--crm-radius-control); color: var(--crm-color-text-muted); }
+.siso-apppage__crumb button:hover { color: var(--crm-color-text-strong); background: var(--crm-color-surface-raised); }
+.siso-apppage__crumb b { color: var(--crm-color-text-strong); font-weight: 600; }
+
+/* The app left alone (lib/doze.ts, t-0237): every animation holds its frame until the next touch. */
+:root[data-doze] *,
+:root[data-doze] *::before,
+:root[data-doze] *::after {
+  animation-play-state: paused !important;
+}
+
+/* HEALTH, 3 Oct: an idle app kept ~0.4 core busy on looping animations. Hidden, or 5 min without input (lib/poll.ts sets
+   data-still), every animation pauses where it is; the first input resumes it. */
+:root[data-still] *, :root[data-still] *::before, :root[data-still] *::after { animation-play-state: paused !important; }

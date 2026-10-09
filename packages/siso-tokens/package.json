@@ -1,0 +1,10 @@
+{
+  "name": "@siso/tokens",
+  "version": "0.1.0",
+  "private": true,
+  "description": "SISO design values: siso.css is the SISO CRM's tokens file verbatim (--crm-*, --siso-*); tokens.css maps Tailwind 4 names onto it.",
+  "exports": {
+    "./siso.css": "./siso.css",
+    "./tokens.css": "./tokens.css"
+  }
+}

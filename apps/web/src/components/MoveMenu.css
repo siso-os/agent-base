@@ -1,0 +1,26 @@
+.move-menu { position: relative; display: inline-flex; flex-direction: column; align-items: flex-start; gap: 6px; color: var(--crm-color-text, var(--siso-text)); font: 12px var(--font-sans, system-ui); }
+.move-menu button { color: inherit; font: inherit; }
+.move-menu__trigger { display: inline-flex; align-items: center; gap: 7px; min-height: 30px; padding: 0 9px; border: 1px solid var(--crm-color-line, var(--siso-line)); border-radius: var(--radius-ctrl, 8px); background: var(--crm-color-surface, var(--siso-surface)); cursor: pointer; }
+.move-menu__trigger:hover, .move-menu__option:hover:not(:disabled) { background: var(--crm-color-surface-hover, var(--siso-surface-hover)); }
+.move-menu__trigger:disabled { opacity: .55; cursor: default; }
+.move-menu__dismiss { position: fixed; inset: 0; z-index: 30; border: 0; background: transparent; }
+.move-menu__panel { position: absolute; z-index: 31; top: 36px; left: 0; width: 238px; padding: 5px; border: 1px solid var(--crm-color-line, var(--siso-line)); border-radius: 10px; background: var(--crm-color-surface-raised, var(--siso-surface-raised)); box-shadow: var(--shadow-elevated); }
+.move-menu__heading { padding: 7px 9px 8px; color: var(--crm-color-text-muted, var(--siso-text-muted)); font-size: 10px; text-transform: uppercase; letter-spacing: .07em; }
+.move-menu__option { display: flex; width: 100%; align-items: center; gap: 9px; padding: 7px 9px; border: 0; border-radius: 6px; background: transparent; text-align: left; cursor: pointer; }
+.move-menu__option:disabled { opacity: .48; cursor: default; }
+.move-menu__labels { display: flex; flex: 1; flex-direction: column; gap: 2px; }
+.move-menu__labels b { font-weight: 550; }
+.move-menu__labels small { color: var(--crm-color-text-muted, var(--siso-text-muted)); font-size: 10px; }
+.move-menu__status { display: inline-flex; align-items: center; gap: 5px; color: var(--crm-color-text-muted, var(--siso-text-muted)); font-size: 11px; }
+.move-menu__status.is-done { color: var(--accent-health); }
+.move-menu__status.is-failed { color: var(--accent-danger); }
+.move-menu__status.is-moving, .move-menu__status.is-queued { color: var(--accent-focus); }
+.move-menu__spin { animation: move-menu-spin 1s linear infinite; }
+@keyframes move-menu-spin { to { transform: rotate(360deg); } }
+/* R1.21: the HUD's model chip opens this menu on <body>, above the chip. */
+.move-menu__panel.is-portal { position: fixed; z-index: 200; top: auto; width: 260px; color: var(--crm-color-text); font: 12px var(--font-sans, system-ui); }
+.move-menu__panel.is-portal button { color: inherit; font: inherit; }
+.ab-model { display: inline-flex; flex: none; align-items: center; gap: 3px; padding: 2px 5px; margin: 0 -5px; border-radius: 5px; color: #d9b38c; font-weight: 500; }
+.ab-model:hover:not(:disabled), .ab-model[aria-expanded="true"] { background: rgb(var(--crm-white-rgb) / 0.08); }
+.ab-model:disabled { cursor: default; }
+.ab-model svg { opacity: 0.6; }

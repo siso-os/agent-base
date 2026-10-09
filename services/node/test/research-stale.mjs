@@ -1,0 +1,22 @@
+// t-0458: /api/research answers from its last reading at once while `fleet status` (≈7 s) makes the next one.
+import assert from 'node:assert/strict';
+import { mkdtemp, writeFile, chmod } from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+const dir = await mkdtemp(path.join(os.tmpdir(), 'ab-research-'));
+const cmd = path.join(dir, 'fleet');
+await writeFile(cmd, '#!/bin/sh\nsleep 1\necho "[]"\n'); await chmod(cmd, 0o755);
+process.env.AB_FLEET_CMD = cmd; process.env.AB_RESEARCH_ROOT = dir; process.env.FLEET_STATE = dir;
+const { research } = await import('../src/research.ts');
+let t = Date.now(); const first = await research();
+assert.ok(Date.now() - t >= 900, 'the first reading waits for the source');
+assert.deepEqual(first.fleets.data, []);
+const real = Date.now; Date.now = () => real() + 11_000;
+t = real(); const second = await research();
+assert.ok(real() - t < 300, `a stale reading answers at once (${real() - t} ms)`);
+assert.equal(second.fleets.at, first.fleets.at, 'the stale block is the previous one');
+await new Promise(r => setTimeout(r, 1300));
+const third = await research();
+assert.ok(third.fleets.at > first.fleets.at, 'the background read replaced it');
+Date.now = real;
+console.log('research-stale: ok');

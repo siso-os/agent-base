@@ -1,0 +1,88 @@
+/* What's new: the release cards sit on siso-panel (packages/siso-shell); this adds their insides. */
+.ab-wn{display:flex;max-width:760px;flex-direction:column;gap:12px;padding:18px 24px 40px;color:var(--crm-color-text);font-size:13px}
+.ab-wn__head h1{margin:2px 0 0;color:var(--crm-color-text-strong);font-size:20px;font-weight:600}
+.ab-wn__head p{margin:4px 0 0;color:var(--crm-color-text-muted)}
+.ab-wn__kicker{color:var(--crm-color-text-muted);font-size:10px;letter-spacing:.12em;text-transform:uppercase}
+.ab-wn__card{padding:12px 14px}
+.ab-wn__card.is-new{border-color:rgb(var(--crm-success-rgb) / .35)}
+.ab-wn__card.is-pending{border-style:dashed}
+.ab-wn__card header{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px}
+.ab-wn__card header b{color:var(--crm-color-text-strong);font-weight:650}
+.ab-wn__card header code,.ab-wn__all code{color:rgb(var(--crm-white-rgb) / .45);font:12px var(--crm-font-mono)}
+.ab-wn__card header time{margin-left:auto;color:var(--crm-color-text-muted);font-size:12px}
+.ab-wn__kind{padding:1px 7px;border-radius:999px;background:rgb(34 211 238 / .1);color:#67e8f9;font:10.5px var(--crm-font-mono)}
+.ab-wn__lines{margin:8px 0 0;padding:0 0 0 16px;list-style:disc}
+.ab-wn__lines li{padding:2px 0;line-height:1.45}
+.ab-wn__lines li::marker{color:rgb(var(--crm-white-rgb) / .3)}
+.ab-wn__all{margin:8px 0 0;padding:0;list-style:none}
+.ab-wn__all li{display:flex;align-items:baseline;gap:8px;padding:4px 0;border-top:1px solid var(--crm-color-line-subtle)}
+.ab-wn__subject{min-width:0;flex:1}
+.ab-wn__who{flex:none;color:var(--crm-color-text-muted);font-size:11.5px}
+.ab-wn__more{display:inline-flex;align-items:center;gap:4px;margin-top:6px;padding:2px 4px 2px 0;border:0;background:transparent;color:var(--crm-color-text-muted);font:inherit;font-size:12px;cursor:pointer}
+.ab-wn__more:hover{color:var(--crm-color-text-strong)}
+.ab-wn__quiet{margin:8px 0 0;color:var(--crm-color-text-muted)}
+.ab-wn__badge{display:inline-grid;min-width:18px;height:18px;padding:0 5px;place-items:center;border-radius:999px;background:rgb(var(--crm-success-rgb) / .2);color:rgb(var(--crm-success-rgb));font-size:11px;font-weight:650;font-variant-numeric:tabular-nums}
+.ab-wn__divider{display:flex;align-items:center;gap:10px;color:rgb(var(--crm-success-rgb));font-size:12px}
+.ab-wn__divider::before,.ab-wn__divider::after{content:"";height:1px;flex:1;background:rgb(var(--crm-success-rgb) / .35)}
+.ab-wn__divider>span{display:inline-flex;align-items:center;gap:6px}
+/* The way in: a link with the same badge (the Shipped card, Stats). */
+.ab-wn-link{display:inline-flex;align-items:center;gap:6px;border:0;background:transparent;color:var(--crm-color-text-muted);font:inherit;font-size:12px;cursor:pointer}
+.ab-wn-link:hover{color:var(--crm-color-text-strong)}
+.ab-wn__behind{display:flex;align-items:baseline;gap:6px;color:var(--color-needs)!important}
+.ab-wn__behind b{font-variant-numeric:tabular-nums}
+.ab-wn__behind code{color:rgb(var(--crm-white-rgb) / .45);font:12px var(--crm-font-mono)}
+.ab-wn__card .ab-wn__all li code{flex:none;color:var(--crm-color-text-strong)}
+.ab-wn__card .ab-wn__all li .ab-wn__subject{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--crm-color-text-muted)}
+/* The top bar's version pill: one click to What's new. */
+.ab-version-pill{display:inline-flex;flex:none;align-items:center;gap:6px;height:24px;padding:0 8px;border:1px solid var(--crm-color-line-subtle);border-radius:999px;background:transparent;color:var(--crm-color-text-muted);font:12px var(--crm-font-mono);cursor:pointer}
+.ab-version-pill:hover{color:var(--crm-color-text-strong);border-color:var(--crm-color-line)}
+.ab-version-pill b{font-weight:600}
+.ab-version-pill__ship{display:inline-flex;align-items:center;gap:5px;color:var(--crm-color-text-muted);font-size:11px}
+.ab-version-pill__ship i{width:6px;height:6px;border-radius:50%;background:#67e8f9;animation:ab-ship-pulse 1.6s ease-in-out infinite}
+.ab-version-pill__ship[data-state="deploying"] i{background:#a78bfa}
+@keyframes ab-ship-pulse{50%{opacity:.35}}
+@media (prefers-reduced-motion:reduce){.ab-version-pill__ship i{animation:none}}
+.ab-wn__note{margin:2px 0 10px;padding:10px 12px;border-radius:10px;background:rgb(var(--crm-white-rgb)/.04)}
+.ab-wn__note>b{font-weight:600;color:var(--crm-color-text-strong)}
+.ab-wn__note p,.ab-wn__note ul{margin:4px 0 0;color:var(--crm-color-text-muted);font-size:12.5px}
+.ab-wn__note ul{padding-left:16px;list-style:disc}
+.ab-wn__why{font-style:italic}
+.ab-version-pill__behind{color:var(--color-needs);font-size:11px}
+
+/* Release-bound evidence reuses the task evidence dialog, with an explicit absent-image state. */
+.ab-wn__evidence { margin:12px 0; min-width:0; }
+.ab-wn__evidence-pair { margin:12px 0; }
+.ab-wn__evidence-pair h3 { display:flex; flex-wrap:wrap; gap:8px; font-size:13px; margin:0 0 8px; }
+.ab-wn__evidence-pair h3 small { font-size:11px; opacity:.5; font-weight:400; }
+.ab-wn__evidence-pair>div { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:10px; }
+.ab-wn__evidence-pair button { min-width:0; overflow:hidden; border:1px solid rgb(var(--crm-white-rgb) / .12); border-radius:8px; text-align:left; }
+.ab-wn__evidence-pair img,.ab-wn__image-missing { display:block; width:100%; aspect-ratio:16/10; object-fit:contain; background:rgb(var(--crm-white-rgb) / .035); }
+.ab-wn__image-missing { align-content:center; text-align:center; color:#f0b03f; }
+.ab-wn__evidence-pair button>span:last-child { display:flex; justify-content:space-between; padding:7px 10px; font-size:11px; }
+.ab-wn__evidence-pair code { opacity:.5; }
+.ab-wn__evidence-pair button:focus-visible { outline:2px solid var(--crm-accent,#a78bfa); outline-offset:3px; }
+@media(max-width:480px) { .ab-wn__evidence-pair>div { gap:6px; }.ab-wn__evidence-pair button>span:last-child { flex-wrap:wrap; gap:3px; padding:6px; } }
+
+/* t-0570: Recorded vNNN opens a pop-up (the shared Peek), black, wide enough for a release card. */
+.ab-version-pill{cursor:pointer}
+.ab-version-pill__ready{width:7px;height:7px;flex:none;border-radius:50%;background:#67e8f9;box-shadow:0 0 0 3px rgb(103 232 249 / .18)}
+.siso-peek.ab-version-peek{width:min(460px,calc(100vw - 16px));max-height:min(620px,calc(100dvh - 72px));overflow:auto;background:#0b0b0b;border-color:rgb(var(--crm-white-rgb) / .12)}
+.ab-version-pop{display:flex;flex-direction:column;gap:10px;padding:12px 14px 14px;font-size:13px;color:var(--crm-color-text)}
+.ab-version-pop .ab-wn__card{background:rgb(var(--crm-white-rgb) / .03)}
+.ab-version-pop__ready{padding:10px 12px;border:1px solid rgb(103 232 249 / .28);border-radius:12px;background:rgb(103 232 249 / .06)}
+.ab-version-pop__ready header{display:flex;align-items:center;gap:8px}
+.ab-version-pop__ready header i{width:7px;height:7px;border-radius:50%;background:#67e8f9}
+.ab-version-pop__ready header b{color:var(--crm-color-text-strong);font-weight:600}
+.ab-version-pop__ready header span{color:var(--crm-color-text-muted);font-size:12px}
+.ab-version-pop__ready header button{margin-left:auto;padding:4px 12px;border:1px solid rgb(103 232 249 / .45);border-radius:8px;background:rgb(103 232 249 / .14);color:#cffafe;font:600 12px var(--crm-font-sans);cursor:pointer}
+.ab-version-pop__ready header button.is-quiet{margin-left:0;border-color:transparent;background:transparent;color:var(--crm-color-text-muted);font-weight:500}
+.ab-version-pop__ready header button:disabled{opacity:.6;cursor:default}
+.ab-version-pop__ready ul{margin:8px 0 0;padding-left:18px;list-style:disc;color:var(--crm-color-text-muted);font-size:12.5px}
+.ab-version-pop__ready p{margin:6px 0 0;color:var(--crm-color-text-muted);font-size:12px}
+.ab-version-pop__ship{display:flex;align-items:center;gap:6px;margin:0;color:var(--crm-color-text-muted);font-size:12px}
+.ab-version-pop__ship i{width:6px;height:6px;border-radius:50%;background:#67e8f9}
+.ab-version-pop__ship[data-state="deploying"] i{background:#a78bfa}
+.ab-version-pop footer{display:flex;align-items:center;gap:10px}
+.ab-version-pop footer .ab-wn-link{margin-left:auto}
+/* t-0532 item 9: unseen releases are a dot, not a count. */
+.ab-version-pill__new{width:6px;height:6px;flex:none;border-radius:50%;background:#e6e0d8;opacity:.75}

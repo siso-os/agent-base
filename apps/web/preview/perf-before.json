@@ -1,0 +1,21 @@
+{
+  "label": "before",
+  "sessionMb": 5,
+  "sessionLines": 5591,
+  "openMs": 198,
+  "helloKb": 2289,
+  "turnsRendered": 60,
+  "domNodes": 1471,
+  "webContentMb": 319,
+  "workingNodeCpuPct": 0,
+  "workingPageCpuPct": 59,
+  "workingWsKb": 118,
+  "webContentMbAfterWork": 398,
+  "apiPer20sVisible": 25,
+  "apiPer20sHidden": 21,
+  "hiddenPageCpuPct": 48,
+  "reachedStart": true,
+  "scrollToStartMs": 2462,
+  "turnsRenderedAtStart": 546,
+  "pageErrors": []
+}

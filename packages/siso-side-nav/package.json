@@ -1,0 +1,27 @@
+{
+  "name": "@siso/side-nav",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "The SISO side nav: the SISO CRM's GroupedRail (glass rail, search, groups, utility capsule, operator dock), live rows with a status and drag to reorder, plus T3 Code's status row.",
+  "exports": {
+    ".": "./src/index.ts",
+    "./grouped-rail.css": "./grouped-rail.css",
+    "./rail-extras.css": "./rail-extras.css"
+  },
+  "dependencies": {
+    "@siso/shell": "workspace:*",
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2"
+  },
+  "peerDependencies": {
+    "lucide-react": ">=0.400.0",
+    "react": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.0",
+    "lucide-react": "^0.564.0",
+    "react": "^19.2.0"
+  }
+}

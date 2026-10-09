@@ -1,0 +1,147 @@
+{
+  "version": "2026-10-06",
+  "component": "LivingIcon",
+  "entry": "living-assets.ts",
+  "approvedBaseline": "dcea7fbc",
+  "variants": [
+    "tile",
+    "glyph"
+  ],
+  "sizes": [
+    24,
+    32,
+    48,
+    144
+  ],
+  "default": "still",
+  "gesture": "one per hover, focus or replay; settles in 1.0 to 1.3 seconds",
+  "pause": [
+    "offscreen",
+    "document hidden",
+    "native reduced motion",
+    "paused prop"
+  ],
+  "previewLoops": "demo prop only; 2.4 second loops",
+  "icons": {
+    "car-rental": {
+      "label": "Car rental",
+      "description": "A low coupe cast in ice-blue alloy, with inset glass and machined wheels.",
+      "motion": "The wheels take a short turn; headlights answer once.",
+      "colorA": "#74c6ff",
+      "colorB": "#4268d7",
+      "pale": "#d8f6ff"
+    },
+    "ofm": {
+      "label": "Creator management",
+      "description": "A portrait medallion with a soft spotlight and a polished editorial star.",
+      "motion": "The portrait spotlight opens gently and the star gives one restrained glint.",
+      "colorA": "#e9a8ef",
+      "colorB": "#8653c0",
+      "pale": "#ffedff"
+    },
+    "ecommerce": {
+      "label": "Ecommerce",
+      "description": "An isometric parcel with folded metal faces and a luminous packing ribbon.",
+      "motion": "The parcel lid lifts slightly, then closes into its original seam.",
+      "colorA": "#ffcc8b",
+      "colorB": "#c67c44",
+      "pale": "#fff0d3"
+    },
+    "restaurants": {
+      "label": "Restaurants",
+      "description": "A polished service cloche over a sculpted serving tray.",
+      "motion": "The cloche lifts to release a small wisp of steam, then settles.",
+      "colorA": "#ffbc87",
+      "colorB": "#ce624e",
+      "pale": "#fff0d8"
+    },
+    "tour-guides": {
+      "label": "Tour guides",
+      "description": "A pocket compass with a faceted navigation needle in deep glass.",
+      "motion": "The needle searches a few degrees, overshoots, and finds its bearing.",
+      "colorA": "#78e3d2",
+      "colorB": "#269b98",
+      "pale": "#dcfff2"
+    },
+    "crypto-trading": {
+      "label": "Crypto trading",
+      "description": "Three mixed market candles on a machined instrument axis; an illustrative symbol, not market data.",
+      "motion": "The candles briefly redraw in place and recover; no rising-price or profit signal.",
+      "colorA": "#b4b0ff",
+      "colorB": "#626bd6",
+      "pale": "#f0eeff"
+    },
+    "library": {
+      "label": "Great Library of SISO",
+      "description": "An open illuminated book inside the architecture of a knowledge archive.",
+      "motion": "The right page lifts from its spine, catches the light, and settles.",
+      "colorA": "#e8c879",
+      "colorB": "#9871e6",
+      "pale": "#fff4d1"
+    },
+    "estate": {
+      "label": "SISO Estate",
+      "description": "A protected home within a faceted shield: the assets and systems SISO owns.",
+      "motion": "The inner home seats into its shield as a security glint passes upward.",
+      "colorA": "#66d8c0",
+      "colorB": "#348aa2",
+      "pale": "#d5fff4"
+    },
+    "web": {
+      "label": "Web",
+      "description": "A luminous world held in a machined circular rim, with a precise navigation pointer.",
+      "motion": "The globe meridian turns once across the glass as a light travels its rim.",
+      "colorA": "#66d9ff",
+      "colorB": "#4266da",
+      "pale": "#e0faff"
+    },
+    "whatsapp": {
+      "label": "WhatsApp",
+      "description": "A custom emerald message bubble and sculpted ivory handset.",
+      "motion": "The handset gives one brief two-part ring and returns to rest.",
+      "colorA": "#69eba0",
+      "colorB": "#139963",
+      "pale": "#eaffee"
+    },
+    "lifelog": {
+      "label": "LifeLog",
+      "description": "A bound personal chronicle with an inset timepiece; entirely synthetic artwork.",
+      "motion": "The clock hand advances through a measured turn, then settles at its starting time.",
+      "colorA": "#d5a9f7",
+      "colorB": "#8664da",
+      "pale": "#f6eaff"
+    },
+    "rolodex": {
+      "label": "Rolodex",
+      "description": "Layered contact cards with a bold portrait cutout and polished binding feet.",
+      "motion": "The rear cards fan apart briefly, then stack neatly again.",
+      "colorA": "#7aaff7",
+      "colorB": "#5e74c4",
+      "pale": "#ecf3ff"
+    },
+    "siso-voice": {
+      "label": "SISO Voice",
+      "description": "A sculpted microphone capsule in a luminous cradle with responsive wave bars.",
+      "motion": "The side waves answer in a short staggered phrase and settle.",
+      "colorA": "#f4af79",
+      "colorB": "#ca5d90",
+      "pale": "#fff0d9"
+    },
+    "agent-base": {
+      "label": "Agent Base \u00b7 Beacon",
+      "description": "A distinct three-sided architectural beacon surrounding a suspended intelligence core.",
+      "motion": "The inner core rises and brightens; three rays briefly appear before it seats again.",
+      "colorA": "#72caff",
+      "colorB": "#4567e8",
+      "pale": "#e5f7ff"
+    },
+    "maths-innovations": {
+      "label": "Maths Innovations",
+      "description": "An interwoven infinity ribbon with a crystalline proof at its centre.",
+      "motion": "A point of light follows the ribbon once, then rests at the proof.",
+      "colorA": "#91c4ff",
+      "colorB": "#d8b36d",
+      "pale": "#f8efdb"
+    }
+  }
+}

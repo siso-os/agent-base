@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# ui-round <name>: build the web app, shoot the composer at every width and state into /tmp/ui-<name>, make sure the
+# comps server on :8896 is up, and print what was captured. The UI seat's inner loop (.claude/skills/ui-loop).
+set -euo pipefail
+name="${1:?usage: ui-round <name>}"; root="$(cd "$(dirname "$0")/.." && pwd)"; out="/tmp/ui-$name"
+hub="$root/ui-hub"
+(cd "$root" && heavy -- pnpm build >/dev/null 2>&1) || { echo "build failed: cd $root && pnpm build"; exit 1; }
+COMPOSER_SHOTS="$out" heavy -- node "$root/tools/composer-shots.mjs" after-ui | tail -1
+curl -sf -o /dev/null http://127.0.0.1:8896/ || (nohup python3 "$hub/serve.py" >/dev/null 2>&1 & disown)
+ls "$out"/*.png | sed "s#$out/##" | tr '\n' ' '; echo; echo "shots: $out  ·  hub: $hub/<component>/ (crops → shots/rN/*.webp) -> http://127.0.0.1:8896/<component>/"

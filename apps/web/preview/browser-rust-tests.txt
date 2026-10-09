@@ -1,0 +1,7 @@
+test browser::tests::profiles_are_stable_and_separate ... ok
+test browser::tests::signed_in_is_read_from_cookie_names_only ... ok
+test browser::tests::each_tab_and_space_has_its_own_stable_page ... ok
+test browser::tests::agents_downloads_and_popups_have_their_own_place ... ok
+test browser::tests::rejects_unsafe_urls_and_rectangles ... ok
+test browser::tests::downloads_keep_only_a_safe_unique_file_name ... ok
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s

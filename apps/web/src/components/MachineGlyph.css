@@ -1,0 +1,3 @@
+/* R1.4: the machine an agent runs on, 12 px and muted (the nav's other glyphs are 10 px). */
+.ab-machine { display: inline-flex; flex: none; align-items: center; color: rgb(var(--crm-white-rgb) / 0.45); }
+.siso-sidenav .siso-thread__glyph .ab-machine svg { width: 12px; height: 12px; }

@@ -1,0 +1,35 @@
+.siso-chat__main { container: chat / inline-size; }
+.chat-find { position: relative; z-index: 3; flex: none; margin: 4px 22px; padding: 9px 12px; border: 1px solid rgb(255 255 255 / .12); border-radius: 14px; background: #171923; color: #e3e4ec; font-size: 12px; }
+.chat-find-controls { display: flex; align-items: center; gap: 6px; }
+.chat-find input { flex: 1; min-width: 0; border: 0; background: transparent; outline: none; font: inherit; color: inherit; }
+.chat-find output { color: #a9adc0; white-space: nowrap; }
+.chat-find button { padding: 6px; border-radius: 6px; color: inherit; }
+.chat-find button:hover { background: #303342; }
+.chat-find button:disabled { opacity: .35; }
+.chat-find small { display: block; padding-top: 5px; color: #c1ac7b; }
+.chat-find-excerpt { color: #9299ad; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; padding-top: 6px; }
+.chat-find mark { background: #775e29; color: #fff1ce; border-radius: 2px; }
+::highlight(chat-find) { background: #675024; color: #fff0be; }
+::highlight(chat-find-current) { background: #e0b961; color: #171410; }
+.chat-outline { position: absolute; right: 32px; top: 14px; z-index: 4; width: 220px; pointer-events: none; text-align: right; }
+.chat-outline button, .chat-outline nav { pointer-events: auto; }
+.chat-outline-toggle { padding: 7px 12px; border-radius: 20px; background: #20222ddd; color: #adb5c8; font-size: 11px; }
+.chat-outline-toggle span { margin-left: 8px; opacity: .55; }
+.chat-outline-list { height: min(420px, 55vh); overflow: auto; margin-top: 8px; border: 1px solid #ffffff17; background: #181b24fa; border-radius: 13px; padding: 8px; text-align: left; }
+.chat-find + .chat-outline { top: 90px; }
+.chat-outline-row { display: flex; flex-direction: column; width: 100%; height: 56px; padding: 8px; text-align: left; border-radius: 8px; font-size: 11px; color: #bec7dd; }
+.chat-outline-row:hover, .chat-outline-row[aria-current] { background: #aebfff14; color: #e2e9fd; }
+.chat-outline-row span { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; max-width: 100%; }
+.chat-outline-row time { font-size: 9px; color: #727e98; margin: 5px 0 0 14px; }
+.chat-outline-row.is-fallback span { color: #838da2; }
+.chat-outline-row small { font-size: 8px; text-transform: uppercase; color: #c3a76f; }
+.siso-chat__turn.is-jump { animation: chat-answer-flash 600ms ease-out; }
+@keyframes chat-answer-flash { from { box-shadow: -3px 0 #a5bfff; } to { box-shadow: -3px 0 transparent; } }
+.chat-recovery { display: flex; align-items: center; gap: 12px; margin: 5px 20px 10px; padding: 11px 14px; border: 1px solid #bd9a5338; border-radius: 12px; background: #242119; color: #d6c49e; font-size: 11px; }
+.chat-recovery strong { font-weight: 500; }.chat-recovery small { display: block; margin-top: 4px; color: #a99d83; }
+.chat-recovery button { margin-left: auto; border-radius: 8px; padding: 7px 9px; background: #ffffff09; white-space: nowrap; }
+.chat-received { border-top: 1px dashed #a58a5659; color: #b9a57e; font-size: 10px; padding-top: 9px; margin: 16px 0; }
+@container chat (min-width: 1100px) { .siso-chat__main:has(.chat-outline.is-open) .siso-chat__list { padding-right: 240px; } .chat-outline { top: 55px; } }
+@container chat (max-width: 600px) { .chat-find { margin: 4px 6px; padding: 8px; } .chat-find-controls { gap: 1px; }.chat-find input { width: 80px; } .chat-outline { right: 17px; top: 8px; }.chat-outline-list { max-height: 45vh; }.chat-recovery { margin: 5px 8px 8px; flex-wrap: wrap; gap: 7px; }.chat-recovery button { margin-left: 0; } }
+@container chat (max-width: 1099px) { .chat-find + .chat-outline { position: relative; top: auto; right: auto; align-self: flex-end; flex: none; height: 30px; margin: 0 17px 6px; }.chat-find + .chat-outline .chat-outline-list { position: absolute; right: 0; width: 220px; } }
+@media (prefers-reduced-motion: reduce) { .siso-chat__turn.is-jump { animation: none; outline: 1px solid #a5bfff77; } }

@@ -1,0 +1,44 @@
+{
+  "label": "dbg",
+  "sessionMb": 5,
+  "sessionLines": 5591,
+  "openMs": 87,
+  "helloKb": 30,
+  "turnsRendered": 6,
+  "domNodes": 720,
+  "webContentMb": 206,
+  "workingNodeCpuPct": 1,
+  "workingPageCpuPct": 21,
+  "workingWsKb": 121,
+  "webContentMbAfterWork": 259,
+  "soak": [
+    {
+      "s": 0,
+      "mb": 259,
+      "turns": 33,
+      "dom": 1154,
+      "gap": 6190
+    },
+    {
+      "s": 20,
+      "mb": 291,
+      "turns": 85,
+      "dom": 1865,
+      "gap": 20385
+    },
+    {
+      "s": 40,
+      "mb": 311,
+      "turns": 139,
+      "dom": 2640,
+      "gap": 34296
+    }
+  ],
+  "apiPer20sVisible": 15,
+  "apiPer20sHidden": 0,
+  "hiddenPageCpuPct": 6,
+  "reachedStart": true,
+  "scrollToStartMs": 4626,
+  "turnsRenderedAtStart": 705,
+  "pageErrors": []
+}

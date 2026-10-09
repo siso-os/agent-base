@@ -1,0 +1,31 @@
+/* Owner finishes and links (6 Oct 22:00): small cards top right, under the top bar, clear of the side nav and the input. */
+.ab-owner-toasts { position: fixed; right: calc(16px + var(--ab-panel-space, 0px)); top: 64px; z-index: 220; display: grid; gap: 8px; width: min(360px, calc(100vw - 100px)); }
+.ab-owner-toast { display: flex; align-items: center; gap: 6px; padding: 8px 8px 8px 10px; border: 1px solid rgb(var(--crm-white-rgb) / 0.12); border-left: 3px solid #34d399; border-radius: 12px; background: linear-gradient(160deg, #252422, #1a1918); box-shadow: 0 16px 40px rgb(0 0 0 / 0.5); color: var(--crm-color-text); font: 12px/1.4 var(--crm-font-sans); animation: ab-owner-toast-in 220ms cubic-bezier(.2,.8,.2,1) both; }
+.ab-owner-toast.is-blocked { border-left-color: rgb(var(--crm-danger-rgb)); }
+.ab-owner-toast.is-waiting-on-shaan { border-left-color: #fbbf24; }
+.ab-owner-toast__who { display: flex; flex: 1; min-width: 0; align-items: center; gap: 9px; padding: 0; border: 0; background: none; color: inherit; text-align: left; cursor: pointer; }
+.ab-owner-toast__who > span { display: grid; min-width: 0; }
+.ab-owner-toast__who b { font-size: 12px; color: var(--crm-color-text-strong); }
+.ab-owner-toast__who em { font-style: normal; font-size: 10.5px; color: #34d399; }
+.ab-owner-toast.is-blocked em { color: rgb(var(--crm-danger-rgb)); }
+.ab-owner-toast.is-waiting-on-shaan em { color: #fbbf24; }
+.ab-owner-toast__who small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: rgb(var(--crm-white-rgb) / 0.55); font-size: 11px; }
+.ab-owner-toast__open { display: inline-flex; flex: none; align-items: center; gap: 3px; padding: 5px 9px; border: 1px solid rgb(var(--crm-white-rgb) / 0.16); border-radius: 8px; background: rgb(var(--crm-white-rgb) / 0.05); color: var(--crm-color-text-strong); font: inherit; cursor: pointer; }
+.ab-owner-toast__open:hover { background: rgb(var(--crm-white-rgb) / 0.1); }
+.ab-owner-toast__x { display: grid; flex: none; width: 24px; height: 24px; place-items: center; padding: 0; border: 0; border-radius: 6px; background: none; color: rgb(var(--crm-white-rgb) / 0.5); cursor: pointer; }
+.ab-owner-toast__x:hover { background: rgb(var(--crm-white-rgb) / 0.08); color: var(--crm-color-text-strong); }
+@keyframes ab-owner-toast-in { from { opacity: 0; transform: translateY(8px); } }
+@media (prefers-reduced-motion: reduce) { .ab-owner-toast { animation: none; } }
+@media (max-width: 1199px) { .ab-owner-toasts { right: 16px; } }
+@media (max-width: 639px) { .ab-owner-toasts { left: 8px; right: 8px; bottom: calc(64px + env(safe-area-inset-bottom)); width: auto; } }
+/* 6 Oct 23:35: the notes live in the bell's list; one glimpse at a time up top, gone after ~4 s. */
+.ab-owner-notes { display: grid; gap: 6px; padding: 10px 12px 12px; border-bottom: 1px solid rgb(var(--crm-white-rgb) / 0.08); }
+.ab-owner-notes > header { display: flex; align-items: center; justify-content: space-between; color: rgb(var(--crm-white-rgb) / 0.55); font: 600 10.5px/1 var(--crm-font-sans); letter-spacing: .08em; text-transform: uppercase; }
+.ab-owner-notes > header button { padding: 2px 6px; border: 0; border-radius: 6px; background: none; color: rgb(var(--crm-white-rgb) / 0.6); font: 500 11px/1.4 var(--crm-font-sans); letter-spacing: 0; text-transform: none; cursor: pointer; }
+.ab-owner-notes > header button:hover { background: rgb(var(--crm-white-rgb) / 0.08); color: var(--crm-color-text-strong); }
+.ab-owner-notes .ab-owner-toast { box-shadow: none; animation: none; background: rgb(var(--crm-white-rgb) / 0.03); }
+.ab-owner-notes .ab-owner-toast[data-read] { border-left-color: rgb(var(--crm-white-rgb) / 0.14); opacity: .72; }
+.ab-owner-notes .ab-owner-toast[data-read] em { color: rgb(var(--crm-white-rgb) / 0.5); }
+body:has(#agent-notifications) .ab-owner-toasts { display: none; }
+/* An open menu only: the voice orb keeps its menu mounted with [hidden], which hid every owner note (found 9 Oct, t-0460). */
+body:has([role="menu"]:not([hidden])) .ab-owner-toasts { display: none; }

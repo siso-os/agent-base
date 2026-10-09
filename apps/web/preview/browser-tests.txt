@@ -1,0 +1,181 @@
+TAP version 13
+# Subtest: fake Arc spaces become separate profiles, only pinned descendants survive, cycles terminate
+ok 1 - fake Arc spaces become separate profiles, only pinned descendants survive, cycles terminate
+  ---
+  duration_ms: 4.104833
+  type: 'test'
+  ...
+# Subtest: explicit import is idempotent and pin state survives store reload
+ok 2 - explicit import is idempotent and pin state survives store reload
+  ---
+  duration_ms: 1.798834
+  type: 'test'
+  ...
+# Subtest: malformed sidebar is rejected without leaking its payload
+ok 3 - malformed sidebar is rejected without leaking its payload
+  ---
+  duration_ms: 3.302417
+  type: 'test'
+  ...
+# Subtest: named profiles survive reload and stay distinct from Arc and built-in accounts
+ok 4 - named profiles survive reload and stay distinct from Arc and built-in accounts
+  ---
+  duration_ms: 4.600584
+  type: 'test'
+  ...
+# Subtest: global Arc Favorites include nested folders, deduplicate, reject unsafe URLs and reimport as one group
+ok 5 - global Arc Favorites include nested folders, deduplicate, reject unsafe URLs and reimport as one group
+  ---
+  duration_ms: 0.793958
+  type: 'test'
+  ...
+# Subtest: launch check: signed in before and now = survived the restart; signed in before, out now = Google signed it out
+ok 6 - launch check: signed in before and now = survived the restart; signed in before, out now = Google signed it out
+  ---
+  duration_ms: 32.739875
+  type: 'test'
+  ...
+# Subtest: a check that is not a launch never claims a restart; signing in clears "signed out" and the pending state
+ok 7 - a check that is not a launch never claims a restart; signing in clears "signed out" and the pending state
+  ---
+  duration_ms: 0.307333
+  type: 'test'
+  ...
+# Subtest: only the signed-in Google avatar supplies the fake account address
+ok 8 - only the signed-in Google avatar supplies the fake account address
+  ---
+  duration_ms: 2.89475
+  type: 'test'
+  ...
+# Subtest: quick-add creates separate Google accounts (own stores) before authentication, and no spaces
+ok 9 - quick-add creates separate Google accounts (own stores) before authentication, and no spaces
+  ---
+  duration_ms: 4.047208
+  type: 'test'
+  ...
+# Subtest: leaving a web tab and coming back keeps the same native page: hidden, never closed or reloaded
+ok 10 - leaving a web tab and coming back keeps the same native page: hidden, never closed or reloaded
+  ---
+  duration_ms: 108.782333
+  type: 'test'
+  ...
+# Subtest: each space of a tab is its own page, and an explicit tab close destroys them all
+ok 11 - each space of a tab is its own page, and an explicit tab close destroys them all
+  ---
+  duration_ms: 104.387584
+  type: 'test'
+  ...
+# Subtest: the 5th awake tab puts the least recently used one to sleep
+ok 12 - the 5th awake tab puts the least recently used one to sleep
+  ---
+  duration_ms: 190.156167
+  type: 'test'
+  ...
+# Subtest: a tab playing sound is never put to sleep; the next least recently used one sleeps instead
+ok 13 - a tab playing sound is never put to sleep; the next least recently used one sleeps instead
+  ---
+  duration_ms: 146.904333
+  type: 'test'
+  ...
+# Subtest: a tab an agent drives is never slept and is opened marked as the agent's (no throttling natively)
+ok 14 - a tab an agent drives is never slept and is opened marked as the agent's (no throttling natively)
+  ---
+  duration_ms: 148.061958
+  type: 'test'
+  ...
+# Subtest: the store is the account: two spaces on one account open the same page and store
+ok 15 - the store is the account: two spaces on one account open the same page and store
+  ---
+  duration_ms: 82.883542
+  type: 'test'
+  ...
+# Subtest: the page on screen is never slept, and pickSleepers takes only the excess
+ok 16 - the page on screen is never slept, and pickSleepers takes only the excess
+  ---
+  duration_ms: 0.315459
+  type: 'test'
+  ...
+# Subtest: Today tabs retain ordering and profile isolation across reload
+ok 17 - Today tabs retain ordering and profile isolation across reload
+  ---
+  duration_ms: 20.4985
+  type: 'test'
+  ...
+# Subtest: malformed storage and transient authentication URLs are not saved
+ok 18 - malformed storage and transient authentication URLs are not saved
+  ---
+  duration_ms: 1.056125
+  type: 'test'
+  ...
+# Subtest: Today expires at twelve hours while malformed timestamps are discarded
+ok 19 - Today expires at twelve hours while malformed timestamps are discarded
+  ---
+  duration_ms: 1.724458
+  type: 'test'
+  ...
+# (node:64228) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: reads Arc spaces/today and Chrome accounts with bookmarks, and never a cookie or login file
+ok 20 - reads Arc spaces/today and Chrome accounts with bookmarks, and never a cookie or login file
+  ---
+  duration_ms: 5.432792
+  type: 'test'
+  ...
+# Subtest: a Mac without Arc or Chrome imports nothing and says so
+ok 21 - a Mac without Arc or Chrome imports nothing and says so
+  ---
+  duration_ms: 2.700208
+  type: 'test'
+  ...
+# Subtest: import + migration: Chrome profiles become ACCOUNTS (not spaces), old sign-in stores keep their id, re-run is safe
+ok 22 - import + migration: Chrome profiles become ACCOUNTS (not spaces), old sign-in stores keep their id, re-run is safe
+  ---
+  duration_ms: 1.4475
+  type: 'test'
+  ...
+# Subtest: history from every Chrome and Arc profile merges by address, drops sign-in and token pages, and feeds suggestions
+ok 23 - history from every Chrome and Arc profile merges by address, drops sign-in and token pages, and feeds suggestions
+  ---
+  duration_ms: 4.447875
+  type: 'test'
+  ...
+# Browser state not saved Error: down
+#     at Object.put (file://~/SISO_Workspace/_data/worktrees/siso-internal-labs-agent-base/browser/services/node/test/browser-state.test.mjs:56:110)
+#     at file://~/SISO_Workspace/_data/worktrees/siso-internal-labs-agent-base/browser/apps/web/src/lib/browser-store.ts:41:37
+#     at async file://~/SISO_Workspace/_data/worktrees/siso-internal-labs-agent-base/browser/apps/web/src/lib/browser-store.ts:80:9
+#     at async TestContext.<anonymous> (file://~/SISO_Workspace/_data/worktrees/siso-internal-labs-agent-base/browser/services/node/test/browser-state.test.mjs:57:3)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+# Browser state not saved Error: down
+#     at Object.put (file://~/SISO_Workspace/_data/worktrees/siso-internal-labs-agent-base/browser/services/node/test/browser-state.test.mjs:56:110)
+#     at file://~/SISO_Workspace/_data/worktrees/siso-internal-labs-agent-base/browser/apps/web/src/lib/browser-store.ts:41:37
+#     at async TestContext.<anonymous> (file://~/SISO_Workspace/_data/worktrees/siso-internal-labs-agent-base/browser/services/node/test/browser-state.test.mjs:61:3)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+# Subtest: the node keeps only known fields, in a private file, and refuses junk
+ok 24 - the node keeps only known fields, in a private file, and refuses junk
+  ---
+  duration_ms: 18.070958
+  type: 'test'
+  ...
+# Subtest: first load migrates localStorage once into the node; later writes go to the node, not localStorage
+ok 25 - first load migrates localStorage once into the node; later writes go to the node, not localStorage
+  ---
+  duration_ms: 0.664625
+  type: 'test'
+  ...
+# Subtest: a node that is down or answers junk loads as empty and still works in memory
+ok 26 - a node that is down or answers junk loads as empty and still works in memory
+  ---
+  duration_ms: 0.757208
+  type: 'test'
+  ...
+1..26
+# tests 26
+# suites 0
+# pass 26
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 964.245791

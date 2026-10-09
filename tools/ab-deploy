@@ -1,0 +1,89 @@
+#!/bin/bash
+set -euo pipefail
+die() { printf 'ab-deploy: %s\n' "$*" >&2; exit 1; }
+ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
+REMOTE=${AB_REMOTE:-origin}
+MAIN_REF=${AB_MAIN_REF:-refs/heads/main}
+LIVE=${AB_LIVE_WORKTREE:-$HOME/SISO_Workspace/_data/worktrees/siso-internal-labs-agent-base/live}
+PORT=${AB_DEPLOY_PORT:-5401}
+ATTEMPTS=${AB_PROBE_ATTEMPTS:-35}
+INTERVAL=${AB_PROBE_INTERVAL:-2}
+LOG=${AB_DEPLOY_LOG:-$ROOT/.agents/deploy.log.jsonl}
+MINI=${AB_MINI:-$HOME/SISO_Workspace/SISO_Agency/apps/siso-internal-labs/siso-internal-labs-agents/.agents/luna/ab-mini}
+START=$(date +%s)
+NEW=''
+OLD=''
+RESULT=failed
+PROBES=0
+LOGGED=0
+TMP=''
+OLD_DIST=''
+LIVE_UPDATED=0
+write_log() {
+  mkdir -p "$(dirname "$LOG")"
+  python3 - "$LOG" "$NEW" "$OLD" "$RESULT" "$PROBES" "$START" <<'PY'
+import json,sys,time
+path,sha,previous,result,probes,start=sys.argv[1:]
+with open(path,'a') as f:
+    f.write(json.dumps({'sha':sha,'previous_sha':previous,'result':result,'probes':int(probes),'seconds':int(time.time())-int(start)})+'\n')
+PY
+  LOGGED=1
+}
+cleanup() {
+  if [[ "$LIVE_UPDATED" == 1 && "$RESULT" != deployed && "$RESULT" != rollback ]]; then
+    git -C "$LIVE" switch --detach "$OLD" >/dev/null 2>&1 || true
+    rm -rf "$LIVE/apps/web/dist"
+    mkdir -p "$LIVE/apps/web/dist"
+    if [[ -d "$OLD_DIST" ]]; then cp -R "$OLD_DIST/." "$LIVE/apps/web/dist/"; fi
+    RESULT=rollback
+  fi
+  if [[ -n "$TMP" ]]; then git -C "$ROOT" worktree remove --force "$TMP" >/dev/null 2>&1 || true; fi
+  if [[ -n "$OLD_DIST" ]]; then rm -rf "$OLD_DIST"; fi
+  if [[ "$LOGGED" == 0 ]]; then write_log; fi
+}
+trap cleanup EXIT
+git -C "$ROOT" fetch "$REMOTE" || die "fetch failed"
+NEW=$(git -C "$ROOT" rev-parse "$REMOTE/${MAIN_REF#refs/heads/}^{commit}")
+if [[ ! -d "$LIVE/.git" && ! -f "$LIVE/.git" ]]; then
+  git -C "$ROOT" worktree add --detach "$LIVE" "$NEW" >/dev/null || die "could not create live worktree: $LIVE"
+fi
+[[ -z "$(git -C "$LIVE" status --porcelain)" ]] || die "live worktree is dirty"
+OLD=$(git -C "$LIVE" rev-parse HEAD)
+git -C "$ROOT" merge-base --is-ancestor "$OLD" "$NEW" || die "live is not behind target; refusing non-fast-forward deploy"
+TMP="$ROOT/.ab-deploy-build-$$"
+git -C "$ROOT" worktree add --detach "$TMP" "$NEW" >/dev/null
+if [[ "${AB_ON_MINI:-0}" == 1 ]]; then
+  (cd "$TMP" && pnpm install --frozen-lockfile --prefer-offline && pnpm build) || die "web build failed; live tree untouched"
+else
+  [[ -x "$MINI" ]] || die "ab-mini is not executable: $MINI"
+  (cd "$TMP" && "$MINI" 'pnpm install --frozen-lockfile --prefer-offline && pnpm build') || die "web build failed; live tree untouched"
+  rsync -az -e 'ssh -o RemoteCommand=none -o ConnectTimeout=10' "mac-mini-ts:$TMP/apps/web/dist/" "$TMP/apps/web/dist/" || die "could not copy built web dist from the mini"
+fi
+OLD_DIST="$ROOT/.ab-deploy-old-dist-$$"
+mkdir -p "$OLD_DIST"
+if [[ -d "$LIVE/apps/web/dist" ]]; then cp -R "$LIVE/apps/web/dist/." "$OLD_DIST/"; fi
+git -C "$LIVE" switch --detach "$NEW" >/dev/null
+LIVE_UPDATED=1
+mkdir -p "$LIVE/apps/web/dist"
+cp -R "$TMP/apps/web/dist/." "$LIVE/apps/web/dist/"
+probe=0
+while (( probe < ATTEMPTS )); do
+  PROBES=$((probe + 1))
+  response=$(curl --silent --show-error --max-time 2 "http://127.0.0.1:$PORT/api/version" 2>/dev/null || true)
+  if python3 -c 'import json,sys; print(json.load(sys.stdin).get("sha", ""))' <<<"$response" 2>/dev/null | grep -q "^$NEW$"; then break; fi
+  sleep "$INTERVAL"
+  probe=$((probe + 1))
+done
+if (( probe == ATTEMPTS )); then
+  git -C "$LIVE" switch --detach "$OLD" >/dev/null
+  rm -rf "$LIVE/apps/web/dist"
+  mkdir -p "$LIVE/apps/web/dist"
+  cp -R "$OLD_DIST/." "$LIVE/apps/web/dist/"
+  LIVE_UPDATED=0
+  RESULT=rollback
+  write_log
+  die "version probe failed; restored $OLD"
+fi
+RESULT=deployed
+write_log
+printf 'deployed %s; node returned the new sha after %s probes\n' "$NEW" "$PROBES"

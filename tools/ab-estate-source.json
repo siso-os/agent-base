@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "revision": "3778acf65ed5376cb9903b06853b1d3452f4bd0e",
+  "prefix": "plan/world/app/",
+  "files": {
+    "package.json": "b57c6c4006ec1178e144e5c546f66eacbd8c9465bcb9c3721a1502822e5292b0",
+    "src/assets/kit-base.glb": "67467a7c13e2567f34e418c7468d02fa72fdc4b48da7d073e66c64c48c4c25ed",
+    "src/assets/kit-city.glb": "1d5e1dfc76bf8701b3f7a808fc62d369fda2186dd13950097cda1efa58247331",
+    "src/assets/kit-citybits.glb": "ef1c8b00383951f95229466b813347805273c47d8d30230367b9dd7021290ba4",
+    "src/assets/kit-industry.glb": "327c55ab78dff98903dfe1d53aac787c6104728917c026c749906953258d6109",
+    "src/assets/kit-pirate.glb": "0a8a1b31cc77fe0a8ac0c50c4c63195acbee13a6466101e53782196788015215",
+    "src/assets/kit-space.glb": "9e97678e80a36f4468d6e3c732b5ce72bc638b1bd542b43f8c1b427ddfca736c",
+    "src/assets/kit-suburb.glb": "467f5062082c666f92a18afce60c009cdfbb624b22031d3f00ace3fb7eab118f",
+    "src/assets/kit-town.glb": "f1db10d42c74b438a53eb459176ff35f73c7523691615341c79150fbc637148a",
+    "src/assets/kit.glb": "f78c6bbe38a7e148dfea34dff8f962fbe7846e4de9daf113a86dc46fdd3601c0",
+    "src/data.ts": "4fe00372dd99fcbc2543176f543d731da804dff51e32e57a0db9c6bc9db034ff",
+    "src/eras.ts": "2ec756e5d3d3118c4b24d70ccb11281e8fda6c48e9f09d42b6b472d1c12bc0e8",
+    "src/future.ts": "edb4ead6fe8852b4f65c5f2f9e17af0b1197ab2851836a766eefa1d2e4f84086",
+    "src/gz.d.ts": "2dc54ef1076ec68e95d733c174792da3b123c06f702e00b775d9cc96198deca5",
+    "src/hud.ts": "2b59c0d072e22b187f9607397af9fe5ba7f732ce93e43a3b724c2800d1eacf34",
+    "src/kit.ts": "f6783273c23ba710f0be02505cd4e4a918a3d8fd972f55281edf2d4d16a2679f",
+    "src/labels.ts": "1a319d1c46294902c179d02cf33724ba8820804c326f4704344160005e35bbc2",
+    "src/life.ts": "0dcd3538ba0394bff4a5bbcf01193221c02a3b7561bd291a5962f4fbf2100f47",
+    "src/lion.webp": "7c2a74e66ceb7f535e2031392532377beb5d40ea1a8ec2069802e25b59803f13",
+    "src/looks.ts": "27ed7a7aaff8864f567286c3ce6e96caea4780787924b7e4bbe9339f71a2b622",
+    "src/main.ts": "9dd89069f38655070dda99c27116ac0c1ec3ed59530c417a824aa0284ab1f90b",
+    "src/mine.ts": "b1523c099ca7acd6b14acd672f66765c62ee03419229b9fa833aaa9702cff47b",
+    "src/mix.ts": "c1647883c01e21c915486e71602679926d4d3cbb0be85e3f995df901596e1a10",
+    "src/post.ts": "c21e9d4c9479632fa1e766fc278744abc5bd939784a5099a46e2e2ffe8a6a8b0",
+    "src/sky.ts": "20bdefe1ecc0078aeb5a26bf261e11ec7af9f028204170d54f143a6b0572016c",
+    "src/terrain.ts": "48fa030665cb118becfdac0b049832a150de0f2f0c3d12b7f1bf9659af9093fe",
+    "src/tropic.ts": "e4ab25d44e7bcdd9ab3692a61ccb20a313f70ff5e13a18d300aa09d277ab1f0b",
+    "src/water.ts": "fd12bc6a790ee3f4009ad0d42a74e753341f68a90f722bc86ebc6029f647244e",
+    "src/world.ts": "5e6f6eb266ed14bfd55414b285a7582568f944d760e22d518b52b6b85a6dbba5",
+    "world.html": "07c6bcd61f92a6cc52f94d021fb73d9e78ef049450c8d622ac9a41ca2246ee05"
+  },
+  "dependencies": {
+    "vite": "8.3.1",
+    "vite-plugin-singlefile": "2.3.3",
+    "three": "0.186.1"
+  }
+}

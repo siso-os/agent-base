@@ -1,0 +1,40 @@
+/* Your asks: a card in the right panel (panel/YourAsks.tsx), in the panel's own type and tokens. */
+.ab-asks__line { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ab-fold__peek .ab-asks__rev { flex: none; margin-left: -3px; color: #22d3ee; font-weight: 500; }
+.ab-asks__filters { display: flex; gap: 4px; padding: 2px 8px 6px; }
+.ab-asks__chip { display: inline-flex; align-items: center; gap: 5px; height: 22px; padding: 0 8px; border: 1px solid transparent; border-radius: 99px; color: var(--crm-color-text-muted); font-size: 11.5px; }
+.ab-asks__chip span { color: rgb(var(--crm-white-rgb) / 0.42); font-variant-numeric: tabular-nums; }
+.ab-asks__chip:hover { color: var(--crm-color-text-strong); }
+.ab-asks__chip[aria-pressed="true"] { border-color: rgb(var(--crm-brand-rgb) / 0.3); color: var(--crm-color-brand-hover); background: var(--crm-gradient-active-icon); }
+.ab-asks__empty { margin: 0; padding: 4px 8px 6px; color: rgb(var(--crm-white-rgb) / 0.42); font-size: 12px; }
+.ab-asks__list { margin: 0; padding: 0; list-style: none; }
+.ab-asks__row { border-radius: 9px; }
+.ab-asks__row:hover, .ab-asks__row.is-expanded { background: rgb(var(--crm-white-rgb) / 0.04); }
+.ab-asks__head { display: flex; width: 100%; align-items: flex-start; gap: 8px; padding: 7px 8px 3px; color: rgb(var(--crm-white-rgb) / 0.85); font-size: 13px; line-height: 1.35; text-align: left; }
+.ab-asks__head .siso-dot { margin: 5px 2px 0 0; }
+.ab-asks__head:hover { color: var(--crm-color-text-strong); }
+.ab-asks__words { display: -webkit-box; min-width: 0; flex: 1; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.ab-asks__row.is-expanded .ab-asks__words { display: block; }
+.ab-asks__row.is-done .ab-asks__words { color: rgb(var(--crm-white-rgb) / 0.5); }
+.ab-asks__inline { display: flex; min-width: 0; align-items: baseline; gap: 8px; padding: 0 8px 6px 26px; font-size: 12px; }
+.ab-asks__count { flex: none; color: #f0b03f; font-style: normal; font-variant-numeric: tabular-nums; }
+.ab-asks__answer { min-width: 0; flex: 1; overflow: hidden; color: rgb(var(--crm-white-rgb) / 0.6); text-overflow: ellipsis; white-space: nowrap; }
+.ab-asks__row.is-expanded .ab-asks__answer { white-space: normal; }
+.ab-asks__link { flex: none; margin-left: auto; color: var(--crm-color-brand-hover); }
+.ab-asks__link:hover { text-decoration: underline; }
+.ab-asks__more { padding: 0 8px 8px 26px; }
+.ab-asks__quotes { margin: 0 0 6px; padding: 0; list-style: none; }
+.ab-asks__quotes li { margin-top: 4px; padding-left: 8px; border-left: 2px solid var(--crm-color-line-subtle); color: var(--crm-color-text); font-size: 12px; line-height: 1.4; }
+.ab-asks__meta { margin: 2px 0 0; color: rgb(var(--crm-white-rgb) / 0.42); font-size: 11.5px; overflow-wrap: anywhere; }
+/* The two tabs (Asks, Reviews): an underline under the chosen one, the card's muted type otherwise. */
+.ab-asks__tabs { display: flex; gap: 14px; margin: 2px 8px 6px; border-bottom: 1px solid var(--crm-color-line-subtle); }
+.ab-asks__tab { display: inline-flex; align-items: center; gap: 5px; margin-bottom: -1px; padding: 4px 0 6px; border-bottom: 2px solid transparent; color: var(--crm-color-text-muted); font-size: 12.5px; }
+.ab-asks__tab span { color: rgb(var(--crm-white-rgb) / 0.42); font-size: 11.5px; font-variant-numeric: tabular-nums; }
+.ab-asks__tab:hover { color: var(--crm-color-text-strong); }
+.ab-asks__tab[aria-selected="true"] { border-bottom-color: rgb(var(--crm-brand-rgb) / 0.8); color: var(--crm-color-text-strong); }
+.ab-reviews__row.is-opened .ab-asks__words { color: rgb(var(--crm-white-rgb) / 0.6); }
+.ab-reviews__meta { min-width: 0; flex: 1; overflow: hidden; color: rgb(var(--crm-white-rgb) / 0.42); text-overflow: ellipsis; white-space: nowrap; }
+.ab-reviews__verdict { flex: none; font-style: normal; }
+.ab-reviews__verdict.is-approved { color: #34c38f; }
+.ab-reviews__verdict.is-feedback { color: #f0b03f; }
+.ab-reviews__feedback { margin: -2px 0 0; padding: 0 8px 8px 26px; color: rgb(var(--crm-white-rgb) / 0.6); font-size: 12px; line-height: 1.4; }

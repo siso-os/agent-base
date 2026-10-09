@@ -1,0 +1,26 @@
+.wm{--mx:0;--my:0;display:inline-block;flex-shrink:0;vertical-align:middle;line-height:0;isolation:isolate;perspective:650px;contain:layout style}
+.wm>svg{width:100%;height:100%;display:block;overflow:visible}
+.wm g{transform-box:view-box;transform-origin:60px 60px}
+.wm .wm-tilt{transform:rotateY(calc(var(--mx)*11deg)) rotateX(calc(var(--my)*-9deg));transition:transform .24s cubic-bezier(.16,1,.3,1)}
+.wm .wm-float{animation:wm-float 7s ease-in-out infinite}
+.wm .wm-ambient{animation:wm-light 6s ease-in-out infinite}
+.wm .wm-polish{animation:wm-polish 6.8s cubic-bezier(.3,.1,.2,1) infinite}
+.wm .wm-edge{animation:wm-edge 12s linear infinite}
+.wm .wm-trail{animation:wm-trail 7s linear infinite}
+.wm .wm-orbit-back,.wm .wm-orbit-front{transform:rotate(-18deg);transform-origin:60px 64px}
+.wm[data-brand=halo] .wm-float{animation-duration:9s}.wm[data-brand=siso-agency] .wm-float{animation-delay:-2s}
+.wm[data-pulse=on] .wm-event{animation:wm-arrive 1.3s both}
+.wm[data-pulse=on] .wm-polish{animation:wm-flash 1.3s both}
+.wm[data-tier=nav] .wm-float,.wm[data-tier=nav] .wm-edge,.wm[data-tier=nav] .wm-polish,.wm[data-tier=nav] .wm-ambient,.wm[data-tier=nav] .wm-trail{animation:none}
+.wm[data-tier=nav] .wm-polish{opacity:0}.wm[data-tier=nav] .wm-floor{display:none}
+.wm[data-motion=off] *{animation-play-state:paused!important}
+.wm[data-motion=off] .wm-tilt{transition:none}
+.wm[role=button]{cursor:pointer;touch-action:manipulation;border-radius:25%}.wm:focus-visible{outline:2px solid var(--wa);outline-offset:5px}
+@keyframes wm-float{0%,100%{transform:translateY(0) rotate(-.4deg)}45%,60%{transform:translateY(-1.8px) rotate(.4deg)}}
+@keyframes wm-light{0%,100%{opacity:.65}48%{opacity:1}}
+@keyframes wm-polish{0%,12%{transform:translateX(-70px);opacity:0}18%{opacity:.7}45%{transform:translateX(165px);opacity:.65}50%,100%{transform:translateX(165px);opacity:0}}
+@keyframes wm-edge{to{stroke-dashoffset:-100}}
+@keyframes wm-trail{to{stroke-dashoffset:-100}}
+@keyframes wm-arrive{0%,100%{transform:translateY(0) scale(1)}12%{transform:translateY(2px) scale(.975)}36%{transform:translateY(-5px) scale(1.025)}59%{transform:translateY(1px) scale(.995)}78%{transform:translateY(-.6px) scale(1)}}
+@keyframes wm-flash{0%{transform:translateX(-70px);opacity:0}20%{opacity:.85}82%{transform:translateX(165px);opacity:.85}100%{transform:translateX(165px);opacity:0}}
+@media(prefers-reduced-motion:reduce){.wm *{animation:none!important;transition:none!important}.wm .wm-tilt,.wm .wm-float,.wm .wm-event{transform:none!important}.wm .wm-polish{opacity:0!important}}

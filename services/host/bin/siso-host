@@ -1,0 +1,13 @@
+#!/bin/sh
+# siso-host: Claude through the Agent SDK in this herdr pane (see ../src/host.ts).
+DIR="$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)"
+if [ "$1" = "--harness" ] && [ "$2" = "codex" ]; then
+  shift 2
+  exec node --experimental-strip-types --no-warnings "$DIR/src/codex-host.ts" "$@"
+fi
+for arg in "$@"; do
+  if [ "$arg" = "--service" ]; then
+    exec node --experimental-strip-types --no-warnings "$DIR/src/service-runner.ts" "$@"
+  fi
+done
+exec node --experimental-strip-types --no-warnings "$DIR/src/host.ts" "$@"

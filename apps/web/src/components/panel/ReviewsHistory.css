@@ -1,0 +1,20 @@
+.ab-review-history { min-width:0; font-size:13px; }
+.ab-review-history__source,.ab-review-history__meta,.ab-review-history time { color:rgb(var(--crm-white-rgb) / .5); font-size:11px; }
+.ab-review-history__source { margin:0 0 10px; }
+.ab-review-history__notice { color:#f0b03f; margin:8px 0; }
+.ab-review-history__filters { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px; }
+.ab-review-history__filters button { border:1px solid rgb(var(--crm-white-rgb) / .13); border-radius:6px; padding:5px 8px; }
+.ab-review-history__filters button[aria-pressed=true] { background:rgb(var(--crm-white-rgb) / .12); color:rgb(var(--crm-white-rgb)); }
+.ab-review-history__list { list-style:none; padding:0; margin:0; }
+.ab-review-history__list>li { padding:10px 0; border-top:1px solid rgb(var(--crm-white-rgb) / .08); }
+.ab-review-history__open { display:flex; width:100%; text-align:left; align-items:start; justify-content:space-between; gap:12px; overflow-wrap:anywhere; font-weight:600; }
+.ab-review-history__meta { margin:5px 0; overflow-wrap:anywhere; }
+.ab-review-history .is-approved { color:#34c38f; }.ab-review-history .is-feedback { color:#f0b03f; }
+.ab-review-history summary { cursor:pointer; color:rgb(var(--crm-white-rgb) / .6); font-size:11px; }
+.ab-review-history ol { list-style:none; padding:0 0 0 10px; border-left:1px solid rgb(var(--crm-white-rgb) / .14); margin:10px 0; }
+.ab-review-history ol li { display:flex; flex-wrap:wrap; gap:4px 10px; margin:9px 0; }
+.ab-review-history ol p { flex-basis:100%; margin:0; overflow-wrap:anywhere; }
+.ab-review-history button:focus-visible,.ab-review-history summary:focus-visible { outline:2px solid var(--crm-accent,#a78bfa); outline-offset:3px; }
+.ab-review-history-page { max-width:850px; width:100%; margin:auto; padding:24px; overflow:auto; }
+.ab-review-history-page h1 { font-size:25px; font-weight:650; }.ab-review-history-page>p { margin:8px 0 22px; opacity:.6; }
+@media(max-width:480px){.ab-review-history-page{padding:16px;}}

@@ -1,0 +1,24 @@
+/* @siso/shell: the Halo rim (README.md beside this file). Tokens: --rim-hue (the ring's own colour), --rim-cyan (the
+   ring's second colour, the app's "working" cyan), --rim-fill (what a child can paint behind itself to match the glass). */
+@property --siso-rim-ang{syntax:"<angle>";initial-value:0deg;inherits:false}
+/* Glass: the box is translucent and blurs what scrolls beneath it; the 1.5 px rim is its own layer (::before, masked to
+   a ring), so the glass never shows the gradient through its middle. */
+.siso-rim{--rim-hue:rgb(var(--crm-brand-rgb));--rim-cyan:#22D3EE;--rim-fill:#1b1b19;--rim-ring:conic-gradient(from var(--siso-rim-ang),var(--rim-hue),var(--rim-cyan),color-mix(in srgb,var(--rim-hue) 30%,transparent),color-mix(in srgb,var(--rim-hue) 60%,#6080ff),var(--rim-hue));
+  position:relative;padding:7.5px 11.5px 7.5px;border-radius:20px;background:rgb(27 27 25 / .84);-webkit-backdrop-filter:blur(18px) saturate(140%);backdrop-filter:blur(18px) saturate(140%);
+  box-shadow:0 0 0 1px rgb(255 255 255 / .02),0 14px 44px -14px color-mix(in srgb,var(--rim-hue) 45%,transparent),0 0 34px -10px color-mix(in srgb,var(--rim-cyan) 35%,transparent)}
+.siso-rim::before{content:"";position:absolute;inset:0;z-index:0;padding:1.5px;border-radius:inherit;background:var(--rim-ring);pointer-events:none;
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}
+.siso-rim>*{position:relative;z-index:1}
+.siso-rim.is-working::before{animation:siso-rim-spin 6s linear infinite}
+.siso-rim.is-idle{--rim-ring:linear-gradient(135deg,color-mix(in srgb,var(--rim-hue) 50%,#333),#2c2c2a 42%,color-mix(in srgb,var(--rim-hue) 35%,#2c2c2a));box-shadow:0 10px 32px -16px rgb(0 0 0 / .7)}
+@keyframes siso-rim-spin{to{--siso-rim-ang:360deg}}
+/* Voice's two colours, shared with everything that speaks or listens (the mic orb, the speaker toggle). */
+:root{--siso-voice:#a78bfa;--siso-voice-2:#f472b6}
+/* Voice: violet and faster (state="voice", or any child that says it is listening). Opening the mic, writing it down
+   or reading a reply aloud keeps the violet ring, still, so the box says "voice" from the press to the last word. */
+.siso-rim.is-voice,.siso-rim:has([data-phase="listening"]),.siso-rim:has([data-phase="starting"]),.siso-rim:has([data-phase="writing"]),.siso-rim:has([data-speaking="true"]){--rim-hue:var(--siso-voice);--rim-cyan:var(--siso-voice-2)}
+.siso-rim.is-voice::before,.siso-rim:has([data-phase="listening"])::before{animation:siso-rim-spin 3s linear infinite}
+/* glow={false}: the ring without its outer light, for a rim inside something that already glows. */
+.siso-rim.no-glow{box-shadow:none}
+/* Reduced motion: the ring never turns (last, so it wins over the states above). */
+@media (prefers-reduced-motion:reduce){.siso-rim.is-working::before,.siso-rim.is-voice::before,.siso-rim:has([data-phase="listening"])::before{animation:none}}

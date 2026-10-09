@@ -1,0 +1,17 @@
+.a0-now { font-size: 12px; padding-top: 8px; }
+.a0-now h2 { font-size: 12px; font-weight: 600; color: var(--muted-foreground); margin: 0 4px 8px; }
+.a0-now__card { border: 1px solid rgba(128,128,140,.2); border-radius: 12px; background: rgba(128,128,140,.07); padding: 12px; margin-bottom: 12px; overflow-wrap: anywhere; }
+.a0-now__card h3 { color: var(--muted-foreground); font-size: 12px; font-weight: 500; margin: 0 0 8px; }
+.a0-now__card p { margin: 6px 0; }
+.a0-now__card small, .a0-now__event time { color: var(--muted-foreground); }
+.a0-now__counts { display: flex; flex-wrap: wrap; gap: 10px; }
+.a0-red { color: #e5484d; }.a0-amber { color: #f5a524; }.a0-green { color: #30a46c; }
+.a0-now__bar { height: 6px; border-radius: 3px; background: rgba(128,128,140,.15); overflow: hidden; }
+.a0-now__bar i { display: block; height: 100%; }
+.a0-now__account { margin-bottom: 10px; }
+.a0-now__item code { font-size: 10px; }
+.a0-now pre { white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; margin: 8px 0; }
+.a0-now__commits { color: var(--muted-foreground); margin-top: 10px; }
+.a0-now__open { padding: 5px 8px; border: 1px solid rgba(128,128,140,.25); border-radius: 6px; margin-top: 8px; }
+.a0-now__open:disabled { opacity: .5; cursor: default; }
+.a0-now__event { display: grid; grid-template-columns: 44px minmax(0,1fr); gap: 6px; margin: 8px 0; }

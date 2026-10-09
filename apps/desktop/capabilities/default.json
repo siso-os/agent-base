@@ -1,0 +1,21 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "The Agent Base window loads its screens from the laptop node; it may drag itself by the title bar.",
+  "remote": {
+    "urls": [
+      "http://127.0.0.1:*",
+      "http://localhost:*"
+    ]
+  },
+  "permissions": [
+    "core:default",
+    "core:window:allow-start-dragging",
+    "browser",
+    "browser-test"
+  ],
+  "webviews": [
+    "main",
+    "browser"
+  ]
+}

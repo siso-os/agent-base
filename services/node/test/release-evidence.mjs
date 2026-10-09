@@ -1,0 +1,37 @@
+import assert from 'node:assert/strict';
+import {mkdtempSync,mkdirSync,writeFileSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import path from 'node:path';
+import http from 'node:http';
+import {evidenceAsset,evidenceFor,handleReleases,readReleaseNotes,releasePublicationFile} from '../src/releases.ts';
+const repo=mkdtempSync(path.join(tmpdir(),'.siso-ephemeral-evidence-'));
+mkdirSync(path.join(repo,'ui-hub/shots'),{recursive:true});
+const png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScLbtAAAAABJRU5ErkJggg==','base64');
+for(const name of ['before.png','after.png'])writeFileSync(path.join(repo,'ui-hub/shots',name),png);
+writeFileSync(path.join(repo,'ui-hub/shots/private.png'),'not a screenshot');
+const sha='a'.repeat(40),pair={id:'tasks',title:'Task rows',before:{path:'ui-hub/shots/before.png',sha:'b'.repeat(40)},after:{path:'ui-hub/shots/after.png',sha},viewport:{width:1440,height:1000}},notes=[{sha,title:'Release',evidence:[pair]}];
+assert.equal(evidenceFor(repo,notes,sha).state,'available');
+assert.equal(evidenceFor(repo,notes,'c'.repeat(40)).state,'unavailable');
+assert.equal(evidenceFor(repo,[{...notes[0],evidence:[{...pair,after:{...pair.after,sha:'d'.repeat(40)}}]}],sha).state,'unavailable');
+assert.equal(evidenceFor(repo,[{...notes[0],evidence:[{...pair,after:{...pair.after,path:pair.before.path}}]}],sha).state,'unavailable');
+for(const bad of ['../secret.png','ui-hub/../secret.png','/tmp/secret.png','ui-hub/shots/private.png','ui-hub/shots/missing.png','services/node/src/reviews.ts','ui-hub\\shots\\before.png'])assert.equal(evidenceAsset(repo,bad),null,bad);
+const noteFile=path.join(repo,'notes.jsonl');writeFileSync(noteFile,JSON.stringify(notes[0]));process.env.AB_RELEASE_NOTES=noteFile;
+const published=path.join(repo,'published.jsonl');
+writeFileSync(published,JSON.stringify({...notes[0],title:'Published exact revision'})+'\n'+JSON.stringify({sha:'abcdef0',title:'Not a full release SHA'})+'\n');
+assert.equal(readReleaseNotes(repo)[0].title,'Release','explicit fixture notes exclude default runtime publication');
+process.env.AB_RELEASE_PUBLISHED=published;
+assert.equal(readReleaseNotes(repo).length,1);
+assert.equal(readReleaseNotes(repo)[0].title,'Published exact revision');
+assert.equal(releasePublicationFile(repo),published);
+delete process.env.AB_RELEASE_PUBLISHED;
+assert.notEqual(releasePublicationFile(repo),releasePublicationFile(path.join(repo,'other')),'runtime publications are checkout scoped');
+process.env.AB_RELEASE_PUBLISHED=published;
+const server=http.createServer((req,res)=>{if(!handleReleases(req,res,new URL(req.url,'http://fixture.test'),repo)){res.writeHead(404);res.end();}});
+await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));const base=`http://127.0.0.1:${server.address().port}`;
+try{
+ const good=await fetch(`${base}/api/releases/${sha}/evidence/tasks/before`);assert.equal(good.status,200);assert.equal(good.headers.get('content-type'),'image/png');assert.deepEqual(Buffer.from(await good.arrayBuffer()),png);
+ assert.equal((await fetch(`${base}/api/releases/${sha}/evidence/unknown/before`)).status,404);
+ assert.equal((await fetch(`${base}/api/releases/${sha}/evidence/tasks/before`,{method:'POST'})).status,405);
+ assert.equal((await fetch(`${base}/api/releases/${'c'.repeat(40)}/evidence/tasks/before`)).status,404);
+}finally{server.closeAllConnections();await new Promise(resolve=>server.close(resolve));}
+console.log('PASS release evidence: exact release binding, missing pairs, local roots, traversal rejection, content validation, GET-only manifest assets');

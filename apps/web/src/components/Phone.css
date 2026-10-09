@@ -1,0 +1,70 @@
+/* t-0263, the phone view (<= 639 px, App.tsx's NARROW): the side nav is a full-screen sheet opened from the top-left
+   button, one chat at a time, the composer pinned to the bottom above the safe area, the right panel a bottom sheet
+   (AgentPanel.css), the five page icons in the sheet's top row, and nothing scrolls sideways. */
+@media (max-width: 639px) {
+  html, body { overflow-x: hidden; }
+  /* No icon column and no gutter: the frame is the screen. The notch and the home indicator are kept clear. */
+  /* (Raised a step: shell.css can load after this file.) */
+  body .siso-app { box-sizing: border-box; height: 100dvh; grid-template-columns: minmax(0, 1fr); padding: env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left); }
+  .siso-app > .siso-app__top { padding: 0 8px; gap: 4px; }
+  .siso-app__top .ab-zero-tab { padding: 6px; gap: 3px; }
+  .siso-app__top .ab-zero-tab > span, .siso-app__top .ab-top-drag, .siso-app__top .ab-version-pill, .siso-app__top .ab-today-spend { display: none; }
+  /* t-0570: with the floating version notice gone, a waiting build still shows on the phone: the pill as its dot alone. */
+  .siso-app__top .ab-version-pill[data-ready] { display: inline-flex; justify-content: center; width: 34px; height: 34px; padding: 0; border: 0; }
+  .siso-app__top .ab-version-pill[data-ready] > :not(.ab-version-pill__ready) { display: none; }
+  .siso-app__top .ab-attention-trigger { gap: 0; width: 34px; min-height: 34px; padding: 0; }
+  .siso-app__top .ab-attention-trigger > span { display: none; }
+  .siso-app > .siso-app__rail { display: none; }
+  .siso-app > .siso-app__frame { margin: 0; border-width: 1px 0 0; border-radius: 14px 14px 0 0; }
+
+  /* The nav sheet: everything under the top bar. The pages' icons are its top row (the space switcher, whose other
+     spaces are not built, steps aside), and the icon column's spaces sit along its foot. */
+  .ab-phone-nav { position: fixed; top: calc(48px + env(safe-area-inset-top)); right: 0; bottom: 0; left: 0; z-index: 40; display: flex; padding-bottom: calc(56px + env(safe-area-inset-bottom)); background: var(--crm-color-surface); }
+  .ab-phone-nav > .siso-sidenav { width: 100% !important; min-width: 0; flex: 1; border: 0; }
+  .ab-phone-nav [role="separator"] { display: none; }
+  .ab-phone-nav .siso-headstack > .siso-brand, .ab-phone-nav .siso-headstack > :not(.siso-headstack__space):has(> .siso-brand) { display: none; }
+  .siso-app:has(.ab-phone-nav) > .siso-app__rail { position: fixed; right: 0; bottom: 0; left: 0; z-index: 41; display: flex; height: calc(56px + env(safe-area-inset-bottom)); box-sizing: border-box; flex-direction: row; justify-content: space-between; gap: 2px; padding: 6px 10px env(safe-area-inset-bottom); overflow: hidden; border-top: 1px solid var(--crm-color-line-subtle); background: var(--crm-color-surface); }
+  .siso-app:has(.ab-phone-nav) .siso-app__rail-gap, .siso-app:has(.ab-phone-nav) .siso-app__rail-divider, .siso-app:has(.ab-phone-nav) .siso-app__orb { display: none; }
+  .siso-app:has(.ab-phone-nav) .siso-app__rail-btn { width: 42px; height: 42px; }
+  /* Over the sheet Agent Zero's face would cover the foot's last space; he is the sheet's first row there. */
+  body:has(.ab-phone-nav) .siso-zero-face, body:has(.ab-phone-nav) .ab-zorbit, body:has(.ab-phone-nav) .siso-zero-mic { display: none; }
+
+  /* One chat, its composer pinned to the bottom and clear of the home indicator. */
+  .siso-chat__main:has(.siso-rim) > .siso-chat__composer { padding-bottom: max(10px, calc(env(safe-area-inset-bottom) + 4px)); }
+  /* Nothing pushes the screen sideways: a long unbroken word wraps, a wide block scrolls inside itself. */
+  .siso-chat__main { overflow-wrap: anywhere; }
+  .siso-chat__main pre, .siso-chat__main table { max-width: 100%; overflow-x: auto; }
+}
+
+/* A chat's Tasks sheet on a phone (opus/release-1b, phone spec §3 A): header to composer, the composer live under it;
+   no shade, the chat is covered. Its grabber follows the finger between peek and expanded heights. */
+.ab-phone-icon { display: grid; width: 44px; height: 44px; place-items: center; border: 0; border-radius: 999px; background: none; color: var(--crm-color-text-muted); }
+.ab-phone-icon:active { background: rgb(255 255 255 / 0.06); }
+.ab-sheet__grab { display: grid; flex: none; height: 26px; place-items: center; touch-action: none; cursor: grab; }
+.ab-sheet__grab span { width: 38px; height: 5px; border-radius: 999px; background: rgb(255 255 255 / 0.2); }
+.ab-tsheet { position: fixed; right: 0; left: 0; z-index: 30; display: flex; min-height: 0; flex-direction: column; border-top: 1px solid var(--crm-color-line-subtle); border-radius: 18px 18px 0 0; background: var(--crm-color-surface); box-shadow: 0 -8px 24px rgb(0 0 0 / 0.35); }
+.ab-tsheet__head { display: flex; flex: none; align-items: center; gap: 8px; padding: 0 6px 0 14px; }
+.ab-tsheet__title { min-width: 0; min-height: 44px; flex: 1; overflow: hidden; padding: 0; border: 0; background: none; color: var(--crm-color-text-strong); font: inherit; font-size: 15px; font-weight: 600; text-align: left; text-overflow: ellipsis; white-space: nowrap; }
+.ab-tsheet__body { min-height: 0; flex: 1; overflow-y: auto; padding: 0 12px 12px; overscroll-behavior: contain; }
+.ab-tsheet .ab-ownerfaces button { min-width: 44px; }
+@media (prefers-reduced-motion: reduce) { .ab-tsheet { transition: none; } }
+.ab-tsheet.siso-bottom-sheet { transition: height 0.18s ease-out; }
+.ab-tsheet.siso-bottom-sheet[data-dragging] { transition: none; }
+@media (prefers-reduced-motion: reduce) { .ab-tsheet.siso-bottom-sheet { transition: none; } }
+/* Thumbs (phone spec §8.1): every control in the sheet, an opened task's stage and priority chips too, is 44 px tall. */
+.ab-tsheet button:not(:disabled), .ab-tsheet input, .ab-tsheet select { min-height: 44px; }
+/* An opened task's stages in one row in flywheel order, scrolled sideways (phone spec §3 A), not a 44 px-tall wall. */
+.ab-tsheet .ab-task__grid > * { min-width: 0; }
+.ab-tsheet .owner-panel__chips[aria-label="Stage"] { flex-wrap: nowrap; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; }
+.ab-tsheet .owner-panel__chips[aria-label="Stage"] > button { flex: none; }
+
+/* The ping stack on a phone (phone spec §4): a bottom sheet, 85 % of the screen, over a shade that closes it; 44 px controls. */
+.ab-stack__shade { display: none; }
+@media (max-width: 639px) {
+  .ab-stack__shade { position: fixed; inset: 0; z-index: 59; display: block; background: rgb(0 0 0 / 0.5); }
+  .ab-stack { position: fixed !important; top: auto !important; right: 0 !important; bottom: 0 !important; left: 0 !important; z-index: 60 !important; height: 85dvh; max-height: none !important; padding-bottom: env(safe-area-inset-bottom); border-width: 1px 0 0 !important; border-radius: 18px 18px 0 0 !important; }
+  .ab-stack__head { flex-wrap: wrap; }
+  .ab-stack button:not(:disabled), .ab-stack input { min-height: 44px; }
+  .ab-stack__tabs button { padding: 0 12px; font-size: 13px; }
+  .ab-stack__foot > span { display: none; }
+}

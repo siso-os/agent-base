@@ -1,0 +1,18 @@
+{
+  "steps": {
+    "asked": {
+      "host": "127.0.0.1",
+      "realm": "Fixture realm",
+      "retry": false,
+      "tab": "auth-0"
+    },
+    "pending": 1,
+    "retried": true,
+    "loaded": true,
+    "cancelled": true,
+    "closedWhileAsking": true,
+    "alive": true
+  },
+  "ok": true,
+  "passwordLogged": false
+}

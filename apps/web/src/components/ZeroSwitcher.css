@@ -1,0 +1,40 @@
+/* t-0264: the drop-down under Agent Zero: one line per Agent Zero session, each with what it runs. */
+.ab-zero__switch { display: inline-flex; flex: none; align-items: center; gap: 2px; padding: 2px 5px; border-radius: 6px; color: rgb(var(--crm-white-rgb) / 0.55); font-size: 11px; font-variant-numeric: tabular-nums; }
+.ab-zero__switch:hover, .ab-zero__switch[aria-expanded="true"] { color: var(--crm-color-text-strong); background: rgb(var(--crm-white-rgb) / 0.07); }
+.ab-zsw { display: flex; flex-direction: column; gap: 1px; margin: 2px 0 6px; padding: 4px; border: 1px solid var(--crm-color-line-subtle); border-radius: 12px; background: rgb(255 255 255 / 0.025); }
+.ab-zsw__item { border-radius: 9px; }
+.ab-zsw__item.is-active { background: rgb(var(--crm-white-rgb) / 0.06); }
+.ab-zsw__line { display: flex; min-height: 34px; align-items: center; gap: 4px; padding: 0 4px; }
+.ab-zsw__line .siso-dot { margin: 0 4px 0 0; }
+.ab-zsw__fold { display: grid; width: 18px; height: 18px; flex: none; place-items: center; border-radius: 5px; color: rgb(var(--crm-white-rgb) / 0.5); }
+.ab-zsw__fold:disabled { opacity: 0.25; }
+.ab-zsw__open { display: flex; min-width: 0; flex: 1; flex-wrap: wrap; align-items: baseline; gap: 0 6px; text-align: left; }
+.ab-zsw__open b { overflow: hidden; color: var(--crm-color-text-strong); font-size: 12.5px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.ab-zsw__open em { color: rgb(var(--crm-white-rgb) / 0.4); font-size: 10px; font-style: normal; text-transform: uppercase; letter-spacing: 0.05em; }
+.ab-zsw__open small { flex-basis: 100%; overflow: hidden; color: rgb(var(--crm-white-rgb) / 0.45); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+.ab-zsw__pen { display: grid; width: 22px; height: 22px; flex: none; place-items: center; border-radius: 6px; color: rgb(var(--crm-white-rgb) / 0.4); opacity: 0; }
+.ab-zsw__item:hover .ab-zsw__pen, .ab-zsw__pen:focus-visible { opacity: 1; }
+@media (hover: none) { .ab-zsw__pen { opacity: 1; } }
+.ab-zsw__pen:hover { color: var(--crm-color-text-strong); background: rgb(var(--crm-white-rgb) / 0.07); }
+.ab-zsw__rename { min-width: 0; flex: 1; padding: 4px 6px; border: 1px solid var(--crm-color-line); border-radius: 7px; color: var(--crm-color-text); background: var(--crm-color-surface); font-size: 12.5px; }
+.ab-zsw__runs { display: flex; flex-direction: column; padding: 0 4px 6px 26px; }
+.ab-zsw__run { display: flex; min-height: 26px; align-items: center; gap: 6px; padding: 0 6px; border-radius: 7px; color: rgb(var(--crm-white-rgb) / 0.8); font-size: 11.5px; text-align: left; }
+.ab-zsw__run:hover { background: rgb(var(--crm-white-rgb) / 0.05); }
+.ab-zsw__run .siso-dot { margin: 0; }
+.ab-zsw__run span:not(.siso-dot) { min-width: 0; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ab-zsw__run small { flex: none; color: rgb(var(--crm-white-rgb) / 0.4); font-size: 10.5px; }
+
+.ab-zero__name, .ab-zero__switch { white-space: nowrap; }
+.ab-zero__row { gap: 6px; }
+
+/* New-chat controls float above the nav. Existing chats stay in the top-bar selector. */
+.ab-zero-popup { position: fixed; z-index: 10000; width: min(336px, calc(100vw - 24px)); overflow-y: auto; padding: 12px; border: 1px solid var(--crm-color-line-strong); border-radius: 14px; background: var(--crm-color-surface); color: var(--crm-color-text); box-shadow: 0 16px 48px rgb(0 0 0 / 0.35); }
+.ab-zero-popup > header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; font-size: 12px; }
+.ab-zero-popup > header button { display: grid; width: 26px; height: 26px; place-items: center; border-radius: 7px; color: var(--crm-color-text-muted); }
+.ab-zero-popup__actions { display: flex; gap: 8px; }
+.ab-zero-popup__actions > button { display: inline-flex; min-height: 34px; flex: 1; align-items: center; justify-content: center; gap: 6px; border: 1px solid var(--crm-color-line-subtle); border-radius: 9px; background: var(--crm-color-surface-raised); font-size: 12px; }
+.ab-zero-popup button:hover, .ab-zero-popup button:focus-visible, .ab-zero-popup button[aria-pressed="true"] { color: var(--crm-color-text-strong); background: var(--crm-color-surface-raised); }
+.ab-zero-popup button:disabled { cursor: default; opacity: 0.5; }
+.ab-zero-popup form { display: flex; min-width: 0; flex-direction: column; gap: 10px; margin-top: 12px; }
+.ab-zero-popup form > button { min-height: 34px; justify-content: center; border: 1px solid var(--crm-color-line); border-radius: 9px; }
+.ab-zero-popup [role="alert"] { display: block; margin-top: 10px; color: var(--crm-color-text-muted); font-size: 12px; }

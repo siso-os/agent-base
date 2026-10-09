@@ -1,0 +1,17 @@
+{
+  "name": "@halo/agent-face",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "HALO-FACE's Agent Face, vendored with @halo/ui's bin/sync (see VERSION). This manifest is Agent Base's own: it lets the vendored AgentFace.tsx resolve React.",
+  "exports": {
+    ".": "./index.ts"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.0",
+    "react": "^19.2.0"
+  }
+}

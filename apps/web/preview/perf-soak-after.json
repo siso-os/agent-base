@@ -1,0 +1,86 @@
+{
+  "label": "soak-after",
+  "sessionMb": 5,
+  "sessionLines": 5591,
+  "openMs": 90,
+  "helloKb": 30,
+  "turnsRendered": 6,
+  "domNodes": 720,
+  "webContentMb": 203,
+  "workingNodeCpuPct": 1,
+  "workingPageCpuPct": 22,
+  "workingWsKb": 121,
+  "webContentMbAfterWork": 261,
+  "soak": [
+    {
+      "s": 0,
+      "mb": 261,
+      "turns": 33,
+      "dom": 1144,
+      "gap": 0
+    },
+    {
+      "s": 20,
+      "mb": 290,
+      "turns": 64,
+      "dom": 1553,
+      "gap": 135
+    },
+    {
+      "s": 40,
+      "mb": 305,
+      "turns": 76,
+      "dom": 1724,
+      "gap": 0
+    },
+    {
+      "s": 60,
+      "mb": 308,
+      "turns": 65,
+      "dom": 1573,
+      "gap": 0
+    },
+    {
+      "s": 80,
+      "mb": 311,
+      "turns": 76,
+      "dom": 1724,
+      "gap": 0
+    },
+    {
+      "s": 100,
+      "mb": 314,
+      "turns": 65,
+      "dom": 1570,
+      "gap": 0
+    },
+    {
+      "s": 120,
+      "mb": 316,
+      "turns": 75,
+      "dom": 1718,
+      "gap": 0
+    },
+    {
+      "s": 140,
+      "mb": 320,
+      "turns": 66,
+      "dom": 1580,
+      "gap": 0
+    },
+    {
+      "s": 160,
+      "mb": 321,
+      "turns": 77,
+      "dom": 1741,
+      "gap": 0
+    }
+  ],
+  "apiPer20sVisible": 15,
+  "apiPer20sHidden": 0,
+  "hiddenPageCpuPct": 6,
+  "reachedStart": true,
+  "scrollToStartMs": 6866,
+  "turnsRenderedAtStart": 1022,
+  "pageErrors": []
+}

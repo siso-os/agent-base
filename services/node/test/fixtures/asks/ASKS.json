@@ -1,0 +1,45 @@
+[
+  {
+    "id": "ask-0001",
+    "ask": "Keep what I ask for somewhere it does not get lost in the chat",
+    "count": 3,
+    "domain": "Agent Base",
+    "files": ["intent/20261001-0910-asks.md", "intent/20261002-0815-asks.md"],
+    "first": "2026-10-01T09:10:00+07:00",
+    "last": "2026-10-02T08:15:00+07:00",
+    "quotes": [
+      "I request information ... and then it goes in the chat and it gets lost. It's annoying",
+      "where did that thing I asked for go"
+    ]
+  },
+  {
+    "id": "ask-0002",
+    "ask": "Show the spend for this week beside the chat",
+    "count": 1,
+    "domain": "Agent Base",
+    "files": ["intent/20261002-1105-spend.md"],
+    "first": "2026-10-02T11:05:00+07:00",
+    "last": "2026-10-02T11:05:00+07:00",
+    "quotes": ["what did this week cost me"]
+  },
+  {
+    "id": "ask-0003",
+    "ask": "Which machine runs the nightly backups",
+    "count": 1,
+    "domain": "Estate",
+    "files": [],
+    "first": "2026-09-30T19:40:00+07:00",
+    "last": "2026-09-30T19:40:00+07:00",
+    "quotes": ["which box does the backups at night"],
+    "mood": "curious"
+  },
+  {
+    "id": "ask-0004",
+    "ask": "Rename the Halo face package",
+    "domain": "HALO",
+    "first": "2026-09-29T10:00:00+07:00"
+  },
+  { "id": "ask-0005", "count": 2, "quotes": ["no ask field, only a quote"], "last": "2026-09-28T09:00:00+07:00" },
+  { "id": "ask-0006", "domain": "nothing to show" },
+  "not an object"
+]

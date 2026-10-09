@@ -1,0 +1,39 @@
+# Branches that will never land as-is, so "not landed" stops counting them. One per line: branch  <tab-or-spaces>  why (dated).
+# Nothing is deleted on GitHub; delete a line to count a branch again. Read by services/node/src/landing.ts; it lives under services/node because only live paths reach the running checkout (.agents does not).
+job/ab-live-fixes-1        landed via ui/live-fixes (baa58ad, re-applied to current code), live 5 Oct 02:41
+mock/tabs                  design mock, kept for reference (4 Oct)
+mock/sidenav               design mock, kept for reference (4 Oct)
+mock/topbar                design mock, kept for reference (4 Oct)
+wip/codex-subagents-orphan WIP never reviewed; managed Codex children shipped another way (4 Oct)
+cloud/gh-probe-4           cloud session probe, no product change
+opus/live-line-ship        changes the input bar, which Shaan keeps exactly; not shipping (3 Oct)
+opus/release-1             R1.22-R1.24 landed in main under other commits (Library rail, building card present 5 Oct)
+luna/ab-reg                merge-only branch
+opus/sidenav-wip           half-done WIP replaced by side nav v2 (live 4 Oct 23:50)
+builder/hub-11             its own message: superseded by builder
+ui/space                   Space v1 live; v2/v3 superseded by t-0402 (Agent Base card); he rejected the zoom canvas 5 Oct 05:00
+opus/release-1b            phone view ported onto current code in 068e3e3d (t-0398 live); its own commits are the old base
+luna/t5-menu-picker        rejected: Partial preview ClientPicker/ProjectMenu; superseded WIP. (audit 5 Oct 18:50)
+luna/t4-project-page       rejected: Partial preview project dashboard; superseded WIP. (audit 5 Oct 18:50)
+luna/t3-group-dash         rejected: Partial preview group dashboard; superseded WIP. (audit 5 Oct 18:50)
+cloud/R1.1                 on-dev: Hub-agent {agents:[...]} response parsing fix was cherry-picked; current FleetStats subsequently replaced that (audit 5 Oct 18:50)
+sol/browser-p0-link        on-dev: Opening a link closes browser setup, setup overlays the existing page, Escape/backdrop dismiss it, and Finish  (audit 5 Oct 18:50)
+ab/idle-churn              test-only: Performance diagnostic only: optional idle footprint sampling and reduced-motion comparison; already cherry-pi (audit 5 Oct 18:50)
+
+# 6 Oct 2026: reviewed refs preserved; delivery classification and unresolved evidence in .agents/runs/2026-10-06-install/branch-reconciliation.json.
+archive/astra-wip-20261006/3b7081e4fdb9364402e5b5f2eb7a05eaaacc5b5e	queue-notify snapshot contains only 52817-byte tools/__pycache__/ab-queuecpython-314.pyc; no source deliverable (6 Oct 2026; ref preserved)
+archive/astra-wip-20261006/49d42e8be3c8b54aec36728fafcbb8e8f6b9ef34	a0-scratchpad snapshot contains only 62288-byte queue bytecode cache; no source deliverable (6 Oct 2026; ref preserved)
+archive/astra-wip-20261006/6d1ab4c53600f09eb821ed4fe6665990b6840799	hovercard body portals and delegated tooltips already evolved in main; archived hovercards-ui/tooltip-sweep tests remain available for selective recovery (6 Oct 2026; ref preserved)
+archive/astra-wip-20261006/808ba409a0cbf4f9840435ac542a2609bfdc1e62	381-file historical WIP is not an installable release; against main 103 identical, 37 differing, 241 absent blobs; unique tests/evidence are unresolved and preserved for selective review (6 Oct 2026; ref preserved)
+archive/astra-wip-20261006/a2c8919a7da252b63272fe7da6406cf26af712a2	old PingStrip/pings/moves implementation predates current controls; moves hardcodes old model choices and two-second polling; do not merge over current contracts (6 Oct 2026; ref preserved)
+archive/astra-wip-20261006/c1e6d5c4bcf37ffd8cc7835f35c3986f198713ac	browser snapshot changes eleven screenshots and browser-proof.json only; no executable change (6 Oct 2026; ref preserved)
+archive/astra-wip-20261006/cc5eb5089f27a67e16d2d69829eff96d77fc393c	WhatsApp snapshot contains only 478-line Buzz source/attribution skeleton notes; existing UI already evolved (6 Oct 2026; ref preserved)
+faces/alive-owner-20261005	soft-character AgentSoul adapter replaces the preferred original material; superseded by approved Prism baseline dcea7fbc, whose installation remains parent work (6 Oct 2026; ref preserved)
+owner/ab-integration-handoff-20261005	five owner documents superseded by current recovery candidate 9158d007; old checkpoint retains obsolete blocked gates; current candidate installed acceptance remains pending (6 Oct 2026; ref preserved)
+ab-map-20261006            census parked by its own last commit (4b48ef53 "hand the census to UI-HUB, park"); PR #36 closed (9 Oct)
+feat/tabs-search-20261008  WIP parked at worktree retirement: only scratchpad vite deps, no source (9 Oct)
+codex/creative-sprint-20261008  review gallery under apps/web/preview/creative-20261008, never a product change (9 Oct)
+feat/phone-t0502-20261007  seven HANDOFF.md notes only, no code (paused for HALO) (9 Oct)
+a0-panel/20261006          predecessor of ship/a0-panel-r1-20261007, which is in main; its diff removes ZeroHome (9 Oct)
+codex/agent-face-prism-20261005  its workbench components are in main and in use (WorkspaceArrival, ContextStack, ChangeLens, SessionReplay, TaskWorkspaceDeck); faces live via dcea7fbc and 97ad4cd5; 308 files behind (9 Oct)
+efficiency/owner-20261008  conflicts with main in 8 files (t-0539 moved ab-live, host sleep); EFFICIENCY to rebase and open a PR, which counts it again (9 Oct)

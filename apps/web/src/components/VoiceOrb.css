@@ -1,0 +1,110 @@
+/* The voice orb (t-0271; SPEC-CHAT-HUD §1's violet Grok orb, so voice is never read as cyan "working").
+   One sphere: a glass violet ball with a highlight, an aura and a ring that follow his level (--lvl, 0-1, written each
+   frame by MicButton), a live equaliser inside while it listens, a turning arc while it writes it down. Idle it is
+   still and quiet; nothing loops unless it is opening, listening or writing; reduced motion keeps the level as light,
+   not size. Its colours are the Halo rim's voice tokens (--siso-voice violet, --siso-voice-2 pink), so the orb, the
+   ring round the box and the speaker toggle are one violet.
+   States: idle · starting (the mic opening: a slow breath) · listening (level) · writing (an arc) · error (a red rim). */
+.siso-orb{--orb:30px;--v1:#ede9fe;--v2:#c4b5fd;--v3:var(--siso-voice,#a78bfa);--v4:#7c3aed;--v5:#4c1d95;--vp:var(--siso-voice-2,#f472b6);
+  position:relative;display:grid;width:var(--orb);height:var(--orb);place-items:center;padding:0;border:0;border-radius:50%;background:none;color:var(--v1);
+  isolation:isolate;cursor:pointer;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;transition:transform .18s cubic-bezier(.3,1.5,.5,1)}
+.siso-mic.is-face .siso-orb{--orb:34px}
+.siso-orb:active:not(:disabled){transform:scale(.9)}
+.siso-orb:disabled{cursor:default;opacity:.55}
+.siso-mic[data-phase="writing"] .siso-orb:disabled{opacity:1;cursor:progress}
+.siso-orb:focus-visible{outline:2px solid var(--v3);outline-offset:3px}
+
+/* the ball: deep violet glass, lit from the top left; idle it sits back (dimmer), hover brings it forward */
+.siso-orb__ball{position:absolute;inset:0;z-index:0;border-radius:50%;
+  background:radial-gradient(circle at 34% 28%,rgb(255 255 255 / .85) 0,var(--v2) 13%,var(--v3) 34%,var(--v4) 62%,var(--v5) 100%);
+  box-shadow:inset 0 -3px 7px rgb(30 8 70 / .55),inset 0 1px 1px rgb(255 255 255 / .55),0 0 0 1px rgb(167 139 250 / .35),0 4px 14px -4px rgb(124 58 237 / .55);
+  filter:saturate(.7) brightness(.72);transition:filter .2s,transform 70ms linear,box-shadow .2s}
+.siso-orb:hover:not(:disabled) .siso-orb__ball,.siso-orb:focus-visible .siso-orb__ball{filter:none;box-shadow:inset 0 -3px 7px rgb(30 8 70 / .5),inset 0 1px 1px rgb(255 255 255 / .6),0 0 0 1px rgb(196 181 253 / .7),0 0 18px -2px rgb(167 139 250 / .75)}
+/* the shimmer: a soft conic sheen inside the ball, only while live */
+.siso-orb__ball::after{content:"";position:absolute;inset:2px;border-radius:50%;opacity:0;
+  background:conic-gradient(from 0deg,transparent 0 40%,color-mix(in srgb,var(--vp) 55%,transparent) 55%,transparent 70% 100%);mix-blend-mode:screen;transition:opacity .2s}
+/* the aura and the ring: invisible at rest */
+.siso-orb__aura{position:absolute;inset:-9px;z-index:-1;border-radius:50%;background:radial-gradient(circle,rgb(167 139 250 / .55),rgb(124 58 237 / .18) 48%,transparent 70%);opacity:0;transform:scale(.7);transition:opacity .2s,transform 70ms linear}
+.siso-orb::before{content:"";position:absolute;inset:-4px;border-radius:50%;border:1.5px solid rgb(196 181 253 / .55);opacity:0;transform:scale(.85);transition:opacity .2s,transform 70ms linear}
+.siso-orb__glyph{position:relative;z-index:1;display:grid;place-items:center;filter:drop-shadow(0 1px 1px rgb(30 8 70 / .6))}
+
+/* listening: full colour, swells and glows with his voice, the sheen turns */
+.siso-mic[data-phase="listening"] .siso-orb__ball,.siso-mic[data-phase="starting"] .siso-orb__ball{filter:none;transform:scale(calc(1 + var(--lvl,0) * .16));
+  box-shadow:inset 0 -3px 7px rgb(30 8 70 / .45),inset 0 1px 1px rgb(255 255 255 / .6),0 0 0 1px rgb(221 214 254 / .8),0 0 calc(14px + var(--lvl,0) * 22px) rgb(167 139 250 / .85)}
+.siso-mic[data-phase="listening"] .siso-orb__ball::after{opacity:1;animation:siso-orb-turn 2.2s linear infinite}
+.siso-mic[data-phase="listening"] .siso-orb__aura{opacity:calc(.35 + var(--lvl,0) * .65);transform:scale(calc(.85 + var(--lvl,0) * .75))}
+.siso-mic[data-phase="listening"] .siso-orb::before{opacity:calc(.25 + var(--lvl,0) * .75);transform:scale(calc(1 + var(--lvl,0) * .45))}
+/* starting: the mic is opening (the first press, or after its warm window): the ring breathes until it hears */
+.siso-mic[data-phase="starting"] .siso-orb__aura{opacity:.35;transform:scale(.85)}
+.siso-mic[data-phase="starting"] .siso-orb::before{opacity:.6;animation:siso-orb-wake 1s ease-in-out infinite alternate}
+@keyframes siso-orb-wake{from{transform:scale(.95);opacity:.25}to{transform:scale(1.18);opacity:.75}}
+
+/* the equaliser inside the ball */
+.siso-orb__eq{display:inline-flex;height:13px;align-items:center;gap:2px}
+.siso-orb__eq i{display:block;width:2.5px;height:13px;border-radius:2px;background:#fff;transform:scaleY(clamp(.18,calc(var(--lvl,0) * var(--b,1) * 2),1));transition:transform 60ms linear}
+
+/* writing it down: a bright arc turning round the ball */
+.siso-mic[data-phase="writing"] .siso-orb__ball{filter:saturate(.85) brightness(.85)}
+.siso-orb__spin{width:14px;height:14px;border:2px solid rgb(255 255 255 / .25);border-top-color:#fff;border-radius:50%;animation:siso-orb-turn .8s linear infinite}
+@keyframes siso-orb-turn{to{transform:rotate(360deg)}}
+
+/* a problem: the ball keeps its violet, a red rim says something needs him (the pill says what) */
+.siso-mic[data-error] .siso-orb::before{opacity:1;transform:none;border-color:rgb(var(--crm-danger-rgb,239 68 68) / .8)}
+
+/* the rim it sits in glows violet while it listens (halo-rim.css turns the ring itself) */
+.siso-rim:has(.siso-mic[data-phase="listening"]){box-shadow:0 0 0 1px rgb(167 139 250 / .12),0 14px 44px -14px rgb(167 139 250 / .55),0 0 40px -10px color-mix(in srgb,var(--siso-voice-2,#f472b6) 35%,transparent)}
+/* the face's orb sits above Agent Zero's face; on a phone a chat's own orb is there, so the face's steps aside */
+@media (max-width:640px){body:has(.siso-chat__composer .siso-rim) .siso-zero-mic{display:none}}
+
+/* the pill above it: never wider than the screen, violet while live */
+.siso-mic__pill,.siso-mic.is-face .siso-mic__pill{max-width:min(380px,calc(100vw - 32px))}
+.siso-mic__pill.is-error{width:max-content}
+.siso-mic__pill.is-live{border-color:rgb(167 139 250 / .45);box-shadow:0 8px 24px rgb(0 0 0 / .35),0 0 22px -8px rgb(167 139 250 / .7)}
+.siso-mic__pill .siso-mic__bars i{background:var(--siso-voice,#a78bfa);transform:scaleY(clamp(.15,calc(var(--lvl,0) * var(--b,1) * 1.6),1))}
+.siso-mic__to{color:#c4b5fd}
+.siso-mic__hint{flex:none;color:rgb(var(--crm-white-rgb) / .38);font-size:11px}
+@media (max-width:640px){.siso-mic__hint{display:none}}
+/* writing: three dots in the pill */
+.siso-mic__dots{display:inline-flex;gap:3px}
+.siso-mic__dots i{width:4px;height:4px;border-radius:50%;background:var(--siso-voice,#a78bfa);animation:siso-mic-dot 1s ease-in-out infinite}
+.siso-mic__dots i:nth-child(2){animation-delay:.15s}
+.siso-mic__dots i:nth-child(3){animation-delay:.3s}
+@keyframes siso-mic-dot{0%,80%,100%{opacity:.3;transform:translateY(0)}40%{opacity:1;transform:translateY(-2px)}}
+/* "Try again" in an error pill */
+.siso-mic__pill .siso-mic__retry{display:inline-flex;width:auto;gap:4px;padding:0 7px;color:var(--crm-color-text-strong);font-size:11.5px;background:rgb(var(--crm-white-rgb) / .08)}
+
+/* reduced motion: nothing turns, swells or breathes; the level still shows, as light */
+@media (prefers-reduced-motion:reduce){
+  .siso-orb,.siso-orb *,.siso-orb::before,.siso-orb__ball::after,.siso-mic__dots i{animation:none!important;transition:none!important}
+  .siso-mic[data-phase] .siso-orb__ball,.siso-mic[data-phase] .siso-orb__aura,.siso-mic[data-phase] .siso-orb::before{transform:none!important}
+  .siso-orb__spin{border-top-color:rgb(255 255 255 / .25);border-color:rgb(255 255 255 / .7)}
+}
+:root.rm .siso-orb,:root.rm .siso-orb *,:root.rm .siso-orb::before,:root.rm .siso-orb__ball::after,:root.rm .siso-mic__dots i{animation:none!important;transition:none!important}
+:root.rm .siso-mic[data-phase] .siso-orb__ball,:root.rm .siso-mic[data-phase] .siso-orb__aura,:root.rm .siso-mic[data-phase] .siso-orb::before{transform:none!important}
+
+/* the speaker toggle beside it (t-0270): quiet when off, violet when on, small waves while it speaks, red when it could not */
+.siso-speak-wrap{position:relative;display:inline-flex;flex:none}
+.siso-speak{position:relative;display:grid;width:30px;height:30px;flex:none;place-items:center;border-radius:50%;color:rgb(var(--crm-white-rgb) / .5);transition:color .15s,background .15s,box-shadow .15s}
+.siso-speak:hover{color:var(--crm-color-text-strong);background:rgb(var(--crm-white-rgb) / .07)}
+.siso-speak:focus-visible{outline:2px solid var(--siso-voice,#a78bfa);outline-offset:2px}
+.siso-speak[aria-pressed="true"]{color:#ddd6fe;background:color-mix(in srgb,var(--siso-voice,#a78bfa) 14%,transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--siso-voice,#a78bfa) 45%,transparent)}
+.siso-speak[data-error="true"]{box-shadow:inset 0 0 0 1px rgb(var(--crm-danger-rgb,239 68 68) / .7)}
+.siso-speak[data-speaking="true"]::after{content:"";position:absolute;inset:-3px;border-radius:50%;border:1.5px solid color-mix(in srgb,var(--siso-voice,#a78bfa) 60%,transparent);animation:siso-speak-wave 1.4s ease-out infinite}
+@keyframes siso-speak-wave{from{opacity:.9;transform:scale(.9)}to{opacity:0;transform:scale(1.35)}}
+@media (prefers-reduced-motion:reduce){.siso-speak[data-speaking="true"]::after{animation:none;opacity:.7}}
+:root.rm .siso-speak[data-speaking="true"]::after{animation:none;opacity:.7}
+
+.siso-orb__menu{position:absolute;right:0;bottom:calc(100% + 12px);z-index:210;display:flex;align-items:center;gap:12px;width:200px;padding:10px 12px;border:1px solid #51485d;border-radius:12px;background:#211d28;color:#d9cfed;font:12px var(--crm-font-sans);box-shadow:0 10px 35px #0008}
+.siso-orb__menu[hidden]{display:none}
+.siso-orb__speak-dot{position:absolute;right:1px;top:1px;z-index:2;width:5px;height:5px;border-radius:50%;background:#a78bfa;box-shadow:0 0 6px #a78bfa}
+
+/* Voice lane, 9 Oct. A long note (a long "Not sent: … You said: …") stays three lines; the full text is in the chat box or
+   the history. The pill arrives in 140 ms on transform and opacity (none with reduced motion), and an error pill is red
+   and still. Dictating while the agent works: the hint says the words join its current turn. */
+.siso-mic__pill .siso-mic__msg{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+.siso-mic__pill{animation:siso-mic-pill-in .14s cubic-bezier(.2,.8,.2,1) both}
+.siso-mic__pill.is-error{animation:none}
+@keyframes siso-mic-pill-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.siso-mic[data-working] .siso-mic__hint{color:#c4b5fd}
+@media (prefers-reduced-motion:reduce){.siso-mic__pill{animation:none}}
+:root.rm .siso-mic__pill{animation:none}

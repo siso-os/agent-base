@@ -1,0 +1,12 @@
+Account catalog: 11 models including Astra; initial Sol / medium
+Isolated node reports the test soul with host HUD
+Real turn completed: gpt-6.1-sol effort=max session=01a10ca0-1a1b-73c1-ace0-b206fd234686
+WebKit: max remains selected after leaving the chat and reloading
+Real turn completed: gpt-6-astra effort=max session=01a10ca0-1a1b-73c1-ace0-b206fd234686
+Host restart: Astra / max kept on same thread; 51100 -> 92710
+Runner restart with original --model Sol --effort medium: host hello still reports Astra / max
+Screenshot: astra-max-restarted.png (1440x1000), Astra and max selected after both restarts
+Real turn completed: gpt-6.1-sol effort=max session=01a10ca0-1a1b-73c1-ace0-b206fd234686
+Native Codex turn_context proof: [{"model":"gpt-6.1-sol","effort":"max"},{"model":"gpt-6-astra","effort":"max"},{"model":"gpt-6.1-sol","effort":"max"}]
+PASS: real Sol -> Astra -> Sol, max retained through navigation/reload/host+runner restart; no real agents touched
+Cleanup: headless browser and all owned host/node/Vite processes stopped

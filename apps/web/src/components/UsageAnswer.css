@@ -1,0 +1,63 @@
+/* The Usage page's answer (usage lane, 9 Oct): the house dark greys and --crm tokens; red is kept for the one login over 85%. */
+.ul{display:grid;gap:12px;margin-bottom:22px;min-width:0}
+.ul-head{display:flex;align-items:center;gap:10px;min-width:0}
+.ul-head__icon{display:grid;flex:none;width:32px;height:32px;place-items:center;border-radius:10px;border:1px solid rgb(var(--crm-white-rgb)/.1);background:#0b0b0b;color:var(--crm-color-text-muted)}
+.ul-head__icon[data-tone=bad]{color:rgb(var(--crm-danger-rgb));border-color:rgb(var(--crm-danger-rgb)/.45)}
+.ul-head__icon[data-tone=ok]{color:rgb(var(--crm-success-rgb))}
+.ul-head p{margin:0;min-width:0;font-size:15px;line-height:1.4;color:var(--crm-color-text)}
+.ul-head p b{color:var(--crm-color-text-strong);font-weight:600;font-variant-numeric:tabular-nums}
+.ul-head p b.ul-hot{color:rgb(var(--crm-danger-rgb))}
+.ul-head p small{font-size:12px;color:var(--crm-color-text-muted)}
+.ul-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px;min-width:0}
+.ul-tile{display:grid;align-content:start;gap:10px;min-width:0;padding:12px 14px;border:1px solid rgb(var(--crm-white-rgb)/.08);border-radius:12px;background:#0b0b0b}
+.ul-tile.is-placeholder{height:132px;opacity:.5}
+.ul-tile>header{display:flex;align-items:baseline;justify-content:space-between;gap:8px;min-width:0}
+.ul-tile>header b{min-width:0;overflow:hidden;font-size:13px;font-weight:600;color:var(--crm-color-text-strong);text-overflow:ellipsis;white-space:nowrap}
+.ul-tile>header small,.ul-tile>small{font-size:11px;color:var(--crm-color-text-muted)}
+.ul-tile>header small{flex:none}
+.ul-login[data-near=true]{border-color:rgb(var(--crm-danger-rgb)/.5);background:linear-gradient(180deg,rgb(var(--crm-danger-rgb)/.08),#0b0b0b 70%)}
+.ul-pill{flex:none;padding:1px 7px;border-radius:999px;background:rgb(var(--crm-danger-rgb)/.14);color:rgb(var(--crm-danger-rgb));font-size:10.5px;font-weight:600}
+.ul-login__extra{color:var(--crm-color-text-muted)}
+.ul-meter{display:grid;gap:5px;min-width:0}
+.ul-meter__row{display:flex;align-items:baseline;justify-content:space-between;gap:8px;font-size:11px;color:var(--crm-color-text-muted)}
+.ul-meter__row b{font:600 13px/1 var(--crm-font-mono);font-variant-numeric:tabular-nums;color:var(--crm-color-text-strong)}
+.ul-meter[data-tone=warn] .ul-meter__row b{color:#fbbf24}
+.ul-meter[data-tone=bad] .ul-meter__row b{color:rgb(var(--crm-danger-rgb))}
+.ul-meter>small{font-size:11px;color:var(--crm-color-text-muted);font-variant-numeric:tabular-nums}
+.ul-meter>small b{font-weight:600;color:var(--crm-color-text)}
+.ul-meter[data-state=stale]{opacity:.65}
+.ul-meter__track{display:block;height:6px;overflow:hidden;border-radius:3px;background:rgb(var(--crm-white-rgb)/.07)}
+/* The fill is a transform, so it fills from empty on first paint and glides on each new reading without relayout. */
+.ul-meter__fill{display:block;height:100%;border-radius:3px;background:rgb(var(--crm-success-rgb)/.8);transform-origin:left center;transition:transform 200ms cubic-bezier(.2,.7,.2,1)}
+@starting-style{.ul-meter__fill{transform:scaleX(0)!important}}
+.ul-meter[data-tone=warn] .ul-meter__fill{background:#fbbf24}
+.ul-meter[data-tone=bad] .ul-meter__fill{background:rgb(var(--crm-danger-rgb))}
+.ul-meter__fill[data-tone=info]{background:rgb(56 189 248/.8)}
+.ul-meter__fill[data-tone=spend]{background:#d97757}
+.ul-big{margin:0;font:600 22px/1.1 var(--crm-font-mono);font-variant-numeric:tabular-nums;color:var(--crm-color-text-strong)}
+.ul-big small{font:400 12px var(--crm-font-sans);color:var(--crm-color-text-muted)}
+.ul-big.is-none{color:var(--crm-color-text-muted)}
+/* Today's spend: the dial's trigger, black like the top bar's chip. */
+.ul-today .td-root{max-width:none}
+.ul-today .td-trigger{width:100%;min-width:0;min-height:44px;padding:6px 10px;background:#141414;border-color:rgb(var(--crm-white-rgb)/.1);box-shadow:none;color:var(--crm-color-text)}
+.ul-today .td-trigger:hover{border-color:rgb(var(--crm-white-rgb)/.22)}
+.ul-today .td-value{font:600 20px var(--crm-font-mono);color:var(--crm-color-text-strong)}
+.ul-today .td-chevron{color:var(--crm-color-text-muted);font-size:16px}
+.ul-burners{min-width:0;padding:12px 14px 8px;border:1px solid rgb(var(--crm-white-rgb)/.08);border-radius:12px;background:#0b0b0b}
+.ul-burners h3{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin:0 0 6px;font-size:12px;font-weight:600;color:var(--crm-color-text-strong)}
+.ul-burners h3 small{font-size:11px;font-weight:400;color:var(--crm-color-text-muted)}
+.ul-burners ol{display:grid;grid-template-columns:repeat(auto-fill,minmax(400px,1fr));column-gap:24px;margin:0;padding:0;list-style:none}
+.ul-burners li{display:grid;grid-template-columns:18px minmax(0,1fr) minmax(40px,90px) auto;align-items:center;gap:10px;min-width:0;padding:6px 0;border-top:1px solid rgb(var(--crm-white-rgb)/.05);font-size:12px}
+.ul-rank{color:var(--crm-color-text-faint);font:11px var(--crm-font-mono);text-align:right}
+.ul-who{display:flex;align-items:baseline;gap:7px;min-width:0}
+.ul-who b,.ul-who small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ul-who b{min-width:0;font-weight:500;color:var(--crm-color-text-strong)}
+.ul-who small{flex:0 1 auto;min-width:0;max-width:45%;font-size:11px;color:var(--crm-color-text-muted)}
+.ul-usd{font:12px var(--crm-font-mono);font-variant-numeric:tabular-nums;color:var(--crm-color-text)}
+.ul-more{margin:4px 0 2px;padding:4px 0;border:0;background:none;color:var(--crm-color-text-muted);font-size:11.5px;cursor:pointer}
+.ul-more:hover{color:var(--crm-color-text)}
+.ul-quiet{display:flex;align-items:center;gap:6px;margin:0;font-size:11px;color:var(--crm-color-text-muted);overflow-wrap:anywhere}
+.ul-quiet svg{flex:none}
+.ul button:focus-visible{outline:2px solid var(--color-working);outline-offset:2px}
+@media(max-width:600px){.ul-head p{font-size:14px}.ul-grid{grid-template-columns:1fr 1fr}.ul-grid>.ul-login{grid-column:1/-1}.ul-big{font-size:19px}.ul-burners ol{grid-template-columns:1fr}.ul-burners li{grid-template-columns:18px minmax(0,1fr) 48px auto}}
+@media(prefers-reduced-motion:reduce){.ul-meter__fill{transition:none}}

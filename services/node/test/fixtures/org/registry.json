@@ -1,0 +1,17 @@
+{
+  "projects": ["Agent Base", "HALO", "Streaming", "Efficiency", "SISO Internal Labs", "Fahmy's agency", "Personal"],
+  "domains": {},
+  "aliases": {},
+  "pinned": [],
+  "pages": [],
+  "agents": {
+    "agent-base": { "role": "stale duplicate", "project": "Agent Base", "kind": "owner" },
+    "AGENT-BASE": { "project": "SISO Internal Labs", "domain": "Agent Base", "kind": "owner", "path": "fixtures/org/agent-base" },
+    "AGENT-BASE-BUILD": { "project": "SISO Internal Labs", "domain": "Agent Base", "owner": "AGENT-BASE", "kind": "worker" },
+    "STACK-OPT": { "role": "Efficiency owner", "project": "SISO Internal Labs", "kind": "worker", "domain": "Efficiency", "owner": "HEALTH", "emoji": "⚙️" },
+    "HEALTH": { "project": "SISO Internal Labs", "domain": "Health", "kind": "owner", "emoji": "🩺" },
+    "STREAMING-CLAUDE": { "domain": "Streaming go-live", "project": "HALO", "kind": "owner", "emoji": "📡" },
+    "BKY remaining work": { "project": "Fahmy's agency", "domain": "BKY", "kind": "owner" },
+    "Personal health": { "project": "Personal", "domain": "Laptop health", "kind": "owner" }
+  }
+}

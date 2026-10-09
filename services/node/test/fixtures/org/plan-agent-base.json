@@ -1,0 +1,11 @@
+{
+  "owner": "AGENT-BASE",
+  "project": "LABS",
+  "domain": "Agent Base, the app",
+  "items": [
+    { "id": "ab-001", "title": "Build the org model", "status": "checked" },
+    { "id": "ab-112", "title": "Expose the three groups", "status": "building" },
+    { "id": "ab-113", "title": "Add the next owner", "status": "asked" },
+    { "id": "ab-114", "title": "Old item", "status": "dropped" }
+  ]
+}

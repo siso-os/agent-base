@@ -1,0 +1,27 @@
+.hp { font: 12px var(--crm-font-sans); }
+.hp button { font: inherit; color: inherit; cursor: pointer; }
+.hp-tabs { display: flex; gap: 4px; padding: 8px 12px; border-bottom: 1px solid var(--crm-color-line-subtle); }
+.hp-tabs button { flex: 1; padding: 7px; border: 0; border-radius: 6px; background: transparent; color: var(--crm-color-text-muted); }
+.hp-tabs button[aria-selected=true] { background: rgb(var(--crm-white-rgb) / 8%); color: var(--crm-color-text-strong); }
+.hp-body { padding: 6px; max-height: min(560px, calc(100dvh - 170px)); overflow: auto; overscroll-behavior: contain; }
+.hp-section { margin: 8px 8px 6px; color: var(--crm-color-text-muted); font-size: 10px; }
+.hp-row { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 56px; padding: 10px; border: 0; border-radius: 7px; text-align: left; background: transparent; }
+.hp-row:hover, .hp-row:focus-visible { background: rgb(var(--crm-white-rgb) / 6%); }
+.hp-row > svg { flex-shrink: 0; color: var(--crm-color-text-muted); }
+.hp-copy { flex: 1; min-width: 0; }
+.hp-copy strong, .hp-copy small { display: block; overflow-wrap: anywhere; }
+.hp-copy strong { font-weight: 550; line-height: 1.4; }
+.hp-copy small { margin-top: 3px; color: var(--crm-color-text-muted); font-size: 10px; line-height: 1.4; }
+.hp-needs, .hp-current, .hp-state { flex-shrink: 0; max-width: 68px; font-size: 9px; line-height: 1.4; }
+.hp-needs { color: var(--crm-color-needs, #f0b03f); }
+.hp-needs::before { content: '● '; }
+.hp-current { color: var(--crm-color-accent, #ffad6b); }
+.hp-state { color: var(--crm-color-text-muted); }
+.hp-row[aria-current=location] { box-shadow: inset 2px 0 var(--crm-color-accent, #ffad6b); }
+.hp-empty { margin: 14px 10px; color: var(--crm-color-text-muted); line-height: 1.6; }
+.hp-footer { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border-top: 1px solid var(--crm-color-line-subtle); }
+.hp-footer button, .hp-back { display: inline-flex; align-items: center; gap: 6px; padding: 4px 0; border: 0; background: transparent; }
+.hp-footer span { color: var(--crm-color-text-muted); font-size: 10px; }
+.hp-back { margin: 10px 14px; }
+.hp-project-title { display: flex; align-items: center; gap: 10px; margin: 6px 10px; }
+.hp-project-title h3 { font-size: 15px; overflow-wrap: anywhere; }

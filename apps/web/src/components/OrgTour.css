@@ -1,0 +1,18 @@
+.org-tour { position:fixed; z-index:30; right:24px; bottom:24px; width:min(390px,calc(100vw - 32px)); color:var(--crm-color-text-strong); background:var(--crm-color-surface-raised); border:1px solid var(--crm-color-line); border-radius:16px; box-shadow:0 18px 60px color-mix(in srgb,#000 30%,transparent); }
+.org-tour__head,.org-tour__foot { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 14px; }
+.org-tour__head { border-bottom:1px solid var(--crm-color-line); font-size:12px; }
+.org-tour__head button,.org-tour__foot button { display:inline-flex; align-items:center; justify-content:center; gap:6px; min-height:32px; padding:6px 9px; color:inherit; background:transparent; border:1px solid var(--crm-color-line); border-radius:9px; cursor:pointer; }
+.org-tour__head button { min-height:28px; padding:5px; border:0; }
+.org-tour__body { min-height:104px; padding:15px 16px; font-size:13px; line-height:1.6; }
+.org-tour__body p { margin:0; }
+.org-tour__ask { display:flex; flex-direction:column; gap:6px; margin-top:14px; }
+.org-tour__ask label { color:var(--crm-color-text-muted); font-size:10px; }
+.org-tour__ask div { display:flex; gap:7px; }
+.org-tour__ask input { min-width:0; flex:1; padding:8px 10px; color:inherit; background:var(--crm-color-surface); border:1px solid var(--crm-color-line); border-radius:9px; }
+.org-tour__ask button { padding:0 12px; color:var(--crm-color-on-brand); background:var(--crm-color-brand); border:0; border-radius:9px; }
+.org-tour__ask button:disabled,.org-tour__foot button:disabled { opacity:.45; cursor:default; }
+.org-tour__foot { border-top:1px solid var(--crm-color-line); }
+.org-tour__progress { display:flex; align-items:center; gap:4px; color:var(--crm-color-text-muted); font-size:10px; }
+.org-tour__progress button { width:7px; min-height:7px; height:7px; padding:0; background:var(--crm-color-text-faint); border:0; border-radius:50%; cursor:pointer; }
+.org-tour__progress button[aria-current="step"] { width:16px; background:var(--crm-color-brand); border-radius:99px; }
+.org-tour__progress span { margin-left:5px; white-space:nowrap; }

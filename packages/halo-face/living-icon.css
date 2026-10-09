@@ -1,0 +1,10 @@
+.li{display:inline-block;flex-shrink:0;vertical-align:middle;line-height:0;isolation:isolate;contain:layout style}
+.li>svg{display:block;width:100%;height:100%;overflow:visible}
+.li g,.li path,.li circle{transform-box:view-box}
+.li[role=button]{cursor:pointer;border-radius:24%}
+.li[role=button]:focus-visible{outline:2px solid var(--li-a);outline-offset:5px}
+.li[data-active=true][data-motion=on] .li-edge{animation:li-edge-pass 1.3s ease-in-out both}
+.li[data-demo=true][data-active=true][data-motion=on] *{animation-iteration-count:infinite;animation-duration:2.4s}
+.li[data-motion=off] *{animation:none!important;transition:none!important}
+@keyframes li-edge-pass{0%,100%{stroke-dashoffset:0;opacity:.3}45%{opacity:.9}99%{stroke-dashoffset:-100}}
+@media(prefers-reduced-motion:reduce){.li *{animation:none!important;transition:none!important}}

@@ -1,0 +1,31 @@
+[package]
+name = "agent-base"
+version = "0.1.0"
+description = "Agent Base: one window onto every agent herdr runs"
+authors = ["SISO"]
+edition = "2021"
+rust-version = "1.77.2"
+
+[lib]
+name = "agent_base_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "=2.6.3", features = [] }
+
+[dependencies]
+sha2 = "0.10"
+serde_json = "1"
+tauri = { version = "=2.11.5", features = ["unstable"] }
+
+# Native snapshots are only compiled for the hidden dev acceptance harness.
+[features]
+browser-test = ["dep:objc2-app-kit"]
+
+# WebKit directly: the browser's ad blocker (adblock.rs) compiles a WKContentRuleList and attaches it to each page.
+[target.'cfg(target_os = "macos")'.dependencies]
+objc2 = "0.6.4"
+objc2-web-kit = "0.3.2"
+objc2-app-kit = { version = "0.3.2", optional = true }
+objc2-foundation = "0.3.2"
+block2 = "0.6.2"

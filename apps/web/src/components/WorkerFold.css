@@ -1,0 +1,36 @@
+.ab-worker-owner .siso-thread__count {
+  display: inline;
+}
+
+.ab-worker-owner .siso-thread__lead { order: 0; }
+.ab-worker-owner .siso-thread__name { order: 1; }
+.ab-worker-owner .siso-thread__fold { order: 2; margin-left: 0; margin-right: 0; }
+.ab-worker-owner .siso-thread__badge { order: 3; margin-left: -9px; clip-path: inset(0 0 0 9px); }
+.ab-worker-owner .siso-thread__time { order: 4; }
+.ab-worker-owner .siso-thread__actions { order: 5; }
+.ab-worker-owner .siso-thread__glyph { order: 1; }
+.ab-worker-owner .siso-slot { order: 5; }
+.ab-worker-owner .siso-thread { gap: var(--crm-space-1-5); padding-inline: var(--crm-space-2); }
+
+.ab-worker-face {
+  position: relative;
+  display: block;
+  width: 16px;
+  height: 16px;
+}
+
+.ab-worker-face__state {
+  position: absolute;
+  right: -1px;
+  bottom: -1px;
+  width: 6px;
+  height: 6px;
+  border: 1px solid var(--crm-color-chrome);
+  border-radius: 50%;
+  background: var(--color-muted-foreground);
+}
+
+.ab-worker-face.is-working .ab-worker-face__state { background: var(--color-working); }
+.ab-worker-face.is-needs .ab-worker-face__state { background: var(--color-needs); }
+.ab-worker-face.is-done .ab-worker-face__state { background: var(--color-done); }
+.ab-worker-face.is-failed .ab-worker-face__state { background: var(--color-failed); }

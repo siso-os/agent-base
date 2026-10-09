@@ -1,0 +1,13 @@
+.ab-workspace-chooser { width: min(900px, calc(100vw - 32px)); max-width: none; max-height: calc(100dvh - 32px); margin: auto; padding: 18px; border: 1px solid #48546a; border-radius: 18px; background: #131b28; color: #e6edf7; box-sizing: border-box; overflow: auto; }
+.ab-workspace-chooser::backdrop { background: #070b12b8; }
+.ab-workspace-chooser > header { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+.ab-workspace-chooser > header h2 { margin: 0; font-size: 17px; font-weight: 600; }
+.ab-workspace-chooser > header button { padding: 6px 10px; border: 1px solid #53617b; border-radius: 7px; color: inherit; background: #253043; cursor: pointer; }
+.ab-workspace-chooser > header button:focus-visible { outline: 2px solid #a4c8ff; outline-offset: 3px; }
+.ab-workspace-chooser > p { font-size: 12px; color: #c2cfe1; }
+.ab-workspace-infrastructure { margin-top: 16px; }
+.ab-workspace-chooser > header { position: sticky; top: -18px; z-index: 2; padding-block: 8px; background: #131b28; }
+.ab-workspace-chooser .wa-specimen { max-height: min(540px, 56dvh); grid-template-rows: minmax(0, 1fr); }
+.ab-workspace-chooser .wa-rail, .ab-workspace-chooser .wa-workspace { min-height: 0; overflow-y: auto; }
+@media (max-width: 620px) { .ab-workspace-chooser { width: calc(100vw - 16px); max-height: calc(100dvh - 16px); padding: 12px; } }
+@media (max-width: 620px) { .ab-workspace-chooser > header { top: -12px; } .ab-workspace-chooser .wa-specimen { max-height: none; grid-template-rows: auto auto; } .ab-workspace-chooser .wa-rail { max-height: 32dvh; } .ab-workspace-chooser .wa-workspace { max-height: 26dvh; } }

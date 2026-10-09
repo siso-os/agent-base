@@ -1,0 +1,17 @@
+/* SPEC-DELIGHT §4: the org as a constellation. Agent Zero in the middle, owners on an ellipse, workers orbiting a working
+   owner; a line per pair that messaged today, amber past 30; comets for new messages. Only transforms and opacity move. */
+.ab-const{position:relative;height:max(460px,calc(100vh - 230px));margin:14px 0 0;overflow:hidden;border:1px solid var(--crm-color-line);border-radius:16px;background:radial-gradient(ellipse at 56% 50%,#1d1d1a 0,#151513 55%,#121211 100%)}
+.ab-const__node{position:absolute;z-index:3;display:grid;padding:0;border:0;place-items:center;background:none;transform:translate(-50%,-50%);cursor:pointer}
+.ab-const__lbl{position:absolute;top:calc(100% + 4px);left:50%;z-index:9;padding:1px 6px;border:1px solid var(--crm-color-line);border-radius:6px;background:#1f1e1c;color:#d6d2ca;font:10.5px var(--crm-font-mono);white-space:nowrap;opacity:0;transform:translateX(-50%);transition:opacity .15s;pointer-events:none}
+.ab-const__node:hover .ab-const__lbl,.ab-const__node:focus-visible .ab-const__lbl{opacity:1}
+.ab-const__orbit{position:absolute;z-index:2;width:0;height:0}
+.ab-const__orbit.is-spin{animation:ab-const-orb 38s linear infinite}
+.ab-const__worker{position:absolute;width:16px;height:16px;margin:-8px 0 0 -8px;transform:translate(var(--x),var(--y))}
+.ab-const__worker>span{display:block}
+.ab-const__orbit.is-spin .ab-const__worker>span{animation:ab-const-orb 38s linear infinite reverse}
+@keyframes ab-const-orb{to{transform:rotate(360deg)}}
+.ab-const__more{position:absolute;z-index:2;color:rgb(var(--crm-white-rgb) / .45);font:9.5px var(--crm-font-mono);white-space:nowrap}
+/* PERF's 20 s doze stops the orbits; reduced motion has none,. */
+body:has(.siso-zero-face [data-doze]) .ab-const__orbit,body:has(.siso-zero-face [data-doze]) .ab-const__worker>span{animation-play-state:paused}
+@media (prefers-reduced-motion:reduce){.ab-const__orbit,.ab-const__worker>span{animation:none!important}}
+@media (max-width:640px){.ab-const{height:max(520px,calc(100vh - 200px))}}

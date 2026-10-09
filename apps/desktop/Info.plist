@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- The chat mic (t-0100): macOS asks once; without this string it ends the app at the first recording. -->
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Agent Base records your voice when you use the dictation hotkey or press the mic, so you can dictate into your apps and talk to your agents.</string>
+</dict>
+</plist>

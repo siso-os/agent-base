@@ -1,0 +1,96 @@
+#!/usr/bin/env python3
+"""Print affected ab-queue.suites names, one per line. Unmapped/tooling files add only smoke (run separately).
+The cache describes committed source at head, never the checkout's possibly unrelated build or dirty files.
+"""
+import json, os, pathlib, re, subprocess, sys, tempfile
+ROOT = pathlib.Path(__file__).resolve().parent.parent
+VERSION = 1
+
+def git(*args):
+    return subprocess.check_output(['git', *args], cwd=ROOT).decode()
+
+def suite_map(sha):
+    cache = pathlib.Path(os.environ.get('AB_SUITE_MAP_STATE', '~/.local/state/agent-base')).expanduser() / f'suite-map-{sha}.json'
+    try:
+        data = json.loads(cache.read_text())
+        if data.get('version') == VERSION and data.get('sha') == sha:
+            return data['suites']
+    except (OSError, ValueError, KeyError):
+        pass
+    # One git invocation, rather than one subprocess per source file.
+    paths = git('ls-tree', '-r', '--name-only', sha).splitlines()
+    wanted = [p for p in paths if p.startswith(('apps/web/src/', 'services/node/src/', 'services/node/test/', 'packages/')) or p == 'tools/ab-queue.suites']
+    # Large simultaneous input/output pipes can stall this read. Regular files let
+    # Git drain every request, and the deadline bounds a failed release preflight.
+    with tempfile.TemporaryFile() as requests, tempfile.TemporaryFile() as contents:
+        requests.write(''.join(f'{sha}:{p}\n' for p in wanted).encode())
+        requests.seek(0)
+        subprocess.run(['git', 'cat-file', '--batch'], cwd=ROOT, stdin=requests,
+                       stdout=contents, stderr=subprocess.PIPE, check=True, timeout=30)
+        contents.seek(0)
+        output = contents.read()
+    blobs, offset = {}, 0
+    for p in wanted:
+        end = output.index(b'\n', offset)
+        size = int(output[offset:end].split()[-1]); offset = end + 1
+        blobs[p] = output[offset:offset + size].decode(errors='replace'); offset += size + 1
+    suites = list(dict.fromkeys(l.strip() for l in blobs.get('tools/ab-queue.suites', '').splitlines() if l.strip() and not l.startswith('#')))
+    sources = {p: t for p, t in blobs.items() if p.startswith(('apps/web/src/', 'services/node/src/', 'packages/'))}
+    # Components/modules named by a suite, API routes, and distinctive classes/test ids it exercises.
+    index = {}
+    for p, text in sources.items():
+        stem = pathlib.PurePosixPath(p).stem
+        keys = {stem} if stem not in {'index', 'types', 'style', 'styles'} else set()
+        keys.update(re.findall(r'export\s+(?:async\s+)?(?:function|class|const)\s+(\w+)', text))
+        keys.update(re.findall(r'[/]api[/][\w/-]+|\bab-[\w-]+|\bsiso-[\w-]+', text))
+        keys.update(re.findall(r'data-testid=["\']([^"\']+)', text))
+        for key in keys:
+            if len(key) >= 4:
+                index.setdefault(key, set()).add(p)
+    def imports(p):
+        out = set()
+        for name in re.findall(r'(?:from\s*|import\s*\(|import\s*)["\']([^"\']+)', blobs.get(p, '')):
+            if name.startswith('.'):
+                target = os.path.normpath(os.path.join(os.path.dirname(p), name))
+                for candidate in [target, *[target + e for e in ('.ts', '.tsx', '.mjs', '.css')], target + '/index.ts', target + '/index.tsx']:
+                    if candidate in blobs:
+                        out.add(candidate); break
+            elif name.startswith('@siso/'):
+                package = name.split('/')[1]
+                out.update(f for f in sources if f.startswith(f'packages/{package}/src/'))
+        return out
+    result = {}
+    for suite in suites:
+        test = f'services/node/test/{suite}.mjs'
+        files, pending = set(), [test]
+        while pending:
+            p = pending.pop()
+            if p in files: continue
+            files.add(p)
+            pending.extend(imports(p) - files)
+        text = '\n'.join(blobs.get(p, '') for p in files)
+        for key in set(re.findall(r'/api/[\w/-]+|[\w-]+', text)):
+            files.update(index.get(key, ()))
+        result[suite] = sorted(files)
+    cache.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.NamedTemporaryFile(mode='w', dir=cache.parent, delete=False) as f:
+        json.dump({'version': VERSION, 'sha': sha, 'suites': result}, f, sort_keys=True); temporary = f.name
+    os.replace(temporary, cache)
+    return result
+
+def affected(base, head):
+    sha = git('rev-parse', '--verify', head + '^{commit}').strip()
+    changed = set(git('diff', '--name-only', '--no-renames', base, sha).splitlines())
+    # Include the old map for deleted/renamed modules or removed references.
+    old = git('rev-parse', '--verify', base + '^{commit}').strip()
+    current, previous = suite_map(sha), suite_map(old)
+    changed = {p for p in changed if not p.startswith('tools/') and pathlib.PurePosixPath(p).name != 'package.json'}
+    return [n for n, files in current.items() if changed.intersection(set(files) | set(previous.get(n, [])))]
+
+if __name__ == '__main__':
+    try:
+        if len(sys.argv) != 3: raise ValueError('usage: tools/ab-affected <base> <head>')
+        selected = affected(*sys.argv[1:])
+        if selected: print('\n'.join(selected))
+    except (subprocess.CalledProcessError, subprocess.TimeoutExpired, ValueError) as e:
+        print(f'ab-affected: {e}', file=sys.stderr); sys.exit(1)

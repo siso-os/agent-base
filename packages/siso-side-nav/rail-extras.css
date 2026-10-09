@@ -1,0 +1,293 @@
+/*
+ * Additions to the SISO CRM rail (grouped-rail.css, verbatim) for lists of live things: a row with a status, the
+ * group heading's right-hand note, count badges, "later" icons, and an in-flow placement for desktop windows.
+ * Every value comes from the SISO tokens (siso.css); the row takes the CRM nav link's materials (radius, hover wash,
+ * the active brand glow) so it reads as the same side nav.
+ */
+
+/* In a desktop window the rail sits in the layout, inset from the window edge, instead of fixed to the page. */
+.siso-sidebar.siso-sidebar--inline {
+  /* Agent names and a status word need more than the CRM's 232 px. */
+  --siso-sidebar-expanded-width: var(--siso-rail-width, 284px);
+  position: relative;
+  top: auto;
+  bottom: auto;
+  left: auto;
+  flex: none;
+  height: auto;
+  align-self: stretch;
+  margin: var(--siso-rail-top, var(--crm-rail-screen-inset)) 0 var(--crm-rail-screen-inset) var(--crm-rail-screen-inset);
+}
+
+.siso-rail-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--crm-space-2);
+}
+.siso-rail-heading__note {
+  color: var(--crm-color-text-muted);
+  letter-spacing: 0.04em;
+  text-transform: none;
+}
+.siso-rail-heading button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  border: 0;
+  color: inherit;
+  background: none;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  cursor: pointer;
+}
+.siso-rail-heading button:hover { color: var(--crm-color-text); }
+
+/* A capsule that spans the rail: its icons share the width instead of overflowing it. */
+.siso-sidebar__global-row.siso-capsule--fill { width: 100%; justify-content: space-between; }
+.siso-sidebar__global-row.siso-capsule--fill .siso-sidebar__utility-link { width: auto; flex: 1; height: 38px; }
+
+.siso-sidebar__utility-link.is-later { opacity: 0.38; cursor: default; }
+.siso-sidebar__utility-link.is-later:hover { border-color: transparent; background: transparent; }
+.siso-rail-badge {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  display: grid;
+  min-width: 15px;
+  height: 15px;
+  padding: 0 4px;
+  place-items: center;
+  border-radius: var(--crm-radius-pill);
+  color: var(--crm-color-on-brand);
+  background: var(--crm-color-brand);
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* A row: mark, name and status on the first line; what it is doing on the second. */
+.siso-rail-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr) auto;
+  column-gap: var(--crm-space-2-5);
+  row-gap: 2px;
+  align-items: center;
+  min-height: 48px;
+  padding: 7px var(--crm-nav-inline-inset);
+  border-radius: var(--crm-radius-control);
+  color: rgb(var(--crm-white-rgb) / 0.7);
+  cursor: pointer;
+  outline: none;
+  touch-action: none;
+  transition: color 160ms ease, background 160ms ease, box-shadow 160ms ease, opacity 160ms ease;
+}
+.siso-rail-row:hover { color: var(--siso-sidebar-text-primary); background: rgb(var(--crm-white-rgb) / 0.035); }
+.siso-rail-row:focus-visible { outline: 2px solid rgb(var(--crm-highlight-rgb) / 0.9); outline-offset: -2px; }
+.siso-rail-row.is-active { color: var(--siso-sidebar-amber-bright); background: var(--crm-gradient-rail-active); box-shadow: var(--crm-shadow-active); }
+.siso-rail-row.is-dragging { z-index: 5; background: rgb(var(--crm-chrome-rgb) / 0.96); box-shadow: var(--crm-shadow-active), 0 12px 28px rgb(var(--crm-black-rgb) / 0.45); }
+.siso-rail-row.is-quiet { opacity: 0.62; }
+.siso-rail-row.is-quiet:hover, .siso-rail-row.is-quiet.is-active { opacity: 1; }
+.siso-rail-row__mark { grid-row: 1 / span 2; align-self: center; }
+.siso-rail-row__name {
+  min-width: 0;
+  overflow: hidden;
+  font-size: var(--crm-text-md);
+  font-weight: 510;
+  letter-spacing: -0.005em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.siso-rail-row__right { position: relative; display: flex; align-items: center; justify-content: flex-end; min-width: 28px; font-size: 11px; }
+.siso-rail-row__sub {
+  grid-column: 2 / span 1;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--crm-color-text-faint);
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.siso-rail-row.is-active .siso-rail-row__sub { color: rgb(var(--crm-highlight-rgb) / 0.6); }
+.siso-rail-row__meta { color: var(--crm-color-text-faint); font-family: var(--crm-font-mono); font-size: 10px; }
+/* Status at rest, actions on hover or keyboard focus, in the same slot. */
+.siso-rail-row__actions { position: absolute; right: 0; display: flex; gap: 2px; opacity: 0; pointer-events: none; transition: opacity 120ms ease; }
+.siso-rail-row:hover .siso-rail-row__actions, .siso-rail-row:focus-within .siso-rail-row__actions, .siso-rail-row__actions.is-held { opacity: 1; pointer-events: auto; }
+.siso-rail-row:hover .siso-rail-row__status, .siso-rail-row:focus-within .siso-rail-row__status, .siso-rail-row.is-held .siso-rail-row__status { opacity: 0; }
+.siso-rail-row__actions button {
+  display: grid;
+  width: 24px;
+  height: 24px;
+  place-items: center;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  color: rgb(var(--crm-white-rgb) / 0.6);
+  background: rgb(var(--crm-chrome-rgb) / 0.9);
+  cursor: pointer;
+}
+.siso-rail-row__actions button:hover { border-color: rgb(var(--crm-white-rgb) / 0.1); color: var(--crm-color-text-strong); }
+.siso-rail-row__actions svg { width: 14px; height: 14px; stroke-width: var(--crm-icon-stroke); }
+
+/* A collapsible group heading (Snoozed, Settled). */
+.siso-rail-shelf > .siso-sidebar__nav-items { margin-top: 0; }
+
+/* The rail's own menus (brand switcher, snooze). */
+.siso-rail-menu {
+  position: absolute;
+  z-index: 40;
+  display: grid;
+  min-width: 190px;
+  gap: 3px;
+  padding: var(--crm-space-2);
+  border: 1px solid var(--crm-color-line-strong);
+  border-radius: var(--crm-radius-control);
+  background: rgb(var(--crm-chrome-rgb) / 0.98);
+  box-shadow: var(--crm-shadow-modal);
+  backdrop-filter: blur(var(--crm-blur-glass));
+}
+
+/* The rail's glow (bloom, noise, edge light) on its own compositing layers, so a row changing state does not repaint
+ * 300 px blurred circles: tab switching measured 49 ms -> 31 ms in WebKit (2 Oct). */
+.siso-sidebar__bloom,
+.siso-sidebar__noise,
+.siso-sidebar::before,
+.siso-sidebar::after { will-change: transform; transform: translateZ(0); }
+.siso-sidebar { contain: layout paint; }
+
+/* ===== The sidebar inside an AppFrame (SideNav): Codex's layout, the SISO rail's row materials ===== */
+.siso-sidenav {
+  --siso-sidebar-text-primary: var(--crm-color-text);
+  --siso-sidebar-amber-bright: var(--crm-color-brand-hover);
+  position: relative;
+  display: flex;
+  min-height: 0;
+  flex: none;
+  flex-direction: column;
+  border-right: 1px solid var(--crm-color-line-subtle);
+}
+.siso-sidenav__header { display: flex; height: 56px; flex: none; align-items: center; gap: 8px; padding: 0 14px 0 16px; }
+.siso-sidenav__body { min-height: 0; flex: 1; overflow-y: auto; padding: 0 8px 14px; scrollbar-width: none; }
+.siso-sidenav__body::-webkit-scrollbar { display: none; }
+.siso-sidenav__section + .siso-sidenav__section { margin-top: 10px; }
+.siso-sidenav__heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px 6px;
+  color: var(--crm-color-text-muted);
+  font-size: 12.5px;
+  font-weight: 500;
+}
+.siso-sidenav__heading button { display: inline-flex; align-items: center; gap: 4px; color: inherit; }
+.siso-sidenav__heading button:hover { color: var(--crm-color-text); }
+.siso-sidenav__note { color: var(--crm-color-text-faint); font-size: 11.5px; font-weight: 450; }
+.siso-sidenav__title { font-size: 17px; font-weight: 640; letter-spacing: -0.015em; color: var(--crm-color-text-strong); }
+
+/* ===== ThreadRow and ProjectGroup: one line per item, the Codex way ===== */
+.siso-thread {
+  position: relative;
+  display: flex;
+  height: 34px;
+  align-items: center;
+  gap: 10px;
+  padding: 0 10px;
+  border-radius: 9px;
+  color: rgb(var(--crm-white-rgb) / 0.82);
+  font-size: 13.5px;
+  cursor: pointer;
+  outline: none;
+  touch-action: none;
+  transition: background 120ms ease, color 120ms ease, opacity 120ms ease;
+}
+.siso-thread:hover { background: rgb(var(--crm-white-rgb) / 0.045); color: var(--crm-color-text-strong); }
+.siso-thread:focus-visible { outline: 2px solid rgb(var(--crm-highlight-rgb) / 0.8); outline-offset: -2px; }
+.siso-thread.is-active { background: rgb(var(--crm-white-rgb) / 0.085); color: var(--crm-color-text-strong); }
+.siso-thread.is-dim { color: rgb(var(--crm-white-rgb) / 0.5); }
+.siso-thread.is-dim:hover, .siso-thread.is-dim.is-active { color: var(--crm-color-text-strong); }
+.siso-thread.is-dragging { z-index: 5; background: rgb(var(--crm-chrome-rgb) / 0.97); box-shadow: 0 10px 24px rgb(var(--crm-black-rgb) / 0.45); }
+.siso-thread__mark { position: relative; width: 14px; height: 14px; flex: none; }
+.siso-thread__lead { display: inline-flex; flex: none; align-items: center; justify-content: center; width: 20px; margin: 0 -3px; }
+.siso-thread__name { min-width: 0; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.siso-thread__time { flex: none; color: rgb(var(--crm-white-rgb) / 0.38); font-size: 11.5px; font-variant-numeric: tabular-nums; }
+.siso-thread.is-needs .siso-thread__time { color: #f0b03f; }
+/* The actions take the timestamp's place in the line (never over the name): hidden at rest, shown on hover or focus. */
+.siso-thread__actions { display: none; flex: none; gap: 1px; margin-right: -6px; }
+.siso-thread:hover .siso-thread__actions, .siso-thread:focus-within .siso-thread__actions, .siso-thread.is-held .siso-thread__actions { display: flex; }
+.siso-thread:hover .siso-thread__time, .siso-thread:focus-within .siso-thread__time, .siso-thread.is-held .siso-thread__time { display: none; }
+.siso-thread__actions button { display: grid; width: 24px; height: 24px; place-items: center; border-radius: 7px; color: rgb(var(--crm-white-rgb) / 0.55); }
+.siso-thread__actions button:hover { color: var(--crm-color-text-strong); background: rgb(var(--crm-white-rgb) / 0.08); }
+.siso-thread__actions svg { width: 14px; height: 14px; stroke-width: var(--crm-icon-stroke); }
+/* The marks. Working turns; the dots are still. */
+.siso-thread.is-working .siso-thread__mark::before {
+  position: absolute; inset: 1px; border: 1.6px solid rgb(56 189 248 / 0.25); border-top-color: #38bdf8; border-radius: 50%; content: "";
+  animation: siso-turn 0.9s linear infinite;
+}
+.siso-thread.is-needs .siso-thread__mark::before,
+.siso-thread.is-done .siso-thread__mark::before,
+.siso-thread.is-failed .siso-thread__mark::before { position: absolute; inset: 3.5px; border-radius: 50%; content: ""; }
+.siso-thread.is-needs .siso-thread__mark::before { background: #f0b03f; box-shadow: 0 0 0 3px rgb(240 176 63 / 0.18); }
+.siso-thread.is-done .siso-thread__mark::before { background: #34c38f; }
+.siso-thread.is-failed .siso-thread__mark::before { background: #ef5b4c; }
+@keyframes siso-turn { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .siso-thread.is-working .siso-thread__mark::before { animation: none; } }
+
+.siso-project + .siso-project { margin-top: 2px; }
+.siso-project__row { display: flex; width: 100%; height: 34px; align-items: center; gap: 10px; padding: 0 10px; border-radius: 9px; color: rgb(var(--crm-white-rgb) / 0.82); font-size: 13.5px; text-align: left; }
+.siso-project__row:hover { background: rgb(var(--crm-white-rgb) / 0.045); }
+.siso-project__row svg { width: 16px; height: 16px; flex: none; color: rgb(var(--crm-white-rgb) / 0.55); stroke-width: var(--crm-icon-stroke); }
+.siso-project__name { min-width: 0; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.siso-project__count { color: rgb(var(--crm-white-rgb) / 0.35); font-size: 11.5px; }
+/* A project's state in muted words ("2 agents working", "no owner yet"), never a bare number. */
+.siso-project__note { flex: none; color: rgb(var(--crm-white-rgb) / 0.38); font-size: 11.5px; white-space: nowrap; }
+.siso-project__row .siso-project__chev { width: 13px; height: 13px; opacity: 0; }
+.siso-project__row:hover .siso-project__chev { opacity: 1; }
+/* Items sit indented under their folder, as in Codex. */
+.siso-project__items { padding-left: 22px; }
+
+/* Leads and crew (2 Oct): a fold slot before the mark on every top row so names line up; crew indented on a guide. */
+.siso-thread__fold { display: grid; width: 14px; height: 18px; flex: none; place-items: center; margin-left: -4px; margin-right: -4px; border-radius: 5px; color: rgb(var(--crm-white-rgb) / 0.38); }
+button.siso-thread__fold:hover { color: var(--crm-color-text-strong); background: rgb(var(--crm-white-rgb) / 0.08); }
+.siso-thread__fold svg { width: 12px; height: 12px; stroke-width: 2; }
+.siso-thread__count { flex: none; padding: 0 6px; border: 1px solid rgb(var(--crm-white-rgb) / 0.1); border-radius: 99px; color: rgb(var(--crm-white-rgb) / 0.42); font-size: 10.5px; line-height: 16px; font-variant-numeric: tabular-nums; }
+.siso-thread.is-crew { position: relative; padding-left: 34px; }
+.siso-thread.is-crew::after { position: absolute; top: 0; bottom: 0; left: 17px; border-left: 1px solid rgb(var(--crm-white-rgb) / 0.09); content: ""; }
+.siso-sidenav.is-headless .siso-sidenav__body { padding-top: 10px; }
+.siso-menu-layer .siso-rail-menu { position: static; }
+
+/* The view switch at the top of the side nav (2 Oct: "a horizontal bar … with icons … agents … servers"). */
+.siso-navswitch { display: flex; gap: 2px; margin: 0 2px 8px; padding: 3px; border: 1px solid rgb(var(--crm-white-rgb) / 0.07); border-radius: 10px; background: rgb(var(--crm-white-rgb) / 0.025); }
+.siso-navswitch button { display: flex; flex: 1; height: 28px; align-items: center; justify-content: center; gap: 6px; border-radius: 7px; color: rgb(var(--crm-white-rgb) / 0.5); font-size: 12px; }
+.siso-navswitch button:hover { color: rgb(var(--crm-white-rgb) / 0.86); }
+.siso-navswitch button[aria-pressed="true"] { color: var(--crm-color-text-strong); background: rgb(var(--crm-white-rgb) / 0.085); }
+.siso-navswitch svg { width: 14px; height: 14px; stroke-width: var(--crm-icon-stroke); }
+.siso-machine-note { padding: 4px 10px 8px 36px; color: rgb(var(--crm-white-rgb) / 0.38); font-size: 11.5px; line-height: 1.4; }
+.siso-dot { width: 8px; height: 8px; flex: none; margin: 0 4px; border-radius: 50%; background: rgb(var(--crm-white-rgb) / 0.18); }
+.siso-dot.is-working { background: #38bdf8; box-shadow: 0 0 0 3px rgb(56 189 248 / 0.18); }
+.siso-dot.is-needs { background: #f0b03f; }
+.siso-dot.is-done { background: #34c38f; }
+.siso-dot.is-failed { background: #ef5b4c; }
+
+/* One status slot per row (sidenav spec D1): exactly one thing, swapped for the row's actions on hover or focus. */
+.siso-slot { display: inline-flex; min-width: 56px; flex: none; align-items: center; justify-content: flex-end; color: rgb(var(--crm-white-rgb) / 0.38); font: 500 11px var(--crm-font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.siso-slot.is-small { min-width: 40px; }
+.siso-slot__state { display: inline-flex; align-items: center; gap: 5px; }
+.siso-slot__state svg { width: 11px; height: 11px; stroke-width: 2.4; }
+.siso-slot.is-working { color: #38bdf8; }
+.siso-slot__spin { width: 9px; height: 9px; border: 1.5px solid rgb(56 189 248 / 0.25); border-top-color: #38bdf8; border-radius: 50%; animation: siso-slot-spin 0.9s linear infinite; }
+@keyframes siso-slot-spin { to { transform: rotate(360deg); } }
+.siso-slot.is-needs .siso-slot__text { padding: 2px 7px; border-radius: 999px; background: #f0b03f; color: #1a1205; font: 600 10.5px var(--crm-font-sans, inherit); }
+.siso-slot.is-done { color: #34c38f; }
+.siso-slot.is-done .siso-slot__text { color: rgb(var(--crm-white-rgb) / 0.38); }
+.siso-slot.is-quiet { color: rgb(56 189 248 / 0.75); }
+.siso-slot.is-failed { color: #ef5b4c; }
+.siso-slot.is-offline { color: rgb(var(--crm-white-rgb) / 0.28); }
+.siso-slot__acts { display: none; align-items: center; gap: 2px; }
+.siso-slot__acts button { display: grid; width: 22px; height: 22px; place-items: center; border-radius: 6px; color: rgb(var(--crm-white-rgb) / 0.55); }
+.siso-slot__acts button:hover { color: var(--crm-color-text-strong); background: rgb(var(--crm-white-rgb) / 0.08); }
+.siso-slot__acts svg { width: 13px; height: 13px; stroke-width: var(--crm-icon-stroke, 1.75); }
+:is(:hover, :focus-visible, :has(:focus-visible), .is-held) > .siso-slot:has(.siso-slot__acts) > .siso-slot__state { display: none; }
+:is(:hover, :focus-visible, :has(:focus-visible), .is-held) > .siso-slot > .siso-slot__acts { display: inline-flex; }
+@media (prefers-reduced-motion: reduce) { .siso-slot__spin { animation: none; } }

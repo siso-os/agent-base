@@ -1,0 +1,17 @@
+.ab-task-actions { display:flex; flex-wrap:wrap; align-items:center; gap:8px; padding:8px 12px 10px; min-width:0; }
+.ab-task-actions__buttons { display:flex; gap:6px; }
+.ab-task-actions button, .ab-task-receipt button { display:inline-flex; align-items:center; justify-content:center; gap:5px; min-height:30px; padding:5px 9px; border:1px solid rgb(var(--crm-white-rgb)/.12); border-radius:8px; font-size:11px; color:var(--crm-color-text); background:rgb(var(--crm-white-rgb)/.025); }
+.ab-task-actions button:hover:not(:disabled), .ab-task-receipt button:hover { background:rgb(var(--crm-white-rgb)/.07); border-color:rgb(var(--crm-white-rgb)/.22); }
+.ab-task-actions button:disabled { opacity:.45; cursor:default; }
+.ab-task-actions button:focus-visible,.ab-task-actions input:focus-visible,.ab-task-receipt button:focus-visible { outline:2px solid var(--color-working,#75b5ff); outline-offset:2px; }
+.ab-task-actions__redo { display:flex; align-items:center; gap:5px; width:100%; min-width:0; }
+.ab-task-actions__redo input { flex:1; min-width:0; border:1px solid rgb(var(--crm-white-rgb)/.14); border-radius:8px; padding:8px; background:rgb(var(--crm-black-rgb)/.15); color:var(--crm-color-text); font-size:12px; }
+.ab-task-actions__message { display:inline-flex; align-items:center; gap:5px; font-size:11px; color:var(--crm-color-text-muted); overflow-wrap:anywhere; }
+.ab-task-actions[data-state=saved] .ab-task-actions__message { color:var(--color-done,#8cba9c); }
+.ab-task-actions[data-state=failed] .ab-task-actions__message { color:var(--accent-danger,#e7a095); }
+.ab-task-actions small { width:100%; font-size:11px; color:var(--crm-color-text-muted); overflow-wrap:anywhere; }
+.ab-task-receipt { position:sticky; bottom:8px; z-index:4; display:flex; gap:9px; align-items:center; margin:8px; padding:12px; border:1px solid #8cba9c45; border-radius:12px; color:#b6d0bc; background:var(--crm-color-surface-raised,#282c26); box-shadow:0 8px 24px #0003; }
+.ab-task-receipt>span { flex:1; min-width:0; }.ab-task-receipt b { display:block; font-size:12px; font-weight:550; overflow-wrap:anywhere; }.ab-task-receipt small { display:block; font-size:11px; margin-top:4px; color:var(--crm-color-text-muted); }
+.ab-task-accepted-check { flex:none; }.ab-task-accepted-check path { stroke-dasharray:30; stroke-dashoffset:30; animation:ab-task-check 240ms ease-out forwards; }
+@keyframes ab-task-check { to {stroke-dashoffset:0;} }
+@media (prefers-reduced-motion:reduce) { .ab-task-accepted-check path { animation:none; stroke-dashoffset:0; } }

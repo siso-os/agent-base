@@ -1,0 +1,60 @@
+{
+ "generated_at": "2026-09-21T17:11:20.000Z",
+ "base_path": "/",
+ "works": [
+  {
+   "slug": "actionmodel-connector-research",
+   "name": "Action Model · Connector Research",
+   "summary": "A verified research dossier on OSS connector catalogues for the Action Model app builder: which catalogues can legally power a hosted connect-your-account section, a live spike of the leading gateway, the multi-tenancy boundary, and the resulting build order.",
+   "library_url": "/works/actionmodel-connector-research/",
+   "type": "project",
+   "maturity": "active",
+   "section": "Unassigned"
+  },
+  {
+   "slug": "actionmodel-assembly-framework",
+   "name": "Action Model · SISO Agency Assembly Framework",
+   "summary": "Reusable methods for agents to assemble software from existing capabilities, bounded adaptation and verification, with a public human/agent Blueprint and a private owning source. Public metadata only; registration does not admit source payload or prove a production integration.",
+   "library_url": "/works/actionmodel-assembly-framework/",
+   "type": "project",
+   "maturity": "active",
+   "section": "Unassigned"
+  },
+  {
+   "slug": "frontier-question-agent-workspace",
+   "name": "GQ-001 · The Agent Workspace",
+   "summary": "A standing research question about the complete code, agent, memory, enforcement, and user-interface architecture of an agent-native workspace.",
+   "library_url": "/works/frontier-question-agent-workspace/",
+   "type": "research_question",
+   "maturity": "active",
+   "section": "Research"
+  },
+  {
+   "slug": "frontier-question-agent-layer-efficiency",
+   "name": "GQ-002 · 10× the Agent Layer",
+   "summary": "A standing research question about making a provider-neutral multi-agent operating layer materially more effective, efficient, observable, and self-improving.",
+   "library_url": "/works/frontier-question-agent-layer-efficiency/",
+   "type": "research_question",
+   "maturity": "active",
+   "section": "Research"
+  },
+  {
+   "slug": "declassified-corpus",
+   "name": "Declassified Document Corpus (CREST, NARA, Black Vault, NSArchive, DOE)",
+   "summary": "A bulk-available catalogue of public-domain declassified government documents — CIA CREST (incl. Stargate/remote-viewing), the NARA AWS Catalog and JFK release tranches, the National Security Archive (GWU free site), DOE OpenNet, and The Black Vault curated FOIA archive — with full provenance and per-unit rights posture. The Great Library holds the inventory; SISO Knowledge holds the durable corpus; Foundry owns source discovery; Evidence Engines perform source-grounded transformation.",
+   "library_url": "/works/declassified-corpus/",
+   "type": "knowledge_system",
+   "maturity": "planned",
+   "section": "Unassigned"
+  },
+  {
+   "slug": "herdr",
+   "name": "Herdr",
+   "summary": "An externally owned terminal-native multiplexer providing persistent workspaces, tabs, panes, and addressable agent sessions.",
+   "library_url": "/works/herdr/",
+   "type": "tool",
+   "maturity": "active",
+   "section": "Agents"
+  }
+ ]
+}

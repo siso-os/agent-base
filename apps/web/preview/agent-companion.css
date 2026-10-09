@@ -1,0 +1,46 @@
+* { box-sizing: border-box; }
+body { margin: 0; background: #101211; color: #dce4dd; font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+button,input,select,textarea { font: inherit; color: inherit; }
+button { border: 0; background: none; cursor: pointer; }
+button:disabled { opacity: .45; cursor: default; }
+button:focus-visible, select:focus-visible { outline: 2px solid #9bd8bf; outline-offset: 3px; }
+.pr-review { max-width: 1580px; padding: 32px; margin: auto; }
+.pr-review-head { display: flex; gap: 24px; align-items: end; justify-content: space-between; padding: 0 0 26px; }
+.pr-review-head p { margin: 0 0 9px; color: #70947d; font: 10px ui-monospace,monospace; letter-spacing: .13em; }
+.pr-review-head h1 { margin: 0 0 8px; font-size: 26px; font-weight: 550; letter-spacing: -.035em; }
+.pr-review-head > div > span { font-size: 12px; color: #8a9b8f; }
+.pr-controls { display: flex; gap: 9px; }
+.pr-controls label { display: flex; flex-direction: column; gap: 6px; font-size: 10px; color: #789181; }
+.pr-controls select { font-size: 11px; border: 1px solid #c1dec322; border-radius: 8px; background: #18201b; padding: 9px; }
+.pr-stage { display: flex; height: 810px; max-height: calc(100dvh - 205px); min-height: 580px; border: 1px solid #ffffff13; border-radius: 18px; background: #181b18; overflow: hidden; box-shadow: 0 24px 80px #0004; }
+.pr-chat { display: flex; flex-direction: column; flex: 1; min-width: 0; padding: 17px 18px 14px; }
+.pr-chat > header { display: flex; align-items: center; gap: 12px; padding: 10px 15px; border: 1px solid #a9cb7b48; border-radius: 40px; color: #d6e1d7; }
+.pr-chat > header strong { font-size: 13px; font-weight: 550; }
+.pr-chat > header > span { font-size: 11px; color: #718675; }
+.pr-chat > header button { margin-left: auto; width: 26px; height: 26px; display: grid; place-items: center; color: #a2b5a9; }
+.pr-chat-content { padding: 62px 35px 30px; flex: 1; }
+.pr-chat-kicker { display: flex; align-items: center; gap: 9px; color: #6f8a78; font: 10px ui-monospace,monospace; letter-spacing: .08em; }
+.pr-chat-content h2 { font-size: clamp(23px,2.8vw,40px); line-height: 1.35; font-weight: 450; letter-spacing: -.04em; margin: 21px 0; }
+.pr-chat-content > p { color: #8ca092; font-size: 13px; max-width: 410px; line-height: 1.8; }
+.pr-decisions { display: flex; gap: 40px; margin: 34px 0; padding: 22px 0; border-block: 1px solid #c1dec311; }
+.pr-decisions span { display: flex; flex-direction: column; gap: 9px; color: #65826e; font-size: 10px; }
+.pr-decisions b { font-size: 23px; font-weight: 450; color: #d1dece; }
+.pr-change-note { display: flex; align-items: start; gap: 12px; max-width: 385px; color: #829c8a; font-size: 11px; line-height: 1.8; }
+.pr-change-note svg { flex: none; margin-top: 4px; }
+.pr-chat-content .pr-receipt { margin-top: 26px; font-size: 10px; color: #8faa94; }
+.pr-input { display: flex; justify-content: space-between; color: #7c9181; font-size: 13px; padding: 22px; border: 1px solid #98c6af32; border-radius: 17px; }
+.pr-footer { display: flex; align-items: start; gap: 24px; justify-content: space-between; padding: 17px 5px; color: #668271; font-size: 10px; line-height: 1.6; }
+.pr-footer span { max-width: 390px; text-align: right; color: #738c7c; }
+/* The same component at each real panel width; only the review frame controls its size. */
+@media (min-width:640px) { .pr-stage .ab-panel { width: var(--review-width) !important; padding: 17px 14px 14px 0; } }
+.pr-stage .ab-panel__view { min-height: 0; display: flex; flex: 1; flex-direction: column; overflow: hidden; }
+.pr-stage .ab-panel__card { background: #191d19; }
+.pr-stage .ab-panel__scroll, .pr-stage .ab-drill__body { scrollbar-width: thin; }
+.pr-stage .ab-panel [role=separator] { display: none; }
+.pr-stage .ab-panel .ab-rim::before { opacity: .5; }
+.pr-stage .ab-panel .ab-rim { --crm-font-mono: ui-monospace,monospace; }
+@media (max-width:1100px) { .pr-review { padding: 22px; }.pr-chat-content { padding: 45px 10px 24px; }.pr-decisions { gap: 23px; }.pr-chat > header > span { display: none; } }
+@media (max-width:800px) and (min-width:640px) { .pr-chat-content h2 { font-size: 24px; }.pr-chat-content > p,.pr-change-note,.pr-decisions { display: none; }.pr-chat { padding: 15px 10px; } }
+@media (max-width:639px) {
+ .pr-review { padding: 17px 15px; }.pr-review-head { display: block; }.pr-review-head h1 { font-size: 23px; }.pr-controls { margin-top: 18px; }.pr-controls label:first-child { display: none; }.pr-stage { min-height: 600px; border-radius: 12px; }.pr-chat { padding: 12px; }.pr-chat-content { padding: 25px 13px; }.pr-chat-content h2 { font-size: 26px; }.pr-decisions { gap: 30px; }.pr-footer { display: block; }.pr-footer span { display: block; text-align: left; margin-top: 7px; }.pr-stage .ab-panel { height: min(79dvh,740px); }.pr-stage .ab-panel__card { border-top-color: #86ab95; }
+}

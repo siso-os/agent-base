@@ -1,0 +1,18 @@
+{
+  "name": "@agent-base/node",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node --experimental-strip-types --no-warnings src/server.ts",
+    "postinstall": "node -e \"const fs=require('fs'),p=require('path');const r=p.dirname(require.resolve('node-pty/package.json'));for(const d of ['prebuilds/darwin-arm64','prebuilds/darwin-x64','build/Release']){const f=p.join(r,d,'spawn-helper');if(fs.existsSync(f))fs.chmodSync(f,0o755)}\""
+  },
+  "dependencies": {
+    "node-pty": "^1.0.0",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/ws": "^8.5.12",
+    "playwright": "1.55.0"
+  }
+}

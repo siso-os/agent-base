@@ -1,0 +1,80 @@
+{
+  "date": "2026-10-06",
+  "preview": "http://127.0.0.1:8891/card/agent-living-assets-20261006/html",
+  "scope": "Local review gallery and reusable component kit; production integration pending",
+  "approvedBaseline": "dcea7fbc",
+  "preservedSourceFiles": 12,
+  "counts": {
+    "industryIcons": 6,
+    "sidebarIcons": 8,
+    "projectCards": 3,
+    "uniqueNewIcons": 15,
+    "appPrototypes": 5,
+    "svgExports": 33
+  },
+  "build": "PASS bundled React gallery and SVG exporter",
+  "strictTypeScript": "PASS scoped package and preview",
+  "verification": {
+    "round3-check": {
+      "passed": 19,
+      "checks": [
+        "6 industries, 8 sidebar identities, 3 project cards, 5 app prototypes",
+        "rest and hover samples use the same 144px scale",
+        "all icon cards render literal 24, 32 and 48 pixel glyphs",
+        "15 of 15 glyphs are quiet at rest, animate on hover, then settle",
+        "Enter and Space replay a focused icon",
+        "pause cancels all component motion and current icon gesture",
+        "resume does not replay the cancelled icon gesture",
+        "all eight sidebar destinations select their matching preview",
+        "context ring and percentage interpolate together and accept interruption",
+        "native model selection updates identity, confirmation and composer model",
+        "composer trims and acknowledges exact local task; keyboard and empty-submit checks",
+        "owner disclosure preserves three children and disables hidden controls",
+        "task completion changes derived count and preserves the finished row; reset works",
+        "native reduced motion stops all loops and applies context readings immediately",
+        "SVG IDs are unique across the complete gallery",
+        "390px layout: no horizontal overflow in identities, sidebar or all five controls",
+        "gallery download produces the exact exported ZIP",
+        "offscreen icons and marks stop at the page footer",
+        "zero page errors; no external network requests"
+      ]
+    },
+    "round3-lifecycle": {
+      "passed": 5,
+      "checks": [
+        "document visibility adapter cancels an active gesture and its timer",
+        "unmount removes observers, native listeners and replay timers; no icon RAF calls",
+        "a clean remount still responds to reduced motion",
+        "18 standalone tile and approved-mark SVG files render as images",
+        "zero lifecycle and SVG page errors"
+      ]
+    },
+    "round3-motion-check": {
+      "passed": 4,
+      "checks": [
+        "explicit preview loops animate all six visible industry icons",
+        "sampled gesture transforms change over time",
+        "turning off comparison loops returns every icon to rest",
+        "zero page errors"
+      ]
+    },
+    "round3-final-layout": {
+      "passed": 2,
+      "checks": [
+        "approved and proposed Agent Base marks use equal scale at desktop and 390px",
+        "no mobile overflow or page errors after size correction"
+      ]
+    }
+  },
+  "zip": {
+    "url": "http://127.0.0.1:8891/static/agent-living-assets-6578e7ca7a52aeaa.zip",
+    "path": "~/.claude/console/static/agent-living-assets-6578e7ca7a52aeaa.zip",
+    "sha256": "6578e7ca7a52aeaa56216ab352822a98ed2b93d7b6f02745f1acc49030ea5f45"
+  },
+  "servedHtmlSha256": "54efae028f7c6e5ebc74e51f92068762fd625f7ad4f8e06806d620aaee2934b6",
+  "limits": [
+    "App proposals use synthetic local data",
+    "No production/main merge or desktop release",
+    "No live model, task, voice, or agent endpoints tested"
+  ]
+}

@@ -1,0 +1,47 @@
+.ab-research { padding: 20px; max-width: 1000px; margin: 0 auto; font-size: 13px; overflow-wrap: anywhere; }
+.ab-research h1 { font-size: 22px; font-weight: 600; margin: 0 0 4px; }
+.ab-research h2 { font-size: 15px; font-weight: 600; margin: 20px 0 12px; }
+.ab-research h2 small { margin-left: 8px; font-size: 12px; font-weight: 400; }
+.ab-research h3 { font-size: 14px; font-weight: 600; margin: 0; }
+.ab-research p { margin: 8px 0; }
+.ab-research small, .ab-research header p, .ab-research__dates { color: var(--muted-foreground); }
+.ab-research__card { border: 1px solid rgba(128,128,140,.2); border-radius: 12px; background: rgba(128,128,140,.07); padding: 14px; margin-bottom: 12px; min-width: 0; }
+.ab-research__heading { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.ab-research__heading h2 { margin: 0; }
+.ab-research__heading > span:last-child { margin-left: auto; color: var(--muted-foreground); }
+.ab-research__jobs { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; }
+.ab-research__jobs button, .ab-research__synthesis, .ab-research__heading button { display: inline-flex; align-items: center; gap: 8px; border: 1px solid rgba(128,128,140,.25); border-radius: 8px; padding: 6px 9px; text-align: left; max-width: 100%; }
+.ab-research button:hover, .ab-research button[aria-pressed=true] { background: rgba(128,128,140,.15); }
+.ab-research button:focus-visible { outline: 2px solid #5b9cff; outline-offset: 2px; }
+.ab-research__dot { display: inline-block; flex-shrink: 0; width: 8px; height: 8px; border-radius: 50%; background: #888894; }
+.ab-research__dot.is-running { background: #30a46c; box-shadow: 0 0 0 3px #30a46c33; }
+.ab-research__dot.is-done { background: #5b9cff; }
+.ab-research__dot.is-failed, .ab-research__dot.is-blocked { background: #e5484d; }
+.ab-research__dot.is-queued, .ab-research__dot.is-waiting { background: #f5a524; }
+.ab-research pre { white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; margin: 10px 0; }
+.ab-research__preview { color: var(--muted-foreground); max-height: 160px; overflow-y: auto; }
+.ab-research__topic { display: block; text-align: left; width: 100%; padding: 4px 0; }
+.ab-research__topic small { display: block; margin-top: 5px; }
+@media (max-width: 600px) { .ab-research { padding: 14px; } .ab-research__card { padding: 12px; } }
+/* Keep the existing header height and Today-chip materials; narrow headers scroll their fleet controls. */
+.a0-header-chips { display: flex; align-items: center; gap: 8px; max-width: 44vw; overflow-x: auto; scrollbar-width: none; }
+.a0-header-chips > .ab-pchip { flex: none; }
+.a0-header-tray.ab-pchip__tray { position: fixed; right: auto; width: min(360px, calc(100vw - 20px)); max-height: calc(100dvh - 120px); }
+.a0-header-tray .ab-pad__list { max-height: min(60vh, calc(100dvh - 170px)); }
+.a0-research-summary { padding: 8px 4px; overflow-wrap: anywhere; }
+.a0-research-summary .ab-research__jobs { margin: 8px 0 0; }
+
+/* Human job identities reuse the roster's Prism faces; IDs remain secondary. */
+.ab-research__jobs{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:8px}
+.ab-research__jobs .ab-research__job{display:flex;align-items:center;gap:10px;width:100%;padding:12px;background:var(--crm-color-surface,var(--siso-surface));color:var(--crm-color-text,var(--siso-text));min-width:0}
+.ab-research__jobbody{display:flex;flex-direction:column;align-items:flex-start;gap:3px;min-width:0;flex:1}
+.ab-research__jobbody b{font-size:12px;font-weight:550;line-height:1.4}
+.ab-research__jobbody small{font-size:10px;opacity:.75}
+.ab-research__jobbody>span{font-size:11px;color:var(--crm-color-text-muted,var(--siso-text-muted))}
+.ab-research__job em{font-size:10px;font-style:normal;align-self:flex-start;color:var(--crm-color-text-muted,var(--siso-text-muted));flex:none}
+.ab-research__job em.is-running{color:var(--accent-health,#72c2a0)}
+.ab-research__job em.is-failed,.ab-research__job em.is-blocked{color:var(--accent-danger,#e69292)}
+.ab-research__usage{font-size:11px;color:var(--crm-color-text-muted,var(--siso-text-muted))}
+.ab-research__usage small{font-size:10px}
+
+.ab-research{width:100%;box-sizing:border-box}

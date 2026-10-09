@@ -1,0 +1,36 @@
+.ab-prompts__trigger{display:inline-flex;align-items:center;justify-content:center;flex:none;width:28px;height:28px;padding:0;border:0;border-radius:7px;background:transparent;color:var(--crm-color-text-muted,var(--siso-text-muted));cursor:pointer}
+.ab-prompts__trigger:hover,.ab-prompts__trigger[aria-expanded=true]{background:var(--crm-color-surface-hover,var(--siso-surface-hover));color:var(--crm-color-text,var(--siso-text))}
+.ab-prompts{position:fixed;z-index:210;width:min(420px,calc(100vw - 24px));box-sizing:border-box;display:flex;flex-direction:column;overflow:auto;padding:12px;border:1px solid var(--crm-color-line,var(--siso-line));border-radius:14px;background:var(--crm-color-surface-raised,var(--siso-surface-raised,#19191e));box-shadow:var(--shadow-elevated,0 12px 40px #0006);color:var(--crm-color-text,var(--siso-text,#eee));font:12px var(--font-sans,system-ui);line-height:1.45}
+.ab-prompts button{display:inline-flex;align-items:center;justify-content:center;gap:5px;border:0;border-radius:6px;padding:6px 8px;background:transparent;color:inherit;font:inherit;cursor:pointer;white-space:nowrap}
+.ab-prompts button:hover{background:var(--crm-color-surface-hover,var(--siso-surface-hover,#ffffff0d))}
+.ab-prompts button:disabled{opacity:.4;cursor:default}
+.ab-prompts button:focus-visible,.ab-prompts input:focus-visible,.ab-prompts textarea:focus-visible,.ab-prompts__trigger:focus-visible{outline:2px solid var(--accent-focus,#c49b73);outline-offset:2px}
+.ab-prompts__header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;flex:none}
+.ab-prompts__header>div{display:flex;flex-direction:column;gap:2px}
+.ab-prompts__header b{font-size:13px;font-weight:600}
+.ab-prompts small,.ab-prompts__item p,.ab-prompts__empty p{color:var(--crm-color-text-muted,var(--siso-text-muted,#aaa))}
+.ab-prompts__scopes{display:flex;gap:3px;border-bottom:1px solid var(--crm-color-line,var(--siso-line));padding-bottom:8px;flex:none}
+.ab-prompts__scopes button[aria-pressed=true]{background:var(--crm-color-surface-hover,var(--siso-surface-hover,#ffffff10));color:var(--crm-color-text-strong,var(--siso-text,#fff))}
+.ab-prompts__toolbar{display:flex;align-items:center;gap:6px;padding:10px 0;flex:none}
+.ab-prompts input,.ab-prompts textarea{box-sizing:border-box;min-width:0;width:100%;border:1px solid var(--crm-color-line,var(--siso-line));border-radius:7px;padding:8px 9px;background:var(--crm-color-surface,var(--siso-surface,#15151a));color:inherit;font:inherit;line-height:1.5}
+.ab-prompts__toolbar input{flex:1}
+.ab-prompts__list{min-height:0;max-height:285px;overflow:auto;flex:1 1 auto;overscroll-behavior:contain}
+.ab-prompts__item{padding:10px 2px;border-bottom:1px solid var(--crm-color-line,var(--siso-line));overflow-wrap:anywhere}
+.ab-prompts__item:first-child{padding-top:2px}
+.ab-prompts__item:last-child{border-bottom:0}
+.ab-prompts__item>b{font-weight:550}
+.ab-prompts__item p{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;white-space:pre-wrap;margin:4px 0 8px;font-size:11px}
+.ab-prompts__actions{display:flex;gap:2px;flex-wrap:wrap;align-items:center}
+.ab-prompts__actions button{font-size:11px;padding:5px 6px}
+.ab-prompts__actions .ab-prompts__primary{margin-left:auto}
+.ab-prompts button.ab-prompts__primary{background:color-mix(in srgb,var(--accent-focus,#c49b73) 15%,transparent);color:var(--accent-focus,#d6b78d)}
+.ab-prompts button.ab-prompts__primary:hover{background:color-mix(in srgb,var(--accent-focus,#c49b73) 24%,transparent)}
+.ab-prompts__empty{text-align:center;padding:20px 10px}
+.ab-prompts__empty p{margin:5px 0 10px;font-size:11px}
+.ab-prompts__footer{display:flex;gap:4px;align-items:center;justify-content:space-between;border-top:1px solid var(--crm-color-line,var(--siso-line));padding-top:9px;margin-top:8px;flex:none}
+.ab-prompts__footer small{margin-right:auto;overflow-wrap:anywhere;min-width:0}
+.ab-prompts__editor{display:flex;flex-direction:column;gap:10px;min-height:0}
+.ab-prompts__editor label{display:flex;flex-direction:column;gap:5px;font-size:11px}
+.ab-prompts__editor textarea{resize:vertical;min-height:100px;max-height:260px}
+.ab-prompts__status{margin:8px 2px 0;font-size:11px;overflow-wrap:anywhere;flex:none}
+.ab-prompts__copy{margin-top:8px;flex:none}

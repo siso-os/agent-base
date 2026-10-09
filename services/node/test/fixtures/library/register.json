@@ -1,0 +1,263 @@
+{
+ "_what": "fixture: a lab copy of the estate register (subset)",
+ "generated_at": "2026-10-02T23:18:21+0700",
+ "buildings": [
+  {
+   "postcode": "HALO-AGENCY/halo-streaming-project",
+   "path": "SISO_Agency/partners/halo/oracle",
+   "island": "agency",
+   "lifecycle": "active",
+   "built_on": [
+    "laptop"
+   ],
+   "runs": [],
+   "size_kb": 184096,
+   "commits_14d": 355,
+   "seat": "STREAMING",
+   "provenance": "foreign",
+   "description": ""
+  },
+  {
+   "postcode": "HALO-AGENCY/halo",
+   "path": "SISO_Agency/partners/halo",
+   "island": "agency",
+   "lifecycle": "active",
+   "built_on": [
+    "laptop"
+   ],
+   "runs": [],
+   "size_kb": 163104,
+   "commits_14d": 311,
+   "seat": "CRM",
+   "provenance": "foreign",
+   "description": ""
+  },
+  {
+   "postcode": "siso-internal-labs-agents",
+   "path": "SISO_Agency/apps/siso-internal-labs/siso-internal-labs-agents",
+   "island": "agency",
+   "lifecycle": "active",
+   "built_on": [
+    "laptop",
+    "siso-vps",
+    "vps-siso"
+   ],
+   "runs": [
+    {
+     "site": "siso-vps",
+     "at": "/opt/siso-internal-labs-agents"
+    }
+   ],
+   "size_kb": 235732,
+   "commits_14d": 236,
+   "seat": "LABS",
+   "provenance": "ours",
+   "description": "SISO Internal Labs agent space: Project Agent Zero, owners' briefs and handoffs, Shaan's verbatim intent, conversation history"
+  },
+  {
+   "postcode": "great-library-of-siso",
+   "path": "Great_Library_of_SISO",
+   "island": "library",
+   "lifecycle": "active",
+   "built_on": [
+    "laptop"
+   ],
+   "runs": [],
+   "size_kb": 30136,
+   "commits_14d": 1,
+   "seat": "A0",
+   "provenance": "ours",
+   "description": "The Great Library of SISO — a public registry of Works, Releases, Snapshots and Source Inventories. The catalog and on-ramp, not a warehouse."
+  },
+  {
+   "postcode": "siso-estate",
+   "path": "SISO_Agents/siso-estate",
+   "island": "engine",
+   "lifecycle": "active",
+   "built_on": [
+    "laptop",
+    "mini",
+    "vps-siso"
+   ],
+   "runs": [],
+   "size_kb": 44096,
+   "commits_14d": 86,
+   "seat": "ESTATE",
+   "provenance": "ours",
+   "description": "City hall for Shaan's machines: layout plan, live repo inventory, backup to private GitHub"
+  },
+  {
+   "postcode": "rmyndharis/OpenWA",
+   "path": "SISO_Agency/apps/siso-contact/openwa",
+   "island": "agency",
+   "lifecycle": "unscored",
+   "built_on": [
+    "siso-vps",
+    "vps-siso"
+   ],
+   "runs": [
+    {
+     "site": "siso-vps",
+     "at": "/opt/siso-contact/openwa"
+    }
+   ],
+   "size_kb": null,
+   "commits_14d": null,
+   "seat": "A0",
+   "provenance": "foreign",
+   "description": ""
+  },
+  {
+   "postcode": "siso-internal-labs",
+   "path": "SISO_Agency/apps/siso-internal-labs/siso-internal-labs",
+   "island": "agency",
+   "lifecycle": "unscored",
+   "built_on": [
+    "siso-vps",
+    "vps-siso"
+   ],
+   "runs": [
+    {
+     "site": "siso-vps",
+     "at": "/opt/siso-internal-labs"
+    }
+   ],
+   "size_kb": 151718,
+   "commits_14d": null,
+   "seat": "LABS",
+   "provenance": "ours",
+   "description": "🔥🔥🔥 Open-source Jira, Linear, Monday, and ClickUp alternative. Plane is a modern project management platform to manage tasks, sprints, docs, and triage."
+  },
+  {
+   "postcode": "Mobile-coding",
+   "path": "_archive/2026-09-24-github-archived/Mobile-coding",
+   "island": "vault",
+   "lifecycle": "archived",
+   "built_on": [],
+   "runs": [],
+   "size_kb": 0,
+   "commits_14d": null,
+   "seat": "ESTATE",
+   "provenance": "ours",
+   "description": ""
+  },
+  {
+   "postcode": "claude-ai-factory",
+   "path": "_archive/2026-09-24-github-archived/claude-ai-factory",
+   "island": "vault",
+   "lifecycle": "archived",
+   "built_on": [],
+   "runs": [],
+   "size_kb": 529,
+   "commits_14d": null,
+   "seat": "ESTATE",
+   "provenance": "ours",
+   "description": ""
+  },
+  {
+   "postcode": "MiroFish",
+   "path": "_reference/MiroFish",
+   "island": "foreign",
+   "lifecycle": "unscored",
+   "built_on": [
+    "laptop"
+   ],
+   "runs": [],
+   "size_kb": 17348,
+   "commits_14d": 0,
+   "seat": "ESTATE",
+   "provenance": "adopted",
+   "description": "A Simple and Universal Swarm Intelligence Engine, Predicting Anything. 简洁通用的群体智能引擎，预测万物"
+  },
+  {
+   "postcode": "block/buzz",
+   "path": "_reference/buzz",
+   "island": "foreign",
+   "lifecycle": "unscored",
+   "built_on": [
+    "siso-vps",
+    "vps-siso"
+   ],
+   "runs": [
+    {
+     "site": "siso-vps",
+     "at": "/opt/siso-buzz/fork"
+    }
+   ],
+   "size_kb": null,
+   "commits_14d": null,
+   "seat": "ESTATE",
+   "provenance": "foreign",
+   "description": ""
+  },
+  {
+   "postcode": "kunchenguid/firstmate",
+   "path": "SISO_Agents/agent-zero/firstmate",
+   "island": "engine",
+   "lifecycle": "warm",
+   "built_on": [
+    "laptop"
+   ],
+   "runs": [],
+   "size_kb": 30588,
+   "commits_14d": 0,
+   "seat": "A0",
+   "provenance": "foreign",
+   "description": ""
+  },
+  {
+   "postcode": "christmasgame",
+   "path": "personal/apps/christmas-games/Christmas Games",
+   "island": "home",
+   "lifecycle": "dark",
+   "built_on": [],
+   "runs": [],
+   "size_kb": 37,
+   "commits_14d": null,
+   "seat": "Shaan",
+   "provenance": "ours",
+   "description": ""
+  },
+  {
+   "postcode": "polymarket-research",
+   "path": "SISO_Agency/apps/Polymarket-Research",
+   "island": "agency",
+   "lifecycle": "dark",
+   "built_on": [],
+   "runs": [],
+   "size_kb": 287,
+   "commits_14d": null,
+   "seat": "A0",
+   "provenance": "ours",
+   "description": ""
+  },
+  {
+   "postcode": "codex-remote",
+   "path": "SISO_Agency/apps/codex-remote",
+   "island": "agency",
+   "lifecycle": "dark",
+   "built_on": [],
+   "runs": [],
+   "size_kb": 21,
+   "commits_14d": null,
+   "seat": "A0",
+   "provenance": "ours",
+   "description": "SISO_Agency/apps/codex-remote (SISO estate house, 2026-09-24)"
+  },
+  {
+   "postcode": "tabler/tabler",
+   "path": "Great_Library_of_SISO/banks/siso-ui-base/vendor/tabler",
+   "island": "library",
+   "lifecycle": "dormant",
+   "built_on": [
+    "laptop"
+   ],
+   "runs": [],
+   "size_kb": 92344,
+   "commits_14d": 0,
+   "seat": "A0",
+   "provenance": "foreign",
+   "description": ""
+  }
+ ]
+}

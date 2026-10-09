@@ -1,0 +1,282 @@
+/* R1.2: his pinned owners under Agent Zero. Two lines in 44 px, then a divider before the projects. */
+.ab-pins { display: flex; flex-direction: column; gap: 2px; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--crm-color-line-subtle); }
+.ab-pin > span { display: block; }
+.ab-pin__row { display: flex; box-sizing: border-box; height: 44px; min-width: 0; align-items: center; gap: 9px; padding: 0 8px 0 9px; border-radius: 9px; color: rgb(var(--crm-white-rgb) / 0.82); cursor: pointer; outline: none; }
+.ab-pin__row:hover { background: rgb(var(--crm-white-rgb) / 0.045); color: var(--crm-color-text-strong); }
+.ab-pin__row:focus-visible { outline: 2px solid rgb(var(--crm-highlight-rgb) / 0.8); outline-offset: -2px; }
+.ab-pin__row.is-active { background: rgb(var(--crm-white-rgb) / 0.085); color: var(--crm-color-text-strong); }
+.ab-pin__face { display: inline-flex; flex: none; }
+.ab-pin__text { display: flex; min-width: 0; flex: 1; flex-direction: column; gap: 1px; }
+.ab-pin__top { display: flex; min-width: 0; align-items: center; gap: 6px; }
+.ab-pin__name { min-width: 0; flex: 0 1 auto; overflow: hidden; font: 500 12.5px var(--crm-font-mono); text-overflow: ellipsis; white-space: nowrap; }
+.ab-pin__doing { overflow: hidden; color: rgb(var(--crm-white-rgb) / 0.48); font-size: 11.5px; text-overflow: ellipsis; white-space: nowrap; }
+.ab-pin__chev { display: grid; width: 20px; height: 20px; flex: none; place-items: center; border-radius: 6px; color: rgb(var(--crm-white-rgb) / 0.42); }
+.ab-pin__chev:hover { color: var(--crm-color-text-strong); background: rgb(var(--crm-white-rgb) / 0.08); }
+.ab-pin__chev svg { width: 13px; height: 13px; stroke-width: 2; }
+.ab-pin__crew { position: relative; display: flex; flex-direction: column; padding: 2px 0 4px 34px; }
+.ab-pin__crew::before { position: absolute; top: 0; bottom: 4px; left: 19px; border-left: 1px solid rgb(var(--crm-white-rgb) / 0.09); content: ""; }
+.ab-pin__crewhead { padding: 2px 6px 4px; color: rgb(var(--crm-white-rgb) / 0.4); font-size: 11px; }
+.ab-pin__worker { display: flex; height: 26px; min-width: 0; align-items: center; gap: 7px; padding: 0 6px; border-radius: 7px; color: rgb(var(--crm-white-rgb) / 0.75); font-size: 12px; text-align: left; }
+.ab-pin__worker:hover { background: rgb(var(--crm-white-rgb) / 0.045); color: var(--crm-color-text-strong); }
+.ab-pin__wname { flex: none; max-width: 48%; overflow: hidden; font: 500 11.5px var(--crm-font-mono); text-overflow: ellipsis; white-space: nowrap; }
+.ab-pin__wdoing { min-width: 0; flex: 1; overflow: hidden; color: rgb(var(--crm-white-rgb) / 0.42); font-size: 11.5px; text-overflow: ellipsis; white-space: nowrap; }
+.ab-pin__more { padding: 4px 6px; color: rgb(var(--crm-brand-rgb) / 0.9); font-size: 11.5px; text-align: left; }
+/* Below 640 px the nav never shares the width with a chat (HUB-DESIGN 21:22): open, it covers the frame full width over
+   the chat (which keeps its full-width layout underneath); picking an agent closes it (App.tsx). */
+@media (max-width: 639px) {
+  .siso-app__frame { position: relative; }
+  .siso-app__frame > .siso-sidenav { position: absolute; z-index: 40; inset: 0; width: auto !important; min-width: 0; background: var(--crm-color-surface); }
+}
+
+/* Sidenav D1-D6 (A0 spec 2 Oct 21:30). */
+.ab-pin__row.is-needs { box-shadow: inset 2px 0 0 #f0b03f; }
+.ab-pin__line2 { display: flex; min-width: 0; align-items: center; gap: 6px; }
+.ab-pin__line2 .ab-pin__doing { min-width: 0; flex: 1 1 auto; }
+.ab-pin__name { flex: 1 1 auto; }
+.ab-pin__chev.is-none { pointer-events: none; }
+.ab-pin__row { padding-left: 2px; gap: 7px; }
+.ab-pin__stack > .ab-ring { width: 13px; height: 13px; }
+.ab-pin__stack > .ab-ring > span { transform: scale(0.8125); transform-origin: 0 0; }
+.ab-zero__sep { margin: 0 5px; }
+.ab-pin__stack { display: inline-flex; flex: none; align-items: center; }
+.ab-pin__stack > .ab-ring + .ab-ring { margin-left: -4px; }
+.ab-pin__stackmore { margin-left: 3px; color: rgb(var(--crm-white-rgb) / 0.42); font: 500 10px var(--crm-font-mono); }
+.ab-pin__worker { height: 28px; }
+.ab-pin__worker .siso-slot { margin-left: auto; }
+.ab-pin__chev { width: 18px; height: 18px; }
+/* The face's ring says its state: working turns, needs you glows amber, done green, quiet dashed blue, failed red. */
+.ab-ring { position: relative; display: inline-flex; flex: none; border-radius: 50%; }
+.ab-ring::after { position: absolute; inset: -2px; border: 1.5px solid transparent; border-radius: 50%; content: ""; pointer-events: none; }
+.ab-ring.is-tiny::after { inset: -1.5px; border-width: 1px; }
+.ab-ring.is-working::after { border-color: rgb(56 189 248 / 0.2); border-top-color: #38bdf8; border-right-color: #38bdf8; animation: ab-ring-turn 1.6s linear infinite; }
+.ab-ring.is-needs::after { border-color: #f0b03f; box-shadow: 0 0 8px rgb(240 176 63 / 0.55); }
+.ab-ring.is-done::after { border-color: #34c38f; }
+.ab-ring.is-quiet::after { border: 1.5px dashed rgb(56 189 248 / 0.7); }
+.ab-ring.is-failed::after { border-color: #ef5b4c; }
+.ab-ring.is-offline { opacity: 0.45; }
+.ab-ring.is-offline::after { border: 1.5px dashed rgb(var(--crm-white-rgb) / 0.3); }
+.ab-pin__stack .ab-ring { background: var(--crm-color-canvas, #0b0b0c); }
+@keyframes ab-ring-turn { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .ab-ring.is-working::after { animation: none; } }
+/* Agent Zero: a raised card; line 2 is attention ("2 need you" · "7 new"), not what it is doing. */
+.ab-zero__row { display: flex; box-sizing: border-box; min-height: 48px; min-width: 0; align-items: center; gap: 10px; margin: 2px 0; padding: 6px 8px 6px 9px; border: 1px solid var(--crm-color-line-subtle); border-radius: 12px; background: linear-gradient(180deg, rgb(255 255 255 / 0.055), rgb(255 255 255 / 0.03)); color: rgb(var(--crm-white-rgb) / 0.85); cursor: pointer; outline: none; }
+.ab-zero__row:hover, .ab-zero__row.is-active { background: linear-gradient(180deg, rgb(255 255 255 / 0.08), rgb(255 255 255 / 0.045)); color: var(--crm-color-text-strong); }
+.ab-zero__row:focus-visible { outline: 2px solid rgb(var(--crm-highlight-rgb) / 0.8); outline-offset: -2px; }
+.ab-zero__name { font: 600 13.5px var(--crm-font-sans); }
+.ab-zero__line { display: flex; min-width: 0; align-items: center; gap: 0; color: rgb(var(--crm-white-rgb) / 0.45); font-size: 11.5px; white-space: nowrap; }
+.ab-zero__needs { color: #f0b03f; font-weight: 700; }
+.ab-zero__new { color: rgb(var(--crm-white-rgb) / 0.6); }
+.ab-zero__needs:hover, .ab-zero__new:hover { text-decoration: underline; }
+.siso-thread__glyph { display: inline-flex; flex: none; align-items: center; margin-left: -4px; color: rgb(var(--crm-white-rgb) / 0.32); }
+/* The name comes first and takes the width (at least 10 characters); the slot sits at the right edge. */
+.siso-thread > .siso-slot { margin-left: auto; }
+.siso-thread__name:has(+ .siso-thread__glyph), .siso-thread:has(> .siso-slot) .siso-thread__name { flex: 0 1 auto; min-width: min(10ch, 40%); }
+.siso-thread__glyph svg { width: 11px; height: 11px; }
+/* D5: the closed nav's face dock in the rail. */
+.ab-dock { display: flex; flex-direction: column; align-items: center; gap: 8px; margin-top: 6px; padding-top: 10px; border-top: 1px solid var(--crm-color-line-subtle); }
+.ab-dock .ab-hover-trigger.is-row { display: flex; justify-content: center; }
+.ab-dock__face { position: relative; display: grid; padding: 3px; place-items: center; border-radius: 50%; }
+.ab-dock__face:hover, .ab-dock__face.is-active { background: rgb(var(--crm-white-rgb) / 0.08); }
+.ab-dock__face--blocked { width: 44px; gap: 3px; padding: 5px 1px; border-radius: 7px; color: var(--color-muted-foreground); }
+.ab-dock__face--blocked span { max-width: 44px; font-size: 8px; line-height: 1.15; text-align: center; overflow-wrap: anywhere; }
+.ab-pin-shortcut { display: flex; width: calc(100% - 12px); min-width: 0; align-items: center; gap: 8px; margin: 1px 6px; padding: 7px 8px; border-radius: 6px; text-align: left; font-size: 12px; }
+.ab-pin-shortcut:hover { background: rgb(var(--crm-white-rgb) / 0.06); }
+.ab-pin-shortcut > span { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.ab-pin-shortcut > small { flex: none; color: var(--color-muted-foreground); font-size: 10px; }
+.ab-pin-shortcut--manage { color: var(--color-muted-foreground); font-size: 11px; }
+.ab-dock__dot { position: absolute; top: 1px; right: 1px; width: 8px; height: 8px; border: 2px solid var(--crm-color-canvas, #0b0b0c); border-radius: 50%; background: #f0b03f; }
+.ab-dock__trio { display: flex; flex-direction: column; gap: 3px; padding: 6px 0 2px; }
+.ab-dock__infra { width: 6px; height: 6px; border-radius: 50%; background: rgb(var(--crm-white-rgb) / 0.3); }
+.ab-dock__infra.is-working { background: #38bdf8; }
+.ab-dock__infra.is-needs { background: #f0b03f; }
+.ab-dock__infra.is-failed { background: #ef5b4c; }
+.ab-dock__infra.is-done { background: #34c38f; }
+.ab-offline { display: flex; height: 28px; min-width: 0; align-items: center; gap: 8px; padding: 0 8px 0 19px; color: rgb(var(--crm-white-rgb) / 0.4); }
+.ab-offline__name { min-width: 0; flex: 1; overflow: hidden; font: 500 12px var(--crm-font-mono); text-overflow: ellipsis; white-space: nowrap; }
+/* t-0189: an offline owner's Start (the app's chat), the projects nav's own Start, shown on hover like a seat's. */
+.ab-offline__start { display: none; flex: none; height: 20px; border-radius: 6px; cursor: pointer; }
+.ab-offline:hover .ab-offline__start, .ab-offline__start:focus-visible { display: inline-grid; place-items: center; }
+.ab-offline__start:disabled { opacity: .6; cursor: default; }
+.ab-offline__err { color: rgb(251 191 36 / 0.85); font-style: normal; font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* At phone width Agent Zero's floating face sits bottom-right: the footer keeps its three dots clear of it (HUB-DESIGN 21:11). */
+@media (max-width: 520px) { .siso-health .siso-infra__entry { padding-right: 62px; } }
+
+/* Polish (A0's PUNCH.md 5 and 10): the crew faces start line 2 at the text column; pins share the card's left edge; one divider. */
+.ab-pin__line2 .ab-pin__stack { order: -1; }
+.ab-pin__line2 .ab-pin__doing { flex: 1; min-width: 0; }
+.ab-pins { margin: 8px 0 8px 8px; padding-bottom: 8px; border-bottom: 1px solid var(--crm-color-line); }
+.ab-pin__row { padding-left: 9px; }
+/* t-0008: under Agent Zero's card, a button per agent he runs and the org chart. */
+.ab-zero-strip { display: flex; min-width: 0; align-items: center; gap: 2px; padding: 6px 8px 0 9px; }
+.ab-zero-strip__face, .ab-zero-strip__org { display: grid; width: 26px; height: 26px; flex: none; place-items: center; border-radius: 7px; }
+.ab-zero-strip__face:hover, .ab-zero-strip__org:hover { background: rgb(var(--crm-white-rgb) / 0.07); }
+.ab-zero-strip__face.is-active { background: rgb(var(--crm-white-rgb) / 0.1); }
+.ab-zero-strip__more { padding: 0 4px; color: var(--crm-color-text-faint); font: 500 10.5px var(--crm-font-mono); }
+.ab-zero-strip__org { margin-left: auto; color: rgb(var(--crm-white-rgb) / 0.55); }
+.ab-zero-strip__org:hover { color: var(--crm-color-text-strong); }
+.ab-zero-strip__org svg { width: 15px; height: 15px; stroke-width: var(--crm-icon-stroke); }
+.ab-zero-strip .ab-hover-trigger { display: inline-flex; }
+
+/* QA #12 (A0, 3 Oct): the node or herdr is not answering: the rows' live states are as of the last read, so grey. */
+[data-stale] .ab-ring { filter: grayscale(1); opacity: 0.55; }
+[data-stale] .siso-slot { filter: grayscale(1); opacity: 0.55; }
+[data-stale] .siso-slot__spin { animation: none; }
+.siso-side__note { margin: 4px 12px 8px; color: var(--crm-color-text-muted, #8a8a8a); font-size: 11px; }
+
+/* Side nav v2: reuse the composer rim without changing its engine or glow. */
+.ab-zero__rim.siso-rim { margin: 2px 0; padding: 0; border-radius: 14px; }
+.ab-zero__rim .ab-zero__row { min-height: 64px; margin: 0; border: 0; border-radius: inherit; background: transparent; }
+.ab-zero__rim .ab-zero__row:hover, .ab-zero__rim .ab-zero__row.is-active { background: rgb(var(--crm-white-rgb) / 0.035); }
+.ab-zero__name { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.siso-headstack__space { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.siso-headstack__dash { display: grid; width: 32px; height: 32px; flex: none; place-items: center; border-radius: 8px; color: var(--crm-color-text-muted); }
+.siso-headstack__dash:hover, .siso-headstack__dash:focus-visible { color: var(--crm-color-text-strong); background: rgb(var(--crm-white-rgb) / 0.06); }
+@media (max-width: 639px) { .siso-headstack__dash { width: 44px; height: 44px; } }
+
+.ab-project-pins { padding: 8px 0; margin-bottom: 8px; border-top: 1px solid var(--crm-color-line-subtle); border-bottom: 1px solid var(--crm-color-line-subtle); }
+.ab-project-pins .siso-seatrow__acts { display: flex; }
+.ab-new-owner { display: flex; min-width: 0; align-items: center; gap: 6px; padding: 5px 8px; }
+.ab-new-owner input { min-width: 0; width: 100%; flex: 1; padding: 4px 6px; border: 1px solid var(--crm-color-line-subtle); border-radius: 6px; background: transparent; color: var(--crm-color-text); font-size: 12px; }
+.ab-new-owner__add { display: flex; align-items: center; gap: 6px; padding: 7px 8px; color: var(--crm-color-text-faint); font-size: 11.5px; }
+.ab-new-owner__add:hover, .ab-new-owner__add:focus-visible { color: var(--crm-color-text); }
+
+/* Side nav v2: titles own the remaining width; right-hand words never paint across them. */
+.siso-sidenav .siso-crow__main { display: flex; }
+.siso-sidenav .siso-crow__tile, .siso-sidenav .siso-crow__pin { flex: none; }
+.siso-sidenav .siso-crow__name, .siso-sidenav .siso-thread .siso-thread__name { min-width: 0; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.siso-sidenav .siso-crow__word, .siso-sidenav .siso-project__note, .siso-sidenav .siso-thread > .siso-slot { flex: none; max-width: 40%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.siso-sidenav .siso-seatrow__word { max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.siso-project__items [data-testid="offline-row"] .siso-seatrow__acts { display: flex; }
+
+/* Rendered critique pass: empty seats have no menu; retain their full name in the tooltip. */
+.siso-project__items [data-testid="offline-row"] .siso-seatrow__name { display: block; }
+.siso-sidenav .ab-project-pins .siso-project__row .siso-project__chev { order: -1; opacity: 0.55; }
+@media (max-width: 639px) {
+  .siso-project__items [data-testid="offline-row"] .siso-seatrow__main, .siso-project__items .siso-start, .ab-new-owner__add { min-height: 44px; }
+  .siso-project__items [data-testid="offline-row"] + [data-testid="offline-row"] { margin-top: 3px; }
+  .siso-nav-footer .siso-infra__entry { padding-right: 8px; font-size: 12px; }
+}
+
+.siso-seatrow__error { margin: 0; padding: 2px 8px 6px; font-size: 11px; }
+
+.siso-infra__dots i.ab-ring { width: 7px; height: 7px; background: rgb(var(--crm-white-rgb) / 0.3); }
+.siso-infra__dots i.ab-ring.is-working { background: #38bdf8; animation: none; }
+.siso-infra__pop .siso-infra__ledger { grid-column: 2 / -1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted-foreground); font-size: 11px; }
+
+.siso-infra__pop { right: auto; width: min(620px, calc(100vw - 90px)); }
+
+/* The fixed seat's identity keeps its space beside v2's face and dated-chat switch. */
+.ab-zero__row > .siso-slot { min-width: 0; }
+
+/* Main names stay on one line (Shaan, 5 Oct 05:40: "OPERATOR-DESIGN ... the name goes onto two lines"): the name takes
+   the room first, the fold arrow and time stay compact, and only a truly narrow rail cuts the end. */
+.siso-sidenav .ab-main-agent .siso-thread__name,
+.siso-sidenav .ab-main-agent.siso-thread .siso-thread__name {
+  flex: 0 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: 0; padding-left: 3px;
+}
+.siso-sidenav .ab-main-agent .siso-thread__fold, .siso-sidenav .ab-main-agent .siso-thread__time, .siso-sidenav .ab-main-agent .siso-slot { flex: none; }
+.siso-sidenav [data-testid="inactive-clients"] > summary { cursor: pointer; padding: 6px 10px; color: var(--color-muted-foreground); font-size: 12px; }
+
+.siso-toptab[data-tab^="zero:"]:has([data-zero-tool="codex"]) { color: #a78bfa; }
+
+.siso-sidenav .ab-crew-earlier > summary { cursor: pointer; padding: 5px 10px; color: var(--color-muted-foreground); font-size: 12px; list-style: none; }
+.siso-sidenav .ab-crew-earlier > summary::before { content: "› "; }
+.siso-sidenav .ab-crew-earlier[open] > summary::before { content: "⌄ "; }
+/* The crew inside a pinned card's line 2: working faces, then a quiet "+N" (5 Oct). */
+.ab-card-crew { display: inline-flex; min-width: 0; align-items: center; gap: 1px; margin-left: -3px; }
+.ab-card-crew__face { display: grid; width: 22px; height: 22px; flex: none; place-items: center; border-radius: 6px; }
+.ab-card-crew__face:hover { background: rgb(var(--crm-white-rgb) / 0.1); }
+.ab-card-crew__quiet { padding: 0 4px; color: rgb(var(--crm-white-rgb) / 0.5); font: 500 11px var(--crm-font-mono); white-space: nowrap; }
+button.ab-card-crew__quiet:hover { color: var(--crm-color-text-strong); }
+.ab-zero__needs + .ab-card-crew { margin-left: 6px; }
+
+/* Agent Zero's connector branches into registry workspaces. */
+/* Curved (Shaan, 6 Oct 21:10: "the lines can be redesigned to be curved"), to the approved spec in MOTION-BANK-BRIEFS.md
+   (WorkspaceArrival): one continuous trunk with rounded elbows into each workspace's logo centre. Each workspace draws
+   its own elbow (::before) and, unless it is the last, the trunk on past it (::after), so the line ends at the last curve. */
+/* t-0563 v4: the tree's lines are one SVG layer (TreeLines in Sidebar.tsx), drawn from the anchors; no per-row connectors. */
+.ab-tree { position: relative; }
+.ab-tree__lines { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; z-index: 0; }
+.ab-tree > :not(.ab-tree__lines) { position: relative; z-index: 1; }
+.ab-workspaces { position: relative; margin: 0 8px 8px 40px; padding: 2px 0 0; }
+.ab-workspace { position: relative; margin-bottom: 2px; }
+.ab-workspace-panel.siso-rim { margin: 6px 8px 14px; padding: 4px; border-radius: 14px; }
+.ab-workspace-panel .ab-zero__row { margin: 0; border: 0; background: transparent; }
+.ab-workspace__card { display: flex; align-items: center; gap: 5px; padding: 3px 6px 3px 0; min-height: 34px; border-radius: 7px; }
+.ab-workspace__card:hover { background: rgb(var(--crm-white-rgb) / 0.035); }
+.ab-workspace__card button { display: flex; align-items: center; color: var(--crm-color-text-muted); }
+.ab-workspace__name { flex: 1; gap: 9px; font-size: 14px; font-weight: 500; color: #d9d3cb; text-align: left; white-space: nowrap; }
+.ab-workspace__logo { display: grid; place-items: center; width: 22px; height: 22px; flex: none; color: var(--workspace-color); }
+.ab-workspace__logo .wm, .ab-workspace__logo svg { width: 22px; height: 22px; }
+.ab-workspace__logo img { width: 100%; height: 100%; object-fit: contain; }
+/* No state words (v3): a small green number counts who is working, the project's sub-projects included. */
+.ab-workspace__working { min-width: 20px; justify-content: center; padding: 1px 7px; border-radius: 9px; background: #3ecf8e1f; font-size: 11px; font-weight: 600; white-space: nowrap; }
+.ab-workspace__card .ab-workspace__working { color: #3ecf8e; }
+.ab-workspace__kids { margin-left: 28px; }
+.ab-workspace__owner { display: flex; align-items: center; width: 100%; gap: 9px; padding: 5px 3px 5px 0; text-align: left; border-radius: 6px; }
+.ab-workspace__owner .ab-ring { width: 20px; height: 20px; }
+.ab-workspace__owner b { flex: 1; font-size: 12.5px; font-weight: 600; letter-spacing: .015em; color: #e6e0d8; overflow-wrap: anywhere; }
+.ab-workspace__owner.is-child { padding-left: 20px; }
+.ab-workspace__owner:hover, .ab-workspace__owner.is-active { background: color-mix(in srgb,var(--workspace-color) 10%,transparent); }
+.ab-zero-tab { flex: none; display: flex; align-items: center; gap: 7px; padding: 8px 14px; font-size: 12px; }
+.ab-zero-pill { flex: none; display: flex; align-items: center; }
+.ab-zero-pill > .ab-zero-tab { padding-right: 4px; border-radius: 8px; }
+.ab-zero-pill > .ab-zero-tab:hover, .ab-zero-pill .ab-zero-tab--menu:hover { background: rgb(var(--crm-white-rgb) / 0.06); }
+.ab-zero-pill .ab-zero-tab--menu { padding: 8px 6px; border-radius: 8px; }
+/* The Agents dropdown's sub-agent rows (6 Oct 21:15): one line under their parent, quieter than an agent row. */
+.ab-nav-sub { display: flex; align-items: center; gap: 6px; width: 100%; padding: 3px 8px 3px 14px; border-radius: 6px; text-align: left; font-size: 11.5px; color: rgb(var(--crm-white-rgb) / 0.7); }
+.ab-nav-sub:hover { background: rgb(var(--crm-white-rgb) / 0.05); }
+.ab-nav-sub__br { color: rgb(var(--crm-white-rgb) / 0.3); font-size: 11px; }
+.ab-nav-sub > span:not(.ab-nav-sub__br) { flex: none; font-weight: 500; }
+.ab-nav-sub small { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: rgb(var(--crm-white-rgb) / 0.45); font-size: 10.5px; }
+.ab-nav-idle > summary { padding: 6px 8px; font-size: 11px; color: rgb(var(--crm-white-rgb) / 0.45); cursor: pointer; list-style: none; }
+.ab-nav-idle > summary::before { content: "▸ "; }
+.ab-nav-idle[open] > summary::before { content: "▾ "; }
+/* The tree's idle owners on one line per project (6 Oct 22:35: "idle ones should be batched on the same vertical line"). */
+.ab-workspace__idle { display: flex; align-items: center; gap: 8px; padding: 3px 3px 3px 0; font-size: 11.5px; font-weight: 500; letter-spacing: .01em; color: #b9b2a9; }
+.ab-workspace__idle-faces { display: flex; flex: none; }
+/* t-0562: helpers are a +N on the owner's face; a stopped owner is dimmed in the idle stack. */
+.ab-helpers { position: absolute; right: -7px; bottom: -4px; min-width: 14px; height: 12px; padding: 0 3px; border-radius: 6px; font-size: 8.5px; font-weight: 700; line-height: 12px; text-align: center; color: #0e0d0c; background: #b9b2a9; pointer-events: none; }
+.ab-workspace__idle-names .ab-helpers { position: static; display: inline-block; margin-left: 4px; vertical-align: 1px; }
+.ab-workspace__idle-names .ab-machine { margin-left: 3px; vertical-align: -1px; }
+.ab-workspace__idle-names .is-offline { opacity: .5; }
+.ab-workspace__idle-faces > * + * { margin-left: -6px; }
+/* Stacks of three or more go 2 x 2 (v3), every name still written beside them. */
+.ab-workspace__idle-faces.is-grid { display: grid; grid-template-columns: repeat(2, 18px); gap: 2px; }
+.ab-workspace__idle-faces.is-grid > * + * { margin-left: 0; }
+.ab-workspace__idle-names { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.ab-workspace__idle-names button { padding: 0; border: 0; background: none; color: #b9b2a9; font: inherit; font-weight: 500; cursor: pointer; }
+.ab-workspace__idle-names button:hover, .ab-workspace__idle-names button.is-active { color: var(--crm-color-text-strong); text-decoration: underline; text-underline-offset: 2px; }
+/* Agent Infrastructure as three faces (6 Oct 22:35): hover for the details, click for the chat. */
+.siso-infra[data-testid=nav-infra] { display: grid; gap: 2px; padding: 6px 8px 6px 12px; }
+.siso-infra__label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 10.5px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted-foreground); }
+.siso-infra__faces { display: grid; gap: 1px; }
+/* t-0573: a row per role, in the owner rows' style: face, name and dot on the first line, its goal under the name. */
+.siso-infra__faces > * { min-width: 0; }
+.siso-infra__face { display: grid; grid-template-columns: 20px minmax(0, 1fr) auto; column-gap: 9px; align-items: center; width: 100%; padding: 4px 6px 4px 0; border: 0; border-radius: 6px; background: none; text-align: left; cursor: pointer; }
+.siso-infra__face > .ab-ring { grid-row: span 2; width: 20px; height: 20px; }
+.siso-infra__name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12.5px; font-weight: 600; letter-spacing: .015em; color: #e6e0d8; }
+.siso-infra__goal { grid-column: 2 / -1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; line-height: 1.3; color: #9d968d; }
+.siso-infra .siso-infra__dot { width: 7px; height: 7px; border-radius: 50%; background: rgb(var(--crm-white-rgb) / 0.3); }
+.siso-infra .siso-infra__dot.is-working { background: #38bdf8; animation: none; box-shadow: 0 0 6px rgb(56 189 248 / 0.6); }
+.siso-infra .siso-infra__dot.is-needs { background: #f0b03f; }
+.siso-infra .siso-infra__dot.is-idle { background: #34c38f; }
+.siso-infra .siso-infra__dot.is-off, .siso-infra .siso-infra__dot.is-offline { background: none; border: 1px solid rgb(var(--crm-white-rgb) / 0.35); }
+.siso-infra__face:hover:not(:disabled) { background: rgb(var(--crm-white-rgb) / 0.05); }
+.siso-infra__face:disabled { opacity: .5; cursor: default; }
+.ab-brand-mark { display: inline-grid; place-items: center; width: 20px; height: 20px; flex: none; line-height: 0; }
+.ab-brand-mark > * { display: block; margin: auto; }
+
+/* v3: Agent Zero starts the tree: no header slab, a 34 px ring; the chat switcher shows only on hover or focus (kept: it is the
+   only way to start or switch Agent Zero's chats, t-0563). */
+.ab-workspace-panel .ab-zero__row { background: transparent; }
+.ab-workspace-panel .ab-zero__row > .ab-ring { width: 34px; height: 34px; margin-left: 3px; }
+.ab-workspace-panel .ab-zero__switch { opacity: 0; transition: opacity .12s; }
+.ab-workspace-panel .ab-zero__row:hover .ab-zero__switch, .ab-workspace-panel .ab-zero__row:focus-within .ab-zero__switch, .ab-workspace-panel .ab-zero__switch[aria-expanded="true"] { opacity: 1; }
+/* v3: no header slab under Agent Zero, active or not; the ring and the tree say where you are. */
+.ab-workspace-panel .ab-zero__rim.siso-rim { background: none; box-shadow: none; }
+.ab-workspace-panel .ab-zero__rim.siso-rim::before { display: none; }
+.ab-workspace-panel .ab-zero__rim .ab-zero__row, .ab-workspace-panel .ab-zero__rim .ab-zero__row.is-active { background: transparent; }
+/* Idle names stay one comma-separated line: their owner cards wrap each name inline. */
+.ab-workspace__idle-names .ab-hover-trigger { display: inline; }

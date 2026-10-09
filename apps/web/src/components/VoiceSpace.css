@@ -1,0 +1,213 @@
+/* Voice v2 (ui-hub/voice/v2/SPEC.md): Agent Base's warm dark grey and halo-rim cards, like WhatsApp v2 and the browser.
+   His purple waves are Voice's own colour (violet → pink, the native bar's ink); amber stays the action colour. */
+.vx-space {
+  --vx-brand: var(--crm-brand-rgb, 255 167 38);
+  --vx-violet: 167 128 255;
+  --vx-pink: 245 107 219;
+  --vx-white: var(--crm-white-rgb, 255 255 255);
+  --vx-raised: var(--crm-color-surface-raised, #20201e);
+  --vx-line: rgb(var(--vx-white) / .08);
+  --vx-text: var(--crm-color-text, #ecece8);
+  --vx-strong: var(--crm-color-text-strong, #f5f4ef);
+  --vx-muted: var(--crm-color-text-muted, #9e9e98);
+  --vx-faint: var(--crm-color-text-faint, rgb(255 255 255 / .48));
+  --vx-danger: var(--crm-danger-rgb, 255 128 147);
+  /* The calendar, the switches and the stats' accents take Voice's violet. */
+  --color-working: rgb(var(--vx-violet));
+  display: flex; flex: 1; min-width: 0; min-height: 0; height: 100%;
+  color: var(--vx-text); font-family: var(--crm-font-sans, "Inter Variable", Inter, system-ui, sans-serif); -webkit-font-smoothing: antialiased;
+  background: radial-gradient(ellipse 55% 38% at 64% -8%, rgb(var(--vx-violet) / .08), transparent 70%);
+}
+/* In Tailwind's base layer (9 Oct): unlayered, this reset beat every layered utility, so the package's buttons (Stats'
+   Month/Quarter/All, History's and Dictionary's controls) lost their padding and fills. */
+@layer base {
+  :where(.vx-space) button { font: inherit; color: inherit; background: none; border: 0; padding: 0; }
+  :where(.vx-space) button:not(:disabled) { cursor: pointer; }
+  :where(.vx-space) button:focus-visible { outline: 2px solid rgb(var(--vx-brand) / .7); outline-offset: 1px; }
+}
+.vx-space kbd { font: 600 10.5px/1 var(--crm-font-sans, inherit); padding: 3px 6px; border-radius: 6px; border: 1px solid var(--vx-line); background: rgb(var(--vx-white) / .05); color: var(--vx-text); }
+.vx-space .vx-faint { padding: 4px 8px; font-size: 12px; color: var(--vx-faint); }
+.vx-space .vx-spin { animation: vx-spin 1s linear infinite; }
+@keyframes vx-spin { to { transform: rotate(360deg); } }
+@keyframes vx-pulse { 50% { opacity: .35; } }
+
+/* ── The sidebar: one halo-rim card ── */
+.vx-space .vx-side.siso-rim { --rim-hue: rgb(var(--vx-violet)); flex: none; width: 272px; margin: 8px 0 8px 8px; padding: 14px 10px 0; border-radius: var(--crm-radius-card, 18px);
+  display: flex; flex-direction: column; min-height: 0; overflow: hidden; background: linear-gradient(rgb(var(--vx-violet) / .05), rgb(var(--vx-violet) / .012)), rgb(23 23 21 / .9); }
+.vx-space .vx-side > * { position: relative; z-index: 1; }
+/* The day numbers stay the size he knows (they inherited it through the old button reset); days with nothing stay faded. */
+.vx-space .vx-side [role="gridcell"] { font-size: 16px; }
+.vx-space .vx-brand { display: flex; align-items: center; gap: 8px; height: 28px; padding: 0 4px 0 2px; margin-bottom: 12px; }
+.vx-space .vx-brand h1 { margin: 0; font-size: 14px; font-weight: 650; letter-spacing: -.01em; color: var(--vx-strong); }
+.vx-space .vx-pill { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; font-size: 10.5px; font-weight: 550; color: var(--vx-faint); white-space: nowrap; }
+.vx-space .vx-dot { width: 6px; height: 6px; border-radius: 50%; background: rgb(var(--vx-white) / .3); }
+.vx-space .vx-pill.is-ready .vx-dot { background: rgb(52 211 153); box-shadow: 0 0 8px rgb(52 211 153 / .7); }
+.vx-space .vx-pill.is-listening .vx-dot, .vx-space .vx-pill.is-writing .vx-dot { background: rgb(var(--vx-pink)); box-shadow: 0 0 8px rgb(var(--vx-pink) / .8); animation: vx-pulse 1.1s ease-in-out infinite; }
+.vx-space .vx-pill.is-waiting .vx-dot, .vx-space .vx-pill.is-elsewhere .vx-dot, .vx-space .vx-pill.tone-warn .vx-dot { background: rgb(var(--vx-brand)); }
+/* A problem is red and still. */
+.vx-space .vx-pill.tone-bad { color: rgb(var(--vx-danger)); }
+.vx-space .vx-pill.tone-bad .vx-dot { background: rgb(var(--vx-danger)); box-shadow: 0 0 8px rgb(var(--vx-danger) / .6); animation: none; }
+.vx-space .vx-nav { display: flex; flex-direction: column; gap: 1px; }
+.vx-space .vx-nav-row { display: flex; align-items: center; gap: 10px; width: 100%; height: 34px; padding: 0 10px; border-radius: var(--crm-radius-control, 11px); text-align: left; font-size: 12.5px; font-weight: 520; color: var(--vx-muted); transition: background .12s, color .12s, box-shadow .16s; }
+.vx-space .vx-nav-row:hover { background: var(--vx-raised); color: var(--vx-strong); }
+.vx-space .vx-nav-row > span { flex: 1; min-width: 0; }
+.vx-space .vx-nav-row > b { font: 500 10.5px/1 var(--crm-font-mono, ui-monospace, monospace); color: var(--vx-faint); }
+.vx-space .vx-nav-row[aria-current="page"] { color: var(--vx-strong); background: linear-gradient(90deg, rgb(var(--vx-brand) / .16), rgb(var(--vx-brand) / .07)); box-shadow: inset 0 0 0 1px rgb(var(--vx-brand) / .42), 0 0 20px -8px rgb(var(--vx-brand) / .75); }
+.vx-space .vx-nav-row[aria-current="page"] > svg { color: rgb(var(--vx-brand)); }
+.vx-space .vx-section-label { display: flex; align-items: center; gap: 6px; margin: 16px 0 4px; padding: 0 8px; font-size: 10px; font-weight: 650; letter-spacing: .08em; text-transform: uppercase; color: var(--vx-faint); }
+.vx-space .vx-section-label > b { margin-left: auto; font: 500 10px/1 var(--crm-font-mono, ui-monospace, monospace); letter-spacing: 0; text-transform: none; }
+.vx-space .vx-section-label.is-page { margin: 0 0 8px; padding: 0 2px; }
+.vx-space .vx-cal { flex: 1; min-height: 0; overflow-y: auto; padding: 0 2px 10px; }
+.vx-space .vx-foot { flex: none; display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 0 -10px; padding: 9px 14px 11px; border-top: 1px solid var(--vx-line); font-size: 10.5px; color: var(--vx-faint); white-space: nowrap; }
+.vx-space .vx-health { display: inline-flex; align-items: center; gap: 5px; }
+.vx-space .vx-health button { display: grid; place-items: center; width: 18px; height: 18px; border-radius: 6px; color: rgb(var(--vx-danger)); }
+.vx-space .vx-health[data-health="down"], .vx-space .vx-health[data-health="offline"] { color: rgb(var(--vx-danger)); }
+
+/* ── The page ── */
+.vx-space .vx-main { flex: 1; min-width: 0; min-height: 0; overflow-y: auto; }
+.vx-space .vx-page { max-width: 1040px; margin: 0 auto; padding: 22px 28px 40px; display: flex; flex-direction: column; gap: 16px; }
+.vx-space .vx-head h1 { margin: 0; font-size: 20px; font-weight: 650; letter-spacing: -.02em; color: var(--vx-strong); }
+.vx-space .vx-head p { margin: 4px 0 0; font-size: 12.5px; color: var(--vx-muted); }
+
+/* Home: the hero shows the bar itself, then what it is for, then three numbers. */
+.vx-space .vx-home { display: flex; flex-direction: column; gap: 22px; }
+.vx-space .vx-hero.siso-rim { --rim-hue: rgb(var(--vx-violet)); border-radius: 22px; padding: 0; overflow: hidden; display: grid; grid-template-columns: minmax(0, 1fr); background: rgb(23 23 21 / .92); }
+.vx-space .vx-hero > * { position: relative; z-index: 1; }
+.vx-space .vx-hero-stage { display: flex; align-items: center; justify-content: center; gap: 56px; height: 170px; border-bottom: 1px solid var(--vx-line);
+  background: radial-gradient(ellipse 45% 70% at 50% 50%, rgb(var(--vx-violet) / .16), transparent 70%), linear-gradient(180deg, rgb(48 50 62 / .55), rgb(28 28 30 / .2)); }
+.vx-space .vx-hero-stage figure { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.vx-space .vx-hero-stage figcaption { font-size: 10.5px; color: var(--vx-faint); }
+.vx-space .vx-hero-copy { padding: 22px 26px 6px; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+.vx-space .vx-kicker { font-size: 10px; font-weight: 650; letter-spacing: .14em; text-transform: uppercase; color: rgb(var(--vx-violet)); }
+.vx-space .vx-hero.tone-bad .vx-kicker { color: rgb(var(--vx-danger)); }
+.vx-space .vx-hero.tone-warn .vx-kicker { color: rgb(var(--vx-brand)); }
+.vx-space .vx-hero p.vx-help { color: var(--vx-text); }
+.vx-space .vx-hero h2 { margin: 0; font-size: 24px; font-weight: 600; letter-spacing: -.03em; line-height: 1.2; color: var(--vx-strong); max-width: 640px; }
+.vx-space .vx-hero p { margin: 0; max-width: 620px; font-size: 13px; line-height: 1.6; color: var(--vx-muted); }
+.vx-space .vx-primary { margin-top: 8px; height: 36px; padding: 0 16px; border-radius: 999px; font-size: 12.5px; font-weight: 650; color: var(--crm-color-on-brand, #1a1209); background: rgb(var(--vx-brand)); box-shadow: 0 0 22px -6px rgb(var(--vx-brand) / .8); }
+.vx-space .vx-primary:disabled { opacity: .5; }
+.vx-space .vx-note { margin: 4px 0 0; font-size: 12px; color: rgb(52 211 153); }
+.vx-space .vx-note.is-bad { color: rgb(var(--vx-danger)); }
+.vx-space .vx-pill.is-trouble { color: rgb(var(--vx-danger)); }
+.vx-space .vx-pill.is-trouble .vx-dot { background: rgb(var(--vx-danger)); box-shadow: 0 0 8px rgb(var(--vx-danger) / .7); }
+.vx-space .vx-check { display: flex; align-items: center; gap: 8px; margin: 2px 0 0; font-size: 12px; color: var(--vx-faint); }
+.vx-space .vx-check .vx-dot { flex: none; width: 6px; height: 6px; border-radius: 50%; background: rgb(52 211 153); box-shadow: 0 0 8px rgb(52 211 153 / .6); }
+.vx-space .vx-check.is-warn { color: rgb(var(--vx-brand)); }
+.vx-space .vx-check.is-warn .vx-dot { background: rgb(var(--vx-brand)); box-shadow: none; }
+.vx-space .vx-check.is-bad { color: rgb(var(--vx-danger)); }
+.vx-space .vx-check.is-bad .vx-dot { background: rgb(var(--vx-danger)); box-shadow: 0 0 8px rgb(var(--vx-danger) / .7); }
+.vx-space .vx-numbers { margin: 0; padding: 14px 26px 20px; display: flex; gap: 36px; }
+.vx-space .vx-numbers dt { font-size: 10px; font-weight: 650; letter-spacing: .1em; text-transform: uppercase; color: var(--vx-faint); }
+.vx-space .vx-numbers dd { margin: 4px 0 0; font-size: 22px; font-weight: 650; letter-spacing: -.02em; font-variant-numeric: tabular-nums; color: var(--vx-strong); }
+.vx-space .vx-numbers small { font-size: 11.5px; font-weight: 500; letter-spacing: 0; color: var(--vx-faint); }
+
+/* The bar, drawn as the native one draws itself (apps/desktop/native_dictation.swift, BarView). */
+.vx-space .vx-bar { display: flex; align-items: center; gap: 10px; height: 40px; padding: 0 6px 0 13px; border-radius: 999px; background: rgb(23 23 21 / .96); border: 1px solid rgb(var(--vx-white) / .11);
+  box-shadow: 0 14px 40px -12px rgb(0 0 0 / .8), inset 0 1px 0 rgb(var(--vx-white) / .06); }
+.vx-space .vx-bar.is-listening, .vx-space .vx-bar.is-writing { width: 312px; background: linear-gradient(90deg, rgb(var(--vx-violet) / .18), rgb(var(--vx-violet) / .03) 60%), rgb(23 23 21 / .96); }
+.vx-space .vx-bar-dot { width: 8px; height: 8px; border-radius: 50%; flex: none; background: rgb(var(--vx-violet)); box-shadow: 0 0 0 4px rgb(var(--vx-violet) / .14); }
+.vx-space .vx-bar.is-listening .vx-bar-dot, .vx-space .vx-bar.is-writing .vx-bar-dot { background: rgb(var(--vx-pink)); box-shadow: 0 0 0 5px rgb(var(--vx-pink) / .18); animation: vx-pulse 1.1s ease-in-out infinite; }
+.vx-space .vx-bar-wave { flex: 1; display: flex; align-items: center; gap: 3px; height: 26px; min-width: 52px; }
+.vx-space .vx-bar-wave > span { width: 2px; height: 2px; border-radius: 2px; flex: none;
+  background: color-mix(in srgb, rgb(var(--vx-violet)) calc(100% - var(--t) * 100%), rgb(var(--vx-pink))); opacity: .55; box-shadow: 0 0 6px rgb(var(--vx-violet) / .5); }
+.vx-space .vx-bar.is-idle .vx-bar-wave { flex: none; width: 64px; gap: 3px; }
+.vx-space .vx-bar.is-idle .vx-bar-wave > span { opacity: .6; }
+.vx-space .vx-bar.is-listening .vx-bar-wave > span, .vx-space .vx-bar.is-writing .vx-bar-wave > span { opacity: calc(.4 + var(--t) * .6); }
+/* Only the real live bar moves, on transform (a layout-free scale of a 22 px stroke); the still sample never does. */
+.vx-space .vx-bar:not(.is-sample):is(.is-listening, .is-writing) .vx-bar-wave > span { height: 22px; transform: scaleY(.14); animation: vx-wave 1.1s ease-in-out infinite; animation-delay: calc(var(--i) * -63ms); }
+.vx-space .vx-bar.is-writing:not(.is-sample) .vx-bar-wave > span { animation-duration: .9s; }
+.vx-space .vx-bar.is-sample .vx-bar-dot { animation: none; }
+@keyframes vx-wave { 0%, 100% { transform: scaleY(.14); } 50% { transform: scaleY(calc(.3 + .7 * var(--t))); } }
+/* Off (the engine down, waiting on access, a failed take): the bar dimmed and still, its dot the state's colour. */
+.vx-space .vx-bar.is-off { opacity: .6; }
+.vx-space .vx-bar.is-off .vx-bar-dot { background: rgb(var(--vx-danger)); box-shadow: none; }
+.vx-space .tone-warn .vx-bar.is-off .vx-bar-dot { background: rgb(var(--vx-brand)); }
+.vx-space .vx-bar em { font: 500 11px/1 var(--crm-font-mono, ui-monospace, monospace); font-style: normal; color: var(--vx-muted); }
+.vx-space .vx-bar em.is-word { font: 550 12px/1 var(--crm-font-sans, inherit); color: var(--vx-text); padding-right: 12px; }
+.vx-space .vx-bar kbd { margin-right: 3px; }
+.vx-space .vx-bar-x, .vx-space .vx-bar-stop { width: 26px; height: 26px; border-radius: 50%; flex: none; display: grid; place-items: center; }
+.vx-space .vx-bar-x { background: rgb(var(--vx-white) / .07); position: relative; }
+.vx-space .vx-bar-x::before, .vx-space .vx-bar-x::after { content: ""; position: absolute; width: 10px; height: 1.6px; border-radius: 2px; background: var(--vx-muted); transform: rotate(45deg); }
+.vx-space .vx-bar-x::after { transform: rotate(-45deg); }
+.vx-space .vx-bar-stop { background: rgb(var(--vx-brand)); color: var(--crm-color-on-brand, #1a1209); }
+@media (prefers-reduced-motion: reduce) { .vx-space .vx-bar-wave > span, .vx-space .vx-bar-dot { animation: none !important; } .vx-space .vx-bar:not(.is-sample):is(.is-listening, .is-writing) .vx-bar-wave > span { transform: scaleY(calc(.3 + .7 * var(--t))); } }
+
+/* Latest: one compact row each (a dot for how it went, where and when, one line of what he said); a long one opens. */
+.vx-space .vx-section-label.is-page > b { font-family: var(--crm-font-sans, inherit); font-weight: 550; }
+.vx-space .vx-section-label > b.is-warn { color: rgb(var(--vx-brand)); }
+.vx-space .vx-section-label > b.is-bad { color: rgb(var(--vx-danger)); }
+.vx-space .vx-latest ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; border-radius: 16px; border: 1px solid var(--vx-line); background: rgb(var(--vx-white) / .02); overflow: hidden; }
+.vx-space .vx-said { position: relative; display: grid; grid-template-columns: 8px minmax(0, 1fr); column-gap: 12px; padding: 10px 16px; border-top: 1px solid var(--vx-line); transition: background .15s; }
+.vx-space .vx-said:first-child { border-top: 0; }
+.vx-space .vx-said:hover { background: rgb(var(--vx-violet) / .04); }
+.vx-space .vx-said > :not(.vx-said-dot):not(.vx-said-actions) { grid-column: 2; }
+.vx-space .vx-said-dot { grid-row: 1; align-self: center; width: 6px; height: 6px; border-radius: 50%; background: rgb(52 211 153); }
+.vx-space .vx-said[data-health="raw"] .vx-said-dot { background: rgb(var(--vx-brand)); }
+.vx-space .vx-said[data-health="failed"] .vx-said-dot { background: rgb(var(--vx-danger)); }
+.vx-space .vx-said-meta { display: flex; align-items: center; gap: 8px; padding-right: 58px; min-width: 0; white-space: nowrap; overflow: hidden; font-size: 10.5px; color: var(--vx-faint); }
+.vx-space .vx-said-meta b { font-weight: 600; color: var(--vx-muted); }
+.vx-space .vx-said-meta em { font-style: normal; color: rgb(var(--vx-violet)); overflow: hidden; text-overflow: ellipsis; }
+.vx-space .vx-said-flag { color: rgb(var(--vx-brand)); }
+.vx-space .vx-said-flag.is-failed { color: rgb(var(--vx-danger)); }
+.vx-space .vx-said p { margin: 3px 0 0; font-size: 13px; line-height: 1.5; color: var(--vx-text); display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; user-select: text; }
+.vx-space .vx-said.is-open p { display: block; -webkit-line-clamp: unset; max-height: 40vh; overflow-y: auto; }
+.vx-space .vx-said-more { justify-self: start; margin-top: 2px; font-size: 11px; font-weight: 550; color: rgb(var(--vx-violet)); }
+.vx-space .vx-said-actions { position: absolute; top: 6px; right: 9px; display: flex; gap: 2px; opacity: 0; transition: opacity .15s; }
+.vx-space .vx-said:hover .vx-said-actions, .vx-space .vx-said:focus-within .vx-said-actions { opacity: 1; }
+@media (hover: none) { .vx-space .vx-said-actions { opacity: 1; } }
+.vx-space .vx-said-actions button { width: 26px; height: 26px; display: grid; place-items: center; border-radius: 8px; color: var(--vx-muted); }
+.vx-space .vx-said-actions button:hover { color: var(--vx-strong); background: rgb(var(--vx-white) / .07); }
+@media (max-width: 760px) { .vx-space .vx-said p { -webkit-line-clamp: 2; } }
+
+/* Settings' own card, and the look every Voice card shares (packages/siso-voice ui.tsx Card). */
+.vx-space .vx-card, .vx-space [data-voice] > section { border-radius: 18px; border: 1px solid var(--vx-line); background: linear-gradient(rgb(var(--vx-white) / .03), rgb(var(--vx-white) / .012)); padding: 18px 20px; }
+.vx-space .vx-card > header h2 { margin: 0; font-size: 14px; font-weight: 650; color: var(--vx-strong); }
+.vx-space .vx-card > header p { margin: 3px 0 0; font-size: 12px; color: var(--vx-muted); }
+.vx-space .vx-rows { margin-top: 8px; }
+.vx-space .vx-row { display: flex; align-items: center; gap: 18px; padding: 13px 0; border-top: 1px solid var(--vx-line); }
+.vx-space .vx-row:first-child { border-top: 0; }
+.vx-space .vx-row > div:first-child { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.vx-space .vx-row b { font-size: 13px; font-weight: 550; color: var(--vx-text); }
+.vx-space .vx-row small { font-size: 11.5px; color: var(--vx-muted); }
+.vx-space .vx-seg { display: flex; gap: 3px; padding: 3px; border-radius: 12px; border: 1px solid rgb(var(--vx-white) / .07); background: rgb(var(--vx-white) / .02); }
+.vx-space .vx-seg button { height: 28px; padding: 0 12px; border-radius: 9px; font-size: 12px; font-weight: 550; color: var(--vx-faint); }
+.vx-space .vx-seg button:hover { color: var(--vx-strong); }
+.vx-space .vx-seg button[aria-pressed="true"] { color: var(--vx-strong); background: rgb(var(--vx-brand) / .14); box-shadow: inset 0 0 0 1px rgb(var(--vx-brand) / .38), 0 0 18px -6px rgb(var(--vx-brand) / .7); }
+.vx-space .vx-seg button:disabled { opacity: .5; }
+.vx-space .vx-switch { position: relative; width: 36px; height: 21px; flex: none; border-radius: 999px; background: rgb(var(--vx-white) / .1); box-shadow: inset 0 0 0 1px var(--vx-line); transition: background .15s; }
+.vx-space .vx-switch > i { position: absolute; top: 3px; left: 3px; width: 15px; height: 15px; border-radius: 50%; background: var(--vx-strong); transition: transform .15s; }
+.vx-space .vx-switch[aria-checked="true"] { background: rgb(var(--vx-violet) / .8); }
+.vx-space .vx-switch[aria-checked="true"] > i { transform: translateX(15px); }
+.vx-space .vx-keys { font-size: 11.5px; color: var(--vx-muted); white-space: nowrap; }
+.vx-space .vx-state { font-size: 11.5px; font-weight: 600; }
+.vx-space .vx-state.is-good { color: rgb(52 211 153); }
+.vx-space .vx-state.is-bad { color: rgb(var(--vx-brand)); }
+/* Diagnostics (9 Oct): the header carries Copy report; takes as a quiet table; the helper log folded away. */
+.vx-space .vx-card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.vx-space .vx-ghost { height: 28px; padding: 0 12px; flex: none; border-radius: 9px; font-size: 12px; font-weight: 550; color: var(--vx-text); border: 1px solid var(--vx-line); background: rgb(var(--vx-white) / .03); white-space: nowrap; }
+.vx-space .vx-ghost:hover:not(:disabled) { color: var(--vx-strong); background: rgb(var(--vx-white) / .07); }
+.vx-space .vx-ghost:disabled { opacity: .45; }
+.vx-space .vx-takes { display: flex; flex-direction: column; gap: 8px; padding: 13px 0; border-top: 1px solid var(--vx-line); overflow-x: auto; }
+.vx-space .vx-takes > b { font-size: 13px; font-weight: 550; color: var(--vx-text); }
+.vx-space .vx-takes > small { font-size: 11.5px; color: var(--vx-muted); }
+.vx-space .vx-takes table { width: 100%; border-collapse: collapse; font-size: 11.5px; font-variant-numeric: tabular-nums; }
+.vx-space .vx-takes th { text-align: left; font-weight: 550; color: var(--vx-faint); padding: 0 10px 6px 0; white-space: nowrap; }
+.vx-space .vx-takes td { color: var(--vx-muted); padding: 5px 10px 5px 0; border-top: 1px solid rgb(var(--vx-white) / .04); white-space: nowrap; }
+.vx-space .vx-takes td:nth-child(2) { max-width: 160px; overflow: hidden; text-overflow: ellipsis; }
+.vx-space .vx-takes td.is-good { color: rgb(52 211 153); }
+.vx-space .vx-takes td.is-bad { color: rgb(var(--vx-brand)); }
+.vx-space .vx-log { padding-top: 12px; border-top: 1px solid var(--vx-line); }
+.vx-space .vx-log summary { cursor: pointer; font-size: 12px; color: var(--vx-muted); }
+.vx-space .vx-log pre { margin: 8px 0 0; max-height: 220px; overflow: auto; padding: 10px 12px; border-radius: 10px; background: rgb(0 0 0 / .25); font-size: 11px; line-height: 1.5; color: var(--vx-muted); white-space: pre-wrap; word-break: break-word; }
+
+@media (max-width: 760px) {
+  .vx-space .vx-side.siso-rim { width: 232px; }
+  .vx-space .vx-page { padding: 16px; }
+  .vx-space .vx-numbers { gap: 20px; }
+}
+/* Your Groq key (9 Oct). */
+.vx-space .vx-key { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+.vx-space .vx-key input { flex: 1; min-width: 180px; height: 32px; padding: 0 12px; border-radius: 10px; border: 1px solid var(--vx-line); background: rgb(0 0 0 / .25); color: var(--vx-strong); font: 12px ui-monospace, SFMono-Regular, monospace; }
+.vx-space .vx-key input:focus { outline: 2px solid rgb(var(--vx-brand) / .6); outline-offset: 0; }
+.vx-space .vx-key .vx-ghost { height: 32px; }
+.vx-space .vx-key-note { display: block; margin-top: 8px; font-size: 11.5px; color: var(--vx-muted); }

@@ -1,0 +1,41 @@
+import assert from 'node:assert/strict';
+import {mkdtempSync,mkdirSync,readFileSync,writeFileSync,appendFileSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import path from 'node:path';
+import {ActivityCollector} from '../src/activity.ts';
+import {ActivityJournal} from '../../host/src/activity.ts';
+import {AttentionCommands} from '../../host/src/attention-commands.ts';
+const root=mkdtempSync(path.join(tmpdir(),'.siso-ephemeral-notify-collector-')),hosts=path.join(root,'hosts');mkdirSync(hosts);
+process.env.AB_HOSTS_DIR=hosts;process.env.AB_ACTIVITY_DIR=path.join(root,'activity');
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));const sent=[];
+const collector=new ActivityCollector(hosts,path.join(root,'state'),h=>'service-'+h.name,async(url,opts)=>{sent.push({url,opts});return {ok:true};},h=>h.name==='InfrastructureRenamed');
+const standby=new ActivityCollector(hosts,path.join(root,'state'),()=>null);assert.equal(standby.owned,false);standby.close();assert.equal(collector.owned,true);
+const host=(name,lead)=>{const j=new ActivityJournal(name);writeFileSync(path.join(hosts,name+'.json'),JSON.stringify({name,lead,hostInstanceId:j.hostInstanceId,activityJournal:j.journal,session:'s',pid:process.pid,port:1,token:'private'}));return j;};
+try {
+  collector.configure({phone:true,topic:'fixture_topic_0123456789012345',appUrl:'https://fixture.example'});
+  const a=host('Worker');a.start('s','complete');a.finish('completed');await sleep(700);
+  assert.equal(collector.list().length,1);assert.equal(sent.length,1);assert.equal(collector.list()[0].delivery,'provider_accepted');
+  assert.ok(!JSON.stringify(collector.list()).includes('private'));
+  const record=readFileSync(a.journal,'utf8').split('\n')[1];appendFileSync(a.journal,record+'\n');await sleep(600);assert.equal(collector.list().length,1);assert.equal(sent.length,1);
+  appendFileSync(a.journal,'null\n{}\nmalformed\n');
+  a.start('s','failure');a.finish('failed');await sleep(600);assert.equal(collector.list().filter(i=>i.phase==='failed').length,1);
+  a.start('s','question');a.request('q','input',true);await sleep(600);assert.equal(collector.list().filter(i=>i.phase==='needs').length,1);a.request('q','input',false);await sleep(600);assert.equal(collector.list().filter(i=>i.phase==='needs').length,0);
+  // Same-size rewritten journal and incomplete tail are not confused with consumed bytes.
+  a.start('s','partial');a.finish('failed');let raw=readFileSync(a.journal,'utf8');writeFileSync(a.journal,raw.trimEnd());await sleep(600);assert.equal(collector.list().length,3);appendFileSync(a.journal,'\n');await sleep(600);assert.equal(collector.list().length,4);
+  const renamed=host('InfrastructureRenamed');renamed.start('s');renamed.finish('completed');
+  const research=host('Research','Agent Zero');research.start('s');research.finish('completed');const infra=host('HEALTH');infra.start('s');infra.finish('failed');await sleep(600);assert.equal(collector.list().length,4);
+  research.start('s','blocking');research.request('ask','input',true);infra.start('s','blocking');infra.request('approve','approval',true);await sleep(600);assert.equal(collector.list().filter(i=>i.phase==='needs').length,2);
+  const cancel=host('Cancel');cancel.start('s');cancel.finish('cancelled');const queued=host('Queued');queued.start('s');queued.finish('completed',1);await sleep(600);assert.equal(collector.list().length,6);
+  console.log('PASS collector: replay, incomplete tail, rewriting, root quiet rules with needs-you exception, cancel/queued exclusions and redacted phone receipt');
+  collector.mark(collector.list()[0].id);assert.equal(collector.list()[0].read,true);
+  const commands=new AttentionCommands(a);let executed=0;const m={commandId:'test',ref:a.ref,action:{kind:'reply',text:'hello'}};
+  const run=()=>commands.handle(m,()=>commands.matches(m,'s'),()=>{executed++;return 'queued';});await Promise.all([run(),run()]);assert.equal(executed,1);
+  assert.equal((await commands.handle({...m,action:{kind:'reply',text:'different'}},()=>true,()=>{executed++;return 'queued';})).status,'invalid');
+  assert.equal((await commands.handle({...m,commandId:'stale'},()=>false,()=>{executed++;return 'accepted';})).status,'stale');
+  console.log('PASS host boundary: two-viewer duplicate executed once; payload conflict and stale identity rejected');
+  collector.close();const restarted=new ActivityCollector(hosts,path.join(root,'state'),h=>'service-'+h.name,async()=>{throw Error('Must not replay');},h=>h.name==='InfrastructureRenamed');await sleep(600);assert.equal(restarted.list().length,6);assert.equal(restarted.list().filter(i=>i.read).length,1);restarted.close();
+  const cold=new ActivityCollector(hosts,path.join(root,'cold'),h=>'service-'+h.name,fetch,h=>h.name==='InfrastructureRenamed');assert.equal(cold.list().length,6);assert.ok(cold.list().every(i=>!i.buzz));cold.close();
+  console.log('PASS restart: durable read marks, no duplicate push; historical cold baseline silent');
+  const first=new ActivityCollector(hosts,path.join(root,'handover'),()=>null),second=new ActivityCollector(hosts,path.join(root,'handover'),()=>null);assert.equal(first.owned,true);assert.equal(second.owned,false);first.close();await sleep(1300);assert.equal(second.owned,true);second.close();
+  console.log('PASS handover: a second node stands by while the first collects, then takes over within a second (t-0539)');
+}catch(e){try{collector.close();}catch{}throw e;}

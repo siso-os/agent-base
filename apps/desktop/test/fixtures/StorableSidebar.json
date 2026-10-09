@@ -1,0 +1,12 @@
+{
+  "sidebar": {"containers": [{"global": {}}, {"spaces": ["space-fake-personal", {"id": "space-fake-personal", "title": "Fake Personal", "newContainerIDs": [{"pinned": {}}, "pins-personal", {"unpinned": {}}, "daily-personal"]}, "space-fake-company", {"id": "space-fake-company", "title": "Fake Company", "newContainerIDs": [{"pinned": {}}, "pins-company", {"unpinned": {}}, "daily-company"]}], "items": [
+    "pins-personal", {"id": "pins-personal", "childrenIds": ["folder"]},
+    "folder", {"id": "folder", "parentID": "pins-personal", "childrenIds": ["personal-tab", "folder"]},
+    "personal-tab", {"id": "personal-tab", "parentID": "folder", "data": {"tab": {"savedURL": "https://personal.invalid/", "savedTitle": "Invented Personal Pin"}}},
+    "daily-personal", {"id": "daily-personal", "childrenIds": ["daily-tab"]},
+    "daily-tab", {"id": "daily-tab", "parentID": "daily-personal", "data": {"tab": {"savedURL": "https://not-pinned.invalid/", "savedTitle": "Invented Daily Tab"}}},
+    "pins-company", {"id": "pins-company", "childrenIds": ["company-tab", "bad-tab"]},
+    "company-tab", {"id": "company-tab", "parentID": "pins-company", "data": {"tab": {"savedURL": "https://company.invalid/", "savedTitle": "Invented Company Pin"}}},
+    "bad-tab", {"id": "bad-tab", "parentID": "pins-company", "data": {"tab": {"savedURL": "javascript:alert(1)", "savedTitle": "Unsafe Fake Tab"}}}
+  ]}]}
+}

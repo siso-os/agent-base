@@ -1,0 +1,14 @@
+import assert from "node:assert/strict";
+import { codexItem } from "../src/codex-events.ts";
+assert.deepEqual(codexItem({ type: "agentMessage", id: "a", text: "hi" }, true, 1), [{ t: "text", id: "a", text: "hi", at: 1 }]);
+const command = { type: "commandExecution", id: "c", command: "exit 7", status: "failed", exitCode: 7, aggregatedOutput: "failure" };
+assert.equal(codexItem(command, false)[0].input.command, "exit 7");
+assert.equal(codexItem(command, true)[0].ok, false);
+command.status = "completed"; command.exitCode = 0;
+assert.equal(codexItem(command, true)[0].ok, true);
+const change = { type: "fileChange", id: "f", status: "completed", changes: [{ path: "a.txt", kind: { type: "update" }, diff: "--- a\n+++ b\n-old\n+new" }] };
+assert.deepEqual(codexItem(change, false)[0].input, { path: "a.txt", description: "update", old: "old", new: "new" });
+assert.equal(codexItem(change, true)[0].id, "f-0");
+assert.equal(codexItem(change, true)[0].ok, true);
+assert.equal(codexItem({ type: "userMessage", id: "u", content: [{ type: "text", text: "remember" }] }, true)[0].from, "history");
+console.log("Codex event contract: 8 assertions passed (text, command success/failure, file diff, history)");

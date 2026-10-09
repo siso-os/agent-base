@@ -1,0 +1,291 @@
+{
+  "schemaVersion": 2,
+  "round": 7,
+  "recordedAt": "2026-10-06T00:55:45.178199+00:00",
+  "scope": "Three reusable controlled components refined in a local synthetic workbench review. Live app integration remains pending.",
+  "previousRound": {
+    "commit": "077849d4ab840b75d957fbf3d39315ffa66b09f8",
+    "url": "http://127.0.0.1:8891/card/agent-workspace-review-20261006/html",
+    "publishedSha256": "47c16f3bab199b821babe07c3fea72baa098b64c754bfd36da620e59f1d250d2",
+    "htmlStillByteIdentical": true
+  },
+  "published": {
+    "url": "http://127.0.0.1:8891/card/agent-workspace-polish-20261006/html",
+    "httpStatus": 200,
+    "bytes": 1144650,
+    "sha256": "69e76bf2f7ff5c8f9aec2076b77af00b67791d5fa5d14b8cff6cfd24a3ae5bf5",
+    "localSha256": "e22a6fea64de355a751d39b5667e75acecccfed3553e62678c024b3026d61d1e",
+    "exactHtmlMatch": false,
+    "consoleAppendsOneNewline": true
+  },
+  "typecheck": {
+    "result": "PASS",
+    "command": "heavy -- node <canonical>/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/bin/tsc --noEmit -p <data>/tsconfig-round6.json",
+    "exitCode": 0
+  },
+  "build": {
+    "result": "PASS",
+    "command": "heavy -- node <data>/round7-build.mjs",
+    "localHtmlSha256": "e22a6fea64de355a751d39b5667e75acecccfed3553e62678c024b3026d61d1e",
+    "embeddedComparisonImages": 6
+  },
+  "rendered": {
+    "result": "PASS",
+    "viewports": [
+      [
+        2000,
+        1250
+      ],
+      [
+        1440,
+        900
+      ],
+      [
+        1008,
+        900
+      ],
+      [
+        390,
+        900
+      ]
+    ],
+    "checks": [
+      "Rendered tasks at 2000; no page overflow; unique IDs",
+      "Rendered chat at 2000; no page overflow; unique IDs",
+      "Rendered outputs at 2000; no page overflow; unique IDs",
+      "Rendered tasks at 1440; no page overflow; unique IDs",
+      "Rendered chat at 1440; no page overflow; unique IDs",
+      "Rendered outputs at 1440; no page overflow; unique IDs",
+      "Rendered tasks at 1008; no page overflow; unique IDs",
+      "Rendered chat at 1008; no page overflow; unique IDs",
+      "Rendered outputs at 1008; no page overflow; unique IDs",
+      "Rendered tasks at 390; no page overflow; unique IDs",
+      "Rendered chat at 390; no page overflow; unique IDs",
+      "Rendered outputs at 390; no page overflow; unique IDs"
+    ],
+    "geometry": {
+      "tasks": {
+        "390": {
+          "top": 298,
+          "width": 338,
+          "height": 933
+        },
+        "1008": {
+          "top": 239,
+          "width": 874,
+          "height": 810
+        },
+        "1440": {
+          "top": 239,
+          "width": 1190,
+          "height": 810
+        },
+        "2000": {
+          "top": 239,
+          "width": 1190,
+          "height": 810
+        }
+      },
+      "chat": {
+        "390": {
+          "top": 298,
+          "width": 338,
+          "height": 1009
+        },
+        "1008": {
+          "top": 239,
+          "width": 870,
+          "height": 829
+        },
+        "1440": {
+          "top": 239,
+          "width": 870,
+          "height": 829
+        },
+        "2000": {
+          "top": 239,
+          "width": 870,
+          "height": 829
+        }
+      },
+      "outputs": {
+        "390": {
+          "top": 298,
+          "width": 338,
+          "height": 764
+        },
+        "1008": {
+          "top": 239,
+          "width": 874,
+          "height": 598
+        },
+        "1440": {
+          "top": 239,
+          "width": 1306,
+          "height": 606
+        },
+        "2000": {
+          "top": 239,
+          "width": 1406,
+          "height": 606
+        }
+      }
+    },
+    "beforeDemoY": {
+      "2000": 620,
+      "1440": 594,
+      "390": 560
+    },
+    "afterDemoY": {
+      "2000": 239,
+      "1440": 239,
+      "1008": 239,
+      "390": 298
+    },
+    "visualInspection": "All four widths inspected, plus compact, review, command, code and failed views. Final served page and comparison dialog inspected in Camofox. Mobile nested-preview framing reduced."
+  },
+  "interactions": {
+    "result": "PASS",
+    "latestPassingReceiptByGroup": {
+      "tasks": "round7-interactions.json",
+      "chat": "round7-interactions.json",
+      "replay": "round7-interactions.json",
+      "outputs": "round7-interactions-outputs-flow.json",
+      "flow": "round7-interactions-flow-gallery.json",
+      "gallery": "round7-interactions-flow-gallery.json"
+    },
+    "clipboardBoundary": "A controlled browser clipboard API verifies pending, rejected and confirmed copies; operating-system clipboard permission is not claimed.",
+    "mobileSelection": "Controlled selection reveals the selected artifact within the filmstrip without moving the document; keyboard Up/Down and Escape/focus return pass.",
+    "replay": "Real 10-second fixture progression observed, with pause, reduced-motion, document-hidden and offscreen cancellation."
+  },
+  "motionAndCleanup": {
+    "result": "PASS",
+    "latestPassingReceiptByComponent": {
+      "tasks": "round7-lifecycle.json",
+      "chat": "round7-lifecycle.json",
+      "outputs": "round7-lifecycle-outputs.json"
+    },
+    "checks": [
+      {
+        "id": "tasks",
+        "checks": [
+          "pause",
+          "reduced motion changed live",
+          "document hidden",
+          "offscreen",
+          "cleanup"
+        ],
+        "metrics": {
+          "rafCalls": 0,
+          "observers": 1,
+          "observedTargets": 0,
+          "documentListeners": 1,
+          "mediaListeners": 1
+        }
+      },
+      {
+        "id": "chat",
+        "checks": [
+          "pause",
+          "reduced motion changed live",
+          "document hidden",
+          "offscreen",
+          "cleanup"
+        ],
+        "metrics": {
+          "rafCalls": 20,
+          "observers": 1,
+          "observedTargets": 0,
+          "documentListeners": 1,
+          "mediaListeners": 1
+        }
+      },
+      {
+        "id": "outputs",
+        "checks": [
+          "pause",
+          "reduced motion changed live",
+          "document hidden",
+          "offscreen",
+          "cleanup"
+        ],
+        "metrics": {
+          "rafCalls": 0,
+          "observers": 1,
+          "observedTargets": 0,
+          "documentListeners": 1,
+          "mediaListeners": 1
+        }
+      }
+    ]
+  },
+  "publishedBrowser": {
+    "checks": [
+      "Published task-to-conversation handoff and complete Markdown render",
+      "Published command details open and remain readable",
+      "Published conversation-to-artifact handoff and preview render",
+      "Published after-image opens in native comparison dialog",
+      "Published comparison dialog closes"
+    ],
+    "errors": [],
+    "closed": true,
+    "closeResponse": {
+      "ok": true
+    }
+  },
+  "preservation": {
+    "protectedFilesChecked": 232,
+    "changed": [],
+    "scope": "Earlier component collection, original task renderer, exact fixtures and existing HTML entry retained byte for byte."
+  },
+  "evidenceDirectory": "~/SISO_Workspace/_data/faces/original-evolved-20261005/evidence",
+  "receiptHashes": {
+    "round7-before-check.json": "0c05c0c088fca734e55914b38cf72faf68bfc3293b8ba0fab9a302172095e8d1",
+    "round7-camo-chat.json": "b3108c26e8789788909a4dead938e8d90780c55ac75b9509c4672da1167f678c",
+    "round7-camo-check.json": "414229a4f731f54328de4ad6eaf14b8d1a0cee9d276ad6f97b675304281f7ff5",
+    "round7-camo-command-open.json": "be610342f7be2821ba106e91d6daf93d92162277380820bf332a8a7edc54cc9f",
+    "round7-camo-command.json": "f9c5abf0c947ab928e54e538082ac2690cc3291f063dd9e3d7f2d3dab9107a6d",
+    "round7-camo-comparison.json": "6c82cdc137fd743776cdf4691f0d1db2b53b637fe445cf406f04d40351e2aca7",
+    "round7-camo-complete.json": "ea2c698034696176036734ac871435857bd4a2a8741e6a1cc383ed4fc7df633f",
+    "round7-camo-dialog-closed.json": "6c82cdc137fd743776cdf4691f0d1db2b53b637fe445cf406f04d40351e2aca7",
+    "round7-camo-dialog.json": "365cc6dfd7d92b13f5fc68ed13152c1bf742f85323cdf3bdd9d740c30cc1a493",
+    "round7-camo-outputs.json": "acac102a77b8560fce85c94e8e9ea21437549db60e478d5252c821dcdcb3ddd7",
+    "round7-camo-tasks-final.json": "012efb6713d35fae04912dc6e13de569e82f561dacd355607ca652bae1bc04d7",
+    "round7-camo-tasks.json": "012efb6713d35fae04912dc6e13de569e82f561dacd355607ca652bae1bc04d7",
+    "round7-embedded-shots-after.json": "4115f38fe3e758d40e74eb453ac9eb4061b0c0ce3cbe5074abc0e8ddb09f4aab",
+    "round7-embedded-shots-before.json": "4af1ba45fbbcd9d5da2c8f1d49027f8e068d6a83f6f2c050b1017c738117c7a5",
+    "round7-interactions-flow-gallery.json": "1dbe9596d8bbddaf167e69710f09172fd691f7811aaabacda7f622d307e7ffab",
+    "round7-interactions-flow-initial.json": "af8914091199f41df69cae18ae3eb154a6e6ec5e77cc66ca684e963ee64d1d14",
+    "round7-interactions-flow.json": "af8914091199f41df69cae18ae3eb154a6e6ec5e77cc66ca684e963ee64d1d14",
+    "round7-interactions-outputs-flow.json": "a159f4ba257d484d4e65b334f56f4a87ba92f479a65b26b6a53da59a80b664fa",
+    "round7-interactions.json": "5aff27b317a586ee4d4c2e8411174a0953c34e455c1dce3a4980c496f52b912d",
+    "round7-lifecycle-outputs.json": "a5b79969c1b1516d425e81325c9ce4161c39c971ed234ffd7331d92cff745ff7",
+    "round7-lifecycle.json": "7cd283893e31d32db94359e0d0d8c82894bf2400f7b15f5130a353dbbbd69a68",
+    "round7-smoke.json": "486bbe5b95f83e20a67b21cddf7b47bd93734331b89a976c8f030fe72a2ef40c"
+  },
+  "sourceHashes": {
+    "apps/web/src/components/TaskWorkspaceDeck.tsx": "389d48a9b95385e9b2f73bc83584d0b8e04df1af439268d6f10c1601c1aaff2e",
+    "apps/web/src/components/TaskWorkspaceDeck.css": "6fb02dec0348d72ef7184b66b02b41172acdce3b5c2e95973aac38801603a19b",
+    "apps/web/src/components/ChatResponseScene.tsx": "ca1d4e94779b8b0b0a357e080599e85c3ea8c57397497860abe90afc60482c05",
+    "apps/web/src/components/ChatResponseScene.css": "6551dd4fd7c456588c16099293bc124aa1128a4ef0527c02bdb53bac21458915",
+    "apps/web/src/components/OutputInspectDock.tsx": "0a9421d3bdd2423f0806fff51f8e793e801a0a3623c8708a7bff8aa1d3c4386e",
+    "apps/web/src/components/OutputInspectDock.css": "b8fafdc4ab971ab8ed4d9b6b799a8d4af05e55c2d65e35af5d0b986037d37206",
+    "apps/web/preview/workspace-review.tsx": "c24d1a3d4783176717fe687e35af1e8d56057bf7a233f4b374fbd1c2b7e11bec",
+    "apps/web/preview/workspace-review.css": "ffcdfb90856107d7a3355a867dc28835ee2e66531e48b92d16e9aa831b111eaf",
+    "apps/web/preview/workspace-review.html": "233fbd0a278b7106cdbd16a89fef51d67d63557e31b292bd1adc3bc3d7ebfd13",
+    "apps/web/preview/workspace-review-fixtures.ts": "298cfc092670319a64fbdad4df2b3e8911fca60ea1608f62aea48afc252c2b10",
+    "apps/web/preview/workspace-review-task-source.tsx": "58173213d2a45b616caf8b541ce249050edd6d8ba1483bb3d8bb94dfab5f4a2e",
+    "apps/web/preview/workspace-review-task-source.css": "83ae5e7216974836fde7b61393ff380d758efd0b955d6fe5fbca935ec5ea007b",
+    "apps/web/preview/workspace-review-round.json": "4bf7ed73a246d5a533df9fd43fd8a7fdc9a468b7edb10ad6cf20f76526c239f7",
+    "apps/web/preview/WORKSPACE-REVIEW.md": "e8456904a309acd6a8373779625b1b386bb427b6221bdf704b3b4d67d9958f23"
+  },
+  "limits": [
+    "Synthetic review only; no live agents or production data connected.",
+    "Live Agent Zero task/chat/output adapters and full-app integration remain pending.",
+    "No full-app build; strict TypeScript covers the gallery and imported reusable components.",
+    "Design approval remains with Shaan."
+  ],
+  "supersededEvidence": [
+    "round7-interactions-flow-initial.json records the observed mobile-selection failure. Selection scrolled only the filmstrip after the fix; the passing regression is in round7-interactions-flow-gallery.json."
+  ]
+}

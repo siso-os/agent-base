@@ -1,0 +1,22 @@
+{
+  "name": "@siso/voice",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "SISO Voice's history and stats, read-only: the History list (by day, search, app filter, expand, copy) and the Stats page (share-card ticket, words trend, hour rhythm, app bars, activity wall), lifted from SISO Internal and drawn in the SISO tokens. Reads /api/voice/* from a base URL or a fetch adapter; never writes.",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@siso/shell": "workspace:*"
+  },
+  "peerDependencies": {
+    "lucide-react": ">=0.400.0",
+    "react": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.0",
+    "lucide-react": "^0.564.0",
+    "react": "^19.2.0"
+  }
+}

@@ -1,0 +1,826 @@
+#!/usr/bin/env python3
+"""ab-queue — the Agent Base ship queue: lanes queue themselves; one runner merges, checks once, lands and deploys.
+
+Shaan, 3 Oct ~01:30: "Is there not a more efficient way to run this? ... maybe there should be some commands or something to make
+this not a bottleneck". Measured 2 Oct (siso-harness-lab .agents/research/2026-10-03-ship-latency): merging took a median 4.2 min,
+the wait from merged to live a median 30.5 min, and 80% of built work waited over 20 min, because one integrator merged by hand and
+deployed at time windows. Prior art: bors' "not rocket science" rule (test the merged result, fast-forward main only when green),
+a local FIFO land queue with a PID lock, batch then bisect on red.
+
+  ab-queue ship [--tests "<cmd>"]                     from a lane's worktree: push this branch and queue it (the lane's one verb)
+  ab-queue add <branch> [--tests "<cmd>"] [--by NAME]   a lane is done: queue its pushed branch (origin/<branch>, else local)
+  ab-queue run [--once] [--no-deploy]                   the one runner (PID lock): merge, check, land, deploy, alarm
+  ab-queue status [--json] [--alarm MIN]                every row with its state and age; --alarm exits 1 if anything built
+                                                        has waited over MIN minutes without going live
+
+The runner checks pnpm check, one 30-second smoke, and only affected suites (parallel, default 4).
+There is no eager baseline or postcheck. Only red affected suites are diagnosed on main; smoke decides landing.
+After deployment a live smoke rolls back on red. `nightly` runs every suite once and records the results off the landing path.
+The existing merge, load guard, journal, notices and deployment spacing remain in force.
+Exit codes: 0 ok, 1 nothing to do or alarm (status --alarm), 2 usage, 3 another runner holds the lock.
+"""
+import datetime as dt, errno, fcntl, json, math, os, re, shlex, subprocess, sys, time, uuid
+
+def parse_iso(s):
+    """fromisoformat that also takes a trailing Z: the queue's checks run under `bash -lc`, which finds macOS's Python 3.9,
+    and 3.9 rejects 'Z' (3 Oct: the stall alarm read every deploy as 1e9 minutes old and two tests failed on main)."""
+    s = str(s)
+    return dt.datetime.fromisoformat(s[:-1] + "+00:00" if s.endswith("Z") else s)
+
+
+ROOT = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+REPO = os.environ.get("AB_REPO") or ROOT
+REMOTE = os.environ.get("AB_REMOTE", "origin")
+MERGE = os.environ.get("AB_MERGE_WORKTREE") or os.path.expanduser("~/SISO_Workspace/_data/worktrees/siso-internal-labs-agent-base/merge")
+STATE = os.environ.get("AB_QUEUE_STATE") or os.path.expanduser("~/.local/state/agent-base/ship-queue")
+MINI = os.environ.get("AB_MINI") or os.path.expanduser("~/SISO_Workspace/SISO_Agency/apps/siso-internal-labs/siso-internal-labs-agents/.agents/luna/ab-mini")
+BATCH = int(os.environ.get("AB_QUEUE_BATCH", "10"))
+ALARM_MIN = float(os.environ.get("AB_QUEUE_ALARM_MIN", "20"))
+DONE = {"live", "landed", "conflict", "failed", "dropped", "superseded"}
+# Every state an event may carry; "error" is the runner's own (id "runner"), skipped as a lane below.
+VALID_STATES = {"queued", "merged", "landed", "live", "conflict", "failed", "dropped", "superseded", "error"}
+
+
+class JournalError(Exception):
+    pass
+
+
+class UsageError(Exception):
+    pass
+
+
+def now():
+    return dt.datetime.now().astimezone()
+
+
+def iso(t):
+    return t.isoformat(timespec="seconds")
+
+
+def git(*a, cwd=REPO, check=True):
+    r = subprocess.run(["git", *a], cwd=cwd, capture_output=True, text=True)
+    if check and r.returncode:
+        raise RuntimeError(f"git {' '.join(a)}: {r.stderr.strip()[-300:]}")
+    return r
+
+
+def event(**row):
+    os.makedirs(STATE, exist_ok=True)
+    journal = os.path.join(STATE, "queue.jsonl")
+    try:
+        with open(journal, "rb") as existing:
+            existing.seek(0, os.SEEK_END)
+            if existing.tell():
+                existing.seek(-1, os.SEEK_END)
+                if existing.read(1) != b"\n":
+                    raise JournalError("queue.jsonl has an unterminated tail; refusing append")
+    except FileNotFoundError:
+        pass
+    row = {"at": iso(now()), **row}
+    with open(journal, "a") as f:
+        f.write(json.dumps(row) + "\n")
+    return row
+
+
+def rows():
+    """Fold the event log into one row per queued lane (latest state wins); runner errors (id "runner") are not lanes."""
+    out = {}
+    try:
+        with open(os.path.join(STATE, "queue.jsonl"), encoding="utf-8", newline="") as journal:
+            lines = journal.read().splitlines(keepends=True)
+    except OSError as e:
+        if e.errno == errno.ENOENT:
+            return []
+        raise JournalError(f"queue.jsonl unreadable: {e.strerror or e}")
+    except UnicodeError as e:
+        raise JournalError(f"queue.jsonl is not valid UTF-8: {e}")
+    for number, raw in enumerate(lines, 1):
+        l = raw.rstrip("\r\n")
+        if not l.strip():
+            continue
+        try:
+            e = json.loads(l)
+        except ValueError:
+            # A process can be killed after append but before the newline. Keep
+            # that deliberate final-tail tolerance, but never hide a complete
+            # malformed event in the middle or at a newline-terminated EOF.
+            if number == len(lines) and not raw.endswith(("\n", "\r")):
+                continue
+            raise JournalError(f"queue.jsonl line {number}: invalid JSON")
+        if not isinstance(e, dict):
+            raise JournalError(f"queue.jsonl line {number}: expected an object")
+        if not isinstance(e.get("id"), str) or not e["id"].strip():
+            raise JournalError(f"queue.jsonl line {number}: missing id")
+        if e["id"] == "runner":
+            continue  # the runner's own errors are not lanes
+        if not isinstance(e.get("state"), str) or e["state"] not in VALID_STATES:
+            raise JournalError(f"queue.jsonl line {number}: invalid or missing state")
+        if not isinstance(e.get("at"), str):
+            raise JournalError(f"queue.jsonl line {number}: missing timestamp")
+        try:
+            parsed_at = parse_iso(e["at"])
+            if parsed_at.tzinfo is None:
+                raise ValueError
+        except ValueError:
+            raise JournalError(f"queue.jsonl line {number}: invalid timestamp")
+        r = out.setdefault(e["id"], {"id": e["id"]})
+        r.update({k: v for k, v in e.items() if k not in ("at",)})
+        r[e["state"] + "_at"] = e["at"]
+    return sorted(out.values(), key=lambda r: r.get("queued_at", ""))
+
+
+def age_min(r):
+    field = "built_at" if r.get("built_at") else "queued_at" if r.get("queued_at") else r["state"] + "_at"
+    raw = r.get(field)
+    try:
+        t = parse_iso(raw)
+        if t.tzinfo is None:
+            raise ValueError
+    except (TypeError, ValueError):
+        raise JournalError(f"queue row {r.get('id', '?')}: invalid {field} timestamp")
+    return (now() - t).total_seconds() / 60
+
+
+# ---------------------------------------------------------------- add
+
+def parse_add_args(argv, require_branch=True):
+    branch = None
+    tests = None
+    by = None
+    i = 0
+    while i < len(argv):
+        arg = argv[i]
+        if arg == "--tests" or arg == "--by":
+            if i + 1 >= len(argv) or argv[i + 1].startswith("--"):
+                raise UsageError(f"missing value for {arg}")
+            if arg == "--tests":
+                if tests is not None:
+                    raise UsageError("duplicate --tests")
+                tests = argv[i + 1]
+            else:
+                if by is not None:
+                    raise UsageError("duplicate --by")
+                by = argv[i + 1]
+            i += 2
+            continue
+        if arg.startswith("-"):
+            raise UsageError(f"unknown add flag: {arg}")
+        if branch is not None:
+            raise UsageError("add expects one branch")
+        branch = arg
+        i += 1
+    if require_branch and not branch:
+        raise UsageError("add requires a branch")
+    if not require_branch and branch:
+        raise UsageError("ship accepts flags only")
+    return branch, tests, by
+
+
+def writer_gate(ref, sha, target):
+    """Read-only gate in the existing writer contract; absent receipts never become permission to ship."""
+    tool = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "services/node/src/writer-gates.ts")
+    result = subprocess.run(["node", "--experimental-strip-types", "--no-warnings", tool, "--landing", REPO, ref, sha, target], capture_output=True, text=True, timeout=30)
+    if result.returncode:
+        raise RuntimeError("writer admission refused: " + result.stderr.strip()[-250:])
+    try:
+        gate = json.loads(result.stdout)
+    except ValueError:
+        raise RuntimeError("writer admission result is unavailable")
+    if gate.get("phase") != "ready-for-checks" or gate.get("sourceRevision") != sha or gate.get("targetRevision") != target:
+        raise RuntimeError("writer admission returned a different revision")
+    return gate
+
+
+def add(argv):
+    branch, explicit_tests, explicit_by = parse_add_args(argv)
+    tests = explicit_tests if explicit_tests is not None else ""
+    by = explicit_by if explicit_by is not None else os.environ.get("SISO_AGENT_NAME", "")
+    git("fetch", "-q", REMOTE, check=False)
+    ref = next((r for r in (f"refs/remotes/{REMOTE}/{branch}", f"refs/heads/{branch}") if git("rev-parse", "-q", "--verify", r, check=False).returncode == 0), None)
+    if not ref:
+        print(f"ab-queue: no branch {branch} (push it first: git push {REMOTE} {branch})", file=sys.stderr)
+        return 2
+    sha = git("rev-parse", ref).stdout.strip()
+    if git("merge-base", "--is-ancestor", sha, f"{REMOTE}/main", check=False).returncode == 0:
+        print(f"ab-queue: {branch} ({sha[:7]}) is already in {REMOTE}/main")
+        return 0
+    target = git("rev-parse", f"{REMOTE}/main").stdout.strip()
+    writer = writer_gate(ref, sha, target)
+    if tests and tests != writer["tests"]:
+        raise RuntimeError("Declared writer checks changed; update the delivery manifest on the branch")
+    tests = writer["tests"]
+    if not tests:  # the lane's own declaration, as tools/ab-ship reads it
+        try:
+            tests = json.loads(git("show", f"{sha}:.agents/ship.json", check=False).stdout or "{}").get("tests", "")
+        except ValueError:
+            tests = ""
+    # A bare suite name (NAV-2, 3 Oct: --tests card-edit-ui, run by bash as a command: red) means that suite's file at this sha.
+    parts = []
+    for t in (x.strip() for x in tests.split("&&") if x.strip()):
+        f = f"services/node/test/{t}.mjs"
+        if " " not in t and git("cat-file", "-e", f"{sha}:{f}", check=False).returncode == 0:
+            t = f"node --experimental-strip-types --no-warnings {f}"
+        parts.append(t)
+    tests = " && ".join(parts)
+    built = dt.datetime.fromtimestamp(int(git("log", "-1", "--format=%ct", sha).stdout), now().tzinfo)
+    for r in rows():
+        if r.get("branch") == branch and r.get("state") not in DONE:
+            event(id=r["id"], state="queued", branch=branch, ref=ref, sha=sha, tests=tests, by=by, built_at=iso(built), writer=writer)
+            print(f"ab-queue: {branch} updated to {sha[:7]} (row {r['id']})")
+            return 0
+    for r in rows():  # an older conflict/failed row of this branch is replaced by this one: stop alarming on it (AGENT-BASE, 3 Oct)
+        if r.get("branch") == branch and r.get("state") in ("conflict", "failed"):
+            event(id=r["id"], state="superseded", why="replaced by a newer ship of the same branch")
+    rid = uuid.uuid4().hex[:8]
+    event(id=rid, state="queued", branch=branch, ref=ref, sha=sha, tests=tests, by=by, built_at=iso(built), writer=writer)
+    print(f"ab-queue: queued {branch} {sha[:7]} as {rid}; `ab-queue status` shows it, and it goes live without anyone asking")
+    return 0
+
+
+# ---------------------------------------------------------------- run
+
+def lock():
+    global RUNNER_LOCK_FD
+    os.makedirs(STATE, exist_ok=True)
+    lock_path = os.path.join(STATE, "runner.lock")
+    fd = open(lock_path, "a+")
+    try:
+        fcntl.flock(fd.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except BlockingIOError:
+        fd.close()
+        return False
+    RUNNER_LOCK_FD = fd
+    with open(os.path.join(STATE, "runner.pid"), "w") as pid:
+        pid.write(str(os.getpid()))
+    return True
+
+
+INFRA = re.compile(r"Connection reset by peer|Broken pipe|ssh 255|link to the mini dropped|mini unreachable|Connection closed by|Operation timed out|No route to host")
+
+
+class InfraError(RuntimeError):
+    pass
+
+
+RUNNER_LOCK_FD = None
+BASEWT = os.environ.get("AB_QUEUE_BASE_WORKTREE") or os.path.expanduser("~/SISO_Workspace/_data/worktrees/siso-internal-labs-agent-base/queue-base")
+CHECKED_REQUESTS = {}
+
+
+def artifact_command(*args):
+    """Optional reuse always falls back to the existing build on a miss."""
+    helper = os.path.join(ROOT, "tools", "ab-artifact")
+    result = subprocess.run([sys.executable, helper, *args], capture_output=True, text=True)
+    return result.stdout.strip() if result.returncode == 0 else None
+
+
+def suites(cwd, with_check, tests="", only=None, prep=False):
+    """Run the selected suites, optionally preceded by pnpm check and smoke. Empty selection runs no suites."""
+    env = {**os.environ, "AB_TESTS": tests, "AB_WITH_CHECK": "1" if with_check else "0", "AB_SUITES_ONLY": ",".join(only or []),
+           "AB_BASELINE": "1" if prep else "0"}
+    cmd = os.environ.get("AB_QUEUE_SUITES_CMD")
+    CHECKED_REQUESTS.pop(cwd, None)
+    if not cmd:
+        bundle = None
+        if with_check and not prep:
+            sha = git("rev-parse", "HEAD", cwd=cwd).stdout.strip()
+            nonce = uuid.uuid4().hex
+            bundle = artifact_command("request", cwd, sha, nonce)
+            if bundle: CHECKED_REQUESTS[cwd] = (sha, nonce, os.path.join(cwd, bundle))
+        begin = f"python3 tools/ab-artifact begin . {shlex.quote(bundle)} >/dev/null 2>&1 || true; " if bundle else ""
+        seal = f"python3 tools/ab-artifact seal . {shlex.quote(bundle)} >/dev/null 2>&1 || true; " if bundle else ""
+        # The check installs from the lockfile first: a lane that adds a dependency must not go red for want of an install
+        # (5 Oct: modern-screenshot). Offline-first, so an unchanged lockfile costs seconds.
+        pre = ("pnpm install --frozen-lockfile >/dev/null 2>&1 && pnpm build >/dev/null 2>&1 || { echo 'PREP RED'; exit 1; }; " if prep else "") + \
+              ("pnpm install --frozen-lockfile --prefer-offline >/dev/null 2>&1 || { echo 'CHECK RED: pnpm install'; exit 1; }; " if with_check and not prep else "") + \
+              ("pnpm check >/dev/null 2>&1 || { echo 'CHECK RED: pnpm check'; exit 1; }; " if with_check else "") + \
+              (f"{os.environ.get('AB_QUEUE_SMOKE_CMD', 'tools/ab-smoke')} . || {{ echo 'SMOKE RED'; exit 1; }}; " if with_check else "") + \
+              (f"bash -lc {shlex.quote(tests)} || {{ echo 'CHECK RED: lane tests'; exit 1; }}; " if with_check and tests else "")
+        inner = begin + pre + seal + "python3 tools/ab-suites --json --parallel " + os.environ.get("AB_QUEUE_PARALLEL", "4") + (f" --only {shlex.quote(','.join(only))}" if only is not None else "")
+        cmd = f"{shlex.quote(MINI)} {shlex.quote(inner)}" if os.access(MINI, os.X_OK) else "heavy -- bash -c " + shlex.quote(inner)
+    r = subprocess.run(cmd, shell=True, cwd=cwd, capture_output=True, text=True, env=env)
+    out = r.stdout + r.stderr
+    if r.returncode and INFRA.search(out) and not os.environ.get("AB_QUEUE_SUITES_CMD"):
+        # The mini link dropped (3 Oct 07:xx: "Connection reset by peer" ~11 min in, lanes failed for it): run on the laptop.
+        local = "heavy -- bash -c " + shlex.quote(inner)
+        r = subprocess.run(local, shell=True, cwd=cwd, capture_output=True, text=True, env=env)
+        out = "(mini link dropped; ran on the laptop) " + r.stdout + r.stderr
+    if r.returncode:
+        if INFRA.search(out):
+            raise InfraError(out[-400:])  # never a lane's fault: the round fails, the lanes stay queued
+        return None, out[-1500:]
+    for line in reversed(r.stdout.strip().splitlines()):
+        try:
+            d = json.loads(line.strip())
+            if isinstance(d, dict):
+                valid = True
+                for result in d.values():
+                    if not isinstance(result, dict):
+                        valid = False
+                        break
+                    if result.get("missing"):
+                        continue
+                    passed, total = result.get("passed"), result.get("of")
+                    if (isinstance(passed, bool) or not isinstance(passed, int) or
+                        isinstance(total, bool) or not isinstance(total, int) or
+                        total <= 0 or passed < 0 or passed > total):
+                        valid = False
+                        break
+                if not valid:
+                    return None, "invalid suite result shape: " + line.strip()[:400]
+                return d, out[-600:]
+        except ValueError:
+            continue
+    return None, "no suite results parsed: " + out[-800:]
+
+
+def baseline(main_sha, only):
+    """Lazy diagnosis: prepare main only after a selected suite goes red, and run only those red suites once."""
+    if not os.path.exists(BASEWT):
+        git("worktree", "add", "-q", "--detach", BASEWT, main_sha)
+    else:
+        if git("status", "--porcelain", "--untracked-files=all", cwd=BASEWT).stdout.strip():
+            raise RuntimeError("Baseline checkout is dirty; preserved for its owner")
+        git("switch", "-q", "--detach", main_sha, cwd=BASEWT)
+    missing = {}
+    if not os.environ.get("AB_QUEUE_SUITES_CMD"):
+        inventory = os.path.join(BASEWT, "tools", "ab-queue.suites")
+        available = {line.strip() for line in open(inventory) if line.strip() and not line.startswith("#")}
+        missing = {name: {"missing": True} for name in only if name not in available}
+        only = [name for name in only if name in available]
+        if not only: return missing
+    res, log = suites(BASEWT, with_check=False, only=only, prep=True)
+    if res is None:
+        notify("ab-queue lazy main diagnosis unavailable: " + log[-200:])
+    return {**missing, **(res or {})}
+
+
+def worse(tip, base):
+    def score(s):
+        try:
+            passed, total = int(s["passed"]), int(s["of"])
+        except (KeyError, TypeError, ValueError):
+            return None
+        return (passed, total) if total > 0 and 0 <= passed <= total else None
+
+    out = []
+    for n in sorted(set(tip) | set(base)):
+        t = tip.get(n) or {"missing": True}
+        b = base.get(n) or {}
+        if t.get("missing"):
+            if not b.get("missing") and b:
+                out.append(n)  # a check that ran on main must still run on the candidate
+            continue
+        ts, bs = score(t), score(b)
+        if b.get("missing") or not b:
+            if ts is None or ts[0] < ts[1] or t.get("exit", 0) != 0:
+                out.append(n)  # new suite: must pass
+        elif ts is None or bs is None or ts[0] * bs[1] < bs[0] * ts[1] or (t.get("exit", 0) != 0 and b.get("exit", 0) == 0):
+            out.append(n)
+    return out
+
+
+def check(tests, main_sha):
+    declared = " && ".join(f"({command})" for command in dict.fromkeys(tests) if command)
+    cmd = os.environ.get("AB_QUEUE_AFFECTED_CMD") or "tools/ab-affected"
+    result = subprocess.run(f"{cmd} {shlex.quote(main_sha)} HEAD", shell=True, cwd=MERGE, capture_output=True, text=True)
+    if result.returncode: return False, "affected selection failed: " + result.stderr[-300:]
+    selected = list(dict.fromkeys(result.stdout.split()))
+    if os.environ.get("AB_QUEUE_SUITES_GATE") != "1":
+        # A0 4 Oct (Shaan: "cut down this testing thing by 99% speed, 99% compute"): measured on 3 merges the affected set was
+        # still 45-95 suites (8-17 min) because shared files touch everything, and 13-25 of them were already red on main. So
+        # pnpm check + the smoke alone decide landing (seconds); the affected suites run after live, off the path
+        # (`ab-queue after-live`), and a red one becomes a fix job. AB_QUEUE_SUITES_GATE=1 restores suites in the gate.
+        tip, log = suites(MERGE, with_check=True, tests=declared, only=[])
+        if tip is None: return False, log
+        os.makedirs(STATE, exist_ok=True)
+        with open(os.path.join(STATE, "after-live.jsonl"), "a") as f:
+            f.write(json.dumps({"at": time.strftime("%Y-%m-%dT%H:%M:%S%z"), "main": main_sha, "selected": selected}) + "\n")
+        return True, f"check + smoke green; {len(selected)} affected suite(s) deferred to after live"
+    # A selected suite is not proof that the source's declared acceptance command ran.
+    tip, log = suites(MERGE, with_check=True, tests=declared, only=selected)
+    if tip is None: return False, log
+    bad = [n for n in selected if (tip.get(n) or {}).get("missing") or n not in tip or
+           (tip[n].get("exit", 0) != 0 or tip[n]["passed"] < tip[n]["of"])]
+    regressions = []
+    if bad:
+        base = baseline(main_sha, bad)
+        regressions = worse({n: tip.get(n, {"missing": True}) for n in bad}, {n: base[n] for n in bad if n in base})
+        if regressions:
+            detail = ", ".join(f"{n} {(tip.get(n) or {}).get('passed', '-')}/{(tip.get(n) or {}).get('of', '-')} (main {base.get(n, {}).get('passed', '-')}/{base.get(n, {}).get('of', '-')})" for n in regressions)
+            notify("ab-queue affected regression (smoke green), worse than main: " + detail[:400])
+    return True, "smoke green; affected suites: " + json.dumps({"selected": selected, "results": tip, "regressions": regressions})
+
+
+def merge_onto(base, lanes):
+    """Merge lanes onto base in the merge worktree. Returns (merged lanes, conflicted [(lane, files)])."""
+    # A checkout path is not proof that its dirty content belongs to this queue.
+    if git("status", "--porcelain", "--untracked-files=all", cwd=MERGE).stdout.strip():
+        raise RuntimeError("Landing checkout is dirty; preserve it and return to its owner")
+    git("switch", "-q", "--detach", base, cwd=MERGE)
+    ok, bad = [], []
+    for r in lanes:
+        m = git("merge", "--no-ff", "-q", "-m", f"ab-queue: land {r['branch']} ({r['sha'][:7]})", r["sha"], cwd=MERGE, check=False)
+        if m.returncode:
+            files = git("diff", "--name-only", "--diff-filter=U", cwd=MERGE, check=False).stdout.split()
+            git("merge", "--abort", cwd=MERGE, check=False)
+            bad.append((r, files))
+        else:
+            ok.append(r)
+    return ok, bad
+
+
+def load_ok():
+    if os.environ.get("AB_QUEUE_SKIP_GUARD") == "1":
+        return True, "guard skipped"
+    try:
+        vm = subprocess.run(["vm_stat"], capture_output=True, text=True).stdout
+        ps = int(next(l for l in vm.splitlines() if "page size" in l).split()[-2])
+        pages = sum(int(l.split()[-1].rstrip(".")) for l in vm.splitlines() if l.startswith(("Pages free", "Pages inactive", "Pages speculative")))
+        free = pages * ps // 1048576
+    except (StopIteration, ValueError):
+        free = 0
+    load = os.getloadavg()[0]
+    max_load = float(os.environ.get("AB_QUEUE_MAX_LOAD") or 2 * (os.cpu_count() or 8))
+    min_free = int(os.environ.get("AB_QUEUE_MIN_FREE_MB", "3072"))
+    return free > min_free and load < max_load, f"free {free} MB (need > {min_free}), load {load:.1f} (need < {max_load:.0f})"
+
+
+def notify(text, by=None):
+    """To the lane itself when it has a name (`ab-queue ship/add --by NAME`; a0-tell resolves herdr tab names), else, or when
+    that name is not a reachable pane (e.g. an owner's in-process sub-agent), to the owner (AB_QUEUE_NOTIFY). AGENT-BASE, 3 Oct:
+    the first three conflict notices all came to it and it relayed them by hand."""
+    # Never wait on delivery: a0-tell waits for the target pane to be free (up to 30 min), and at 02:41 a synchronous call to a
+    # busy owner pane wedged the whole queue for 12+ minutes. --bg resolves the name at once (exit 1 = no such pane) and delivers
+    # detached. Commands get 30 s at most.
+    cmd = os.environ.get("AB_QUEUE_NOTIFY", "")
+    print(f"ab-queue: {text}" + (f" (to {by})" if by else ""))
+    lane = os.environ.get("AB_QUEUE_LANE_NOTIFY", "a0-tell --bg --queue")
+
+    def send(c, *args):
+        try:
+            return subprocess.run(shlex.split(c) + list(args), capture_output=True, text=True, timeout=30).returncode
+        except (subprocess.TimeoutExpired, OSError):
+            return 1
+    # Shaan, 3 Oct ~17:25, of AGENT-BASE: "his chat's a prime example of him just getting pinged ... doing zero work, he's just
+    # a waste of tokens". A notice wakes a whole context, so: a lane hears about its own lane if its pane is alive, and
+    # nothing is forwarded to an owner when it isn't (status, What's new and Not landed show it). Notices with no lane (deploy
+    # failures) go to AB_QUEUE_NOTIFY once per distinct cause, not once per sha (13 identical "rsync ... timed out" on 3 Oct).
+    if by:
+        if lane != "none":
+            send(lane, by, text)
+        return
+    if not cmd:
+        return
+    cause = re.sub(r"\b[0-9a-f]{7,40}\b|\d+ min", "", text)[-160:]
+    mark = os.path.join(STATE, "notified-cause")
+    try:
+        if open(mark).read() == cause:
+            return
+    except OSError:
+        pass
+    try:
+        open(mark, "w").write(cause)
+    except OSError:
+        pass
+    send(cmd, text)
+
+
+def stall_alarm():
+    """Nothing deployed for AB_QUEUE_STALL_MIN (30) minutes while lanes wait: tell A0 directly, once per stall (A0, 3 Oct:
+    75 min with nothing reaching Shaan's app and the alarm only in a file). AB_QUEUE_A0_NOTIFY, default a0-tell to "A0"."""
+    waiting = [r for r in rows() if r.get("state") in ("queued", "merged", "landed")]
+    if not waiting:
+        return
+    age = last_deploy_age_min()
+    lim = float(os.environ.get("AB_QUEUE_STALL_MIN", "30"))
+    if age < lim:
+        return
+    try:
+        last = open(os.path.join(STATE, "deploy.jsonl")).read().strip().splitlines()[-1]
+    except (OSError, IndexError):
+        last = "none"
+    mark = os.path.join(STATE, "stall-alarmed")
+    try:
+        if open(mark).read() == last:
+            return
+    except OSError:
+        pass
+    open(mark, "w").write(last)
+    held = [r for r in waiting if r.get("state") == "landed" and r.get("why")]
+    text = (f"ab-queue STALL: nothing deployed for {age:.0f} min while {len(waiting)} lanes wait "
+            f"({', '.join(r.get('branch', '?') for r in waiting[:5])})" + (f"; held: {held[0].get('why', '')[:160]}" if held else "")
+            + ". `tools/ab-queue status` in the runner tab SHIP-QUEUE.")
+    cmd = os.environ.get("AB_QUEUE_A0_NOTIFY", "a0-tell --bg --queue A0")
+    print(f"ab-queue: {text}")
+    if cmd != "none":
+        try:
+            subprocess.run(shlex.split(cmd) + [text], capture_output=True, timeout=30)
+        except (subprocess.TimeoutExpired, OSError):
+            pass
+
+
+def alarms():
+    stall_alarm()
+    seen = os.path.join(STATE, "alarmed")
+    try:
+        done = set(open(seen).read().split())
+    except OSError:
+        done = set()
+    for r in rows():
+        if r.get("state") in ("queued", "merged", "landed", "conflict", "failed") and age_min(r) > ALARM_MIN and r["id"] not in done:
+            notify(f"{r['branch']} ({r['sha'][:7]}) built {age_min(r):.0f} min ago is still {r['state']}"
+                   + (f": {r.get('why', '')[:160]}" if r.get("why") else ""), by=r.get("by"))
+            with open(seen, "a") as f:
+                f.write(r["id"] + "\n")
+
+
+def last_deploy_age_min():
+    try:
+        last = json.loads(open(os.path.join(STATE, "deploy.jsonl")).read().strip().splitlines()[-1])["at"]
+        return (now() - parse_iso(last)).total_seconds() / 60
+    except (OSError, IndexError, ValueError, KeyError):
+        return 1e9
+
+
+def deploy(sha, ids):
+    # HEALTH's standing terms (3 Oct): deploys at least 10 min apart, avail RAM > 3 GB, previous dist kept (ab-live), and the
+    # pids plus a 10-min footprint sample to HEALTH after each one (tools/ab-sample). Desktop (.app) changes still need its GO:
+    # ab-live refuses them (exit 4) and the lanes stay landed, held.
+    deadline = time.time() + float(os.environ.get("AB_QUEUE_GUARD_WAIT_S", "1800"))
+    gap = float(os.environ.get("AB_QUEUE_MIN_GAP_MIN", "10"))
+    while True:
+        ok, why = load_ok()
+        if ok and last_deploy_age_min() < gap:
+            ok, why = False, f"last deploy {last_deploy_age_min():.0f} min ago (HEALTH: at least {gap:.0f} apart)"
+        if ok:
+            break
+        if time.time() > deadline:
+            for i in ids:
+                event(id=i, state="landed", why=f"deploy held: load guard ({why})")
+            notify(f"{sha[:7]} landed on main but is held from live: {why}")
+            return False
+        time.sleep(30)
+    live_ref = git("rev-parse", "--verify", "live^{commit}", check=False)
+    previous = live_ref.stdout.strip() if live_ref.returncode == 0 else ""
+    if not previous:
+        try: previous = open(os.path.join(REPO, "LIVE")).read().strip()
+        except OSError: pass
+    if previous and not re.fullmatch(r"[a-f0-9]{40}", previous): previous = ""
+    cmd = os.environ.get("AB_QUEUE_DEPLOY") or f"{shlex.quote(os.path.join(REPO, 'tools', 'ab-live'))}"
+    deploy_env = {**os.environ}
+    deploy_env.pop("AB_LIVE_CHECKED_ARTIFACT", None)
+    artifact = os.path.join(STATE, "checked-web", "current")
+    if os.path.isdir(artifact): deploy_env["AB_LIVE_CHECKED_ARTIFACT"] = artifact
+    r = subprocess.run(f"{cmd} {sha}", shell=True, cwd=REPO, capture_output=True, text=True, env=deploy_env)
+    if r.returncode == 4:  # ab-live refused: a desktop change (needs HEALTH's GO and a built .app) or an edited checkout file
+        for i in ids:
+            event(id=i, state="landed", why=f"deploy held: {(r.stdout + r.stderr).strip()[-300:]}")
+        notify(f"{sha[:7]} landed on main, held from live: {(r.stdout + r.stderr).strip()[-200:]}")
+        return False
+    if r.returncode:
+        for i in ids:
+            event(id=i, state="landed", why=f"deploy failed: {(r.stdout + r.stderr).strip()[-300:]}")
+        notify(f"{sha[:7]} landed on main but its deploy failed: {(r.stdout + r.stderr).strip()[-200:]}")
+        return False
+    smoke = os.environ.get("AB_QUEUE_SMOKE_CMD") or "heavy -- " + shlex.quote(os.path.join(REPO, "tools", "ab-smoke"))
+    live_url = os.environ.get("AB_QUEUE_LIVE_URL") or "http://127.0.0.1:" + os.environ.get("AB_LIVE_PORT", "5401")
+    probe = subprocess.run(f"{smoke} {shlex.quote(live_url)}", shell=True, cwd=REPO, capture_output=True, text=True)
+    if probe.returncode:
+        rollback = os.environ.get("AB_QUEUE_ROLLBACK_CMD") or shlex.quote(os.path.join(REPO, "tools", "ab-live"))
+        rollback_env = {**os.environ}
+        rollback_env.pop("AB_LIVE_CHECKED_ARTIFACT", None)
+        restored = subprocess.run(f"{rollback} --rollback {shlex.quote(previous)}", shell=True, cwd=REPO, capture_output=True, text=True, env=rollback_env) if previous else None
+        why = "live smoke red; " + ("rolled back to " + previous[:12] if restored and restored.returncode == 0 else "rollback failed or previous live unknown")
+        for i in ids: event(id=i, state="landed", why=why, smoke_failed_sha=sha, smoke=(probe.stdout + probe.stderr)[-1000:])
+        notify(f"ab-queue {sha[:7]}: {why}")
+        return False
+    at = iso(now())
+    with open(os.path.join(STATE, "deploy.jsonl"), "a") as f:
+        f.write(json.dumps({"sha": sha, "at": at, "ids": ids, "out": (r.stdout or "").strip()[-200:]}) + "\n")
+    for i in ids:
+        event(id=i, state="live", live_sha=sha)
+    sampler = os.environ.get("AB_QUEUE_SAMPLER") or os.path.join(REPO, "tools", "ab-sample")
+    if sampler != "none" and os.access(sampler, os.X_OK):
+        subprocess.Popen([sampler, sha], stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True,
+                         env={**os.environ, "AB_SAMPLE_NOTIFY": os.environ.get("AB_QUEUE_HEALTH_NOTIFY", "a0-tell --queue w4:p1")})
+    return True
+
+
+def round_(do_deploy, single=None, batch=None):
+    pending = [r for r in rows() if r.get("state") == "queued"]
+    # Every landed row reached origin/main; an empty why means the runner may have died
+    # between recording landed and starting/completing deploy, so retry deploy on restart.
+    landed = [r for r in rows() if r.get("state") == "landed"]
+    if not pending:
+        if landed and do_deploy:  # retry a held deploy of what is already on main
+            git("fetch", "-q", REMOTE)
+            tip = git("rev-parse", f"{REMOTE}/main").stdout.strip()
+            retry = [r for r in landed if r.get("smoke_failed_sha") != tip]
+            if retry: deploy(tip, [r["id"] for r in retry])
+        return False
+    lanes = [single] if single else batch if batch else pending[:BATCH]
+    git("fetch", "-q", REMOTE)
+    base = git("rev-parse", f"{REMOTE}/main").stdout.strip()
+    admitted = []
+    for r in lanes:
+        try:
+            ref = r.get("ref") or f"refs/remotes/{REMOTE}/{r['branch']}"
+            gate = writer_gate(ref, r["sha"], base)
+            if r.get("writer") != gate:
+                raise RuntimeError("Writer evidence changed since queue admission; requeue after author reconciliation")
+            admitted.append(r)
+        except (RuntimeError, subprocess.TimeoutExpired) as error:
+            event(id=r["id"], state="conflict", why=str(error)[-300:])
+    lanes = admitted
+    if not lanes:
+        return True
+    ok, bad = merge_onto(base, lanes)
+    for r, files in bad:
+        event(id=r["id"], state="conflict", why="conflicts with main: " + " ".join(files[:12]))
+        notify(f"ab-queue: your lane {r['branch']} ({r['sha'][:7]}) conflicts with {REMOTE}/main {base[:7]} in {', '.join(files[:8])}. "
+               f"Rebase it on {REMOTE}/main, resolve those files, run your tests, then `tools/ab-queue ship` again.", by=r.get("by"))
+    if not ok:
+        return True
+    green, log = check([r.get("tests", "") for r in ok], base)
+    if not green:
+        if len(ok) > 1:  # bisect: check each half as a batch, recursing only into a red half (3 Oct: one-by-one took 14 min a lane)
+            half = len(ok) // 2
+            for part in (ok[:half], ok[half:]):
+                round_(do_deploy, batch=part)
+            return True
+        r = ok[0]
+        event(id=r["id"], state="failed", why="checks red on the merged tip: " + log.strip()[-600:])
+        notify(f"ab-queue: your lane {r['branch']} ({r['sha'][:7]}) failed its checks when merged on {REMOTE}/main {base[:7]}: "
+               f"{log.strip()[-300:]}. Fix it on your branch and `tools/ab-queue ship` again.", by=r.get("by"))
+        return True
+    tip = git("rev-parse", "HEAD", cwd=MERGE).stdout.strip()
+    request = CHECKED_REQUESTS.pop(MERGE, None)
+    if request and request[0] == tip:
+        artifact_command("promote", MERGE, tip, request[2], request[1], os.path.join(STATE, "checked-web"))
+    push = git("push", "-q", REMOTE, f"{tip}:refs/heads/main", cwd=MERGE, check=False)
+    if push.returncode:  # main moved under us: the next round merges again on the new main
+        return True
+    for r in ok:
+        event(id=r["id"], state="landed", landed_sha=tip, why="")
+    if do_deploy:
+        deploy(tip, [r["id"] for r in ok])
+    return True
+
+
+def self_update():
+    """Between rounds: if origin/main carries a different tools/ab-queue than the one running, move the runner's worktree (REPO)
+    to origin/main and re-exec, so changes to the queue go live through the queue itself. Only when REPO is clean and detached."""
+    if os.environ.get("AB_QUEUE_NO_SELF_UPDATE") == "1":
+        return
+    try:
+        git("fetch", "-q", REMOTE)
+        # The whole tools/ tree, not just this file (3 Oct: an ab-live fix landed but the runner kept deploying with the
+        # old ab-live, because only tools/ab-queue was compared, so every deploy failed while the mini was down).
+        new = git("rev-parse", f"{REMOTE}/main:tools").stdout.strip()
+        cur = git("rev-parse", "HEAD:tools").stdout.strip()
+        detached = git("symbolic-ref", "-q", "HEAD", check=False).returncode != 0
+        # Forward only (3 Oct 03:1x: a runner on a lane commit "updated" sideways onto main's older ab-queue and lost its fixes):
+        # move only when the commit it runs is already contained in origin/main.
+        forward = git("merge-base", "--is-ancestor", "HEAD", f"{REMOTE}/main", check=False).returncode == 0
+        if new == cur or not detached or not forward or git("status", "--porcelain", "--untracked-files=no").stdout.strip():
+            return
+        git("switch", "-q", "--detach", f"{REMOTE}/main")
+    except RuntimeError:
+        return
+    print(f"ab-queue: runner updated to {REMOTE}/main; restarting", flush=True)
+    os.remove(os.path.join(STATE, "runner.pid"))
+    os.execv(sys.executable, [sys.executable, os.path.realpath(__file__), *sys.argv[1:]])
+
+
+def run(argv):
+    allowed = {"--once", "--no-deploy"}
+    if any(arg not in allowed for arg in argv) or len(argv) != len(set(argv)):
+        raise UsageError("run accepts only one each of --once and --no-deploy")
+    if not lock():
+        print("ab-queue: another runner holds the lock", file=sys.stderr)
+        return 3
+    once, do_deploy = "--once" in argv, "--no-deploy" not in argv
+    try:
+        while True:
+            try:
+                busy = round_(do_deploy)
+            except Exception as e:  # one bad round never kills the queue: log it, tell the owner, carry on
+                busy = False
+                event(id="runner", state="error", why=f"{type(e).__name__}: {str(e)[-300:]}")
+                notify(f"ab-queue runner round failed and will retry: {type(e).__name__}: {str(e)[-200:]}")
+            alarms()
+            if once and not busy:
+                return 0
+            if not busy:
+                self_update()
+                time.sleep(float(os.environ.get("AB_QUEUE_POLL_S", "30")))
+    finally:
+        if RUNNER_LOCK_FD is not None:
+            RUNNER_LOCK_FD.close()  # releases flock; leave the inode for the next owner
+
+
+# ---------------------------------------------------------------- status
+
+def status(argv):
+    output_json = False
+    alarm = None
+    i = 0
+    while i < len(argv):
+        if argv[i] == "--json":
+            if output_json:
+                raise UsageError("duplicate --json")
+            output_json = True
+            i += 1
+        elif argv[i] == "--alarm":
+            if alarm is not None or i + 1 >= len(argv) or argv[i + 1].startswith("--"):
+                raise UsageError("--alarm requires one non-negative finite number")
+            try:
+                alarm = float(argv[i + 1])
+            except ValueError:
+                raise UsageError("--alarm requires one non-negative finite number")
+            if not math.isfinite(alarm) or alarm < 0:
+                raise UsageError("--alarm requires one non-negative finite number")
+            i += 2
+        else:
+            raise UsageError(f"unknown status flag: {argv[i]}")
+    rs = rows()
+    if output_json:
+        print(json.dumps(rs, indent=1))
+    else:
+        for r in rs[-30:]:
+            print(f"{r['id']}  {r.get('state', '?'):<9} {age_min(r):>5.0f} min  {r.get('branch', '?')[:40]:<40} {r.get('sha', '')[:7]}"
+                  f"  {(r.get('why') or '')[:60]}")
+    if alarm is not None:
+        late = [r for r in rs if r.get("state") not in ("live", "dropped") and age_min(r) > alarm]
+        return 1 if late else 0
+    return 0
+
+
+def ship(argv):
+    parse_add_args(argv, require_branch=False)
+    here = os.getcwd()
+    branch = git("rev-parse", "--abbrev-ref", "HEAD", cwd=here).stdout.strip()
+    if branch in ("HEAD", "main"):
+        print("ab-queue ship: run it on your lane's branch (not main, not a detached HEAD)", file=sys.stderr)
+        return 2
+    if git("status", "--porcelain", "--untracked-files=all", cwd=here).stdout.strip():
+        print("ab-queue ship: commit your changes first (source checkout is dirty)", file=sys.stderr)
+        return 2
+    git("fetch", "-q", REMOTE, cwd=here)
+    writer_gate(f"refs/heads/{branch}", git("rev-parse", "HEAD", cwd=here).stdout.strip(), git("rev-parse", f"{REMOTE}/main", cwd=here).stdout.strip())
+    p = git("push", "-q", REMOTE, f"HEAD:refs/heads/{branch}", cwd=here, check=False)
+    if p.returncode:
+        print(f"ab-queue ship: push failed: {p.stderr.strip()[-200:]}", file=sys.stderr)
+        return 2
+    return add([branch, *argv])
+
+
+def nightly(argv):
+    """One off-path full run; persisted for the board and red results reported as fix jobs, never landing gates."""
+    if argv: raise UsageError("nightly takes no arguments")
+    res, log = suites(REPO, with_check=False, prep=True)
+    os.makedirs(STATE, exist_ok=True)
+    bad = [n for n, r in (res or {}).items() if r.get("missing") or r.get("exit", 0) != 0 or r["passed"] < r["of"]]
+    row = {"at": iso(now()), "sha": git("rev-parse", "HEAD").stdout.strip(), "results": res, "red": bad, "log": log}
+    with open(os.path.join(STATE, "nightly.jsonl"), "a") as f: f.write(json.dumps(row) + "\n")
+    event(id="runner", state="failed" if bad or res is None else "landed", branch="nightly", by="nightly",
+          why="nightly fix jobs: " + (", ".join(bad) or (log[-200:] if res is None else "all suites green")), nightly=row)
+    if bad or res is None: notify("ab-queue nightly: fix jobs needed: " + (", ".join(bad) or log[-200:]))
+    print(json.dumps(row))
+    return 1 if bad or res is None else 0
+
+
+def main(argv):
+    try:
+        cmd = argv[0] if argv else ""
+        if cmd == "nightly":
+            return nightly(argv[1:])
+        if cmd == "ship":
+            return ship(argv[1:])
+        if cmd == "add":
+            return add(argv[1:])
+        if cmd == "run":
+            return run(argv[1:])
+        if cmd == "status":
+            return status(argv[1:])
+        if cmd == "drop":
+            if len(argv) != 2 or not argv[1] or argv[1].startswith("-"):
+                raise UsageError("drop requires exactly one id")
+            if not any(r["id"] == argv[1] for r in rows()):
+                print("ab-queue drop: unknown queue item", file=sys.stderr)
+                return 2
+            event(id=argv[1], state="dropped")
+            return 0
+        print(__doc__.strip(), file=sys.stderr)
+        return 2
+    except JournalError as e:
+        print(f"ab-queue: refusing invalid queue journal: {e}", file=sys.stderr)
+        return 2
+    except UsageError as e:
+        print(f"ab-queue: {e}", file=sys.stderr)
+        return 2
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))

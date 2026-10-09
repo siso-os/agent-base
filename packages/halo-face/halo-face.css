@@ -1,0 +1,366 @@
+/* Halo's face: the square screen face with a halo ring over it. One face for every HALO app.
+   Driven only by data attributes on .hf: data-tier, data-state, data-fact, data-variant, data-gesture, data-blink;
+   and CSS vars --gx --gy --lvl --level.
+   Each scenario has its own brand palette (--c1..--c4): it paints the frame band, the screen wash, the grid lines
+   and the eye glow. The halo ring and the rim are the fact channel: amber or red outranks any moment. */
+
+.hf {
+  position: relative; display: inline-block; flex: none;
+  --pink: #ff0069; --violet: #9b30ff; --gold: #f5b942; --amber: #f59e0b; --red: #e5484d; --grey: #8b8790;
+  /* standby: HALO pinks */
+  --c1: #ff0069; --c2: #ff5fa2; --c3: #b44cff; --c4: #ff9ec4; --halo: #ff8fc0; --fact: transparent;
+  --gx: 0; --gy: 0; --lvl: 0; --level: 0;
+  --ease-out: cubic-bezier(.3, .7, .4, 1); --ease-pop: cubic-bezier(.2, .9, .3, 1.35);
+}
+.hf svg { width: 100%; height: 100%; overflow: visible; display: block; }
+.hf g, .hf circle, .hf ellipse, .hf rect, .hf path { transform-box: fill-box; transform-origin: center; }
+
+/* ---------- colour per scenario, all inside HALO's brand colours ---------- */
+.hf[data-state=listening]   { --c1: #ff4fa3; --c2: #c06bff; --c3: #7d6bff; --c4: #ff8fd0; --halo: #ffb8da; }
+.hf[data-state=thinking]    { --c1: #9b30ff; --c2: #d36bff; --c3: #ff4fa3; --c4: #6c4dff; --halo: #c98bff; }
+.hf[data-state=talking]     { --c1: #ff0069; --c2: #ff7a8a; --c3: #ffb0c8; --c4: #ff2f7d; --halo: #ff8fc0; }
+.hf[data-state=celebrating] { --c1: #f5b942; --c2: #ffd76a; --c3: #ff6fa5; --c4: #ffb347; --halo: #f5b942; }
+.hf[data-state=heads-up]    { --c1: #f59e0b; --c2: #ffb347; --c3: #ff7a59; --c4: #f5b942; }
+.hf[data-state=problem]     { --c1: #e5484d; --c2: #cf3346; --c3: #e5484d; --c4: #f0686c; }
+.hf[data-state=asleep]      { --c1: #6e6878; --c2: #8b8790; --c3: #5a5563; --c4: #9a94a3; --halo: #77727f; }
+.hf[data-state=asleep][data-variant=offline] { --c1: #4d4a54; --c2: #5c5963; --c3: #47444e; --c4: #615e68; }
+/* a fact outranks a moment: the halo and rim keep the fact's colour even while the screen celebrates */
+.hf[data-state=heads-up], .hf[data-fact=heads-up] { --halo: var(--amber); --fact: var(--amber); }
+.hf[data-state=problem],  .hf[data-fact=problem]  { --halo: var(--red);   --fact: var(--red); }
+
+.hf .c1 { stop-color: var(--c1); } .hf .c2 { stop-color: var(--c2); }
+.hf .c3 { stop-color: var(--c3); } .hf .c4 { stop-color: var(--c4); }
+.hf .w0 { stop-color: var(--c1); stop-opacity: .34; } .hf .w1 { stop-color: var(--c1); stop-opacity: 0; }
+.hf .g0 { stop-color: var(--c1); stop-opacity: .5; }  .hf .g1 { stop-color: var(--c1); stop-opacity: 0; }
+.hf .e0 { stop-color: color-mix(in srgb, var(--c1) 30%, #fff); stop-opacity: .8; }
+.hf .e1 { stop-color: var(--c1); stop-opacity: 0; }
+.hf :is(.c1, .c2, .c3, .c4, .w0, .w1, .g0, .g1, .e0, .e1) { transition: stop-color .6s var(--ease-out); }
+
+/* ---------- the square ---------- */
+.hf .hf-band  { stroke-width: 8; }
+.hf .hf-gloss { stroke-width: 8; }
+.hf .hf-ear   { fill: #1a1922; stroke: color-mix(in srgb, var(--c1) 35%, #1a1922); stroke-width: .8; transition: stroke .6s; }
+.hf .hf-grid  { stroke: var(--c2); stroke-opacity: .2; transition: stroke .6s; }
+.hf .hf-wash  { transition: opacity .6s; }
+.hf .hf-scan  { opacity: 0; }
+.hf .hf-glow  { opacity: .55; transition: opacity .4s; }
+.hf .hf-rim   { stroke: var(--fact); opacity: 0; transition: opacity .3s, stroke .3s; }
+.hf:is([data-state=heads-up],[data-state=problem],[data-fact=heads-up],[data-fact=problem]) .hf-rim { opacity: 1; }
+.hf .hf-level { fill: var(--gold); opacity: .8; transform-origin: bottom; transform: scaleY(0); transition: transform .9s var(--ease-out); }
+.hf[data-variant=level] .hf-level { transform: scaleY(var(--level)); }
+.hf .hf-lid { fill: #2a2830; transform-origin: top; transform: scaleY(0); transition: transform .5s var(--ease-out); }
+.hf[data-variant=lid-half] .hf-lid { transform: scaleY(.5); }
+.hf[data-variant=lid-full] .hf-lid { transform: scaleY(.96); }
+.hf[data-variant=lid-full] .hf-eyes { opacity: 0; }
+
+/* ---------- eyes: the face that reads at every size ---------- */
+.hf .hf-eyes { transform: translate(calc(var(--gx) * 1px), calc(var(--gy) * 1px)) scale(var(--es, 1)); transition: transform .22s var(--ease-out), opacity .3s; }
+.hf .hf-eyein { transform: scaleY(var(--sq, 1)); transition: transform .18s var(--ease-out); }
+.hf .hf-pupil { fill: #fff; transition: fill .4s, opacity .2s; }
+.hf .hf-eyeglow { transition: opacity .3s; }
+.hf .hf-happy { stroke: #fff; opacity: 0; transition: opacity .18s; }
+.hf[data-blink] .hf-eye { animation: hf-blink .16s ease-in-out; }
+.hf[data-state=listening]   { --es: 1.14; }
+.hf[data-state=thinking]    { --sq: .55; }
+.hf[data-state=talking] .hf-eyein { transform: scaleY(calc(1 - var(--lvl) * .32)); transition-duration: .06s; }
+.hf[data-state=celebrating] .hf-pupil, .hf[data-state=celebrating] .hf-eyeglow { opacity: 0; }
+.hf[data-state=celebrating] .hf-happy { opacity: 1; }
+.hf[data-state=problem]     { --sq: .8; }
+.hf[data-state=asleep]      { --sq: .14; }
+.hf[data-state=asleep] .hf-pupil { fill: #d6d2dc; }
+.hf[data-state=asleep] .hf-eyeglow { opacity: 0; }
+
+/* ---------- the halo ring ---------- */
+.hf .hf-halo { transition: transform .35s var(--ease-out), opacity .35s; }
+.hf .hf-halo-line { stroke: var(--halo); transition: stroke .5s; }
+.hf .hf-halo-soft { stroke: var(--halo); opacity: .28; transition: stroke .5s; }
+.hf .hf-spark { opacity: 0; transition: opacity .2s; }
+.hf[data-state=listening] .hf-halo { transform: translateY(-3px); }
+.hf[data-state=thinking] .hf-spark { opacity: 1; }
+.hf[data-state=thinking] .hf-halo-line { stroke-dasharray: 9 5; animation: hf-dash 1.6s linear infinite; }
+.hf[data-state=problem] .hf-halo { transform: translateY(1.5px); }
+.hf[data-state=asleep] .hf-halo { transform: translateY(5px) rotate(-9deg); opacity: .5; }
+.hf[data-state=asleep][data-variant=offline] .hf-halo { opacity: 0; }
+
+/* ---------- loops, per state ---------- */
+.hf[data-state=standby] .hf-bodyg { animation: hf-breathe 6s ease-in-out infinite; }
+.hf[data-state=standby] .hf-haloin { animation: hf-bob 6s ease-in-out infinite; }
+.hf[data-state=listening] .hf-bodyg { transform: scale(calc(1 + var(--lvl) * .04)); transition: transform .08s linear; }
+.hf[data-state=listening] .hf-wash { opacity: calc(.7 + var(--lvl) * .6); }
+.hf[data-state=thinking] .hf-glow { animation: hf-glowpulse 1.6s ease-in-out infinite; }
+.hf[data-state=thinking] .hf-scan { opacity: 1; animation: hf-scan 1.6s linear infinite; }
+.hf[data-state=talking] .hf-rip { animation: hf-ripple 1.8s cubic-bezier(.2, .6, .3, 1) infinite; }
+.hf[data-state=talking] .hf-rip:nth-child(2) { animation-delay: .6s; }
+.hf[data-state=talking] .hf-rip:nth-child(3) { animation-delay: 1.2s; }
+.hf[data-state=talking] .hf-wash { opacity: calc(.6 + var(--lvl) * .8); }
+.hf .hf-rip { stroke: var(--c1); opacity: 0; }
+.hf[data-state=celebrating] .hf-bodyg { animation: hf-pop .6s var(--ease-pop); }
+.hf[data-state=celebrating] .hf-glow { animation: hf-bloom 1.2s var(--ease-pop); }
+.hf[data-state=celebrating] .hf-haloin { animation: hf-flip .9s var(--ease-out); }
+.hf[data-state=celebrating] .hf-part { animation: hf-burst .9s ease-out both; }
+.hf[data-state=celebrating][data-variant=big] .hf-halo { transform: translateY(-2px) scale(1.3); }
+.hf[data-state=celebrating][data-variant=big] .hf-glow { opacity: 1; }
+.hf[data-state=celebrating][data-variant=burst] .hf-part { animation: hf-burst .9s ease-out 2 both; }
+.hf .hf-part { fill: #ffe39a; opacity: 0; }
+.hf .hf-part.p2 { fill: #ff8fc0; }
+.hf:is([data-state=heads-up],[data-fact=heads-up]) :is(.hf-rim, .hf-haloin) { animation: hf-pulse 2.4s ease-in-out infinite; }
+.hf[data-state=asleep] .hf-bodyg { animation: hf-breathe-sm 8s ease-in-out infinite; }
+.hf[data-state=asleep] .hf-glow { opacity: 0; }
+.hf[data-state=asleep] .hf-wash { opacity: .4; }
+.hf[data-state=asleep][data-variant=offline] .hf-bodyg { animation: none; }
+
+/* ---------- one-shot gestures ---------- */
+.hf[data-gesture=shake] .hf-lean { animation: hf-shake .42s ease-in-out; }
+.hf[data-gesture=tilt]  .hf-lean { animation: hf-tilt 1.3s var(--ease-out); }
+.hf[data-gesture=nod]   .hf-lean { animation: hf-nod .5s ease-in-out; }
+.hf .hf-glint { fill: #fff; opacity: 0; transform: scale(0); }
+.hf[data-gesture=glint] .hf-glint { animation: hf-glint .7s var(--ease-out); }
+
+/* ---------- size tiers: detail drops as the face shrinks; the band thickens and the eyes grow ---------- */
+.hf[data-tier=xs] :is(.hf-halo, .hf-glow, .hf-ripples, .hf-parts, .hf-grid, .hf-scan, .hf-glass, .hf-glint, .hf-eyeglow, .hf-ear, .hf-gloss, .hf-bezel) { display: none; }
+.hf[data-tier=xs] :is(.hf-band) { stroke-width: 12; }
+.hf[data-tier=xs] .hf-eyes { --es: 1.4; }
+.hf[data-tier=xs][data-state=listening] .hf-eyes { --es: 1.6; }
+.hf[data-tier=xs] .hf-wash { opacity: 1.6; }
+.hf[data-tier=sm] :is(.hf-grid, .hf-scan, .hf-parts, .hf-ear, .hf-glint) { display: none; }
+.hf[data-tier=sm] :is(.hf-band, .hf-gloss) { stroke-width: 10; }
+.hf[data-tier=sm] .hf-eyes { --es: 1.15; }
+.hf[data-tier=sm][data-state=listening] .hf-eyes { --es: 1.3; }
+.hf[data-eyes=off] .hf-eyes { display: none; }
+.hf[data-halo=off] .hf-halo { display: none; }
+
+/* ---------- reduced motion: no loops, every state still told apart by colour and shape ---------- */
+.rm .hf *, .hf.rm * { animation: none !important; }
+.rm .hf[data-state=talking] .hf-rip:nth-child(1) { opacity: .5; transform: scale(1.1); }
+.rm .hf[data-state=talking] .hf-rip:nth-child(2) { opacity: .25; transform: scale(1.22); }
+.rm .hf[data-state=celebrating] .hf-part { opacity: .95; transform: translate(calc(var(--dx) * .55), calc(var(--dy) * .55)); }
+.rm .hf[data-state=listening] .hf-bodyg { transform: none; }
+.rm .hf[data-state=thinking] .hf-scan { transform: translateY(28px); }
+
+@keyframes hf-breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.025); } }
+@keyframes hf-breathe-sm { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.012); } }
+@keyframes hf-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-1.6px); } }
+@keyframes hf-dash { to { stroke-dashoffset: -28; } }
+@keyframes hf-scan { 0% { transform: translateY(0); } 100% { transform: translateY(62px); } }
+@keyframes hf-glowpulse { 0%, 100% { opacity: .45; transform: scale(1); } 50% { opacity: .85; transform: scale(1.06); } }
+@keyframes hf-ripple { 0% { opacity: .6; transform: scale(1); } 100% { opacity: 0; transform: scale(1.38); } }
+@keyframes hf-pop { 0% { transform: scale(1); } 45% { transform: scale(1.08); } 100% { transform: scale(1); } }
+@keyframes hf-bloom { 0% { opacity: .5; transform: scale(1); } 40% { opacity: 1; transform: scale(1.45); } 100% { opacity: .75; transform: scale(1.05); } }
+@keyframes hf-flip { 0%, 100% { transform: scaleX(1) translateY(0); } 25% { transform: scaleX(.12) translateY(-3px); } 50% { transform: scaleX(1) translateY(-3px); } 75% { transform: scaleX(.12) translateY(-1px); } }
+@keyframes hf-burst { 0% { opacity: 0; transform: translate(0, 0) scale(.4); } 15% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(1); } }
+@keyframes hf-pulse { 0%, 100% { opacity: .4; } 50% { opacity: 1; } }
+@keyframes hf-shake { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-2.5px); } 45% { transform: translateX(2.5px); } 70% { transform: translateX(-1.2px); } }
+@keyframes hf-tilt { 0%, 100% { transform: rotate(0); } 25%, 70% { transform: rotate(-9deg); } }
+@keyframes hf-nod { 0%, 100% { transform: translateY(0); } 40% { transform: translateY(2.5px); } }
+@keyframes hf-glint { 0% { opacity: 0; transform: scale(0) rotate(0); } 40% { opacity: 1; transform: scale(1) rotate(45deg); } 100% { opacity: 0; transform: scale(.2) rotate(90deg); } }
+
+/* =====================================================================================
+   Round 3 looks: variations on the approved round-2 square. data-look on .hf.
+   r2 = round 2 as approved. Every look keeps the states, palettes and fact channel;
+   below 22 px every look draws the same thick-band icon so the small sizes never break.
+   ===================================================================================== */
+.hf :is(.hf-pill, .hf-sq, .hf-metal, .hf-edge, .hf-trail) { display: none; }
+.hf .hf-trail { stroke: var(--halo); stroke-dasharray: 16 84; }
+
+/* ---- Machined: brushed-metal frame, a thin edge light in the scenario colour, capsule eyes, a solid crisp halo ---- */
+/* anodised: the scenario band sits under a half-transparent brushed-metal layer, so the metal takes the scenario colour */
+.hf[data-look=machined] :is(.hf-gloss, .hf-pupil:not(.hf-pill)) { display: none; }
+.hf[data-look=machined] :is(.hf-metal, .hf-edge, .hf-pill) { display: inline; }
+.hf[data-look=machined] .hf-band { stroke-width: 6.5; }
+.hf[data-look=machined] .hf-metal { stroke-width: 6.5; opacity: .5; mix-blend-mode: luminosity; }
+.hf[data-look=machined] .hf-edge { stroke-width: 1.6; }
+.hf[data-look=machined] .hf-shell { fill: #0d0d12; }
+.hf[data-look=machined] .hf-ear { fill: #4a4853; stroke: #6d6b76; }
+.hf[data-look=machined] .hf-grid { stroke-opacity: .1; }
+.hf[data-look=machined] .hf-halo-line { stroke-width: 2.2; }
+.hf[data-look=machined] .hf-halo-soft { opacity: .16; stroke-width: 5; }
+.hf[data-look=machined] .hf-glow { opacity: .35; }
+
+/* ---- Soft glass: a translucent tinted frame, bigger soft glow, a halo that breathes, calmer breath ---- */
+.hf[data-look=glass] .hf-band { opacity: .62; stroke-width: 9; }
+.hf[data-look=glass] .hf-gloss { stroke-width: 9; }
+.hf[data-look=glass] .hf-shell { fill: color-mix(in srgb, var(--c1) 14%, #16141c); transition: fill .6s; }
+.hf[data-look=glass] .hf-bezel { stroke: color-mix(in srgb, var(--c1) 40%, #2b2a33); }
+.hf[data-look=glass] .hf-eyeglow { transform: scale(1.25); }
+.hf[data-look=glass] .hf-halo-line { stroke-width: 1.8; }
+.hf[data-look=glass] .hf-halo-soft { stroke-width: 10; animation: hf-halobreathe 3.6s ease-in-out infinite; }
+.hf[data-look=glass][data-state=standby] .hf-bodyg { animation-duration: 7.5s; }
+.hf[data-look=glass] .hf-ear { display: none; }
+
+/* ---- Midnight: a near-black graphite shell lit only at its edge, square pixel eyes, a light trail round the halo, slower motion ---- */
+.hf[data-look=midnight] :is(.hf-band, .hf-gloss, .hf-pupil:not(.hf-sq)) { display: none; }
+.hf[data-look=midnight] :is(.hf-edge, .hf-sq, .hf-trail) { display: inline; }
+.hf[data-look=midnight] .hf-edge { stroke-width: 2.4; }
+.hf[data-look=midnight] .hf-shell { fill: #0a0a0e; stroke: color-mix(in srgb, var(--c1) 70%, #1d1c24); stroke-width: 1.6; transition: stroke .6s; }
+.hf[data-look=midnight] .hf-bezel { fill: #050507; stroke: #1b1a22; }
+.hf[data-look=midnight] .hf-ear { fill: #121117; stroke: #23222b; }
+.hf[data-look=midnight] .hf-grid { stroke-opacity: .08; }
+.hf[data-look=midnight] .hf-wash { opacity: .75; }
+.hf[data-look=midnight] .hf-glow { opacity: .42; }
+.hf[data-look=midnight] .hf-halo-line { opacity: .3; stroke-width: 2; }
+.hf[data-look=midnight] .hf-halo-soft { opacity: .1; }
+.hf[data-look=midnight] .hf-trail { animation: hf-trail 3.2s linear infinite; }
+.hf[data-look=midnight][data-state=thinking] .hf-trail { animation-duration: 1.2s; }
+.hf[data-look=midnight][data-state=thinking] .hf-halo-line { stroke-dasharray: none; animation: none; }
+.hf[data-look=midnight]:is([data-state=problem], [data-state=asleep]) .hf-trail { display: none; }
+.hf[data-look=midnight][data-state=problem] .hf-halo-line { opacity: 1; }
+.hf[data-look=midnight][data-state=standby] .hf-bodyg { animation: hf-breathe-sm 8s ease-in-out infinite; }
+.hf[data-look=midnight][data-state=talking] .hf-rip { animation-duration: 2.4s; }
+.hf[data-look=midnight] .hf-rim { stroke-width: 1.6; }
+
+/* ---- Split ring: a thinner frame, a halo cut into two arcs that turn slowly, tight round eyes, crisp easing ---- */
+.hf[data-look=split] { --ease-out: cubic-bezier(.2, .8, .2, 1); }
+.hf[data-look=split] :is(.hf-band, .hf-gloss) { stroke-width: 5; }
+.hf[data-look=split] :is(.hf-grid, .hf-ear) { display: none; }
+.hf[data-look=split] .hf-eyes { --es: .92; }
+.hf[data-look=split][data-state=listening] .hf-eyes { --es: 1.05; }
+.hf[data-look=split] .hf-eyeglow { opacity: .55; }
+.hf[data-look=split] .hf-halo-line { stroke-dasharray: 40 10; animation: hf-dash 12s linear infinite; stroke-width: 3; }
+.hf[data-look=split][data-state=thinking] .hf-halo-line { animation-duration: 1.4s; }
+.hf[data-look=split][data-state=problem] .hf-halo-line { stroke-dasharray: none; animation: none; }
+
+/* ---- Signal: flat brand mark. One solid colour frame, no gloss, glass, grid or glow; reads the same at 16 and 256 ---- */
+.hf[data-look=signal] :is(.hf-gloss, .hf-grid, .hf-wash, .hf-glass, .hf-glow, .hf-ear, .hf-eyeglow, .hf-halo-soft, .hf-scan) { display: none; }
+.hf[data-look=signal] .hf-band { stroke: var(--c1); stroke-width: 9; transition: stroke .5s; }
+.hf[data-look=signal] .hf-shell { fill: #111016; }
+.hf[data-look=signal] .hf-bezel { stroke: none; }
+.hf[data-look=signal] .hf-halo-line { stroke-width: 3.6; }
+
+/* ---- every look at 16-21 px: the same thick-band icon ---- */
+.hf[data-tier=xs] :is(.hf-metal, .hf-edge, .hf-trail) { display: none !important; }
+.hf[data-tier=xs] .hf-band { display: inline !important; opacity: 1 !important; stroke-width: 12 !important; }
+.hf[data-tier=sm][data-look=midnight] .hf-edge { stroke-width: 3.2; }
+.hf[data-tier=sm][data-look=machined] .hf-edge { stroke-width: 2.6; }
+
+@keyframes hf-halobreathe { 0%, 100% { opacity: .14; } 50% { opacity: .5; } }
+@keyframes hf-trail { from { stroke-dashoffset: 0; } to { stroke-dashoffset: -100; } }
+
+/* =====================================================================================
+   Round 4: the screen shows each state, plus device details. Applies to every look.
+   ===================================================================================== */
+.hf .pl { stop-color: color-mix(in srgb, var(--c1) 28%, #fff); transition: stop-color .6s; }
+
+/* ---- the screen display: one small instrument per state, in the scenario colour ---- */
+.hf .hf-disp > g { opacity: 0; transition: opacity .25s; }
+.hf .hf-disp :is(.hf-eq rect, .hf-dots circle, .hf-stars path, .hf-bar-run, .hf-zz text) { fill: var(--c2); }
+.hf .hf-disp .hf-zz text { fill: color-mix(in srgb, var(--c4) 70%, #fff); font-family: ui-rounded, -apple-system, system-ui, sans-serif; font-weight: 700; }
+.hf .hf-disp .hf-stars path { fill: #ffe9a8; }
+.hf .hf-bar-track { fill: var(--c1); opacity: .25; }
+.hf .hf-wave path, .hf .hf-brows path { stroke: var(--c2); }
+.hf .hf-wave path { stroke-width: 2; stroke: color-mix(in srgb, var(--c2) 70%, #fff); }
+.hf .hf-brows path { stroke: color-mix(in srgb, var(--c4) 60%, #fff); }
+.hf[data-state=listening] .hf-eq,
+.hf[data-state=talking] .hf-wave,
+.hf[data-state=thinking] .hf-dots,
+.hf[data-state=celebrating] .hf-stars,
+.hf:is([data-state=heads-up], [data-fact=heads-up]) .hf-bar,
+.hf[data-state=problem] .hf-brows,
+.hf[data-state=asleep]:not([data-variant=offline]) .hf-zz { opacity: 1; }
+.hf[data-variant=lid-full] .hf-zz { opacity: 0; }
+/* listening: an equaliser that follows her voice */
+.hf .hf-eq rect { transform-origin: bottom; transform: scaleY(calc(.18 + var(--lvl) * var(--k))); transition: transform .07s linear; }
+/* talking: a waveform under the eyes, its height from the voice level */
+.hf .hf-wave { transform: scaleY(calc(.15 + var(--lvl) * .95)); transition: transform .06s linear; }
+.hf[data-state=talking] .hf-wave path { animation: hf-wave .5s linear infinite; }
+/* thinking: three dots in turn */
+.hf[data-state=thinking] .hf-dots circle { animation: hf-dot 1.2s ease-in-out infinite; }
+.hf[data-state=thinking] .hf-dots circle:nth-child(2) { animation-delay: .15s; }
+.hf[data-state=thinking] .hf-dots circle:nth-child(3) { animation-delay: .3s; }
+/* celebrating: stars twinkle on the glass */
+.hf[data-state=celebrating] .hf-star { animation: hf-twinkle 1.1s var(--ease-pop) var(--d) both; }
+/* heads-up: an indeterminate bar, still working on it */
+.hf .hf-bar-run { transform: translateX(12px); }
+.hf:is([data-state=heads-up], [data-fact=heads-up]) .hf-bar-run { animation: hf-run 1.6s ease-in-out infinite alternate; }
+/* asleep: z z drifting up */
+.hf[data-state=asleep] .hf-zz .z1 { animation: hf-z 3.2s ease-in-out infinite; }
+.hf[data-state=asleep] .hf-zz .z2 { animation: hf-z 3.2s ease-in-out 1.6s infinite; }
+
+/* ---- glass sheen: a light sweep across the screen every 8 s at rest, once on every change ---- */
+.hf .hf-sheen { transform: translateX(-30px) skewX(-18deg); opacity: 0; }
+.hf[data-state=standby] .hf-sheen { animation: hf-sheen 8s ease-in-out 1.2s infinite; }
+.hf[data-state=celebrating] .hf-sheen { animation: hf-sheen-once .9s ease-out .15s; }
+
+/* ---- status LED on the frame: lit in the scenario colour, breathing while she is heard ---- */
+.hf .hf-led { fill: color-mix(in srgb, var(--c1) 45%, #fff); filter: drop-shadow(0 0 1.4px var(--c1)); transition: fill .4s; }
+.hf[data-state=listening] .hf-led { animation: hf-led 1s ease-in-out infinite; }
+.hf[data-state=asleep] .hf-led { fill: #3a3842; filter: none; }
+
+/* ---- ear grooves, anodised like the frame (Machined) ---- */
+.hf .hf-grooves { display: none; stroke: color-mix(in srgb, var(--c1) 55%, #8a8893); transition: stroke .6s; }
+.hf[data-look=machined] .hf-grooves { display: inline; }
+.hf[data-look=machined] .hf-ear { fill: #3d3b45; stroke: color-mix(in srgb, var(--c1) 30%, #5d5b66); }
+
+/* ---- waking: the screen powers on from a line ---- */
+.hf[data-wake] :is(.hf-eyes, .hf-disp, .hf-wash) { animation: hf-crt .5s cubic-bezier(.2, .8, .3, 1.2); }
+
+/* ---- sizes: the display is for 44 px and up; the LED for 24 px and up ---- */
+.hf:is([data-tier=xs], [data-tier=sm]) .hf-disp { display: none; }
+.hf[data-tier=xs] :is(.hf-led, .hf-grooves) { display: none; }
+
+/* ---- reduced motion: every display holds a still, readable frame ---- */
+.rm .hf .hf-eq rect { transform: scaleY(var(--k)); }
+.rm .hf .hf-wave { transform: scaleY(.7); }
+.rm .hf .hf-bar-run { transform: translateX(12px); }
+.rm .hf .hf-sheen { opacity: 0; }
+
+@keyframes hf-wave { to { transform: translateX(-10px); } }
+@keyframes hf-dot { 0%, 60%, 100% { transform: translateY(0); opacity: .45; } 30% { transform: translateY(-2.6px); opacity: 1; } }
+@keyframes hf-twinkle { 0% { transform: scale(0) rotate(0); } 50% { transform: scale(1.25) rotate(30deg); } 100% { transform: scale(1) rotate(45deg); } }
+@keyframes hf-run { from { transform: translateX(0); } to { transform: translateX(25px); } }
+@keyframes hf-z { 0% { transform: translate(0, 4px); opacity: 0; } 30% { opacity: 1; } 100% { transform: translate(3px, -6px); opacity: 0; } }
+@keyframes hf-sheen { 0%, 78% { transform: translateX(-30px) skewX(-18deg); opacity: 0; } 80% { opacity: 1; } 96% { transform: translateX(95px) skewX(-18deg); opacity: 1; } 100% { transform: translateX(95px) skewX(-18deg); opacity: 0; } }
+@keyframes hf-sheen-once { 0% { transform: translateX(-30px) skewX(-18deg); opacity: 1; } 100% { transform: translateX(95px) skewX(-18deg); opacity: 1; } }
+@keyframes hf-led { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+@keyframes hf-crt { 0% { transform: scale(.7, .03); opacity: .5; filter: brightness(3); } 55% { transform: scale(1.04, 1.06); opacity: 1; } 100% { transform: scale(1); filter: none; } }
+
+/* =====================================================================================
+   Round 5: alive and higher quality. Springs (JS) drive --gx/--gy (eyes), --hx/--hy (head),
+   --lx/--ly (halo follow-through); idle life, notice and boop; light, shadow and glass.
+   ===================================================================================== */
+.hf[data-spring] .hf-eyes { transition: opacity .3s; }
+.hf .hf-head { transform: translate(calc(var(--hx, 0) * 1px), calc(var(--hy, 0) * 1px)); }
+.hf .hf-halofollow { transform: translate(calc(var(--lx, 0) * 1px), calc(var(--ly, 0) * 1px)); }
+.hf[data-tier=lg] { will-change: transform; }
+
+/* blink with squash: the eye flattens and widens, like a lid closing on something soft */
+@keyframes hf-blink { 0%, 100% { transform: scale(1, 1); } 45%, 55% { transform: scale(1.14, .08); } }
+
+/* noticed: a pointer close by widens the eyes and brightens the LED */
+.hf[data-notice] .hf-eyein { transform: scale(1.08, calc(var(--sq, 1) * 1.08)); }
+.hf[data-notice] .hf-led { fill: #fff; }
+
+/* head tilt (idle) and boop (a tap) */
+.hf[data-gesture=cock] .hf-lean { animation: hf-cock 1.8s var(--ease-out); }
+.hf[data-gesture=boop] .hf-lean { transform-origin: 50% 100%; animation: hf-boop .7s var(--ease-pop); }
+.hf[data-boop] :is(.hf-pupil, .hf-eyeglow) { opacity: 0; }
+.hf[data-boop] .hf-happy { opacity: 1; }
+.hf[data-boop] .hf-glow { opacity: .9; }
+
+/* light: a coloured spill on the surface below, a soft contact shadow, the halo lighting the top of the frame */
+.hf .hf-spill { opacity: .55; transition: opacity .5s; }
+.hf .hf-floor { opacity: .9; }
+.hf[data-state=standby] :is(.hf-floor, .hf-spill) { animation: hf-floorbreathe 6s ease-in-out infinite; }
+.hf[data-state=celebrating] .hf-spill { opacity: 1; }
+.hf[data-state=asleep] .hf-spill { opacity: .12; }
+.hf .hl0 { stop-color: var(--halo); stop-opacity: .5; transition: stop-color .5s; }
+.hf .hl1 { stop-color: var(--halo); stop-opacity: 0; }
+.hf[data-state=asleep] .hf-halolight, .hf[data-halo=off] .hf-halolight { opacity: 0; }
+
+/* glass: slightly darker corners and a curved reflection across the top (the grid lines stay as picked) */
+.hf .hf-refl { opacity: .07; }
+
+/* sizes: below 44 px there is no floor, spill or glass work; below 22 px no halo light */
+.hf:is([data-tier=xs], [data-tier=sm]) :is(.hf-floor, .hf-spill, .hf-glassfx) { display: none; }
+.hf[data-tier=xs] :is(.hf-halolight, .hf-vig) { display: none; }
+
+/* reduced motion: no springs, no tilt (JS holds the face still), no breathing light */
+.rm .hf { transform: none !important; }
+
+@keyframes hf-cock { 0%, 100% { transform: rotate(0); } 25%, 70% { transform: rotate(-5deg) translateY(-.5px); } }
+@keyframes hf-boop { 0% { transform: scale(1, 1); } 22% { transform: scale(1.08, .88); } 50% { transform: scale(.95, 1.07) translateY(-2px); } 75% { transform: scale(1.02, .98); } 100% { transform: scale(1, 1); } }
+@keyframes hf-floorbreathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(.94); } }
+
+/* off screen: everything holds still until it scrolls back into view */
+.hf[data-off] * { animation-play-state: paused !important; }
+/* dozing (nobody has touched the window for a while, halo-face.js DOZE_MS): the same, until the next touch */
+.hf[data-doze] * { animation-play-state: paused !important; }

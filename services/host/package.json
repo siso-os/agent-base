@@ -1,0 +1,13 @@
+{
+  "name": "@agent-base/host",
+  "private": true,
+  "type": "module",
+  "description": "siso-host: Claude Code through the Agent SDK inside a herdr pane. The pane shows a readable transcript and takes typed lines (so herdr-send still works); Agent Base connects over a local socket for the live chat, its own input box and approvals.",
+  "bin": { "siso-host": "./bin/siso-host", "siso-host-service": "./bin/siso-host-service" },
+  "scripts": { "start": "node --experimental-strip-types --no-warnings src/host.ts" },
+  "dependencies": {
+    "@anthropic-ai/claude-agent-sdk": "0.3.287",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": { "@types/node": "^22.10.0", "@types/ws": "^8.5.12" }
+}

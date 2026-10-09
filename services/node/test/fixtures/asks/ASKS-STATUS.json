@@ -1,0 +1,6 @@
+{
+  "ask-0002": { "status": "answered", "answer": "About $41 so far this week, most of it Opus.", "link": "https://example.com/spend", "owner": "AGENT-BASE" },
+  "ask-0003": { "status": "done", "answer": "The Mac mini, at 02:00.", "owner": "ESTATE" },
+  "ask-0001": { "owner": "AGENT-BASE", "note": "an extra field" },
+  "ask-0004": { "status": "someday" }
+}

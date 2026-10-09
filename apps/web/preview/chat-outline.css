@@ -1,0 +1,6 @@
+.outline-preview { height: 100vh; display: flex; flex-direction: column; background: var(--crm-color-canvas); color: var(--crm-color-ink); }
+.outline-preview > header { height: 64px; flex: none; display: flex; align-items: center; gap: 11px; padding: 0 24px; border-bottom: 1px solid var(--crm-color-line-subtle); }
+.outline-preview header strong { font-size: 12px; letter-spacing: .06em; }.outline-preview header small { display: block; font-size: 10px; color: var(--crm-color-ink-muted); margin-top: 3px; }
+.outline-preview header button { margin-left: auto; font-size: 11px; color: #9cacc9; }
+.outline-preview main { position: relative; flex: 1; min-height: 0; }
+@media(max-width:500px) { .outline-preview > header { padding: 0 12px; }.outline-preview header button { font-size: 9px; max-width: 90px; } }
