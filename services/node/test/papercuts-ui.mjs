@@ -41,20 +41,15 @@ try {
    return route.fulfill({status:body?200:404,json:body??{}});
   });
   await page.goto(base);
-  const bell=page.getByTestId('notifications-bell');await bell.waitFor();
   if(area==='bell'){
-   await page.waitForFunction(expected=>document.querySelector('[data-testid=notifications-bell]')?.getAttribute('aria-label')?.includes(expected),before?'508 new':'8 new');
-   const label=await bell.getAttribute('aria-label');
+   // SISO OS §6 (t-0599): the bell is gone; ⌥⌘A opens the needs list (AttentionPanel), Esc closes it.
+   await page.getByTestId('nav-rows').waitFor({state:'attached'});
+   assert.equal(await page.getByTestId('notifications-bell').count(),0,'no bell in the top bar');
+   await page.keyboard.press('Alt+Meta+KeyA');
+   await page.getByRole('button',{name:'Close notifications'}).waitFor();
    await page.screenshot({path:path.join(root,`ui-hub/${directory}/papercut-${before?'before':'after'}-${width}.png`)});
-   if(!before){
-    await bell.click();await page.getByRole('dialog',{name:'Notifications',exact:true}).waitFor();
-    assert.match(await bell.getAttribute('aria-label'),/nothing new/);
-    await page.keyboard.press('Escape');await page.reload();await bell.waitFor();
-    await page.waitForTimeout(400);assert.match(await bell.getAttribute('aria-label'),/nothing new/);
-    extra=true;await page.reload();await bell.waitFor();
-    await page.waitForFunction(()=>document.querySelector('[data-testid=notifications-bell]')?.getAttribute('aria-label')?.includes('1 new'));
-   }
-   results.push({width,label,persistence:before?'baseline':'open clears, reload retains, later arrival adds 1'});
+   await page.getByRole('button',{name:'Close notifications'}).click();
+   results.push({width,label:'no bell; ⌥⌘A opens the list'});
   }
   if(area==='version'){
    if(before){
@@ -80,8 +75,8 @@ try {
    }
   }
   if(area==='infra'){
-   // App's normal sidebar footer is the persistent infrastructure block. t-0557 removed it (8 Oct); t-0570 brought it back on
-   // Shaan's word (9 Oct: "we got rid of the agent infrastructure and the side now I don't know why we did that"), so both present.
+   // The infrastructure folder in the side nav. t-0557 removed it (8 Oct); t-0570 brought it back on Shaan's word (9 Oct: "we got
+   // rid of the agent infrastructure and the side now I don't know why we did that"); since 12 Oct it is a folder, not the footer.
    await page.getByTestId('nav-infra').waitFor();
    await page.screenshot({path:path.join(root,`ui-hub/${directory}/papercut-${before?'before':'after'}-${width}.png`)});
    if(!before){await page.evaluate(()=>window.dispatchEvent(new CustomEvent('ab:open-servers')));}

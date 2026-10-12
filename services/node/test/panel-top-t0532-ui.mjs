@@ -52,7 +52,7 @@ async function boxes(page) {
 }
 
 async function topControls(page) {
-  for (const name of ['New tab · ⌘T', 'More views']) {
+  for (const name of ['New tab · ⌘T']) {   // SISO OS step 1 took ⋯ (More views) off the top bar
     const button = page.getByRole('button', { name, exact: true });
     await button.scrollIntoViewIfNeeded();
     const visible = await button.evaluate(el => {
@@ -66,11 +66,13 @@ async function topControls(page) {
 
 function desktopGeometry(r) {
   assert.ok(r.panel && r.card, 'one panel is visible');
-  assert.ok(Math.abs(r.panel.y - r.top.y) <= 1, 'panel reaches the window top line');
-  assert.ok(r.card.y < r.top.bottom, 'card gains the bar height');
-  assert.ok(r.top.right <= r.panel.x + 1, 'top controls have a separate column');
+  // Shaan, 10 Oct, reversing item 5's top line: the panel "shouldn't be bigger than the whole thing, it should be on the
+  // component": level with the content frame, under a top bar that runs the full width.
+  assert.ok(Math.abs(r.panel.y - r.frame.y) <= 1, 'panel is level with the content frame');
+  assert.ok(r.card.y >= r.top.bottom - 1, 'card sits below the top bar');
+  assert.ok(r.top.right >= r.panel.right - 1, 'top bar runs the full width above the panel');
   assert.ok(r.frame.right <= r.panel.x + 1, 'panel squeezes the content instead of covering it');
-  assert.ok(r.card.bottom <= 900 && r.card.height > 840, 'panel keeps bottom gutter and gains height');
+  assert.ok(Math.abs(r.card.bottom - r.frame.bottom) <= 1, 'panel foot is level with the content frame');
   assert.ok(r.chat.width > 200, 'chat remains readable');
 }
 
@@ -128,7 +130,7 @@ try {
       await page.waitForTimeout(250);
       const resized = await boxes(page);
       assert.ok(Math.abs(resized.panel.width - 480) <= 2, 'drag grows panel to 480px');
-      assert.ok(resized.top.width < initial.top.width - 100, 'grid reserves the resized panel width');
+      assert.ok(resized.frame.width < initial.frame.width - 100, 'grid reserves the resized panel width');
       assert.equal(await page.evaluate(() => JSON.parse(localStorage.getItem('agent-base:panel.w.zero'))), 480);
       desktopGeometry(resized);
       await topControls(page);
@@ -141,7 +143,6 @@ try {
       await toggle.click();
       await panel.waitFor({ state: 'hidden' });
       const closed = await boxes(page);
-      assert.ok(closed.top.width > initial.top.width + 300, 'close returns the top-bar width');
       assert.ok(closed.frame.width > initial.frame.width + 300, 'close returns the content width');
       assert.equal(await toggle.getAttribute('aria-pressed'), 'false');
       await topControls(page);
@@ -161,7 +162,7 @@ try {
       await page.locator('.siso-side').waitFor();
       const split = await boxes(page);
       assert.ok(split.side.x >= split.frame.x && split.side.right <= split.frame.right + 1, 'page split stays inside the content frame');
-      assert.ok(split.top.width > initial.top.width + 300, 'split releases the shell side slot');
+      assert.ok(split.frame.width > initial.frame.width + 300, 'split releases the shell side slot');
       await page.screenshot({ path: path.join(shots, `after-split-${width}.png`) });
       await page.keyboard.press('Escape');
       await page.locator('.siso-side').waitFor({ state: 'hidden' });
@@ -176,14 +177,13 @@ try {
       await page.locator('.siso-sidenav:visible').waitFor();
       // Page-kind panels use the same shell slot and remember their own close.
       await page.setViewportSize({ width: 1440, height: 900 });
-      await page.getByRole('button', { name: 'More views', exact: true }).click();
-      await page.getByRole('menuitem', { name: 'What’s new', exact: true }).click();
+      await page.goto(`${base}/#at=${encodeURIComponent(JSON.stringify({ s: 'agents', v: { kind: 'tab', id: 'whatsnew' }, a: null, o: null }))}`);
       await page.locator('section[aria-label="What’s new"]').waitFor();
       await page.waitForTimeout(100);
       await page.keyboard.press('Meta+Shift+KeyB');
       await panel.waitFor();
       const pagePanel = await boxes(page);
-      assert.ok(Math.abs(pagePanel.panel.y - pagePanel.top.y) <= 1, 'page panel also reaches the top line');
+      assert.ok(Math.abs(pagePanel.panel.y - pagePanel.frame.y) <= 1, 'page panel is level with the frame too');
       await topControls(page);
       await page.screenshot({ path: path.join(shots, `after-page-panel-${width}.png`) });
       await page.keyboard.press('Escape');

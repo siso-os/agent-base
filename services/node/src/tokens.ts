@@ -86,13 +86,15 @@ const INLINE_PRICES: [RegExp, Price][] = [
   [/opus-5-5/, p(4, 20, 0.2)],
   [/opus-5|opus-4-[5-9]/, p(5, 25, 0.5)],
   [/opus-4/, p(15, 75, 1.5)],
+  [/sonnet-5-5/, p(2, 10, 0.1)], // 0.05x cache hits (pricing page, 12 Oct)
   [/sonnet-5/, p(2, 10, 0.2)],
   [/sonnet-4/, p(3, 15, 0.3)],
+  [/haiku-5-5/, p(0.1, 0.5, 0.01)], // prompts over 100k bill 5x; not modelled here
   [/haiku-4-5/, p(1, 5, 0.1)],
   [/haiku/, p(0.8, 4, 0.08)],
 ];
 /** Bare aliases Claude Code writes for some sub-agents: the current model of that family. */
-const INLINE_ALIAS: Record<string, string> = { opus: "claude-opus-5-5", sonnet: "claude-sonnet-5-5", haiku: "claude-haiku-4-5", fable: "claude-fable-5-1" };
+const INLINE_ALIAS: Record<string, string> = { opus: "claude-opus-5-5", sonnet: "claude-sonnet-5-5", haiku: "claude-haiku-5-5", fable: "claude-fable-5-1" };
 /**
  * The one price table (EFFICIENCY 16:07): siso-harness-lab/config/prices.json, read once at start, so this and the
  * spend ledger never drift. A missing or unreadable file keeps the inline table above.

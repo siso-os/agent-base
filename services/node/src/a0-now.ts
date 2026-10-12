@@ -37,8 +37,17 @@ async function source<T>(key: string, ttl: number, read: () => Promise<T>, timeo
       return { at: Date.now(), data: null, error: `${key} unavailable` };
     } finally { clearTimeout(timer); }
   })().then((block) => { reading.block = block; return block; }).finally(() => { reading.pending = undefined; });
-  return await reading.pending as Block<T>;
+  // t-0586 (10 Oct): /api/a0/now took 7.6 s on the laptop, held by stack-doctor (~7 s, 5 s of CPU). A quick source still
+  // answers fresh; past a short grace the last reading answers while the new one finishes behind it.
+  const stale = r.block as Block<T> | undefined;
+  if (!stale) return await reading.pending as Block<T>;
+  let grace: ReturnType<typeof setTimeout> | undefined;
+  return await Promise.race([reading.pending as Promise<Block<T>>, new Promise<Block<T>>((resolve) => { grace = setTimeout(resolve, GRACE_MS, stale); grace.unref?.(); })]).finally(() => clearTimeout(grace));
 }
+const GRACE_MS = 400;
+// stack-doctor is ~5 s of a full core per run: every minute it was most of the node's idle cost. Five minutes is still
+// fresher than anything it reports changes (t-0586).
+const STACK_MS = 300_000;
 async function command(key: string, fallback: string) {
   const configured = process.env[`AB_A0NOW_${key}_CMD`] ?? fallback;
   const [program, ...args] = configured.trim().split(/\s+/);
@@ -117,7 +126,7 @@ function today(ship: ShipNow | null, lanes: NowLanes | null): NowEvent[] {
 export async function a0Now(): Promise<A0Now> {
   const [lanes, stack, renewals, needsBlock, shipBlock, budget] = await Promise.all([
     source("lanes", 10_000, readLanes),
-    source("stack", 60_000, async () => { const rows = await command("STACK", "stack-doctor --json"); if (!Array.isArray(rows) || !rows.every((r: any) => r && ["red", "amber", "green"].includes(r.level) && typeof r.check === "string" && typeof r.msg === "string")) throw new Error("Invalid stack"); return rows as StackLine[]; }),
+    source("stack", STACK_MS, async () => { const rows = await command("STACK", "stack-doctor --json"); if (!Array.isArray(rows) || !rows.every((r: any) => r && ["red", "amber", "green"].includes(r.level) && typeof r.check === "string" && typeof r.msg === "string")) throw new Error("Invalid stack"); return rows as StackLine[]; }),
     source("renewals", 600_000, async () => { const rows = await command("RENEWALS", "renewals --json"); if (!Array.isArray(rows) || !rows.every((r: any) => r && typeof r.name === "string" && typeof r.status === "string" && (r.days_left == null || Number.isFinite(r.days_left)) && ["kind", "renews", "renews_local", "why"].every((key) => r[key] == null || typeof r[key] === "string"))) throw new Error("Invalid renewals"); return rows as Renewal[]; }),
     source("needs", 10_000, needs, 3000), source("ship", 10_000, ship),
     source("budget", 60_000, async () => { const data = process.env.AB_A0NOW_BUDGET_CMD ? await command("BUDGET", "") : await tokensBudget(); if (!data || !Array.isArray(data.claude) || !data.claude.every((c: any) => c && typeof c.name === "string" && Number.isFinite(c.usedPct) && (c.resetsAt == null || Number.isFinite(c.resetsAt))) || !data.codex || (data.codex.balance != null && !Number.isFinite(data.codex.balance))) throw new Error("Invalid budget"); return data as Budget; }),

@@ -4,7 +4,7 @@ import { test } from 'node:test';
 import { allowed } from '../src/life.ts';
 const storage = new Map();
 globalThis.localStorage = { getItem: k => storage.get(k) ?? null, setItem: (k,v) => storage.set(k,v) };
-const store = await import('../../../apps/web/src/components/life/store.ts');
+const store = await import('../../../apps/web/src/modules/life/store.ts');
 const event = (id, overrides = {}) => ({id,day:'2026-10-07',kind:'add',key:'water',value:250,at:1,...overrides});
 const put = events => storage.set('life-queue-v1', JSON.stringify(events));
 test('GET /days is allowed; writes and unrelated paths stay blocked', () => {

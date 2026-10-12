@@ -19,7 +19,7 @@ export const estateFixture = {
 export const estateProposedFixture={merges:[],archive:[]};
 const now=FIXTURE_NOW,iso=new Date(now).toISOString(),day=iso.slice(0,10),sec=now/1000;
 const sum={input:1200,output:300,cacheRead:200,cacheWrite:0,total:1700,cost:0.02,unpricedTokens:0,messages:2};
-const zero={id:'fixture-zero',key:'fixture/zero',pane:'',name:'Agent Zero',title:'Agent Zero',status:'idle',zero:true,a0:true,chat:true,host:true,project:'Agent Base',folder:'fixture',cwd:'/synthetic/agent-base',tool:'siso',session:'synthetic-qa',since:now,lastEvent:now,hud:null,pages:[],row:'live'};
+const zero={id:'fixture-zero',key:'fixture/zero',pane:'',name:'Agent Zero',title:'Agent Zero',status:'idle',zero:true,a0:true,chat:true,host:true,project:'Agent Base',folder:'fixture',cwd:'/synthetic/agent-base',tool:'siso',session:'synthetic-qa',since:now,lastEvent:now,hud:null,pages:[],row:'live',machine:'laptop',machineKey:'laptop'};
 const f=baseCardFixture(zero,now);
 // The shared nav fixture refers to screenshots supplied by its own preview server.
 // Use visibly labelled synthetic image data here; never borrow real UI evidence.

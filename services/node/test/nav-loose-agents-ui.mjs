@@ -40,14 +40,15 @@ try {
   });
   await page.routeWebSocket('**/*', ws => ws.close());
   await page.goto(base);
-  const nav = page.locator('[data-testid="nav-rows"]');
+  // SISO OS §7 (t-0599): they sit in the Agents branch of Agent Zero's card, open by default while there are any.
+  const nav = page.locator('[data-testid="nav-agents"]');
   await nav.waitFor({ timeout: 15000 });
   await page.waitForTimeout(800);
   const rows = name => nav.locator('[data-name="' + name + '"]').count();
   const demo = await nav.getByText('DEMO-CLAUDE', { exact: true }).count();
   check('the stranger\'s agent has a row', demo === 1, { demo });
-  check('"No live agents." is gone', (await nav.getByText('No live agents.').count()) === 0);
-  const section = await nav.getByText('DEMO-CLAUDE', { exact: true }).first().evaluate(el => el.closest('section,[role="group"],div[data-section]')?.textContent?.slice(0, 120) ?? '');
+  check('"No live agents." is gone', (await page.getByText('No live agents.').count()) === 0);
+  const section = '';
   const landing = await nav.getByText('SISO-LANDING', { exact: true }).count();
   check('SISO owners are not repeated in it', landing <= 1, { landing, section });
   const errors = [];

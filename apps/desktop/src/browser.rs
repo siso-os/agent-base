@@ -73,13 +73,18 @@ pub(super) fn window_state(window: &tauri::Window) {
 /// Closing the SISO Browser window brings its pages home: each moves back into Agent Base, hidden and still alive (a sign-in
 /// half done, a song playing), and Agent Base hears where each went.
 pub(super) fn window_closing(window: &tauri::Window) {
+    // A window of its own (the SISO Browser window, a module's window) is the whole app page: its process goes with it, or
+    // wry keeps it, as for a closed tab (each one ~300 MB). Only the window's own page; tabs moving home stay alive.
+    if window.label() == WINDOW || window.label().starts_with("mod-") {
+        if let Some(own) = window.webviews().into_iter().find(|w| w.label() == window.label()) { end_process(&own); }
+    }
     if window.label() != WINDOW { return; }
     let app = window.app_handle();
     let Some(main) = app.get_window("main") else { return; };
     if let Ok(mut p) = app.state::<BrowserState>().0.lock() { p.prefetch.remove(WINDOW); }
     for page in window.webviews() {
         if is_shell(page.label()) { continue; }
-        if page.label().starts_with("browser-prefetch-") { super::site_auth::forget(app, page.label()); let _ = page.close(); continue; }
+        if page.label().starts_with("browser-prefetch-") { super::site_auth::forget(app, page.label()); let _ = close_page(&page); continue; }
         let _ = page.hide();
         if page.reparent(&main).is_ok() { moved(app, page.label(), "main"); }
     }
@@ -316,6 +321,26 @@ fn hold_media(page: &Webview, hold: bool) {
     #[cfg(not(target_os = "macos"))]
     let _ = (page, hold);
 }
+/// Close a page and give its WebKit process back (t-0586 / the 20 GB ask, A0 10 Oct: "68 WebKit processes ... the old ones
+/// never exit"). On macOS wry keeps a closed child webview's WKWebView alive, so its WebContent process lived as long as the
+/// app: on the mini 12 opened-and-closed tabs left 12 processes, with a bare `WebviewBuilder` too, while a released plain
+/// WKWebView frees its process (`test/webcontent-leak.py`). `-[WKWebView _close]` is how Safari closes a tab: WebKit ends
+/// the page and its process whatever still holds the view. The view itself is left to wry.
+pub(super) fn close_page(page: &Webview) -> tauri::Result<()> {
+    end_process(page);
+    page.close()
+}
+fn end_process(page: &Webview) {
+    #[cfg(target_os = "macos")]
+    let _ = page.with_webview(|native| unsafe {
+        let view = native.inner() as *mut objc2::runtime::AnyObject;
+        if !view.is_null() && objc2::msg_send![&*view, respondsToSelector: objc2::sel!(_close)] {
+            let _: () = objc2::msg_send![&*view, _close];
+        }
+    });
+    #[cfg(not(target_os = "macos"))]
+    let _ = page;
+}
 static PREFETCHES: AtomicU32 = AtomicU32::new(0);
 /// One page per window, loading what the pointer rests on (Shaan, 7 Oct: "they should be super zippy"): off-screen, hidden,
 /// silent, on the profile the click would use. A click on that address adopts it (`browser_open`), so it has been loading
@@ -340,7 +365,7 @@ pub async fn browser_prefetch(caller: Webview, raw_url: String, profile: String,
                 return Ok(());
             }
             super::site_auth::forget(&app, &old);
-            let _ = page.close();
+            let _ = close_page(&page);
         }
         if let Ok(mut p) = app.state::<BrowserState>().0.lock() { p.store.remove(&old); p.loaded.remove(&old); p.loading.remove(&old); }
     }
@@ -429,7 +454,7 @@ pub async fn browser_open(caller: Webview, tab: String, raw_url: String, profile
         }
         let elsewhere = existing.window().label() != caller.window().label();
         super::site_auth::forget(&app, &label);
-        existing.close().map_err(|e| e.to_string())?;
+        close_page(&existing).map_err(|e| e.to_string())?;
         if elsewhere { moved(&app, &label, caller.window().label()); }
         if label != base { if let Ok(mut p) = app.state::<BrowserState>().0.lock() { p.alias.remove(&base); } label = base.clone(); }
     }
@@ -512,7 +537,7 @@ pub async fn browser_close(caller: Webview, tab: String) -> Result<(), String> {
     }
     mark_visible(caller.app_handle(), &tab, &label, false);
     super::site_auth::forget(caller.app_handle(), &label);
-    if let Some(page) = caller.app_handle().get_webview(&label) { page.close().map_err(|e| e.to_string())?; }
+    if let Some(page) = caller.app_handle().get_webview(&label) { close_page(&page).map_err(|e| e.to_string())?; }
     Ok(())
 }
 /// The SISO Browser window (t-0439): `open` shows it with this tab (making it the first time), focused, so the tab's page
@@ -673,7 +698,7 @@ pub async fn browser_session_state(caller: Webview, account: String) -> Result<S
     // Read once the blank page has loaded (or after 3 s if the node did not answer).
     let _ = tauri::async_runtime::spawn_blocking(move || rx.recv_timeout(std::time::Duration::from_secs(3))).await;
     let cookies = page.cookies();
-    let _ = page.close();
+    let _ = close_page(&page);
     Ok(session_proof(cookies.map_err(|e| e.to_string())?.iter().map(|c| (c.name(), c.domain())), host))
 }
 /// Whether the tab is playing sound, so the sleep policy never closes music. A fixed probe; it returns only a boolean.
@@ -728,7 +753,7 @@ async fn sleep_oldest(app: &AppHandle) {
             p.tab.remove(&label)
         };
         super::site_auth::forget(app, &label);
-        let _ = page.close();
+        let _ = close_page(&page);
         excess -= 1;
         if let Some(tab) = tab { for shell in ["main", WINDOW] { let _ = app.emit_to(shell, "browser-page-slept", &tab); } }
     }

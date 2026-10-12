@@ -10,7 +10,7 @@ OUT=${AB_QUEUE_STATE:-$HOME/.local/state/agent-base/ship-queue}/sample-${SHA:0:1
 mkdir -p "$(dirname "$OUT")"
 say() { [ -n "${AB_SAMPLE_NOTIFY:-}" ] && $AB_SAMPLE_NOTIFY "$1" >/dev/null 2>&1; echo "$1" >> "$OUT"; }
 NODE=$(lsof -nP -iTCP:$PORT -sTCP:LISTEN -t 2>/dev/null | head -1)
-APP=$(pgrep -f "${AB_LIVE_APP_PROC:-Agent Base.app/Contents/MacOS/agent-base}" | head -1)
+APP=$(pgrep -f "${AB_LIVE_APP_PROC:-(SISO OS|Agent Base).app/Contents/MacOS/agent-base}" | head -1)
 wcs() { ps -axo pid,comm | awk '/XPCServices\/com.apple.WebKit.WebContent.xpc/ {print $1}'; }
 avail() { vm_stat | awk '/page size/{ps=$8} /Pages free/{f=$3} /Pages inactive/{i=$3} /Pages speculative/{s=$3} END{printf "%d", (f+i+s)*ps/1048576}'; }
 say "AGENT-BASE ship ${SHA:0:7} is live: app ${APP:-?}, node ${NODE:-?}, WebContent $(wcs | tr '\n' ' ')avail $(avail) MB; 10-min sample follows."

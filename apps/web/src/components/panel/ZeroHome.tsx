@@ -1,10 +1,11 @@
-import { useState, type ReactNode } from "react";
-import { ArrowUpRightIcon, ChevronDownIcon } from "lucide-react";
+import { useEffect, useState, type ReactNode } from "react";
+import { ArrowUpRightIcon, ChevronDownIcon, RefreshCwIcon } from "lucide-react";
 import type { Agent } from "../../lib/agents";
 import { isDone, isParked, ownerNames, tasksOf, useA0Tasks } from "../../lib/a0-tasks";
 import { AgentFace } from "../../lib/face";
 import { openOwner, useOwners, type Owner } from "../../lib/owners";
 import { useSharedResult, useSharedState } from "../../lib/poll";
+import { freshWords, useUsageRefresh } from "../../lib/usage-refresh";
 import { providerUsage, resetDescription, type UsageSnapshot } from "../../lib/provider-usage";
 import { useReleases } from "../../lib/releases";
 import { face, LinkChip, live } from "../OwnerBoard";
@@ -80,22 +81,32 @@ function OwnersBlock({ owners, agents, onOpenAgent }: { owners: Owner[]; agents:
 
 type Health = { load?: number[] | null; cpus?: number | null; memAvailGb?: number | null; swapUsedGb?: number | null; diskFreeGb?: number | null };
 type Servers = { servers?: { key: string; here?: boolean; health?: Health }[] };
+const WINDOW_NAME = { "five-hour": "5-hour", week: "weekly" } as const;
 function BudgetBlock() {
   const { data, error } = useSharedState<UsageSnapshot>("/api/tokens", 60_000);
   const servers = useSharedResult<Servers>("/api/servers", 30_000).data;
+  // Shaan, 10 Oct: "there should be a refresh button on it ... I don't know what my usages are, 5 hour or weekly".
+  // ↻ asks the node to read Claude's usage now, then reloads it; the age line ticks every 30 s.
+  const { busy, failed, run: reload } = useUsageRefresh(), [, tick] = useState(0);
+  useEffect(() => { const t = setInterval(() => tick(n => n + 1), 30_000); return () => clearInterval(t); }, []);
   const now = Date.now();
   const [claude, codex] = providerUsage(data, error, now);
   // The freshest Claude account's two windows; Codex as one ring (its tighter window).
   const windows = claude.accounts[0]?.windows ?? [];
   const codexWindow = (codex.accounts[0]?.windows ?? []).filter(w => w.pct !== null).sort((x, y) => (y.pct ?? 0) - (x.pct ?? 0))[0];
   const orbs = [
-    ...windows.map(w => ({ key: `claude-${w.id}`, label: `Claude ${w.shortLabel}`, w })),
-    ...(codexWindow ? [{ key: "codex", label: `Codex ${codexWindow.shortLabel}`, w: codexWindow }] : []),
+    ...windows.map(w => ({ key: `claude-${w.id}`, label: `Claude ${WINDOW_NAME[w.id]}`, w })),
+    ...(codexWindow ? [{ key: "codex", label: `Codex ${WINDOW_NAME[codexWindow.id]}`, w: codexWindow }] : []),
   ];
   const h = servers?.servers?.find(s => s.here)?.health;
   const laptop = h ? [h.load?.[0] != null && h.cpus ? `load ${h.load[0].toFixed(1)}/${h.cpus}` : null, h.memAvailGb != null ? `${h.memAvailGb} GB free` : null, h.swapUsedGb != null ? `swap ${h.swapUsedGb} GB` : null, h.diskFreeGb != null ? `disk ${h.diskFreeGb} GB` : null].filter(Boolean).join(" · ") : null;
   const tight = !!h && ((h.load?.[0] ?? 0) > (h.cpus ?? 8) || (h.swapUsedGb ?? 0) > 6 || (h.memAvailGb ?? 99) < 2);
-  return <Block title="Budget" meta="plan window used" testid="zh-budget">
+  const at = claude.accounts[0]?.at ?? null;
+  const meta = <span className="zh-budget__meta" data-testid="zh-budget-age">
+    {freshWords(busy, failed, at, now)}
+    <button type="button" className={busy ? "is-busy" : undefined} aria-label="Refresh usage now" title="Refresh usage now" data-testid="zh-budget-refresh" disabled={busy} onClick={() => void reload()}><RefreshCwIcon size={12} aria-hidden /></button>
+  </span>;
+  return <Block title="Budget" meta={meta} testid="zh-budget">
     <div className="zh-orbs">{orbs.map(({ key, label, w }) => <div key={key} className="zh-orb" title={w.reason ?? undefined} data-state={w.state}>
       <UsageOrb pct={w.pct} size={44} stale={w.state !== "fresh"} label />
       <b>{label}</b><small>{w.pct !== null && w.pct >= 100 ? "out · " : ""}{resetDescription(w, now)}</small>

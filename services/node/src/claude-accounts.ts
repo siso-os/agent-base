@@ -13,7 +13,7 @@ export type ClaudeAccountId = typeof CLAUDE_ACCOUNTS[number]['id'];
 export type ClaudeAccount = {
   id: ClaudeAccountId; name: string; readOnly: boolean;
   fiveHour: { pct: number; resetsAt: number | null } | null;
-  week: { pct: number; resetsAt: number | null } | null; usageAt: number | null; usageStale: boolean;
+  week: { pct: number; resetsAt: number | null } | null; usageAt: number | null; usageStale: boolean; usageWhy?: string | null;
   renewsAt: number | null; renewalStatus: string | null;
   credits: { left: number | null; endsAt: number | null }[] | null;
   billingAt: number | null; billingStale: boolean;
@@ -32,7 +32,7 @@ export function claudeAccountId(config: unknown, home = homedir()): ClaudeAccoun
 const time = (v: unknown): number | null => typeof v === 'string' && Number.isFinite(Date.parse(v)) ? Date.parse(v) : null;
 const number = (v: unknown) => typeof v === 'number' && Number.isFinite(v) && v >= 0 ? v : null;
 /** Only these columns cross the API boundary, including when a command returns unexpected fields. */
-export function projectAccounts(raw: any, usage: (id: ClaudeAccountId) => ClaudeUsage | null, at: number | null, stale: boolean): ClaudeAccount[] {
+export function projectAccounts(raw: any, usage: (id: ClaudeAccountId) => ClaudeUsage | null, at: number | null, stale: boolean, why: (id: ClaudeAccountId) => string | null = () => null): ClaudeAccount[] {
   return CLAUDE_ACCOUNTS.map(account => {
     const reading = account.readOnly ? null : usage(account.id);
     const renewal = !account.readOnly && Array.isArray(raw?.renewals) ? raw.renewals.find((r: any) => r?.id === account.id) : null;
@@ -40,7 +40,7 @@ export function projectAccounts(raw: any, usage: (id: ClaudeAccountId) => Claude
     return { ...account,
       fiveHour: reading?.fiveHour ? { pct: reading.fiveHour.pct, resetsAt: reading.fiveHour.resetsAt } : null,
       week: reading?.week ? { pct: reading.week.pct, resetsAt: reading.week.resetsAt } : null,
-      usageAt: reading?.at ?? null, usageStale: reading?.stale ?? true,
+      usageAt: reading?.at ?? null, usageStale: reading?.stale ?? true, usageWhy: account.readOnly || (reading && !reading.stale) ? null : why(account.id),
       renewsAt: time(renewal?.renews), renewalStatus: ['active','past_due','canceled','unpaid','trialing'].includes(renewal?.renewalStatus) ? renewal.renewalStatus : null,
       credits: Array.isArray(credit?.credits) ? credit.credits.slice(0, 12).map((g: any) => ({ left: number(g?.left), endsAt: time(g?.ends) })) : null,
       billingAt: account.readOnly ? null : [renewal?.at ?? (renewal ? at : null), credit?.at ?? (credit?.credits ? at : null)].filter((v): v is number => typeof v === 'number').sort((a,b)=>a-b)[0] ?? null,
@@ -73,19 +73,19 @@ export function mergeBilling(previous: any, incoming: any, now: number) {
 }
 export function createAccountReader(read = readBilling, now = Date.now) {
   let data: unknown = null, at: number | null = null, attempted: number | null = null, pending = false, failed = false;
-  return (usage: (id: ClaudeAccountId) => ClaudeUsage | null): ClaudeAccounts => {
+  return (usage: (id: ClaudeAccountId) => ClaudeUsage | null, why?: (id: ClaudeAccountId) => string | null): ClaudeAccounts => {
     if (!pending && (attempted === null || now() - attempted >= 300_000)) {
       attempted = now(); pending = true;
       void read().then(value => { data = mergeBilling(data, value, now()); at = now(); failed = false; }, () => { failed = true; }).finally(() => { pending = false; });
     }
-    return { accounts: projectAccounts(data, usage, at, failed || at === null || now() - at > 300_000), refreshing: pending };
+    return { accounts: projectAccounts(data, usage, at, failed || at === null || now() - at > 300_000, why), refreshing: pending };
   };
 }
 const readAccounts = createAccountReader();
 export function claudeAccounts(): ClaudeAccounts {
+  const candidates = (id: ClaudeAccountId) => [path.join(homedir(), '.config', id), path.join(homedir(), `.${id}`)];
   return readAccounts(id => {
-    const candidates = [path.join(homedir(), '.config', id), path.join(homedir(), `.${id}`)];
-    const readings = candidates.map(config => claudeUsage.get(config)).filter((v): v is ClaudeUsage => v !== null);
+    const readings = candidates(id).map(config => claudeUsage.get(config)).filter((v): v is ClaudeUsage => v !== null);
     return readings.sort((a,b) => b.at - a.at)[0] ?? null;
-  });
+  }, id => candidates(id).map(config => claudeUsage.why(config)).find((v): v is string => v !== null) ?? null);
 }

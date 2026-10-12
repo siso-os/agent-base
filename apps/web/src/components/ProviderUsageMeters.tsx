@@ -3,6 +3,8 @@ import type { ClaudeAccounts as AccountSnapshot } from '../../../../services/nod
 import {useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties} from 'react';
 import {createPortal} from 'react-dom';
 import {useSharedState} from '../lib/poll';
+import {freshWords, useUsageRefresh} from '../lib/usage-refresh';
+import {RefreshCwIcon} from 'lucide-react';
 import {providerTone, providerUsage, type ProviderUsage, type ProviderWindow, type UsageSnapshot} from '../lib/provider-usage';
 import './ProviderUsageMeters.css';
 
@@ -33,17 +35,22 @@ const H = 3_600_000, SPAN = { 'five-hour': 5 * H, week: 7 * 24 * H } as const;
 const leftWords = (ms: number) => { const m = Math.max(1, Math.ceil(ms / 60_000)), h = Math.floor(m / 60); return h >= 24 ? `${Math.floor(h / 24)}d ${h % 24}h` : h ? `${h}h ${m % 60}m` : `${m}m`; };
 const clockWords = (at: number, now: number) => { const d = new Date(at), same = new Date(now).toDateString() === d.toDateString(); return d.toLocaleString([], same ? { hour: '2-digit', minute: '2-digit' } : { weekday: 'short', hour: '2-digit', minute: '2-digit' }); };
 type Win = { id: 'five-hour' | 'week'; pct: number | null; resetsAt: number | null; state: ProviderWindow['state'] };
-/** One window at a glance (t-0570, Shaan 9 Oct: "It's quite hard to see when my 5-hour resets for multiple counts"): the orb,
- *  when it resets in words and on the clock, and a thin bar of how much of the window has run. */
+/** One window at a glance (t-0570, Shaan 9 Oct: "It's quite hard to see when my 5-hour resets for multiple counts"; 10 Oct:
+ *  "make it nicer and clearer"): the orb, the window by name, how much is used in big type, a bar of what is used with a tick
+ *  at how much of the window has run (fill past the tick = burning faster than it resets), and when it resets. */
 function WindowCell({ w, now, note }: { w: Win | null; now: number; note?: string }) {
   const id = w?.id ?? 'five-hour', passed = !!w?.resetsAt && w.resetsAt <= now;
   const elapsed = w?.resetsAt && !passed ? Math.max(0, Math.min(100, 100 - (w.resetsAt - now) / SPAN[id] * 100)) : null;
-  return <span className="ab-uw" data-window={id} data-state={w?.pct == null ? 'unknown' : w.state} title={w?.resetsAt ? `Resets ${new Date(w.resetsAt).toLocaleString()}` : undefined}>
-    <UsageOrb pct={w?.pct ?? null} size={34} stale={!!w && w.state !== 'fresh'} label/>
-    <span className="ab-uw__text"><b>{id === 'week' ? 'Week' : '5 hours'}</b>
-      {w?.pct == null ? <small>{note ?? 'not reported'}</small> : !w.resetsAt ? <small>reset unknown</small> : passed ? <small>reset passed · awaiting a reading</small>
-        : <><span className="ab-uw__left">resets in {leftWords(w.resetsAt - now)}</span><small>at {clockWords(w.resetsAt, now)}</small></>}
-      {elapsed !== null && <i className="ab-uw__bar" aria-hidden><u style={{ width: `${elapsed}%` }}/></i>}
+  const used = w?.pct ?? null;
+  return <span className="ab-uw" data-window={id} data-state={used == null ? 'unknown' : w!.state} data-tone={providerTone(used)} title={w?.resetsAt ? `Resets ${new Date(w.resetsAt).toLocaleString()}` : undefined}>
+    <UsageOrb pct={used} size={34} stale={!!w && w.state !== 'fresh'} label/>
+    <span className="ab-uw__text"><b>{id === 'week' ? 'Weekly limit' : '5-hour limit'}</b>
+      {used == null ? <small>{note ?? 'not reported'}</small> : <>
+        <span className="ab-uw__pct">{Math.round(used)}%<em> used</em></span>
+        <i className="ab-uw__bar" aria-hidden><u style={{ width: `${Math.min(100, used)}%` }}/>{elapsed !== null && <s style={{ left: `${elapsed}%` }}/>}</i>
+        {!w!.resetsAt ? <small>reset unknown</small> : passed ? <small>reset passed · awaiting a reading</small>
+          : <small>resets in <strong className="ab-uw__left">{leftWords(w!.resetsAt - now)}</strong> · {clockWords(w!.resetsAt, now)}</small>}
+      </>}
     </span>
   </span>;
 }
@@ -60,6 +67,7 @@ export function UsageMeter({providers, now, session, accounts}: {providers:Provi
   const trigger = useRef<HTMLButtonElement>(null), panel = useRef<HTMLElement>(null), closeTimer = useRef<number | undefined>(undefined), keyboard = useRef(false);
   const id = useId();
   const {snapshot,failed}=useClaudeAccounts(open,accounts);
+  const usage = useUsageRefresh();
   const cancelClose = () => { clearTimeout(closeTimer.current); closeTimer.current=undefined; };
   const close = (restore=false) => { cancelClose();setOpen(false);if(restore)trigger.current?.focus(); };
   const leave = () => { cancelClose();closeTimer.current=window.setTimeout(()=>{ if (!panel.current?.contains(document.activeElement) && document.activeElement !== trigger.current) setOpen(false); },160); };
@@ -85,11 +93,14 @@ export function UsageMeter({providers, now, session, accounts}: {providers:Provi
   const say=(p:ProviderUsage)=>`${p.label} ${p.pct===null?'unknown':`${Math.round(p.pct)}%`}${p.state==='stale'?' (stale)':''}`;
   const worst=providers.reduce<number|null>((n,p)=>p.pct===null?n:Math.max(n??0,p.pct),null);
   return <>
-    <button ref={trigger} type="button" className="ab-provider-meter" data-testid="provider-usage" data-tone={providerTone(worst)} aria-label={`Usage: ${providers.map(say).join(', ')}`} aria-haspopup="dialog" aria-controls={open?id:undefined} aria-expanded={open} onPointerEnter={e=>{if(e.pointerType==='mouse'&&matchMedia('(hover:hover)').matches){cancelClose();keyboard.current=false;setOpen(true);}}} onPointerLeave={leave} onClick={()=>{close();window.location.hash='at='+encodeURIComponent(JSON.stringify({s:'tokens',v:{kind:'chat'},a:null,o:null}));}} onKeyDown={e=>{if(e.key==='ArrowDown'){e.preventDefault();keyboard.current=true;setOpen(true);}}}>
+    <button ref={trigger} type="button" className="ab-provider-meter" data-no-tip data-testid="provider-usage" data-tone={providerTone(worst)} aria-label={`Usage: ${providers.map(say).join(', ')}`} aria-haspopup="dialog" aria-controls={open?id:undefined} aria-expanded={open} onPointerEnter={e=>{if(e.pointerType==='mouse'&&matchMedia('(hover:hover)').matches){cancelClose();keyboard.current=false;setOpen(true);}}} onPointerLeave={leave} onClick={()=>{close();window.location.hash='at='+encodeURIComponent(JSON.stringify({s:'tokens',v:{kind:'chat'},a:null,o:null}));}} onKeyDown={e=>{if(e.key==='ArrowDown'){e.preventDefault();keyboard.current=true;setOpen(true);}}}>
       {providers.map(p=><span key={p.id} className="ab-provider-meter__one" data-testid={`provider-${p.id}`} data-state={p.state} data-tone={providerTone(p.pct)}><UsageOrb pct={p.pct} stale={p.state!=='fresh'}/><b>{p.pct===null?'—':`${Math.round(p.pct)}%`}</b></span>)}
     </button>
     {open&&createPortal(<section ref={panel} id={id} tabIndex={-1} role="dialog" aria-label="Usage accounts" className="ab-provider-card" style={position} onPointerEnter={cancelClose} onPointerLeave={leave} onBlur={e=>{if(!e.currentTarget.contains(e.relatedTarget as Node)&&e.relatedTarget!==trigger.current)leave();}}>
-      <header><strong>Usage</strong><button type="button" aria-label="Close usage" onClick={()=>close(true)}>×</button></header>
+      {/* 10 Oct: the header names what this is, says how old the reading is, and ↻ reads it from Anthropic now. */}
+      <header><strong>Claude and Codex usage</strong><span className="ab-provider-card__fresh" data-testid="usage-fresh">{freshWords(usage.busy, usage.failed, Math.max(0, session?.limitsAt ?? 0, ...(providers.find(p => p.id === 'claude')?.accounts ?? []).map(a => a.at ?? 0)) || null, now)}
+        <button type="button" className={usage.busy ? 'is-busy' : undefined} aria-label="Refresh usage now" data-testid="usage-refresh" disabled={usage.busy} onClick={() => void usage.run()}><RefreshCwIcon size={13} aria-hidden/></button>
+        <button type="button" aria-label="Close usage" onClick={()=>close(true)}>×</button></span></header>
       {(() => {
         const claude = providers.find(p => p.id === 'claude'), codex = providers.find(p => p.id === 'codex');
         const win = (a: ProviderUsage['accounts'][number] | undefined, id: Win['id']): Win | null => { const w = a?.windows.find(x => x.id === id); return w ? { id, pct: w.pct, resetsAt: w.resetsAt, state: w.state } : null; };
@@ -105,7 +116,7 @@ export function UsageMeter({providers, now, session, accounts}: {providers:Provi
             if (session.week) week = { id: 'week', pct: session.week.pct, resetsAt: session.week.resetsAt, state: 'fresh' };
           } else if (acct?.week && !acct.usageStale && (!week || week.state !== 'fresh')) week = { id: 'week', pct: acct.week.pct, resetsAt: acct.week.resetsAt, state: 'fresh' };
           const known = accountName(id);
-          return { id, name: id === 'this-chat' ? 'This chat' : known === 'account not reported' ? a?.label ?? a?.profile ?? id : known, chat: id === chatId, readOnly: !!acct?.readOnly, at: id === chatId && own.length ? (session?.limitsAt ?? session?.at ?? null) : a?.at ?? null, five, week, credit: acct?.credits?.find(c => c.left !== null) ?? null, renews: acct?.renewsAt ?? null, stale: [five, week].some(w => w && w.pct !== null && w.state !== 'fresh') };
+          return { id, why: acct?.usageWhy ?? null, name: id === 'this-chat' ? 'This chat' : known === 'account not reported' ? a?.label ?? a?.profile ?? id : known, chat: id === chatId, readOnly: !!acct?.readOnly, at: id === chatId && own.length ? (session?.limitsAt ?? session?.at ?? null) : a?.at ?? null, five, week, credit: acct?.credits?.find(c => c.left !== null) ?? null, renews: acct?.renewsAt ?? null, stale: [five, week].some(w => w && w.pct !== null && w.state !== 'fresh') };
         });
         const soon = rows.flatMap(r => r.five?.pct != null && r.five.resetsAt && r.five.resetsAt > now && r.five.state === 'fresh' ? [{ r, at: r.five.resetsAt }] : []).sort((x, y) => x.at - y.at)[0];
         return <>
@@ -116,7 +127,7 @@ export function UsageMeter({providers, now, session, accounts}: {providers:Provi
             {failed && <p role="status" className="ab-provider-card__note">Account readings unavailable · renewal and credit not shown</p>}
             {rows.map(r => <div key={r.id} className={`ab-usage-row${r.stale ? ' is-stale' : ''}${r.chat ? ' is-chat' : ''}`} data-testid="usage-account" data-account={r.id}>
               <span className="ab-usage-row__who"><b>{r.name}</b><small>{[r.chat ? 'this chat' : '', r.readOnly ? 'read-only' : '', r.stale || !r.chat ? ageWords(r.at, now) : ''].filter(Boolean).join(' · ')}</small>
-                {(r.credit || r.renews) && <small className="ab-usage-row__money">{r.credit?.left != null ? `${money(r.credit.left)} credit` : ''}{r.credit?.left != null && r.renews ? ' · ' : ''}{r.renews ? `renews ${new Date(r.renews).toLocaleDateString([], { day: 'numeric', month: 'short' })}` : ''}</small>}</span>
+                {(r.credit || r.renews) && <small className="ab-usage-row__money">{r.credit?.left != null ? `${money(r.credit.left)} credit` : ''}{r.credit?.left != null && r.renews ? ' · ' : ''}{r.renews ? `renews ${new Date(r.renews).toLocaleDateString([], { day: 'numeric', month: 'short' })}` : ''}</small>}{r.why && r.five?.state !== 'fresh' && r.week?.state !== 'fresh' && <small className="ab-usage-row__why" data-testid="usage-why">{r.why}</small>}</span>
               <WindowCell w={r.five} now={now}/>
               <WindowCell w={r.week} now={now}/>
             </div>)}
@@ -133,6 +144,7 @@ export function UsageMeter({providers, now, session, accounts}: {providers:Provi
             </div>; })}
             {!codex.accounts.length && !codex.reason && <p className="ab-provider-card__note">Not reported.</p>}
           </div>}
+          <p className="ab-provider-card__legend"><i aria-hidden/> the tick on each bar is how much of that window has passed: a fill past it is using the limit faster than it resets</p>
         </>;
       })()}
     </section>,document.body)}

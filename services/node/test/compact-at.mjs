@@ -23,7 +23,7 @@ test('compact-at route uses detached argv, validates Claude identity and reads d
   const url=`http://127.0.0.1:${server.address().port}/api/agents/`;
   const post=(name,pct,extra={})=>fetch(`${url}${encodeURIComponent(name)}/compact-at`,{method:'POST',headers:{'content-type':'application/json',...extra},body:JSON.stringify({pct})});
   try {
-    assert.deepEqual((await compactAtRows(rows)).map(r=>r.compactAt),[30,35,undefined,35,35]);
+    assert.deepEqual((await compactAtRows(rows)).map(r=>r.compactAt),[30,33,undefined,33,33]);
     for(const pct of [9,91,12.5,'50',null]) assert.equal((await post('LIBRARY',pct)).status,400);
     assert.equal((await post('MISSING',50)).status,404);
     assert.equal((await post('CODEX',50)).status,409);

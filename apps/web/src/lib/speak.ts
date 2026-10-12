@@ -150,7 +150,7 @@ async function fetchWav(text: string, signal: AbortSignal): Promise<string> {
     r = await fetch("/api/voice/speak", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ text }), signal });
   } catch (e) {
     if (signal.aborted) throw e;
-    throw new Error("Agent Base's node is not answering, so the reply was not read aloud.");
+    throw new Error("SISO OS's node is not answering, so the reply was not read aloud.");
   }
   if (!r.ok) {
     const d = (await r.json().catch(() => ({}))) as { error?: unknown };

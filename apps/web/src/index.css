@@ -25,3 +25,29 @@
 /* HEALTH, 3 Oct: an idle app kept ~0.4 core busy on looping animations. Hidden, or 5 min without input (lib/poll.ts sets
    data-still), every animation pauses where it is; the first input resumes it. */
 :root[data-still] *, :root[data-still] *::before, :root[data-still] *::after { animation-play-state: paused !important; }
+
+/* Right-click a rail icon: open that module in a window of its own (Shaan, 10 Oct). */
+.ab-rail-menu { position: fixed; z-index: 300; min-width: 220px; padding: 5px; display: flex; flex-direction: column; gap: 2px; border-radius: 12px;
+  border: 1px solid rgb(255 255 255 / .1); background: rgb(28 28 26 / .96); backdrop-filter: blur(16px); box-shadow: 0 18px 50px -12px rgb(0 0 0 / .7); }
+.ab-rail-menu button { display: flex; align-items: center; gap: 9px; padding: 7px 10px; border-radius: 8px; text-align: left; font-size: 12.5px; color: rgb(236 236 232); background: none; border: 0; cursor: pointer; }
+.ab-rail-menu button:hover, .ab-rail-menu button:focus-visible { background: rgb(255 167 38 / .14); color: #fff; outline: none; }
+.ab-rail-menu button svg { width: 15px; height: 15px; color: rgb(255 167 38); }
+.ab-rail-note { position: fixed; z-index: 300; left: 76px; bottom: 16px; display: flex; align-items: center; gap: 12px; max-width: min(90vw, 460px); padding: 10px 12px; border-radius: 12px;
+  border: 1px solid rgb(255 167 38 / .35); background: rgb(28 28 26 / .97); font-size: 12.5px; color: rgb(236 236 232); box-shadow: 0 18px 50px -12px rgb(0 0 0 / .7); }
+.ab-rail-note button { flex: none; padding: 4px 8px; border-radius: 7px; font-size: 12px; color: rgb(255 167 38); background: none; border: 0; cursor: pointer; }
+/* A URL module's ↻: quiet until the pointer is near. */
+.ab-frame-reload { position: absolute; top: 10px; right: 12px; z-index: 5; width: 30px; height: 30px; display: grid; place-items: center; border-radius: 9px; cursor: pointer;
+  border: 1px solid rgb(255 255 255 / .12); background: rgb(20 20 18 / .72); color: rgb(255 255 255 / .7); backdrop-filter: blur(10px); opacity: .55; transition: opacity .15s, color .15s; }
+.ab-frame-reload:hover, .ab-frame-reload:focus-visible { opacity: 1; color: #fff; }
+.ab-frame-reload svg { width: 15px; height: 15px; }
+/* A module window (?window=module): no rail, the bar shows just the module's name (it is still the window's drag region). */
+html[data-solo] .siso-app { grid-template-columns: 0 minmax(0, 1fr); }
+/* The agent panel belongs to the Agents window only; elsewhere the module takes the whole width. */
+html[data-solo]:not([data-solo="agents"]) .siso-app__side { display: none; }
+html[data-solo]:not([data-solo="agents"]) .siso-app:has(> .siso-app__side) { grid-template-columns: 0 minmax(0, 1fr) 0; }
+html[data-solo="agents"] .siso-app:has(> .siso-app__side) { grid-template-columns: 0 minmax(0, 1fr) auto; }
+html[data-solo] .siso-app__rail { display: none; }
+html[data-solo] .siso-app__top > * { display: none; }
+html[data-solo] .siso-app__top { justify-content: center; }
+html[data-solo] .siso-app__top::after { content: attr(data-solo-title); align-self: center; margin: 0 auto; font-size: 12.5px; font-weight: 600; color: rgb(255 255 255 / .62); pointer-events: none; }
+html[data-solo] .siso-app__frame { margin-left: 8px; }

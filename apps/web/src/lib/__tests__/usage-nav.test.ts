@@ -174,8 +174,8 @@ describe('5 Oct nav iteration', () => {
       const folders = agencyFolders({ clients: [{ folder: 'kikas', name: "Kika’s Coffee & Co.", kind: 'friend-favour' }, { folder: 'old', kind: 'client' }, { folder: 'lead', kind: 'lead' }] }, [], []);
       const org = { top: [], bottom: [], groups: [{ id: 'agency', name: 'Agency', icon: 'briefcase-business', projects: [], folders }, { id: 'labs', name: 'Labs', icon: 'flask', folders: [], projects: [{ id: 'agent-base', name: 'Agent Base', shown: true, owners: [{ name: 'AGENT BASE UI', main: true }, { name: 'OPS-BUILD', main: false }] }] }] };
       const html = renderToStaticMarkup(createElement(Sidebar, { agents: [], domains: [], error: null, activeId: null, org, onStart: async () => null, ...Object.fromEntries(['onOpen', 'onAct', 'onEdit', 'onReorder', 'onReorderProjects', 'onWorkers', 'onRename', 'onOrg', 'onPage', 'onEndedPage', 'onDashboard'].map(k => [k, () => {}])) }));
-      expect(html).toContain('Start AGENT BASE UI'); expect(html).toContain('not open'); expect(html).not.toContain('OPS-BUILD');
-      expect(html).toContain('Kika’s Coffee &amp; Co.'); expect(html).toContain('Inactive (2)'); expect(html).toMatch(/<details data-testid="inactive-clients"><summary>/);
+      // SISO OS §7 (t-0599): Agencies is off the nav; its folders and pages stay in /api/org and the code, unlinked.
+      expect(html).not.toContain('OPS-BUILD'); expect(html).not.toContain('Kika’s Coffee &amp; Co.'); expect(html).not.toContain('data-testid="inactive-clients"');
     } finally { vi.unstubAllGlobals(); }
   });
   it('keeps a main owner row without exposing worker folds or counts', () => {

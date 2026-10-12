@@ -6,7 +6,7 @@ import { duration, fmtTokens } from "../SubagentRow";
 import { WORD, markOf } from "../Sidebar";
 import { AgentFace, accentRgb, faceFor } from "../../lib/face";
 import { AgentHoverCard } from "../AgentHoverCard";
-import { MiniLanePage, type MiniLane } from "../MiniLanes";
+import { MiniLanePage, type MiniLane } from "../../modules/estate/MiniLanes";
 import { SubFace, SubRow, subName, subTime, type SubRowData } from "./SubRow";
 import "./panel.css";
 import { OwnerBoard } from "../OwnerBoard";

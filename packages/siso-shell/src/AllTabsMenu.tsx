@@ -145,7 +145,7 @@ export function AllTabsMenu({
                       {tab.icon ?? (tab.kind === "chat" ? <TerminalSquareIcon aria-hidden="true" /> : <GlobeIcon aria-hidden="true" />)}
                       <span>{tab.label}</span>
                     </button>
-                    {tab.close && (
+                    {tab.close && !tab.pin && (
                       <button
                         type="button"
                         className="siso-tab-close"

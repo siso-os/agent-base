@@ -61,7 +61,7 @@ function fixture(overrides = {}) {
   const json = (res, code, body) => { res.writeHead(code, { 'content-type': 'application/json', 'cache-control': 'no-store' }); res.end(JSON.stringify(body)); };
   const d = {
     Buffer, URL, Error, TypeError, SyntaxError, Set, Map, Date: FixedDate,
-    isClaudeAgent, validCompactAt, launchCompactAt: hit('launchCompactAt', undefined), compactAtRows: async rows => rows.map(row => isClaudeAgent(row) ? { ...row, compactAt: 35 } : row),
+    isClaudeAgent, validCompactAt, launchCompactAt: hit('launchCompactAt', undefined), compactAtRows: async rows => rows.map(row => isClaudeAgent(row) ? { ...row, compactAt: 33 } : row),
     migrateAgentPins, needsPinRows, projectAgentPins, randomUUID: () => 'fixture-pin-id',
     process: { env: {} }, console: { log: (...a) => effects.push(['log', ...a]), error: (...a) => effects.push(['error', ...a]) },
     fetch: hit('fetch', Promise.resolve({ ok: true })),
@@ -228,10 +228,16 @@ for (const spec of cases) test(`${spec.method ?? 'GET'} ${spec.url}`, async () =
     delete response.line; // Explicit additive provenance field; retain every legacy response and dispatch assertion.
     after.body = JSON.stringify(response);
   }
+  if (spec.url === '/api/fleet-board') {
+    // t-0586: the read-time `at` is gone so an unchanged board is a 304 (no client read it); everything else is equal.
+    const previous = JSON.parse(before.body);
+    assert.equal(typeof previous.at, 'number'); assert.equal('at' in JSON.parse(after.body), false);
+    delete previous.at; before.body = JSON.stringify(previous);
+  }
   if (spec.url === '/api/agents') {
     const response = JSON.parse(after.body);
     assert.deepEqual(response.pins, []);
-    for (const row of response.agents) { assert.equal(row.compactAt, 35); delete row.compactAt; assert.deepEqual(row.pinIds, []); delete row.pinIds; delete row.pinTarget; }
+    for (const row of response.agents) { assert.equal(row.compactAt, 33); delete row.compactAt; assert.deepEqual(row.pinIds, []); delete row.pinIds; delete row.pinTarget; }
     delete response.pins;
     // Only the explicit additive pin projection and post-await registry refresh change this endpoint.
     after.body = JSON.stringify(response);

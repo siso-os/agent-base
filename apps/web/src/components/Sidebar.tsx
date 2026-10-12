@@ -42,6 +42,10 @@ import {
 } from "@siso/side-nav";
 import { Fragment, useMemo, useRef, useState, useCallback, useLayoutEffect, type ReactNode, type CSSProperties, useEffect } from "react";
 import { createPortal } from "react-dom";
+import { VersionPill } from "./WhatsNew";
+import { Boundary } from "./Boundary";
+import { runningResearch } from "../lib/delight";
+import type { Research, ResearchSelection } from "../../../../services/node/src/research";
 import { fmtDuration } from "../lib/chat";
 import { Icon } from "../lib/Icon";
 import {
@@ -178,6 +182,15 @@ export function Sidebar(props: {
   codexWorkActive?: boolean;
   selectedNowLane?: string | null;
   onNowLane?: (id: string) => void;
+  /** SISO OS §6-§8 (t-0599): the old top bar ⋯ items for the header's ˅, and what Agent Zero's face and orbit used to show. */
+  views?: MenuItem[];
+  zeroNeedCount?: number;
+  onZeroNeeds?: () => void;
+  research?: Research | null;
+  researchError?: string | null;
+  onOpenResearch?: (selection: ResearchSelection) => void;
+  /** When true, return only the org card (HaloRim) without the full side nav. */
+  cardOnly?: boolean;
 }) {
   const { agents, domains, error, activeId, onOpen, onAct, onEdit } = props;
   const [menuFor, setMenuFor] = useState<string | null>(null);
@@ -272,6 +285,9 @@ export function Sidebar(props: {
   const counted = new Set(needAgents.map((a) => canonName(a.name)));
   const taskOnly = (props.needTasks ?? []).filter((t) => !ownerNames(t.owner).some((n) => counted.has(canonName(n)))).length;
   const needCount = needAgents.length + taskOnly;
+  // SISO OS §8 (t-0599): the face's jobs on his card: the count of what waits on him, and the running research batches.
+  const zeroNeeds = props.zeroNeedCount ?? needCount;
+  const batches = runningResearch(props.research, props.researchError);
   // Right-click on any agent row opens its ⋯ menu (Pin under Agent Zero / Unpin, Move, Rename, Settle).
   const onContextMenu = (e: React.MouseEvent) => {
     const more = (e.target as HTMLElement).closest("[data-testid=rail-row]")?.querySelector<HTMLButtonElement>('button[aria-label="More"]');
@@ -427,15 +443,15 @@ export function Sidebar(props: {
         glyph={
           asleep ? <MoonIcon size={13} aria-label="Asleep" /> : a.serviceHost?.keepAwake ? <PinIcon size={13} aria-label="Kept awake" /> : opts.glyph ? (
             opts.glyph
-          ) : (!opts.crew && !opts.shelf && a.pinned && !a.zero) || (a.away && machineKind(a.machineKey)) ? (
+          ) : (!opts.crew && !opts.shelf && a.pinned && !a.zero) || machineKind(a.machineKey) ? (
             <>
               {!opts.crew && !opts.shelf && a.pinned && !a.zero && (
                 <span className="siso-thread__glyph" title="Pinned under Agent Zero too" data-testid="pin-glyph">
                   <PinIcon aria-hidden="true" />
                 </span>
               )}
-              {/* R1.4: only an agent off this node's machine carries its machine (every other row is on the laptop). */}
-              {a.away && machineKind(a.machineKey) && (
+              {/* SISO OS §11.5 (t-0599): every agent row shows its machine: laptop, Mac mini or VPS. */}
+              {machineKind(a.machineKey) && (
                 <span className="siso-thread__glyph">
                   <MachineGlyph machineKey={a.machineKey} name={a.machine} />
                 </span>
@@ -518,10 +534,12 @@ export function Sidebar(props: {
           <span className="ab-pin__text">
             <b className="ab-zero__name" data-testid="zero-name">{a.tool === "codex" ? "Agent Zero · Sol" : "Agent Zero"}</b>
             <span className="ab-zero__line" data-testid="zero-line">
-              {/* t-0563 v3: no "N need you" here (his words: "the 4 needs you, you can get rid of that"); ⌥⌘A still goes to the next one. */}
+              {/* t-0563 v3: no "N need you" here (his words: "the 4 needs you, you can get rid of that"); the count is a number by the +. */}
+              {batches.fleets.length > 0 && <button type="button" className="ab-zero__research" data-testid="zero-research" title={batches.fleets.map(f => f.name).join(" · ")} onClick={(e) => (e.stopPropagation(), props.onOpenResearch?.({ fleet: batches.fleets[0].name }))}>Research · {batches.fleets.length} running</button>}
 
             </span>
           </span>
+          {zeroNeeds > 0 && <button type="button" className="ab-zero__needs" data-testid="zero-needs" aria-label={`${zeroNeeds} need you: open the list (⌥⌘A)`} title={`${zeroNeeds} need you · ⌥⌘A`} onClick={(e) => (e.stopPropagation(), props.onZeroNeeds?.())}>{zeroNeeds}</button>}
           <button
             ref={zeroAnchor}
             type="button"
@@ -593,6 +611,43 @@ export function Sidebar(props: {
   const [zeroStarting, setZeroStarting] = useState(false);
   const zeroStartingRef = useRef(false);
   const [zeroError, setZeroError] = useState<string | null>(null);
+
+  const tree = (
+      <TreeLines>
+        {l.zero && (
+          <div className="siso-zero">
+            {zeroRow(l.zero)}
+            {saying && props.onSay && <SayNew onSay={async (words, choice) => {
+              const r = await props.onSay!(addingOwner ? `Start a long-running owner in the ${addingOwner.name} workspace: ${words}` : words, choice);
+              if (addingOwner && r.name && !r.error) {
+                const saved = await fetch('/api/registry', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ op: 'update', name: r.name, workspace: addingOwner.id, kind: 'owner' }) });
+                if (!saved.ok) return { ...r, error: 'Owner started; workspace registration failed.' };
+              }
+              return r;
+            }} onAskZero={props.onAskZero} onClose={() => { setSaying(false); setAddingOwner(null); }} />}
+          </div>
+        )}
+    <WorkspaceNav workspaces={props.workspaces ?? []} agents={agents ?? []} activeId={activeId} onOpen={onOpen} onWorkspace={props.onWorkspace} onFleet={props.onFleet} onAdd={w => { setAddingOwner(w); setSaying(true); }}
+      card={(a, node) => <AgentHoverCard agent={hoverAgent(a, hub)} edit={cardEdit(a, onEdit)} row extra={cardExtra(a)}>{node}</AgentHoverCard>} />
+    {/* SISO OS §7 (t-0599): SISO Family is a branch of Agent Zero's tree; Agents sits below it, its own face and lines, not joined. */}
+    {!a0Mode && props.org?.groups.filter(g => g.id === "family").map(g => (
+      <OrgGroupBlock key={g.id} branch g={g} strays={strays?.byProject} agents={agents ?? []} needs={props.needs} teamOf={teamOf} row={row} onOpen={onOpen} onOrg={props.onOrg} onStart={props.onStart} onPage={props.onPage} onPinboard={props.onPinboard} onReorder={props.onReorder} />
+    ))}
+    <AgentsGroup agents={agents ?? []} stateOf={stateOf} onOpen={onOpen} needs={props.needs} activeId={activeId} openByDefault={loose.length > 0}
+      card={(a, node) => <AgentHoverCard agent={hoverAgent(a, hub)} edit={cardEdit(a, onEdit)} row extra={cardExtra(a)}>{node}</AgentHoverCard>} />
+    {!a0Mode && props.org && props.org.bottom.length > 0 && <InfraGroup trio={props.org.bottom} agents={agents ?? []} activeId={activeId} onOpen={onOpen} />}
+      </TreeLines>
+  );
+  const card = (
+    <HaloRim className="ab-workspace-panel" hue={zeroHue} state={zeroWorking ? "working" : "idle"}>
+      {tree}
+    </HaloRim>
+  );
+
+  if (props.cardOnly) {
+    return <div className="ab-zero-cardpop">{card}</div>;
+  }
+
   return (
     <SideNav
       rootProps={{ "data-ab-comp": "side-nav" }}
@@ -600,38 +655,22 @@ export function Sidebar(props: {
       initial={292}
       label="Agents"
       storeKey="sidebar-width"
-      header={
-        // The space switcher with the SISO mark (Shaan, 2 Oct: "you got rid of the SISO agency drop down … I like that").
+    >
+      {/* Shaan, 12 Oct: "wrap the whole side nav in that neon card even the agent base up top with the drop nav and the
+          dashboard icon so it's a bit more like the voice tab and the whatsapp one and it's slightly more lit up". */}
+      <HaloRim className="ab-workspace-panel ab-nav-card" data-testid="nav-card" hue={zeroHue} state={zeroWorking ? "working" : "idle"}>
+      <div className="ab-nav-card__head">
+        {/* The space switcher with the SISO mark (Shaan, 2 Oct: "you got rid of the SISO agency drop down … I like that"). */}
         <div className="siso-headstack" data-stale={error ? "" : undefined}>
         <div className="siso-headstack__space">
-        <MenuButton
-          label="Switch space"
-          align="left"
-          menuClassName="siso-rail-menu"
-          className="siso-brand"
-          items={[
-            {
-              key: "ab",
-              label: "Agent Base",
-              icon: <BotIcon />,
-              current: true,
-            },
-            {
-              key: "agency",
-              label: "Agency Base · later",
-              icon: <FolderIcon />,
-              disabled: true,
-            },
-            {
-              key: "library",
-              label: "Library · later",
-              icon: <FolderIcon />,
-              disabled: true,
-            },
-          ]}
-        >
+        {/* SISO OS §7 (t-0599): "Agent Base", its version, then ˅ with the views that were under the top bar's ⋯. The space list
+            went: spaces live on the rail. */}
+        <MenuButton label="Agent Base views" align="left" menuClassName="siso-rail-menu" className="siso-brand" items={props.views ?? []}>
           <img src="/siso-mark.png" alt="" />
           <span className="siso-sidenav__title">Agent Base</span>
+        </MenuButton>
+        <Boundary name="The version pill" kind="inline"><VersionPill /></Boundary>
+        <MenuButton label="More views" align="left" menuClassName="siso-rail-menu" className="siso-headstack__more" items={props.views ?? []}>
           <ChevronDownIcon size={14} className="opacity-50" />
         </MenuButton>
           {/* Agent Zero has a fixed slot at the very top (it never scrolls away), as HEALTH has at the bottom. */}
@@ -643,54 +682,13 @@ export function Sidebar(props: {
             </button>
           </HoverCard>}
         </div>
-      }
-      footer={
-        <>
-          {sleepNotice && <button type="button" role="status" className="ab-asleep-line" onClick={()=>setSleepNotice('')} title="Dismiss">{sleepNotice}</button>}
-          {/* HEALTH has a fixed slot at the bottom, as Agent Zero has at the top (2 Oct 14:45). */}
-          {a0Mode && <button type="button" className="a0-projects" onClick={toggleMode}>Projects ›</button>}
-          {!a0Mode && <div className="siso-health siso-nav-footer">
-            {/* t-0570 (Shaan, 9 Oct 02:10: "my three agents efficiency, estate and health ... I liked them"): back as they were. */}
-            {props.org && props.org.bottom.length > 0 && <InfraEntry trio={props.org.bottom} agents={agents ?? []} onOpen={onOpen} />}
-            <button type="button" className="ab-ended-link" data-testid="ended-open" onClick={props.onEndedPage}>{props.ended?.length ?? 0} ended</button>
-          </div>}
-          {!a0Mode && !props.org && health.length > 0 && <div className="siso-health">{health.map((a) => row(a))}</div>}
-          {error && (
-          <div
-            role="status"
-            className="mx-3 mb-3 rounded-[9px] border border-failed/25 bg-failed/10 px-2.5 py-1.5 text-[11px] text-failed"
-          >
-            {error === "Reconnecting" ? "Reconnecting to herdr" : props.down === "node" ? "The node is not answering" : "herdr is not answering"}
-            {props.asOf ? `; agents as of ${new Date(props.asOf).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}` : ""}; retrying.
-          </div>
-          )}
-        </>
-      }
-    >
-      <HaloRim className="ab-workspace-panel" hue={zeroHue} state={zeroWorking ? "working" : "idle"}>
-        <TreeLines>
-          {l.zero && (
-            <div className="siso-zero">
-              {zeroRow(l.zero)}
-              {saying && props.onSay && <SayNew onSay={async (words, choice) => {
-                const r = await props.onSay!(addingOwner ? `Start a long-running owner in the ${addingOwner.name} workspace: ${words}` : words, choice);
-                if (addingOwner && r.name && !r.error) {
-                  const saved = await fetch('/api/registry', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ op: 'update', name: r.name, workspace: addingOwner.id, kind: 'owner' }) });
-                  if (!saved.ok) return { ...r, error: 'Owner started; workspace registration failed.' };
-                }
-                return r;
-              }} onAskZero={props.onAskZero} onClose={() => { setSaying(false); setAddingOwner(null); }} />}
-            </div>
-          )}
-      <WorkspaceNav workspaces={props.workspaces ?? []} agents={agents ?? []} activeId={activeId} onOpen={onOpen} onWorkspace={props.onWorkspace} onFleet={props.onFleet} onAdd={w => { setAddingOwner(w); setSaying(true); }}
-        card={(a, node) => <AgentHoverCard agent={hoverAgent(a, hub)} edit={cardEdit(a, onEdit)} row extra={cardExtra(a)}>{node}</AgentHoverCard>} />
-        </TreeLines>
-      </HaloRim>
+      </div>
+      <div className="ab-nav-card__body">
+      {tree}
       {/* "Pinned" gave way to an Agents dropdown (Shaan, 6 Oct 21:15: "remove where it says pinned ... one called agents and
           that's where you can just see all of the agents that we have running right now even sub agents ... it's a drop down so
           it's clean"). Pins themselves are untouched; Manage pins stays in each agent's card. */}
       <DiskLine />
-      <AgentsGroup agents={agents ?? []} stateOf={stateOf} row={row} onOpen={onOpen} needs={props.needs} />
       {/* 4 Oct: Agent Zero's jobs and souls live only in its fold (agent-nav.ts parents); no loose worker list. */}
       {agents === null && !error && (
         <div className="px-2.5 py-2 text-[12.5px] text-muted-foreground">
@@ -707,7 +705,8 @@ export function Sidebar(props: {
         </p>
       )}
       {props.org ? (
-        props.org.groups.filter(g => g.id !== "labs").map((g) => (
+        // SISO OS §7: Agencies is off the nav (its pages stay, unlinked) and SISO Family is in the card above.
+        props.org.groups.filter(g => g.id !== "labs" && g.id !== "agency" && g.id !== "family").map((g) => (
           <OrgGroupBlock key={g.id} g={g} labs={g.id === "agency" ? props.org?.groups.find(group => group.id === "labs") : undefined} strays={strays?.byProject} agents={agents ?? []} needs={props.needs} teamOf={teamOf} row={row} onOpen={onOpen} onOrg={props.onOrg} onStart={props.onStart} onPage={props.onPage} onPinboard={props.onPinboard} onReorder={props.onReorder} />
         ))
       ) : (
@@ -722,7 +721,7 @@ export function Sidebar(props: {
         )
       )}
       {!props.org && unsorted.length > 0 && <SideSection title="Unsorted">{teams(unsorted)}</SideSection>}
-      {loose.length > 0 && <SideSection title="Agents">{teams(loose)}</SideSection>}
+      {/* Someone else's agents are in the card's Agents branch, open by default while there are any (t-0579). */}
       {agents !== null && !l.zero && l.pinned.length + l.sections.length + loose.length === 0 && (
         <div className="px-2.5 py-2 text-[12.5px] text-muted-foreground">
           No live agents.
@@ -737,6 +736,26 @@ export function Sidebar(props: {
 
       </div>
       </>}
+      </div>
+      <div className="ab-nav-card__foot">
+        <>
+          {sleepNotice && <button type="button" role="status" className="ab-asleep-line" onClick={()=>setSleepNotice('')} title="Dismiss">{sleepNotice}</button>}
+          {/* HEALTH has a fixed slot at the bottom, as Agent Zero has at the top (2 Oct 14:45). */}
+          {a0Mode && <button type="button" className="a0-projects" onClick={toggleMode}>Projects ›</button>}
+          {/* 12 Oct: Agent Infrastructure is a folder in the card now, not the bottom slot. */}
+          {!a0Mode && !props.org && health.length > 0 && <div className="siso-health">{health.map((a) => row(a))}</div>}
+          {error && (
+          <div
+            role="status"
+            className="mx-3 mb-3 rounded-[9px] border border-failed/25 bg-failed/10 px-2.5 py-1.5 text-[11px] text-failed"
+          >
+            {error === "Reconnecting" ? "Reconnecting to herdr" : props.down === "node" ? "The node is not answering" : "herdr is not answering"}
+            {props.asOf ? `; agents as of ${new Date(props.asOf).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}` : ""}; retrying.
+          </div>
+          )}
+        </>
+      </div>
+      </HaloRim>
     </SideNav>
   );
 }
@@ -895,7 +914,10 @@ function OrgGroupBlock({
   projectsOnly = false,
   onPinboard,
   labs,
+  branch = false,
 }: {
+  /** SISO OS §7: drawn as a branch of Agent Zero's tree (SISO Family in his card). */
+  branch?: boolean;
   g: Org["groups"][number];
   projectsOnly?: boolean;
   onPinboard?: (id: string) => void;
@@ -1066,6 +1088,22 @@ function OrgGroupBlock({
   };
   if (projectsOnly) return <SortableRail ids={top.map(p => `project:${p.id}`)} onReorder={ids => onOrg({ op: "order", id: "pinned", to: ids.map(i => i.slice(8)) })}>{top.map(p => projectRow(p))}</SortableRail>;
   const groupSum = foldedSummary(ownerNames(g.projects), agents, needs);
+  const toggleGroup = () => { setOpen(!open); save(`group-open:${g.id}`, !open); };
+  if (branch) return (
+    <div className="ab-workspace ab-org-branch" data-group={g.id} data-workspace={`group:${g.id}`} style={{ "--workspace-color": "#f472b6" } as CSSProperties}>
+      <div className="ab-workspace__card">
+        <button type="button" className="ab-workspace__name" aria-expanded={open} onClick={toggleGroup}>
+          <span className="ab-workspace__logo" aria-hidden="true" data-tree-id={`group:${g.id}`} data-tree-parent="zero" data-tree-color={ZERO_LINE}>{g.id === "family" ? <LivingIcon name="family" size={22} variant="glyph"/> : <Icon name={g.icon} size={18} />}</span>{g.name}
+        </button>
+        {!open && <FoldSum sum={groupSum} />}
+        <button type="button" aria-label={open ? `Fold ${g.name}` : `Open ${g.name}`} aria-expanded={open} onClick={toggleGroup}>{open ? <ChevronDownIcon size={14} /> : <ChevronRightIcon size={14} />}</button>
+      </div>
+      {open && <div className="ab-workspace__kids ab-org-branch__kids">
+        <SortableRail ids={top.map((p) => `project:${p.id}`)} onReorder={(ids) => onOrg({ op: "order", id: g.id, to: ids.map((i) => i.slice(8)) })}>{top.map(p => projectRow(p))}</SortableRail>
+        {top.length === 0 && <p className="siso-group__empty">Nothing placed yet</p>}
+      </div>}
+    </div>
+  );
   return (
     <div className="siso-group" data-group={g.id}>
       <div className="siso-group__head">
@@ -1133,35 +1171,91 @@ function DiskLine() {
   );
 }
 
-function AgentsGroup({ agents, stateOf, row, onOpen, needs }: { agents: Agent[]; stateOf: (a: Agent) => NavState; row: (a: Agent) => ReactNode; onOpen: (a: Agent) => void; needs?: Set<string> }) {
+/** SISO OS §7 (t-0599): Agents is a branch in Agent Zero's card, below his tree and not joined to it: its own face, its own
+ * lines to the agents it holds, and it folds (remembered). Running agents first, each with its in-process crew; idle ones
+ * stack as in a project. Agent Zero is not repeated in it. */
+const AGENTS_LINE = "rgba(148, 163, 184, 0.55)";
+function AgentsGroup({ agents, stateOf, onOpen, needs, activeId, card, openByDefault = false }: { agents: Agent[]; stateOf: (a: Agent) => NavState; onOpen: (a: Agent) => void; needs?: Set<string>; activeId: string | null; card: (a: Agent, node: ReactNode) => ReactNode; openByDefault?: boolean }) {
   const key = "ab.nav.folder.agents";
-  const [open, setOpen] = useState(() => load(key, false));
+  // His fold choice sticks; until he makes one it follows openByDefault, which is only known once the agents arrive.
+  const [saved, setSaved] = useState<boolean | null>(() => load<boolean | null>(key, null));
+  const open = saved ?? openByDefault;
+  const toggle = () => { setSaved(!open); save(key, !open); };
   // One shared read of the fleet board for the whole side nav (t-0497: two parts each fetched it every 5 s).
   const board = useSharedState<FleetBoardData>("/api/fleet-board", FLEET_BOARD_MS).data;
   const crew = useMemo(() => (board?.groups ?? []).flatMap((g) => (g.rows ?? []).filter((r) => r.crewParentId && r.status === "working")), [board]);
-  // Running now = working, quiet or waiting on him (Agent Zero always first); live-but-idle chats fold under one line.
-  const live = agents.filter(a => a.row === "live" && !["offline", "done"].includes(stateOf(a)));
-  const running = live.filter(a => a.zero || ["working", "quiet", "needs", "failed"].includes(stateOf(a))).sort((x, y) => Number(!!y.zero) - Number(!!x.zero) || Number(stateOf(y) === "working") - Number(stateOf(x) === "working"));
+  // Running now = working, quiet or waiting on him; live-but-idle chats stack under them.
+  // A done he has not seen is still a live agent, and loud (LOUD), so it sits with the running ones; only offline ones leave.
+  const live = agents.filter(a => !a.zero && a.row === "live" && stateOf(a) !== "offline");
+  const running = live.filter(a => ["working", "quiet", "needs", "failed", "done"].includes(stateOf(a))).sort((x, y) => Number(stateOf(y) === "working") - Number(stateOf(x) === "working"));
   const idle = live.filter(a => !running.includes(a));
   const sum = foldedSummary(running.map(a => a.name), agents, needs);
+  const has = running.length + idle.length > 0;
   return (
-    <div className="siso-group" data-group="agents" data-testid="nav-agents">
-      <div className="siso-group__head">
-        <button type="button" aria-expanded={open} aria-label={open ? "Fold Agents" : "Open Agents"} onClick={() => { setOpen(!open); save(key, !open); }}>
-          {open ? <ChevronDownIcon className="siso-group__caret" /> : <ChevronRightIcon className="siso-group__caret" />}
+    <div className="ab-workspace ab-agents-branch" data-group="agents" data-testid="nav-agents" style={{ "--workspace-color": "#94a3b8" } as CSSProperties}>
+      <div className="ab-workspace__card">
+        <button type="button" className="ab-workspace__name" aria-expanded={open} onClick={toggle}>
+          <span className="ab-workspace__logo ab-agents-branch__face" aria-hidden="true" data-tree-id="agents"><AgentFace name="Agents" project="Agents" status={running.length ? "working" : "waiting"} hue={215} size={22} /></span>Agents
         </button>
-        <button type="button" onClick={() => { setOpen(!open); save(key, !open); }}><BotIcon size={16} aria-hidden /> Agents</button>
         {!open && <FoldSum sum={{ working: sum.working + crew.length, needs: sum.needs }} count={running.length} />}
+        <button type="button" aria-label={open ? "Fold Agents" : "Open Agents"} aria-expanded={open} onClick={toggle}>{open ? <ChevronDownIcon size={14} /> : <ChevronRightIcon size={14} />}</button>
       </div>
-      {open && <div className="siso-kids">
+      {open && <div className="ab-workspace__kids">
         {running.map(a => <Fragment key={a.id}>
-          {row(a)}
-          {crew.filter(c => c.crewParentId === a.id).map(c => <button key={c.id} type="button" className="ab-nav-sub" data-testid="nav-sub-agent" title={c.title} onClick={() => onOpen(a)}>
-            <span className="ab-nav-sub__br" aria-hidden>└</span><AgentFace name={c.name} project={a.name} status="working" size={16} /><span>{c.name}</span><small>{c.title}</small>
+          {card(a, <button type="button" className={`ab-workspace__owner${activeId === a.id ? " is-active" : ""}`} data-owner={a.id} onClick={() => onOpen(a)}>
+            <span className={`ab-ring is-${a.status}`} data-tree-parent="agents" data-tree-id={`agent:${a.id}`} data-tree-color={AGENTS_LINE}><AgentFace {...faceFor(a)} size={20} /><HelperCount a={a} /></span><b>{a.name}</b><OffLaptop a={a} />
+          </button>)}
+          {crew.filter(c => c.crewParentId === a.id).map(c => <button key={c.id} type="button" className="ab-workspace__owner is-child ab-nav-sub" data-testid="nav-sub-agent" title={c.title} onClick={() => onOpen(a)}>
+            <span className="ab-ring is-working" data-tree-parent={`agent:${a.id}`} data-tree-color={AGENTS_LINE}><AgentFace name={c.name} project={a.name} status="working" size={16} /></span><span>{c.name}</span><small>{c.title}</small>
           </button>)}
         </Fragment>)}
-        {!running.length && <p className="siso-side__note">No agents running.</p>}
-        {idle.length > 0 && <details className="ab-nav-idle" data-testid="nav-agents-idle"><summary>Idle · {idle.length}</summary>{idle.map(a => <Fragment key={a.id}>{row(a)}</Fragment>)}</details>}
+        {idle.length > 0 && <div className="ab-workspace__idle" data-testid="nav-agents-idle">
+          <span className={`ab-workspace__idle-faces${idle.length >= 3 ? " is-grid" : ""}`} aria-hidden data-tree-parent="agents" data-tree-color={AGENTS_LINE}>{idle.slice(0, 4).map(a => <AgentFace key={a.id} {...faceFor(a)} size={18} />)}</span>
+          <span className="ab-workspace__idle-names">{idle.map((a, i) => <Fragment key={a.id}>{i > 0 && ", "}{card(a, <button type="button" data-owner={a.id} className={activeId === a.id ? "is-active" : undefined} onClick={() => onOpen(a)}>{a.name}<HelperCount a={a} /><OffLaptop a={a} /></button>)}</Fragment>)}</span>
+        </div>}
+        {!has && <p className="siso-side__note">No agents running.</p>}
+      </div>}
+    </div>
+  );
+}
+
+/**
+ * Agent Infrastructure as a folder in the card (Shaan, 12 Oct: "you know how you got agent infrastructure at the bottom You
+ * should just make that a folder and remove that from the bottom nav thing so that cleans up the side nav"): HEALTH,
+ * EFFICIENCY and ESTATE fold under one row like Agents, each one click into its chat, its goal under its name.
+ */
+function InfraGroup({ trio, agents, activeId, onOpen }: { trio: Org["bottom"]; agents: Agent[]; activeId: string | null; onOpen: (a: Agent) => void }) {
+  const key = "ab.nav.folder.infra";
+  const [open, setOpen] = useState<boolean>(() => load<boolean>(key, false));
+  const toggle = () => { setOpen(!open); save(key, !open); };
+  const roleAgent = (name: string) => agents.find(a => a.infrastructureRole === name.toUpperCase()) ?? agents.find(a => a.name.toUpperCase() === name.toUpperCase());
+  const roleStatus = (name: string) => roleAgent(name)?.status ?? trio.find(t => t.name.toUpperCase() === name.toUpperCase())?.status ?? null;
+  const word = (s?: string | null) => (s === "working" ? "working" : s === "needs" ? "needs you" : s ? "idle" : "not running");
+  const working = trio.filter(t => roleStatus(t.name) === "working").length;
+  const needs = trio.filter(t => roleStatus(t.name) === "needs").length;
+  return (
+    <div className="ab-workspace ab-agents-branch ab-infra-branch" data-group="infra" data-testid="nav-infra" style={{ "--workspace-color": "#5eead4" } as CSSProperties}>
+      <div className="ab-workspace__card">
+        <button type="button" className="ab-workspace__name" data-testid="infra-entry" aria-expanded={open} aria-label="Agent Infrastructure" onClick={toggle}>
+          <span className="ab-workspace__logo ab-infra-branch__faces" aria-hidden="true" data-tree-id="infra">
+            {trio.map((t) => { const status = roleStatus(t.name); return <span key={t.name} className={`ab-ring is-${status ?? "off"}`} data-role={t.name}><AgentFace {...faceFor({ name: t.name, project: roleAgent(t.name)?.project ?? undefined, status: status as Agent["status"] })} size={14} /></span>; })}
+          </span>Agent Infrastructure
+        </button>
+        {!open && <FoldSum sum={{ working, needs: needs > 0 }} count={working + needs} />}
+        <button type="button" aria-label={open ? "Fold Agent Infrastructure" : "Open Agent Infrastructure"} aria-expanded={open} onClick={toggle}>{open ? <ChevronDownIcon size={14} /> : <ChevronRightIcon size={14} />}</button>
+      </div>
+      {open && <div className="ab-workspace__kids" data-testid="infra-pop">
+        {trio.map((t) => {
+          const a = roleAgent(t.name), status = roleStatus(t.name);
+          const line = a?.infrastructureSummary?.line ?? t.domain;
+          const ledger = t.ledger ?? a?.infrastructureSummary?.ledger ?? null;
+          return <button key={t.name} type="button" data-role={t.name} className={`ab-workspace__owner ab-infra-branch__row${a && activeId === a.id ? " is-active" : ""}`} disabled={!a}
+            title={ledger ? `${line} · last: ${ledger}` : line ?? undefined} aria-label={`Open ${t.name}'s chat: ${word(status)}`} onClick={() => a && onOpen(a)}>
+            <span className={`ab-ring is-${status ?? "off"}`} data-tree-parent="infra" data-tree-color={AGENTS_LINE}><AgentFace {...faceFor({ name: t.name, project: a?.project, status: status as Agent["status"] })} size={20} /></span>
+            <span className="ab-infra-branch__text"><b data-testid="infra-name">{t.name}</b>{line && <small data-testid="infra-goal">{line}</small>}</span>
+            <i className={`siso-infra__dot is-${status ?? "off"}`} data-testid="infra-dot" data-status={status ?? "off"} title={word(status)} aria-hidden />
+          </button>;
+        })}
       </div>}
     </div>
   );
@@ -1240,39 +1334,8 @@ function ClientRow({ i, locked, onOpen, onPin, onPinboard }: { i: OrgItem; locke
  * (machines), EFFICIENCY (the agent stack) and ESTATE (where everything lives). Hover or click opens a popover listing
  * the three; each opens its agent's chat.
  */
-/** Agent Infrastructure's three run as codex-run role workers too; they show in the footer, never under Agent Zero (4 Oct). */
+/** Agent Infrastructure's three run as codex-run role workers too; they show in their own folder, never under Agent Zero (4 Oct). */
 const isInfra = (name: string) => ["HEALTH", "EFFICIENCY", "ESTATE"].includes(name.toUpperCase());
-
-/** HEALTH, EFFICIENCY and ESTATE at the bottom of the side nav, a face each (Shaan, 6 Oct 22:35: "I don't need to see all the
- *  text ... if you hover over it then you can see information ... just click on it to go to the chat"). t-0557 took the
- *  block out on 8 Oct; he asked for it back on 9 Oct. */
-function InfraEntry({ trio, agents, onOpen }: { trio: Org["bottom"]; agents: Agent[]; onOpen: (a: Agent) => void }) {
-  const roleAgent = (name: string) => agents.find(a => a.infrastructureRole === name.toUpperCase()) ?? agents.find(a => a.name.toUpperCase() === name.toUpperCase());
-  const roleStatus = (name: string) => roleAgent(name)?.status ?? trio.find(t => t.name.toUpperCase() === name.toUpperCase())?.status ?? null;
-  const word = (s?: string | null) => (s === "working" ? "working" : s === "needs" ? "needs you" : s ? "idle" : "not running");
-  return (
-    <div className="siso-infra" data-testid="nav-infra">
-      <span className="siso-infra__label">Agent Infrastructure</span>
-      {/* t-0573 (Shaan, 9 Oct ~04:00: "I don't see the efficiency agents anymore"): three faces were not enough. Each role is a
-          row again: its name, its live dot, one line of its goal, one click into its chat. */}
-      <span className="siso-infra__faces">
-        {trio.map((t) => {
-          const a = roleAgent(t.name), status = roleStatus(t.name);
-          const line = a?.infrastructureSummary?.line ?? t.domain;
-          const ledger = t.ledger ?? a?.infrastructureSummary?.ledger ?? null;
-          return <HoverCard key={t.name} title={t.name} line={ledger ? `${line} · last: ${ledger}` : line} meta={word(status)}>
-            <button type="button" data-role={t.name} className="siso-infra__face" disabled={!a} aria-label={`Open ${t.name}'s chat: ${word(status)}`} onClick={() => a && onOpen(a)}>
-              <span className={`ab-ring is-${status ?? "off"}`}><AgentFace {...faceFor({ name: t.name, project: a?.project, status: status as Agent["status"] })} size={20} /></span>
-              <b className="siso-infra__name" data-testid="infra-name">{t.name}</b>
-              <i className={`siso-infra__dot is-${status ?? "off"}`} data-testid="infra-dot" data-status={status ?? "off"} title={word(status)} aria-hidden />
-              {line && <span className="siso-infra__goal" data-testid="infra-goal">{line}</span>}
-            </button>
-          </HoverCard>;
-        })}
-      </span>
-    </div>
-  );
-}
 
 /** The side nav v4 (t-0563, approved by Shaan 8 Oct 23:52): Agent Zero starts the tree, each project hangs from it and its
  * sub-projects (a nav workspace whose parent is a nav workspace) hang inside it, then its own owners. No state words: a lit
@@ -1286,7 +1349,8 @@ const unplaced = (a: Agent, workspaces: NavWorkspace[]) => !a.workspace || a.wor
 
 /** t-0562: from the agent records. A helper is a +N on its owner's face, never a row; the machine shows only off the laptop. */
 const HelperCount = ({ a }: { a: Agent }) => a.navHelpers ? <span className="ab-helpers" data-testid="nav-helpers" title={`${a.navHelpers} helper${a.navHelpers === 1 ? "" : "s"} running`}>+{a.navHelpers}</span> : null;
-const OffLaptop = ({ a }: { a: Agent }) => a.away && machineKind(a.machineKey) !== "laptop" ? <MachineGlyph machineKey={a.machineKey} name={a.machine} size={11}/> : null;
+// SISO OS §11.5 (t-0599): every row carries its machine, the laptop's too (it was only the agents away from it).
+const OffLaptop = ({ a }: { a: Agent }) => <MachineGlyph machineKey={a.machineKey} name={a.machine} size={11}/>;
 
 function WorkspaceNav({ workspaces, agents, activeId, onOpen, onWorkspace, onFleet, onAdd, card }: { workspaces: NavWorkspace[]; agents: Agent[]; activeId: string | null; onOpen: (a: Agent, conversationTarget?: ConversationPinTarget) => void; onWorkspace?: (id: string) => void; onFleet?: (id: string) => void; onAdd: (w: NavWorkspace) => void; card: (a: Agent, node: ReactNode) => ReactNode }) {
   const [opened, setOpened] = useState<Record<string,boolean>>({});

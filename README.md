@@ -73,7 +73,7 @@ agent's own terminal can change size while you look at it.
 
 ```sh
 pnpm desktop
-open "apps/desktop/target/release/bundle/macos/Agent Base.app"
+open "apps/desktop/target/release/bundle/macos/SISO OS.app"
 ```
 
 `pnpm desktop` builds the web app and then the macOS app. The app starts the same server itself, from the folder you
@@ -93,3 +93,18 @@ and their terminals through herdr and each agent's chat from that agent's own se
 - `packages/`: parts with no agent knowledge (design tokens, shell, side nav, terminal).
 - `tools/`: probes and release scripts; `services/node/test`: the tests, which run against fixtures and never attach
   to a live agent.
+
+## Contributing
+
+Pull requests go to `main`. Keep a change to one thing and say in the PR how you checked it.
+
+- Tests run against sealed fixtures or a lab herdr session (`AB_HERDR`), never your live agents: an attached terminal
+  resizes the agent for everyone watching it. Fixture names, chats and numbers are invented.
+- Node checks: `node --experimental-strip-types --no-warnings services/node/test/<name>.mjs`; the web typechecks with
+  `tsc --noEmit -p apps/web/tsconfig.json`.
+- Agents on another machine: `services/host/src/remote.ts` (`ab-remote`) runs the chat host there and mirrors it here
+  over ssh; machines are listed in `~/.local/state/agent-base/remote/machines.json`.
+
+## License
+
+MIT; see [LICENSE](LICENSE).

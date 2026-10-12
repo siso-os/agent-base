@@ -60,6 +60,7 @@ import { setImmediate as yieldIO } from "node:timers/promises";
 import type { LaunchAdapters } from "./agent-launch.ts";
 import { stopPreparations, getWorkspace, snapshot, WorkspaceError } from "./worktrees.ts";
 import { uploadPath } from "../../host/src/uploads.ts";
+import { remoteImageCopier } from "./remote-uploads.ts";
 import { homedir } from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
@@ -1646,7 +1647,8 @@ server.on("upgrade", async (req, socket, head) => {
       if (matches.length !== 1 || !["live", "asleep"].includes(matches[0].state)) return socket.destroy();
       const service = matches[0];
       if (service.state === 'asleep') return wss.handleUpgrade(req, socket, head, ws => sleepingChat(ws, ch[1], service));
-      return wss.handleUpgrade(req, socket, head, ws => passThrough(ws, `ws://127.0.0.1:${service.port}/ws?token=${encodeURIComponent(service.token)}`, undefined, { adapter: 'native', agentId: ch[1], by: service.name, sessionId: null }));
+      const rewrite = service.remote ? remoteImageCopier(service.remote.ssh, UPLOADS) : undefined;
+      return wss.handleUpgrade(req, socket, head, ws => passThrough(ws, `ws://127.0.0.1:${service.port}/ws?token=${encodeURIComponent(service.token)}`, undefined, { adapter: 'native', agentId: ch[1], by: service.name, sessionId: null }, undefined, [], rewrite));
     }
     const host = hostsByPane().get(paneOf.get(ch[1]) ?? "");
     if (host) {
@@ -2134,7 +2136,7 @@ function sleepingChat(ws: WebSocket, id: string, host: import('./service-hosts.t
   if (!file) log = [{ t: 'note', text: 'History not available while asleep; wake to load', at: Date.now() }];
   serveAsleepChat(ws, host, log, (next, frames) => passThrough(ws, `ws://127.0.0.1:${next.port}/ws?token=${encodeURIComponent(next.token)}`, next.pane ?? undefined, { adapter: 'native', agentId: id, by: host.name, sessionId: host.session }, target, frames), source?.older ? source : null);
 }
-function passThrough(ws: WebSocket, target: string, pane: string | undefined, reviewIdentity: ChatDeliveryIdentity, conversationTarget?: ConversationPinTarget, initialFrames: string[] = []) {
+function passThrough(ws: WebSocket, target: string, pane: string | undefined, reviewIdentity: ChatDeliveryIdentity, conversationTarget?: ConversationPinTarget, initialFrames: string[] = [], rewrite?: (text: string) => Promise<string>) {
   const up = new WebSocket(target);
   const seat = pane ? watchHostState(pane) : null;
   const early: string[] = [...initialFrames];
@@ -2179,9 +2181,16 @@ function passThrough(ws: WebSocket, target: string, pane: string | undefined, re
     sendDeliveredChat(ws, frame, { ...reviewIdentity, sessionId: reviewSession }, reviewDeliveryOptions, text);
     if (verified && up.readyState === up.OPEN) early.splice(0).forEach(m => up.send(m));
   });
+  // A remote chat's frames go up in order after their images are copied there (remote-uploads.ts).
+  let chain = Promise.resolve();
   ws.on("message", (d) => {
     if (rejected) return;
-    const text = d.toString();
+    const raw = d.toString();
+    if (!rewrite) return forward(raw);
+    chain = chain.then(() => rewrite(raw)).then(forward, () => forward(raw));
+  });
+  function forward(text: string) {
+    if (rejected) return;
     if (!verified) { early.push(text); return; }
     if (text.startsWith('{"t":"older"')) {
       try {
@@ -2192,7 +2201,7 @@ function passThrough(ws: WebSocket, target: string, pane: string | undefined, re
     }
     if (up.readyState === up.OPEN) up.send(text);
     else early.push(text);
-  });
+  }
   const end = () => {
     try { ws.close(); } catch { /* gone */ }
     try { up.close(); } catch { /* gone */ }

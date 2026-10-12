@@ -538,7 +538,7 @@ test("ab-live's real quit/open (no AB_LIVE_QUIT/OPEN) pass an app path with a sp
   const fb = path.join(f.base, "fakebin"); mkdirSync(fb);
   const argv = path.join(f.base, "argv.log");
   for (const tool of ["osascript", "open"]) writeFileSync(path.join(fb, tool), `#!/bin/sh\nfor a in "$@"; do printf '%s|' "$a"; done >> ${argv}; echo >> ${argv}\n`, { mode: 0o755 });
-  const app = path.join(f.base, "My Apps", "Agent Base.app"); mkdirSync(app, { recursive: true });
+  const app = path.join(f.base, "My Apps", "SISO OS.app"); mkdirSync(app, { recursive: true });
   const srv = http.createServer((q, a) => a.end(JSON.stringify({ sha: s }))).listen(0, "127.0.0.1");
   await new Promise((r) => srv.on("listening", r));
   const env = { ...f.env, AB_LIVE_PORT: String(srv.address().port), AB_LIVE_INSTALLED_APP: app, PATH: `${fb}:${process.env.PATH}` };

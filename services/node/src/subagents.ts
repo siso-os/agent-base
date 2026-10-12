@@ -209,7 +209,9 @@ export function listSubagents(parent: Parent, agents: Crew[], pre?: { runs?: Ret
   const managedIds = new Set(managed.map(c => c.agentId));
   const rows = [...claudeRows(parent), ...crewRows(parent, agents).filter(c => !managedIds.has(c.agentId)), ...managed, ...codex].sort((a, b) => Date.parse(b.start ?? "") - Date.parse(a.start ?? ""));
   processStats(rows, now);
-  return { rows: rows.map(({ outputSamples: _samples, ...row }) => row), machine: { load: os.loadavg(), cores: os.cpus().length }, at: now, running: rows.filter((r) => r.running).length, tokens: rows.reduce((n, r) => n + r.tokens, 0) };
+  // t-0586: a stamp only beside a rate. Every finished row carried `rateAt: now`, so the 314 KB fleet board was new on every
+  // poll and never a 304; the app reads `rateAt` only with a rate (measuredWorkerRate).
+  return { rows: rows.map(({ outputSamples: _samples, ...row }) => { if (Number.isFinite(row.rate)) return row; const { rateAt: _at, ...still } = row; return still; }), machine: { load: os.loadavg(), cores: os.cpus().length }, at: now, running: rows.filter((r) => r.running).length, tokens: rows.reduce((n, r) => n + r.tokens, 0) };
 }
 
 /**

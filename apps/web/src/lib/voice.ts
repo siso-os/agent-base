@@ -29,7 +29,7 @@ export async function transcribe(audio: Blob): Promise<string> {
   try {
     r = await fetch("/api/voice/transcribe", { method: "POST", headers: { "content-type": audio.type || "application/octet-stream" }, body: audio, signal: AbortSignal.timeout(WRITE_MS) });
   } catch (e) {
-    throw new Error((e as Error)?.name === "TimeoutError" ? "Writing it down took over a minute, so it stopped. Try again." : "Agent Base's node is not answering, so it was not written down. Try again in a moment.");
+    throw new Error((e as Error)?.name === "TimeoutError" ? "Writing it down took over a minute, so it stopped. Try again." : "SISO OS's node is not answering, so it was not written down. Try again in a moment.");
   }
   const d = await r.json().catch(() => ({}));
   if (!r.ok) throw new Error(typeof d.error === "string" ? d.error : `Writing it down failed (${r.status}). Try again.`);
@@ -38,7 +38,7 @@ export async function transcribe(audio: Blob): Promise<string> {
 
 function micError(e: unknown) {
   const name = (e as { name?: string })?.name;
-  if (name === "NotAllowedError" || name === "SecurityError") return "The microphone is blocked: allow Agent Base in System Settings, Privacy & Security, Microphone.";
+  if (name === "NotAllowedError" || name === "SecurityError") return "The microphone is blocked: allow SISO OS in System Settings, Privacy & Security, Microphone.";
   if (name === "NotFoundError") return "No microphone found.";
   return `The microphone did not start: ${String((e as Error)?.message ?? e).slice(0, 120)}`;
 }

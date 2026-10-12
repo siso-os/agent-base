@@ -59,7 +59,7 @@ try {
 }
 async function render(){
  const {webkit}=await import(pathToFileURL(canonical+'/services/node/node_modules/playwright/index.mjs'));
- await build({stdin:{contents:`import React from 'react'; import {createRoot} from 'react-dom/client'; import {TasksPage} from '${root}/apps/web/src/components/TasksPage'; import '@siso/tokens/siso.css'; import '@siso/tokens/tokens.css'; createRoot(document.getElementById('root')).render(<TasksPage/>);`,resolveDir:root,loader:'tsx'},outfile:scratch+'/page.js',platform:'browser',format:'esm'});
+ await build({stdin:{contents:`import React from 'react'; import {createRoot} from 'react-dom/client'; import {TasksPage} from '${root}/apps/web/src/modules/tasks/TasksPage'; import '@siso/tokens/siso.css'; import '@siso/tokens/tokens.css'; createRoot(document.getElementById('root')).render(<TasksPage/>);`,resolveDir:root,loader:'tsx'},outfile:scratch+'/page.js',platform:'browser',format:'esm'});
  const browser=await webkit.launch({headless:true});
  try{
   const context=await browser.newContext({viewport:{width:1440,height:1000},serviceWorkers:'block'});

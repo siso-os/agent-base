@@ -6,6 +6,7 @@
  */
 import path from "node:path";
 import { readFileSync, statSync, realpathSync, lstatSync, openSync, readSync, closeSync } from "node:fs";
+import { forEachLine } from "./lines.ts";
 
 export type ContextMix = { kinds: { files: number; shell: number; subagents: number; talk: number; tools: number }; top: { label: string; tokens: number }[]; turns: { back: number; text: string }[]; at: number; files?: { label: string; state: "changed" | "unchanged" | "unknown" }[] };
 
@@ -171,15 +172,46 @@ function prompts(text: string): { uuid: string; at: number; text: string }[] {
  * is the last message before the next prompt (none: the whole file). Returns null when there is no such turn.
  */
 export function forkPoint(file: string, back: number): { upTo: string | null } | null {
-  let text: string;
-  try { text = readFileSync(file, "utf8"); } catch { return null; }
-  const ps = prompts(text), i = ps.length - 1 - back;
+  const ps: { uuid: string; at: number; text: string }[] = [];
+  const lineToLastUuid: Map<number, string> = new Map();
+  let lastUuid: string | null = null;
+
+  try {
+    forEachLine(file, (line, at) => {
+      // Track lastUuid from every parseable line with string uuid and !isSidechain
+      try {
+        const rec = JSON.parse(line);
+        if (typeof rec.uuid === "string" && !rec.isSidechain) {
+          lastUuid = rec.uuid;
+          lineToLastUuid.set(at, lastUuid);
+        }
+      } catch {
+        // Keep the existing lastUuid; just mark this line's lastUuid
+        if (lastUuid) lineToLastUuid.set(at, lastUuid);
+      }
+
+      // Collect prompts
+      if (!line.includes('"type":"user"')) return;
+      let rec: any;
+      try { rec = JSON.parse(line); } catch { return; }
+      if (rec.type !== "user" || rec.isSidechain || rec.isMeta || typeof rec.uuid !== "string") return;
+      const c = rec.message?.content;
+      const t = typeof c === "string" ? c : Array.isArray(c) && !c.some((b: any) => b?.type === "tool_result") ? c.filter((b: any) => b?.type === "text").map((b: any) => b.text).join(" ") : "";
+      if (t.trim() && !t.startsWith("<")) ps.push({ uuid: rec.uuid, at, text: t });
+    });
+  } catch {
+    return null;
+  }
+
+  const i = ps.length - 1 - back;
   if (i < 0 || i >= ps.length) return null;
   const next = ps[i + 1];
   if (!next) return { upTo: null };
-  const lines = text.split("\n");
+
+  // Walk back from the line before next.at to find the nearest uuid
   for (let k = next.at - 1; k >= 0; k--) {
-    try { const rec = JSON.parse(lines[k]); if (typeof rec.uuid === "string" && !rec.isSidechain) return { upTo: rec.uuid }; } catch { /* skip */ }
+    const uuid = lineToLastUuid.get(k);
+    if (uuid) return { upTo: uuid };
   }
   return null;
 }

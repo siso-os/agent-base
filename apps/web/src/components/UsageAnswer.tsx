@@ -4,7 +4,7 @@ import { useSharedState } from '../lib/poll';
 import { providerUsage, type ProviderAccount, type ProviderWindow } from '../lib/provider-usage';
 import { spendDialData } from '../lib/spend-dial';
 import type { useSpend } from '../lib/spend';
-import type { Tokens } from './TokensSpace';
+import type { Tokens } from '../modules/estate/TokensSpace';
 import { TodaySpendDial } from './TodaySpendDial';
 import './UsageAnswer.css';
 

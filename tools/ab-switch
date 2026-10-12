@@ -10,6 +10,8 @@
 #   3. it must answer /api/version with the sha and serve /, /api/releases and /api/agents, fast, or it is stopped and
 #      nothing else changed (exit 1; it is never retried by itself);
 #   4. active.json now names its port, so the front on 5401 (services/front) sends every new connection there;
+#   4b. a headless webkit draw of the new build must report booted with no crash boxes in 60 s or it switches back to the old
+#       slot (which never stopped), rewriting active.json and recording why;
 #   5. after AB_SWITCH_DRAIN_S the old slot is stopped; the page's sockets reconnect, to the new node.
 # The app is never quit. Its window keeps 127.0.0.1:5401, and the page offers the reload for new screens (useVersion.ts).
 #
@@ -32,6 +34,7 @@ FRONT_HOME=${AB_SWITCH_FRONT_HOME:-$HOME/.local/share/agent-base}
 PUBLIC=${AB_SWITCH_PUBLIC_PORT:-5401}
 read -r -a SLOTS <<<"${AB_SWITCH_SLOTS:-5411 5412}"
 HEALTH_S=${AB_SWITCH_HEALTH_S:-45}
+BOOT_S=${AB_SWITCH_BOOT_S:-60}
 DRAIN_S=${AB_SWITCH_DRAIN_S:-3}
 KEEP=${AB_SWITCH_KEEP:-3}
 NODE=${AB_SWITCH_NODE:-$HOME/.local/bin/node}
@@ -85,7 +88,7 @@ case "${1:-}" in
     # its own (lib.rs voice_runs_on_its_own). The helper already is its own responsible process (com.siso.voice, t-0505),
     # so macOS keeps the permissions it has. A previous copy is archived, never deleted.
     VLABEL=${AB_SWITCH_VOICE_LABEL:-com.siso.agent-base.voice}
-    SRC=${AB_SWITCH_VOICE_SRC:-$HOME/Applications/Agent Base.app/Contents/Resources/Agent Base Voice.app}
+    SRC=${AB_SWITCH_VOICE_SRC:-$( [ -d "$HOME/Applications/SISO OS.app" ] && echo "$HOME/Applications/SISO OS.app" || echo "$HOME/Applications/Agent Base.app" )/Contents/Resources/Agent Base Voice.app}
     DST=${AB_SWITCH_VOICE_APP:-$HOME/Applications/Agent Base Voice.app}
     [ -x "$SRC/Contents/MacOS/agent-base-dictation" ] || { say "no voice helper at $SRC"; exit 2; }
     mkdir -p "$AGENTS" "$STATE/_archive"
@@ -205,6 +208,54 @@ fi
 log "$SHA" node live "switched $OLD_PORT -> $PORT"
 git update-ref refs/live "$SHA"
 printf 'live %s\nThis checkout runs nothing now: the live node runs from %s (tools/ab-switch). `git rev-parse live` says the same.\n' "$SHA" "$DIR" > LIVE
+
+# 4b. The window (siso-os.md §2a.3): a headless window draws the new build from its own slot and must report "booted"
+#     after its first draw, with no crash box in BOOT_S seconds (its own, or any window's that loads the build then).
+#     Otherwise switch back: the old slot never stopped, so nothing restarts. The probe closes every socket and sends
+#     nothing but its booted/crash reports, so it never touches an agent.
+rollback() {
+  say "ROLLED BACK: $1; live is ${OLD_SHA:0:12} on $OLD_PORT again (it never stopped)"
+  python3 - "$ACTIVE" "$OLD_PORT" "$OLD_SHA" "$OLD_DIR" "$LABEL.$OLD_PORT" <<'PY'
+import json,os,sys,time
+f,port,sha,d,label=sys.argv[1:]
+with open(f+'.tmp','w') as o: json.dump({'port':int(port),'sha':sha,'dir':d,'label':label,'at':time.strftime('%Y-%m-%dT%H:%M:%S%z')},o)
+os.replace(f+'.tmp',f)
+PY
+  SWITCHED=0   # the finish trap boots the candidate out
+  git update-ref refs/live "$OLD_SHA"
+  printf 'live %s\nThis checkout runs nothing now: the live node runs from %s (tools/ab-switch). `git rev-parse live` says the same.\n' "$OLD_SHA" "$OLD_DIR" > LIVE
+  log "$SHA" node rolled-back "$1"
+  exit 1
+}
+if [ -n "${AB_SWITCH_NO_BOOT_CHECK:-}" ]; then
+  say "  window check skipped (AB_SWITCH_NO_BOOT_CHECK)"
+else
+  T_SWITCH=$(date +%s); why=''
+  set +e
+  PLAYWRIGHT_BROWSERS_PATH=${PLAYWRIGHT_BROWSERS_PATH:-$HOME/Library/Caches/ms-playwright} "$NODE" "$DIR/tools/ab-boot-probe.mjs" "http://127.0.0.1:$PORT/" "$BOOT_S" "http://127.0.0.1:$PUBLIC" > "$STATE/boot-$SHORT.log" 2>&1
+  probe_rc=$?
+  set -e
+  probe_out=$(tail -1 "$STATE/boot-$SHORT.log")
+  if [ "$probe_rc" = 3 ]; then
+    say "warning: the window check could not start a browser ($probe_out); going on with the node's health only"
+    log "$SHA" node warning "boot probe could not start"
+  else
+    [ "$probe_rc" = 0 ] || why="the window did not report booted within ${BOOT_S}s ($(echo "$probe_out" | cut -c1-160))"
+    # Crash boxes in the minute after the switch count too, from any window on this build.
+    while [ -z "$why" ] && [ $(( $(date +%s) - T_SWITCH )) -lt "$BOOT_S" ]; do
+      state=$(curl -s -m 2 "127.0.0.1:$PORT/api/booted?sha=$SHA" || true)
+      echo "$state" | grep -q '"crashes":\[{' && why="crash boxes fired: $(echo "$state" | grep -o '"name":"[^"]*"' | head -3 | tr '\n' ' ')"
+      [ -n "$why" ] || sleep 1
+    done
+    if [ -z "$why" ] && ! curl -s -m 2 "127.0.0.1:$PORT/api/booted?sha=$SHA" | grep -q '"booted":true'; then why="the node never heard booted for $SHORT"; fi
+    if [ -n "$why" ]; then
+      if [ -n "$OLD_PORT" ]; then rollback "$why"; fi
+      say "warning: $why (first deploy: nothing to go back to)"; log "$SHA" node warning "$why"
+    else
+      say "  window booted in $(echo "$probe_out" | grep -o '"ms":[0-9]*' | cut -d: -f2) ms, no crash boxes in ${BOOT_S}s"
+    fi
+  fi
+fi
 
 # 5. Drain, then stop the old slot. Its release dir stays for a rollback.
 if [ -n "$OLD_PORT" ] && [ "$OLD_PORT" != "$PORT" ]; then

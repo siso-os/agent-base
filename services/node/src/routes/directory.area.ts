@@ -72,7 +72,7 @@ export function directoryRoutes(runtime: Pick<HttpRuntime, "ALLOWED_ORIGINS" | "
           }
         }
         const fleet = await fleetManifests();
-        return json(res, 200, { groups: groupFleet(rows, fleet.manifests, registry.workspaces, readDispatch(), parents), miniEnabled: fleet.miniEnabled, miniAt: fleet.miniAt, error: fleet.error, at: Date.now() });
+        return json(res, 200, { groups: groupFleet(rows, fleet.manifests, registry.workspaces, readDispatch(), parents), miniEnabled: fleet.miniEnabled, miniAt: fleet.miniAt, error: fleet.error });   // no read-time `at`: an unchanged board is a 304 (t-0586)
       }
       if (url.pathname === "/api/agents") {
         const list = await listAgents();

@@ -105,13 +105,14 @@ function CodeBlock({ children }: { children?: ReactNode }) {
  */
 /** The window event openLink raises in the desktop app; App opens a page tab for it. */
 export const OPEN_PAGE = "agent-base:open-page";
-export function openLink(raw: string) {
+/** `agentId`: the chat the link was in, so the page opens as that agent's (12 Oct: its pages up top, under its name). */
+export function openLink(raw: string, agentId?: string) {
   const url = safeChatDestination(raw);
   if (!url) return;
   const w = window as unknown as Record<string, unknown>;
   // In the desktop app the link opens as Agent Base's own page tab (16:25, A0: "the browser first"); App takes the
   // event and cancels it. /api/open (his default browser) is only the fallback when nothing took it.
-  if (w.__TAURI_INTERNALS__ && !window.dispatchEvent(new CustomEvent(OPEN_PAGE, { detail: { url }, cancelable: true }))) return;
+  if (w.__TAURI_INTERNALS__ && !window.dispatchEvent(new CustomEvent(OPEN_PAGE, { detail: { url, agentId }, cancelable: true }))) return;
   if (w.__TAURI_INTERNALS__ || w.__TAURI__) {
     void fetch("/api/open", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ url }) }).catch(() => {});
   } else window.open(url, "_blank", "noopener,noreferrer");
@@ -124,7 +125,7 @@ const Link = ({ href, children, ...p }: { href?: string; children?: ReactNode })
     rel="noopener noreferrer"
     onClick={(e) => {
       e.preventDefault();
-      if (href) openLink(href);
+      if (href) openLink(href, e.currentTarget.closest("[data-agent-id]")?.getAttribute("data-agent-id") ?? undefined);
     }}
     // R1.22: a link drags like a tab: onto the top row (a tab there), beside the chat, onto an agent or the page strip.
     onDragStart={(e) => {

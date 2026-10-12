@@ -45,7 +45,17 @@ try {
       return body === undefined ? route.fulfill({ status: 404, json: {} }) : route.fulfill({ json: body });
     });
     await page.goto(base);
-    const infra = page.getByTestId('nav-infra');
+    const bar = page.getByTestId('nav-infra');
+    await bar.waitFor();
+    // 12 Oct (Shaan: "make that a folder and remove that from the bottom nav"): a folder in the one nav card, three faces on
+    // its row; a click opens the three rows under it. Nothing is left at the bottom, and the header sits in the same card.
+    const card = page.getByTestId('nav-card');
+    assert.equal(await card.getByTestId('nav-infra').count(), 1, 'the folder is inside the nav card');
+    assert.equal(await card.locator('.siso-headstack').count(), 1, 'Agent Base, its menu and the dashboard icon are in the card');
+    assert.equal(await page.locator('.siso-nav-footer').count(), 0, 'no bottom slot');
+    assert.deepEqual(await bar.locator('.ab-infra-branch__faces [data-role]').evaluateAll(xs => xs.map(x => x.getAttribute('data-role'))), ROLES, 'three stacked faces, in order');
+    await page.getByTestId('infra-entry').click();
+    const infra = page.getByTestId('infra-pop');
     await infra.waitFor();
     assert.deepEqual(await infra.locator('[data-role]').evaluateAll(xs => xs.map(x => x.getAttribute('data-role'))), ROLES, 'the three, in order');
     assert.deepEqual(await infra.locator('[data-role]').evaluateAll(xs => xs.map(x => x.getAttribute('aria-label'))), ["Open HEALTH's chat: idle", "Open EFFICIENCY's chat: working", "Open ESTATE's chat: idle"]);
@@ -61,10 +71,10 @@ try {
     assert.equal(await plus.textContent(), '+2', "Agent Zero's two helpers are a +2 on its face");
     // t-0457 (AB-10): no Unsorted group; the fixture's stray projects used to sit in one.
     assert.equal(await page.getByTestId('nav-rows').getByText('Unsorted', { exact: true }).count(), 0, 'no Unsorted group');
-    // The label is not cut off: the trio has the footer's first line to itself.
-    const label = infra.locator('.siso-infra__label');
+    // The label is not cut off.
+    const label = page.getByTestId('infra-entry');
     assert.equal(await label.evaluate(el => el.scrollWidth <= el.clientWidth + 1), true, '"Agent Infrastructure" fits');
-    const foot = page.locator('.siso-nav-footer').first(), b = await foot.boundingBox();
+    const b = await bar.boundingBox();
     const top = Math.max(0, b.y - 200);
     await page.screenshot({ path: path.join(shots, `after-${width}.png`), clip: { x: 0, y: top, width: Math.min(width, b.x + b.width + 24), height: Math.min(height - top, b.y + b.height - top + 12) } });
     await infra.locator('[data-role="ESTATE"]').click();

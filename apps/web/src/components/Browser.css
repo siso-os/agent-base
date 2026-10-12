@@ -633,3 +633,5 @@
   .ab-hub__sheet.siso-bottom-sheet header small { order: 1; flex-basis: 100%; }
   .ab-hub__sheet.siso-bottom-sheet .ab-hub__steps { gap: 10px; flex-wrap: wrap; }
 }
+/* The agent whose chat link opened the tab (12 Oct): its name at the row's end, as up top. */
+.ab-browser__via { margin-left: auto; flex: none; max-width: 92px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 1px 6px; border-radius: 6px; font-size: 10.5px; font-style: normal; color: rgb(var(--crm-white-rgb) / 0.62); background: rgb(var(--crm-white-rgb) / 0.06); }

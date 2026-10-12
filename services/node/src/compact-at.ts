@@ -13,7 +13,7 @@ export async function compactAtRows<T extends { name: string; tool?: string }>(r
     const value = JSON.parse(await readFile(process.env.AB_COMPACT_AT_FILE ?? path.join(homedir(), '.local/state/a0/compact-at.json'), 'utf8'));
     if (value && typeof value === 'object' && !Array.isArray(value)) saved = value;
   } catch { /* Missing selections use the launcher's default. */ }
-  return rows.map(row => isClaudeAgent(row) ? { ...row, compactAt: validCompactAt(saved[row.name]) ? saved[row.name] as number : 35 } : row);
+  return rows.map(row => isClaudeAgent(row) ? { ...row, compactAt: validCompactAt(saved[row.name]) ? saved[row.name] as number : 33 } : row);
 }
 
 /** No shell: an agent name is a single argv entry. A failed spawn must never claim 202. */

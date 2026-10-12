@@ -103,8 +103,9 @@ try {
       const labels = await top.locator('button').evaluateAll(bs => bs.filter(b => b.getClientRects().length).map(b => b.getAttribute('aria-label') ?? ''));
       if (before) return;
       const i = (re) => labels.findIndex(l => re.test(l));
-      assert.ok(i(/^New tab/) >= 0 && i(/^Agent notifications/) > i(/^New tab/), `the bell sits right of +: ${labels.join(' | ')}`);
-      assert.equal(i(/^More views/), labels.length - 1, `the three dots are the last control: ${labels.join(' | ')}`);
+      // SISO OS §6 (t-0599): the bar ends at +; the bell, version, spend and ⋯ left it.
+      assert.equal(i(/^New tab/), labels.length - 1, `+ is the last control: ${labels.join(' | ')}`);
+      assert.ok(i(/^Agent notifications/) < 0 && i(/^More views/) < 0, `no bell or three dots: ${labels.join(' | ')}`);
     });
 
     // 4. Today's spend: black chip with a number; a wider black pop-up.
@@ -203,7 +204,8 @@ try {
 
     // 5. Recorded vNNN opens a pop-up over the page; the page does not change.
     // t-0532 item 8: the bar says the number alone.
-    assert.equal((await page.getByTestId('version-pill').locator('b').textContent())?.trim(), 'v145', 'just the version number');
+    // SISO OS §6 (t-0599): the pill sits by "Agent Base" in the side nav; on a phone that is the nav sheet, shut here.
+    if (!phone) assert.equal((await page.getByTestId('version-pill').locator('b').textContent())?.trim(), 'v145', 'just the version number');
     await step(`${width}: 5 version pop-up`, async () => {
       const pill = page.getByTestId('version-pill');
       if (!(await pill.isVisible())) { assert.ok(phone, 'the pill shows on a wide window'); return; }
@@ -225,15 +227,18 @@ try {
       await pop.waitFor({ state: 'detached' });
     });
 
-    // 7. HEALTH, EFFICIENCY and ESTATE at the bottom of the side nav, each opening its chat.
-    await step(`${width}: 7 side nav bottom`, async () => {
+    // 7. HEALTH, EFFICIENCY and ESTATE in the side nav, each opening its chat (a folder since 12 Oct, no longer the bottom slot).
+    await step(`${width}: 7 side nav infrastructure`, async () => {
       if (phone) { const toggle = page.getByRole('button', { name: 'Show or hide the side nav' }); await toggle.click(); await page.waitForTimeout(400); }
-      const foot = page.locator('.siso-nav-footer').first();
+      const foot = page.getByTestId('nav-infra').first();
       await foot.waitFor();
       const b = await foot.boundingBox();
       await shot('7-sidenav', { x: 0, y: Math.max(0, b.y - 220), width: Math.min(width, b.x + b.width + 40), height: Math.min(260 + b.height, (phone ? 844 : 1000) - Math.max(0, b.y - 220)) });
       if (before) return;
-      const infra = page.getByTestId('nav-infra');
+      // Three faces on the folder row; a click opens the three rows.
+      await page.getByTestId('nav-infra').waitFor();
+      await page.getByTestId('infra-entry').click();
+      const infra = page.getByTestId('infra-pop');
       await infra.waitFor();
       const names = await infra.locator('[data-role]').evaluateAll(xs => xs.map(x => x.getAttribute('data-role')));
       assert.deepEqual(names, ['HEALTH', 'EFFICIENCY', 'ESTATE']);

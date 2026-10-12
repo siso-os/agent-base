@@ -50,3 +50,10 @@
 .zh-old { display: inline-flex; justify-self: start; align-items: center; gap: 4px; padding: 3px 8px; border: 0; border-radius: 6px; background: none; color: rgb(var(--crm-white-rgb) / 0.45); font: 11px var(--crm-font-sans); cursor: pointer; }
 .zh-old:hover { background: rgb(var(--crm-white-rgb) / 0.06); color: var(--crm-color-text); }
 .zh-old[aria-expanded="true"] svg { transform: rotate(180deg); }
+/* Budget: how old the reading is, and ↻ to read it now (10 Oct). */
+.zh-budget__meta { display: inline-flex; align-items: center; gap: 6px; }
+.zh-budget__meta button { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 7px; color: rgb(var(--crm-white-rgb) / 0.6); }
+.zh-budget__meta button:hover { background: rgb(var(--crm-white-rgb) / 0.08); color: var(--crm-color-text-strong); }
+.zh-budget__meta button.is-busy svg { animation: zh-spin 0.9s linear infinite; }
+@keyframes zh-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .zh-budget__meta button.is-busy svg { animation: none; opacity: .5; } }

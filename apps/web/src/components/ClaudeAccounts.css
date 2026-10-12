@@ -20,3 +20,4 @@
 .ab-account-line meter{width:64px;height:5px;accent-color:#91cffa}
 .ab-account-line i{font:normal 11px var(--crm-font-mono);color:#d4d8df;text-align:right}
 .ab-account-line i.is-none{grid-column:3/5;color:#858d99;font-family:inherit;text-align:right}
+.ab-account-line__why{grid-column:1/-1;margin-top:-2px;color:#f5c26b;font-size:10.5px;line-height:1.35}

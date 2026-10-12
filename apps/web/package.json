@@ -9,9 +9,10 @@
   },
   "dependencies": {
     "@siso/composer": "workspace:*",
+    "@siso/icons": "workspace:*",
+    "@siso/os": "workspace:*",
     "@siso/shell": "workspace:*",
     "@siso/side-nav": "workspace:*",
-    "@siso/icons": "workspace:*",
     "@siso/terminal": "workspace:*",
     "@siso/tokens": "workspace:*",
     "@siso/voice": "workspace:*",

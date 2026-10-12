@@ -1,4 +1,3 @@
-import { HomePeek } from "./components/HomePeek";
 // uihub: arc:command-palette — shared Spotlight entry points
 import { pinTargetKey } from "../../../services/node/src/agent-pins";
 import type { ConversationPinTarget } from "../../../services/node/src/conversation-route";
@@ -6,27 +5,31 @@ import { EndedPage } from "./components/EndedPage";
 import { DashboardPage } from "./components/DashboardPage";
 import { WorktreeSetupCard } from "./components/WorktreeSetupCard";
 import { completeLaunchDraft, draftLaunchId, requestWorkspace, type WorkspaceChoice, type WorkspaceStatus } from "./lib/agents";
-import { ChevronDownIcon, ArrowLeftIcon, LayoutGridIcon, CircleDollarSignIcon, LandmarkIcon, BarChart3Icon, Maximize2Icon, ServerIcon, BookOpenIcon, BookUserIcon, EllipsisIcon, ExpandIcon, GlobeIcon, HouseIcon, LayoutDashboardIcon, ListChecksIcon, MessageCircleIcon, MicIcon, NetworkIcon, PanelLeftIcon, PinIcon, PinOffIcon, PlusIcon, ScrollTextIcon, SparklesIcon, TerminalSquareIcon, Trash2Icon, UsersIcon, HeartPulseIcon } from "lucide-react";
-import { workspaceOwners, navHome } from "./lib/workspace-nav";
+import { AppWindowIcon, RotateCwIcon, ChevronDownIcon, FactoryIcon, ArrowLeftIcon, LayoutGridIcon, CircleDollarSignIcon, LandmarkIcon, BarChart3Icon, Maximize2Icon, ServerIcon, BookOpenIcon, EllipsisIcon, ExpandIcon, GlobeIcon, HouseIcon, LayoutDashboardIcon, ListChecksIcon, MessageCircleIcon, MicIcon, NetworkIcon, PanelLeftIcon, PinIcon, PinOffIcon, PlusIcon, ScrollTextIcon, SparklesIcon, TerminalSquareIcon, Trash2Icon, UsersIcon, BlocksIcon, CircleHelpIcon, SquareIcon } from "lucide-react";
+import { navHome } from "./lib/workspace-nav";
 import { SubagentView } from "./components/panel/SubagentView";
 import { FleetBoard } from "./components/FleetBoard";
 import { OwnerPage } from "./components/OwnerBoard";
 import type { OwnerQuestionConnection } from "./components/OwnerSpaceModel";
 import { useOwnerLinkNavigation, useOwnerNavigation } from "./lib/owners";
 import { OwnerLinkToast } from "./components/OwnerLinkToast";
-import { NotificationsBell } from "./components/NotificationsBell";
-import { AppFrame, CHAT_DRAG, HoverCard, MenuButton, PAGE_DRAG, RailButton, TAB_DRAG, RailDivider, SidePanel, TopButton, TopTabs, load, save, setPersistPrefix, type MenuItem, type TopTab } from "@siso/shell";
-import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState, type DragEvent, type ReactNode } from "react";
+import { AppFrame, CHAT_DRAG, HoverCard, MenuButton, PAGE_DRAG, RailButton, TAB_DRAG, SidePanel, TopButton, TopTabs, load, save, setPersistPrefix, SpacesRail, type MenuItem, type TopTab } from "@siso/shell";
+import { OsProvider, type Module, type Space, type SpaceId } from "@siso/os";
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState, type ComponentProps, type DragEvent, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { AgentPanel, type PanelFocus } from "./components/AgentPanel";
 import { BankWorkspacePalette } from "./components/BankNavigationAdapters";
 import { BankWorkspaceChooser } from "./components/BankWorkspaceChooser";
 import { CodexWorkerPage } from "./components/CodexWorkerPage";
 import { ChatView, OPEN_PAGE, openLink, type People } from "./components/ChatView";
 import { AgentFace, accentRgb, faceFor } from "./lib/face";
-import { LivingIcon, WorkspaceMark, type LivingIconName } from "../../../packages/halo-face/living-assets";
+import { groupAgentPages } from "./components/AgentPages";
+import { LiveAgents, liveAgents } from "./components/LiveAgents";
+import { LivingIcon, type LivingIconName } from "../../../packages/halo-face/living-assets";
 import "./components/LivingNavigation.css";
 import { AgentZeroPage } from "./components/AgentZeroPage";
 import { isLibraryLocation } from "./components/LibraryNavigation";
+import { ModuleView, hasModuleView, useModuleSwaps } from "./os/modules";
 
 const livingRailIcon = (name: LivingIconName) => (engaged: boolean) => <LivingIcon name={name} size={30} variant="glyph" active={engaged}/>;
 
@@ -35,7 +38,7 @@ import { useA0Page } from "./lib/a0-widgets";
 import { closePage, nativeBrowserAvailable, onBrowserShortcut, onNewTab } from "./lib/webview";
 import { duplicateTabs, sameUrl } from "./lib/browser-tabs";
 import { canon, useHubAgents, useHubOrg, useHubProject } from "./lib/hub";
-import { TasksAnswer, TasksPage, type TaskFocus } from "./components/TasksPage";
+import { TasksAnswer, TasksPage, type TaskFocus } from "./modules/tasks/TasksPage";
 import { PAGE_HUE, PagePop, loadPopped, savePopped, type PoppedPage } from "./components/PagePop";
 import { canonName, isDone, isParked, needsNames, openCounts, ownerNames, tasksOf, useA0Tasks } from "./lib/a0-tasks";
 import { TasksWidget } from "./components/widgets/TasksWidget";
@@ -45,13 +48,11 @@ import { attentionId, attentionPost, useAttention } from './lib/attention';
 import { ProjectSpace } from "./components/ProjectSpace";
 import { ProjectDashboard } from "./components/ProjectDashboard";
 import { ProjectRoute } from "./components/ProjectPage";
-import { AgentBasePeek } from "./components/TaskBoard";
+import { AgentBasePeek } from "./modules/tasks/TaskBoard";
 import { ChatHeader } from "./components/ChatHeader";
-import { PingStrip } from "./components/PingStrip";
 import { type PageRowProps } from "./components/PageRow";
 import { needsHim, usePings } from "./lib/pings";
-import { ZeroFace } from "./components/ZeroFace";
-import { ZeroOrbit, type Need } from "./components/ZeroOrbit";
+import type { Need } from "./components/ZeroOrbit";
 import { ZeroPipelineMetric } from "./components/DeliveryEvidence";
 import type { MoveStatus, MoveTarget } from "../../../services/node/src/move";
 
@@ -66,35 +67,32 @@ import { type Nav, PageView, hostOf } from "./components/Browser";
 import { Hud, type HudMove } from "./components/Hud";
 import { RecentOutput } from "./components/RecentOutput";
 import { FaceDock, Sidebar, WORD, markOf } from "./components/Sidebar";
-import { ServersPage } from "./components/ServersSpace";
-import { MiniLanePage } from "./components/MiniLanes";
-import { VoiceMain, VoiceSidebar, voiceHealth, type VoiceSelection } from "./components/VoiceSpace";
+import { ServersPage } from "./modules/estate/ServersSpace";
+import { MiniLanePage } from "./modules/estate/MiniLanes";
+import { voiceHealth } from "./modules/voice/VoiceSpace";
 import { useVoiceStatus } from "@siso/voice";
+import { registry, bus } from "./os/registry";
+import { MODULE_ICON, SPACE_MARK, osSpaceOf } from "./os/rail";
 import { type Agent, type Page, byWhoNeedsYou, isUnseenDone, navState, sidebarOrder, useAgents, useOrg, useStats } from "./lib/agents";
 import { OrgPage } from "./components/OrgPage";
 const TokensPage = lazy(() => import("./components/UsagePage").then((m) => ({ default: m.UsagePage })));
 const StatsPage = lazy(() => import("./components/StatsPage").then((m) => ({ default: m.StatsPage })));
 const FleetStatsPage = lazy(() => import("./components/UsagePage").then((m) => ({ default: m.UsagePage })));
 const StatsAnswer = lazy(() => import("./components/FleetStats").then((m) => ({ default: m.StatsAnswer })));
-const LibrarySpace = lazy(() => import("./components/LibrarySpace").then((m) => ({ default: m.LibrarySpace })));
-const LiveStrip = lazy(() => import("./components/LibrarySpace").then((m) => ({ default: m.LiveStrip })));
+const LibrarySpace = lazy(() => import("./modules/estate/LibrarySpace").then((m) => ({ default: m.LibrarySpace })));
+const LiveStrip = lazy(() => import("./modules/estate/LibrarySpace").then((m) => ({ default: m.LiveStrip })));
 import { prefill } from "./lib/prefill";
-import { RolodexMain, RolodexSidebar, useRolodexBook, type RolodexSelection } from "./components/RolodexSpace";
-const WhatsAppSpace = lazy(() => import("./components/WhatsAppSpace").then((m) => ({ default: m.WhatsAppSpace })));
-const LifeSidebar = lazy(() => import("./components/LifeSpace").then((m) => ({ default: m.LifeSidebar })));
-const LifeMain = lazy(() => import("./components/LifeSpace").then((m) => ({ default: m.LifeMain })));
-import { HistoryButtons } from "./components/HistoryButtons";
-import "./components/HistoryButtons.css";
+import { setComms } from "./modules/whatsapp/tab";
+import { openModuleWindow, soloModule } from "./lib/module-window";
 import "./components/Phone.css";
 import { TasksSheet } from "./components/phone/TasksSheet";
 import "./components/ZeroSpot.css";
 import { PANEL_DRAG, TopNav, type PanelPage, type TopPage } from "./components/TopNav";
-import { SpendChip } from "./components/SpendChip";
 import { Boundary } from "./components/Boundary";
 import { agentPinLabel, canEditAgentPin, toggleAgentPin } from "./lib/pin-actions";
 import { getPage } from "./pages/registry";
 import "./pages/load";
-import { VersionPill, WhatsNewPage } from "./components/WhatsNew";
+import { WhatsNewPage } from "./components/WhatsNew";
 import { ScratchpadChip, A0FleetChips } from "./components/Scratchpad";
 import { createPageHistory } from "./lib/nav";
 import { BY_HIM, isEditable, recordSelection, type SelectCause } from "./lib/selection";
@@ -122,6 +120,8 @@ const KEEP_MOUNTED = 8;
 type View = { kind: "chat" } | { kind: "tab"; id: string };
 /** Pages of the app itself that open in the main area with a back control: Agent Zero's Tasks and hub-7's org chart. */
 type AppPage = "ended-list" | "dashboard" | "tasks" | "orgchart" | "stats" | "starred" | "whatsnew" | "codex-work" | "research" | "canvas" | "product-map";
+/** All spaces the app can show. */
+export type AppSpace = "agents" | "pinboard" | "voice" | "servers" | "tokens" | "rolodex" | "library" | "whatsapp" | "estate" | "life" | "web" | "app-factory" | "agents-hub" | "questions";
 /** Pages the top row opens (R1.2): no tab of their own. */
 const TOP_ROW_PAGES: AppPage[] = ["orgchart", "tasks", "stats"];
 const APP_PAGES: Record<AppPage, string> = { "ended-list": "Ended", dashboard: "Dashboard", tasks: "Tasks", orgchart: "Org chart", stats: "Usage", starred: "Starred", whatsnew: "What’s new", "codex-work": "Codex work", research: "Research", canvas: "Canvas", "product-map": "Product map" };
@@ -131,12 +131,15 @@ const isAppPage = (id: string): id is AppPage => id in APP_PAGES;
 type OrgView = { group: string } | { project: string } | { lane: string };
 type Loc = { s: string; v: View; a: string | null; o: OrgView | null; t?: TaskFocus | null };
 const encodeLoc = (l: Loc) => `at=${encodeURIComponent(JSON.stringify(l))}`;
-const LOC_SPACES = new Set(["agents", "voice", "servers", "tokens", "rolodex", "library", "whatsapp", "estate", "web"]);
+const LOC_SPACES = new Set(["agents", "voice", "servers", "tokens", "rolodex", "library", "whatsapp", "estate", "web", "agents-hub", "questions"]);
+/** A module in a window of its own (?window=module&m=<id>): that module alone, no rail, its name in the bar. */
+const SOLO = soloModule();
+if (SOLO) document.documentElement.dataset.solo = SOLO;
 const decodeLoc = (h: string): Loc | null => {
   if (!h.startsWith("at=")) return null;
   try {
     const raw = JSON.parse(decodeURIComponent(h.slice(3))) as any;
-    if (!raw || typeof raw !== "object" || Array.isArray(raw) || typeof raw.s !== "string" || !LOC_SPACES.has(raw.s)) return null;
+    if (!raw || typeof raw !== "object" || Array.isArray(raw) || typeof raw.s !== "string" || !(LOC_SPACES.has(raw.s) || registry.byId(raw.s)?.entry.kind === "url")) return null;
     const v = raw.v;
     if (!v || typeof v !== "object" || Array.isArray(v) || (v.kind !== "chat" && v.kind !== "tab") || (v.kind === "tab" && typeof v.id !== "string")) return null;
     if (raw.a !== null && typeof raw.a !== "string") return null;
@@ -163,7 +166,8 @@ const decodeLoc = (h: string): Loc | null => {
  */
 /** `by`: "him" when his own click, key or drop opened it (3 Oct: pages never open on their own; a tab without it predates the mark). */
 /** `pin`: the browser pin or favourite this tab is (browser v3: `pin:<space>:<url>` or `fav:<url>`), so a pin is one live tab. */
-type OpenTab = { id: string; kind: "web" | "term"; title: string; owner: string; by?: "him"; pin?: string };
+/** `via`: the agent whose chat link opened it (12 Oct): a Web tab that shows up top under that agent's name. */
+type OpenTab = { id: string; kind: "web" | "term"; title: string; owner: string; by?: "him"; pin?: string; via?: string };
 /** The saved tabs, each one a real tab: a null, a number or a record without an id is dropped (overnight QA, 3 Oct). */
 const savedTabs = () =>
   load<unknown[]>("open-tabs", []).filter((t): t is OpenTab => !!t && typeof t === "object" && typeof (t as OpenTab).id === "string" && ((t as OpenTab).kind === "web" || (t as OpenTab).kind === "term"));
@@ -223,6 +227,7 @@ function CanvasPage(props: Pick<Parameters<typeof AgentCanvas>[0], "agents" | "o
 }
 
 export function App() {
+  useModuleSwaps();   // a ship that changes only module code swaps it in place (siso-os.md §2a.1)
   const [ownerQuestions, setOwnerQuestions] = useState<Record<string, OwnerQuestionConnection>>({});
   const onOwnerQuestions = useCallback((id: string, connection: OwnerQuestionConnection | null) => setOwnerQuestions(current => {
     if (connection) return {...current,[id]:connection};
@@ -307,6 +312,19 @@ export function App() {
   const [side, setSide] = useState<Side>(null);
   const [sideFull, setSideFull] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(() => load("sidebar-open", true));
+  const [zeroCardOpen, setZeroCardOpen] = useState(false);
+  /** The pill the org card hangs from, and the card itself: Escape or a press outside both closes it. */
+  const zeroPillRef = useRef<HTMLSpanElement>(null);
+  const zeroCardRef = useRef<HTMLDivElement>(null);
+  const [zeroCardLeft, setZeroCardLeft] = useState(8);
+  useEffect(() => {
+    if (!zeroCardOpen) return;
+    const away = (e: PointerEvent) => { const t = e.target as Node; if (!zeroPillRef.current?.contains(t) && !zeroCardRef.current?.contains(t)) setZeroCardOpen(false); };
+    const esc = (e: KeyboardEvent) => { if (e.key === "Escape") setZeroCardOpen(false); };
+    document.addEventListener("pointerdown", away, true);
+    document.addEventListener("keydown", esc);
+    return () => { document.removeEventListener("pointerdown", away, true); document.removeEventListener("keydown", esc); };
+  }, [zeroCardOpen]);
   // Below 640 px the nav never shares the width with a chat (HUB-DESIGN 21:22): it overlays the chat full width, and
   // picking an agent closes it. A phone's open/closed is not saved, so the laptop's choice survives.
   const [narrow, setNarrow] = useState(() => window.matchMedia(NARROW).matches);
@@ -418,7 +436,16 @@ export function App() {
   const [asTerminal, setAsTerminal] = useState<Record<string, boolean>>(() => load("as-terminal", {}));
   useEffect(() => save("as-terminal", asTerminal), [asTerminal]);
   /** Which space fills the frame: the agents, or Voice (his dictation history and stats, from SISO Voice). */
-  const [space, setSpace] = useState<"agents" | "pinboard" | "voice" | "servers" | "tokens" | "rolodex" | "library" | "whatsapp" | "estate" | "life" | "web">(() => isLibraryLocation(location.hash) ? "library" : load("space", "agents"));
+  const [space, setSpace] = useState<AppSpace>(() => isLibraryLocation(location.hash) ? "library" : load("space", "agents"));
+  /** Which SISO OS space is open on the rail (agent-base, app-factory, or agency). */
+  const [railSpace, setRailSpace] = useState<SpaceId>(() => osSpaceOf(space) ?? load("rail-space", "agent-base"));
+  useEffect(() => {
+    const newRailSpace = osSpaceOf(space);
+    if (newRailSpace && newRailSpace !== railSpace) {
+      setRailSpace(newRailSpace);
+      save("rail-space", newRailSpace);
+    }
+  }, [space, railSpace]);
   const [libraryKey, setLibraryKey] = useState(() => isLibraryLocation(location.hash) ? location.hash.slice(1) : "library/docs");
   useEffect(() => {
     const openLibraryRoute = () => {
@@ -440,14 +467,14 @@ export function App() {
     window.addEventListener("keydown", key); return () => window.removeEventListener("keydown", key);
   }, [space, agents, activeId]);
   const [estateKept, setEstateKept] = useState(space === "estate");
-  // t-0497: Rolodex stays mounted (hidden) after its first visit, like Estate, so going back does not rebuild it.
-  const rolodexOn = space === "rolodex" && view.kind === "chat";
-  const [rolodexKept, setRolodexKept] = useState(rolodexOn);
-  useEffect(() => { if (rolodexOn) setRolodexKept(true); }, [rolodexOn]);
+  // The Rolodex lives in Communications now (Shaan, 10 Oct: "Move Rolodex into WhatsApp"): a saved or linked "rolodex" opens People there.
+  useEffect(() => { if (space === "rolodex") { setComms({ tab: "people" }); setSpace("whatsapp"); } }, [space]);
   // The Estate is the land and the Library a building on it (Shaan, 7 Oct): one rail icon, a World | Library | Register switch.
   // World is the 3D estate, Library is LIBRARY's reader (/library-site/), Register is the old Library space (built, live, Works).
   const [estatePane, setEstatePane] = useState<"world" | "library">(() => load("estate-pane", "library"));
   useEffect(() => save("estate-pane", estatePane), [estatePane]);
+  /** The registry module the open space is (SISO OS §4); off when its feature is switched off on this machine. */
+  const openModule = registry.byId(space);
   const estateArea = (space === "estate" || space === "library") && view.kind === "chat";
   const estateOn = space === "estate" && view.kind === "chat" && estatePane === "world";
   const libraryOn = space === "estate" && view.kind === "chat" && estatePane === "library";
@@ -469,25 +496,23 @@ export function App() {
     const t = window.setTimeout(() => setEstateKept(false), 10 * 60_000);
     return () => window.clearTimeout(t);
   }, [estateOn, estateKept]);
-  // WhatsApp (WA-1): the rail button shows only when this Mac has the link configured (the feature flag is the config).
-  const [whatsappOn, setWhatsappOn] = useState(false);
-  useEffect(() => {
-    fetch("/api/whatsapp/config", { cache: "no-store" }).then((r) => r.json()).then((c) => setWhatsappOn(!!c?.configured)).catch(() => setWhatsappOn(false));
-  }, []);
   // Life (LIFE, 3 Oct): his life tracker and XP, from siso-life on siso-vps; the rail icon shows only when this Mac
   // has the API configured. "an icon in the agent space called life and then it's got its own side nav".
   const [lifeOn, setLifeOn] = useState(false);
+  const moduleOff: Record<string, boolean> = { life: !lifeOn };
   useEffect(() => {
     fetch("/api/life/status", { cache: "no-store" }).then((r) => r.json()).then((c) => setLifeOn(!!c?.configured)).catch(() => setLifeOn(false));
   }, []);
-  const [lifeSel, setLifeSel] = useState<string>(() => load("life-sel", "today"));
-  useEffect(() => save("life-sel", lifeSel), [lifeSel]);
-  // The Rolodex v3 (ROLODEX, 7 Oct): six levels, the WhatsApp sort deck and the person page, read when the space opens.
-  const rolodexBook = useRolodexBook(space === "rolodex");
-  const [rolodexSel, setRolodexSel] = useState<RolodexSelection>(() => load("rolodex-sel", "all"));
-  const [rolodexPerson, setRolodexPerson] = useState<string | null>(null);
-  useEffect(() => save("rolodex-sel", rolodexSel), [rolodexSel]);
-  const [voiceSel, setVoiceSel] = useState<VoiceSelection>(() => load("voice-sel", "home"));
+  // People's "Ask A0 about ..." (Communications): A0's chat with the person's words typed, as the Library's "Ask keeper" does.
+  const askA0 = useRef<(words: string) => void>(() => {});
+  askA0.current = (words) => {
+    const a = (agents ?? []).find((x) => x.row === "live" && (x.zero || canonName(x.name) === canonName("A0")));
+    if (!a) return;
+    setSpace("agents");
+    open(a, { chat: true });
+    prefill(a.id, words);
+  };
+  useEffect(() => bus.on((e) => { if (e.kind === "command" && e.id === "ask-a0" && typeof e.args === "string") askA0.current(e.args); }), []);
   /** SISO Voice's services (t-0271): the Voice rail button shows a dot while one is down and could not be restarted. */
   const voiceDown = voiceHealth(useVoiceStatus(undefined, 60_000).data) === "down";
 
@@ -503,6 +528,7 @@ export function App() {
   // in the right panel is attached there instead (two takeover attaches to one terminal would fight).
   const live = useMemo(() => (agents === null ? mounted : mounted.filter((id) => byId.has(id))).filter((id) => id !== peeked?.id), [agents, mounted, byId, peeked]);
   const order = useMemo(() => sidebarOrder(agents ?? [], domains), [agents, domains]);
+  const liveUp = useMemo(() => liveAgents(agents ?? [], needs), [agents, needs]);
   const needsYou = useMemo(() => (agents ?? []).filter((a) => a.row === "live" && !a.zero && navState(a, needs) === "needs"), [agents, needs]);
   const crew = useMemo(() => (active ? (agents ?? []).filter((a) => a.lead === active.name && a.row === "live") : []), [agents, active]);
   // An agent's chat, or the kind of page he is on (its panel remembered per kind: "page.stats", "page.web"…).
@@ -663,10 +689,9 @@ export function App() {
   }, [agents, active]);
   useEffect(() => () => window.clearTimeout(restore.current.timer), []);
   useEffect(() => { if (!narrowRef.current) save("sidebar-open", sidebarOpen); }, [sidebarOpen]);
-  useEffect(() => save("space", space), [space]);
+  useEffect(() => { if (!SOLO) save("space", space); }, [space]);   // a module window never moves the main window
   useEffect(() => save("view", view), [view]);
   useEffect(() => save("panel-page", panelPage), [panelPage]);
-  useEffect(() => save("voice-sel", voiceSel), [voiceSel]);
   useEffect(() => save("open-tabs", openTabs), [openTabs]);
   useEffect(() => save("tab-nav", nav), [nav]);
   useEffect(() => save("last-tab", lastTab), [lastTab]);
@@ -692,8 +717,6 @@ export function App() {
     setSideFull(false);
   }, []);
   const zeroAgent = (agents ?? []).find((x) => x.zero) ?? null;
-  // Agent Zero's own chat is the open page: his floating face would only repeat the page (6 Oct 23:35).
-  const zeroHere = onChat && Boolean(active?.zero);
   const openAppPage = useCallback(
     (id: AppPage) => {
       if (!(view.kind === "tab" && isAppPage(view.id))) setBackTo({ view, space });
@@ -779,7 +802,6 @@ export function App() {
     }
   };
   const router = useRef<ReturnType<typeof createPageHistory<string>> | null>(null);
-  const [hist, setHist] = useState({ canBack: false, canForward: false });
   if (!router.current)
     router.current = createPageHistory<string>({
       current: () => lastLoc.current,
@@ -797,7 +819,6 @@ export function App() {
             if (l) applyLoc.current(l);
           }
         }
-        window.setTimeout(() => router.current && setHist({ canBack: router.current.canBack, canForward: router.current.canForward }), 0);
       },
       encode: (k) => k,
       decode: (h) => { if (isLibraryLocation(`#${h}`)) return h; const loc = decodeLoc(h); return loc ? encodeLoc(loc) : null; },
@@ -1028,7 +1049,7 @@ export function App() {
     if (url && /^https?:/.test(url)) void edit({ op: "visit", url, title });
   }, [edit]);
   const openUrl = useCallback(
-    (url: string, title?: string, o: { owner?: string; before?: string | null; show?: boolean; drop?: boolean; page?: boolean } = {}) => {
+    (url: string, title?: string, o: { owner?: string; before?: string | null; show?: boolean; drop?: boolean; page?: boolean; via?: string } = {}) => {
       // Shaan 3 Oct 14:1x: "the URLs which come in from the icons, I don't know why they don't come in". A page he opens
       // from an icon, a link or another page is a tab in the Web space; only a drop on an agent (or its row) is the agent's.
       const owner = o.owner ?? "web";
@@ -1049,25 +1070,28 @@ export function App() {
       const had = now.tabs.find((t) => t.owner === owner && t.kind === "web" && sameUrl(now.nav[t.id]?.url ?? "", url));
       const id = had?.id ?? tabId();
       if (!had) {
-        const tab: OpenTab = { id, kind: "web", title: title || hostOf(url), owner, by: "him" };
+        const tab: OpenTab = { id, kind: "web", title: title || hostOf(url), owner, by: "him", ...(o.via ? { via: o.via } : {}) };
         const entry: Nav = { url, back: [], fwd: [], n: 0 };
         opened.current = { tabs: [...now.tabs, tab], nav: { ...now.nav, [id]: entry } };
         setOpenTabs((ts) => insertBefore(ts, tab, o.before ?? null));
         setNav((m) => ({ ...m, [id]: entry }));
         void edit({ op: "visit", url, title: title || hostOf(url) });
-      }
+      } else if (o.via && had.via !== o.via) setOpenTabs((ts) => ts.map((t) => (t.id === id ? { ...t, via: o.via } : t)));
       if (o.show !== false) (setSpace(owner === "web" ? "web" : "agents"), setView({ kind: "tab", id }));
       return id;
     },
     [edit],
   );
-  /** A chat link in the desktop app (ChatView openLink): this agent's tab on that url, shown at once. */
+  /** A chat link in the desktop app (ChatView openLink): a Web tab on that url, shown at once, marked as the agent's whose
+   * chat it was in (12 Oct), so it sits up top under that agent's name. */
+  const sender = useRef<(id?: string) => string | undefined>(() => undefined);
+  sender.current = (id) => (id ? byId.get(id)?.name : undefined) ?? active?.name;
   useEffect(() => {
     const onPage = (e: Event) => {
-      const url = (e as CustomEvent<{ url?: string }>).detail?.url;
+      const { url, agentId } = (e as CustomEvent<{ url?: string; agentId?: string }>).detail ?? {};
       if (!url || !/^https?:/i.test(url)) return;
       e.preventDefault();
-      openUrl(url);
+      openUrl(url, undefined, { via: sender.current(agentId) });
     };
     window.addEventListener(OPEN_PAGE, onPage);
     return () => window.removeEventListener(OPEN_PAGE, onPage);
@@ -1146,7 +1170,7 @@ export function App() {
   const webTabs = openTabs.filter((t) => ownerOf(t) === "web" && t.kind === "web");
   // The browser's sidebar rows are these tabs (browser v3, Shaan 7 Oct: "pages refresh when i click off of them"): a row is
   // a tab with its own live page, so going back to it shows the page as he left it, never a reload of its address.
-  const browserTabs = webTabs.map((t) => ({ id: t.id, title: t.title, url: navOf(t.id).url, pin: t.pin }));
+  const browserTabs = webTabs.map((t) => ({ id: t.id, title: t.title, url: navOf(t.id).url, pin: t.pin, via: t.via }));
   const openBrowserTab = useCallback((url: string, title: string, pin?: string) => {
     const id = tabId();
     const tab: OpenTab = { id, kind: "web", title: title || (url ? hostOf(url) : "New tab"), owner: "web", by: "him", ...(pin ? { pin } : {}) };
@@ -1158,6 +1182,10 @@ export function App() {
     return id;
   }, [edit]);
   const bindBrowserTab = useCallback((id: string, pin?: string) => setOpenTabs((ts) => ts.map((t) => (t.id === id ? { ...t, pin } : t))), []);
+  /** A blank web tab in the Web space; the browser focuses its address bar (12 Oct). */
+  const newWebTab = () => { setSpace("web"); newTab("web", "web"); };
+  const newWebTabRef = useRef(newWebTab);
+  newWebTabRef.current = newWebTab;
   const showWeb = () => {
     setSpace("web");
     const t = webTabs.find((x) => x.id === webLast.current) ?? webTabs.at(-1);
@@ -1174,7 +1202,7 @@ export function App() {
   // ⌘T and + (Shaan 3 Oct: "a new pop-up where I can put in the URL, same as how Arc works"): the command bar.
   const [workspacePaletteOpen, setWorkspacePaletteOpen] = useState(false);
   const [workspaceChooserOpen, setWorkspaceChooserOpen] = useState(false);
-  useEffect(() => onBrowserShortcut(({ action }) => { if (action === "new-tab" || action === "spotlight") setWorkspacePaletteOpen(true); }), []);
+  useEffect(() => onBrowserShortcut(({ action }) => { if (action === "new-tab") newWebTabRef.current(); else if (action === "spotlight") setWorkspacePaletteOpen(true); }), []);
   // A link in one of his pages that wants a new window (target=_blank): a Web tab, not a window on his screen.
   const nativeBridge = nativeBrowserAvailable();
   useEffect(() => onNewTab((url) => void openUrl(url, undefined, { page: true })), [openUrl, nativeBridge]);
@@ -1211,16 +1239,22 @@ export function App() {
     if (openTabs.some((t) => t.id === id)) setOpenTabs((ts) => ts.map((t) => (t.id === id ? { ...t, kind: "term", title: "Terminal" } : t)));
     else newTab("term");
   };
+  // The pages agents sent, up top on the right under each agent's name (12 Oct).
+  const agentPageGroups = groupAgentPages(browserTabs, (name) => agentNames.has(name)).flatMap((g) => {
+    const a = (agents ?? []).find((x) => x.name === g.agent);
+    return a ? [{ id: a.id, name: a.name, tabs: g.tabs }] : [];
+  });
   const orgLabel = orgPage ? ("lane" in orgPage ? orgPage.lane : "group" in orgPage ? org?.groups.find((g) => g.id === orgPage.group)?.name ?? "Group" : org?.groups.flatMap((g) => g.projects).find((p) => p.id === orgPage.project)?.name ?? org?.groups.flatMap((g) => g.folders.flatMap((f) => f.items)).find((i) => i.id === orgPage.project)?.name ?? orgPage.project) : "";
-  const workspaceTabs = navWorkspace ? workspaceOwners(agents ?? [], workspaces, navWorkspace) : [];
   // The last web page stays up top beside Agent Zero when he goes back to the agents (Shaan, 6 Oct 21:15: "I like to keep my
   // agent zero up there ... so I can flip between the two relatively quickly"): one click each way.
-  const browserBack = space !== "web" ? webTabs.find((x) => x.id === webLast.current) ?? webTabs.at(-1) : undefined;
+  // A page an agent sent sits under that agent's chip instead (12 Oct: no agent or page twice).
+  const ownTabs = webTabs.filter((x) => !(x.via && agentNames.has(x.via)));
+  const browserBack = space !== "web" ? ownTabs.find((x) => x.id === webLast.current) ?? ownTabs.at(-1) : undefined;
   // Browser v3: in the Web space the browser's sidebar is the tab list (as in Arc), so its tabs are not repeated up here.
   const stripTabs = space === "web" ? mine.filter((t) => t.kind !== "web") : mine;
   const tabs: TopTab[] = [
     ...(browserBack ? [{ kind: "page" as const, id: "browser-return", label: tabLabel(browserBack.title, navOf(browserBack.id).url), title: `Back to the browser: ${navOf(browserBack.id).url || "New tab"}`, icon: <GlobeIcon aria-hidden="true" /> }] : []),
-    ...workspaceTabs.map((a): TopTab => ({ kind: "chat", id: `owner:${a.id}`, label: a.name, icon: <AgentFace {...faceFor(a)} size={16} /> })),
+    // Shaan, 10 Oct: "Agent zero drop down should show all of this stuff and that'll be alright regardless of page I'm on. And then you shouldn't have to show these other agents here." – agents no longer add top tabs.
     // Agent Zero's own page (hub-6) has no tab since 3 Oct (A0: retire it): "Where things stand ›" in his panel opens it.
     ...(orgPage && space !== "web"
       ? [
@@ -1282,6 +1316,10 @@ export function App() {
       };
     }),
   ];
+  // SISO OS §6: a tab carries its space's colour. Every tab today belongs to Agent Base (its pages, web pages, terminals);
+  // App Factory and the Agency open in the main area from the rail, with no tab.
+  const agentBaseColour = registry.spaces.find((s) => s.id === "agent-base")?.colour;
+  for (const t of tabs) if (t.kind !== "gap") t.colour = agentBaseColour;
   const allPages = [...ownPages, ...pinnedPages];
   const activeTab = view.kind === "chat" ? (space === "agents" ? active?.zero ? "zero" : `owner:${active?.id}` : null) : view.id;
   const selectTab = useCallback(
@@ -1291,11 +1329,14 @@ export function App() {
       const zero = (agents ?? []).find(a => a.zero && `zero:${a.id}` === id);
       if (zero) return open(zero, { chat: true });
       if (id === "chat") return setView({ kind: "chat" }), setSpace("agents");
+      // SISO OS §6: clicking a tab moves the rail to its space (all tabs are Agent Base's today).
+      if (osSpaceOf(space) !== "agent-base") setSpace(mine.some((t) => t.id === id && t.kind === "web") ? "web" : "agents");
+      tabSeen.current[id] = Date.now();
       setView({ kind: "tab", id });
       const p = allPages.find((x) => `page:${x.url}` === id);
       if (p && !nav[id]) void edit({ op: "visit", url: p.url, title: p.title });
     },
-    [allPages, nav, edit, agents, open],
+    [allPages, nav, edit, agents, open, space, mine],
   );
   const stepTab = useCallback(
     (by: number) => {
@@ -1305,6 +1346,26 @@ export function App() {
     },
     [tabs, activeTab, selectTab],
   );
+  // SISO OS §6: a web tab not opened for a day leaves the bar and waits under + (⌘K's Recent), ten at most.
+  const tabSeen = useRef<Record<string, number>>(load("tab-seen", {}));
+  const [recentTabs, setRecentTabs] = useState<{ url: string; title: string; at: number }[]>(() => load("recent-tabs", []));
+  useEffect(() => save("recent-tabs", recentTabs), [recentTabs]);
+  useEffect(() => { if (view.kind === "tab") { tabSeen.current[view.id] = Date.now(); save("tab-seen", tabSeen.current); } }, [view]);
+  const sweepFrom = useRef({ mine, view, closeTab, navOf });
+  sweepFrom.current = { mine, view, closeTab, navOf };
+  useEffect(() => {
+    const sweep = () => {
+      const { mine, view, closeTab, navOf } = sweepFrom.current;
+      const now = Date.now(), seen = tabSeen.current;
+      const stale = mine.filter((t) => t.kind === "web" && !(view.kind === "tab" && view.id === t.id) && now - (seen[t.id] ??= now) > 86_400_000);
+      for (const t of stale) { closeTab(t.id); delete seen[t.id]; }
+      if (stale.length) setRecentTabs((r) => [...stale.map((t) => ({ url: navOf(t.id).url, title: t.title || navOf(t.id).url, at: now })), ...r].filter((x, i, all) => x.url && all.findIndex((y) => y.url === x.url) === i).slice(0, 10));
+      save("tab-seen", seen);
+    };
+    const first = window.setTimeout(sweep, 5_000);   // after the tabs have loaded
+    const timer = window.setInterval(sweep, 600_000);
+    return () => { window.clearTimeout(first); window.clearInterval(timer); };
+  }, []);
   const pinnedUrlSet = pinnedUrls;
   const suggested = (() => {
     const seen = new Set<string>();
@@ -1329,7 +1390,8 @@ export function App() {
       if (!e.shiftKey && !e.altKey && /^Digit[1-9]$/.test(e.code)) {
         const t = order[Number(e.code.slice(5)) - 1]; // ⌘1-9: the side nav's rows, top to bottom
         if (t) open(t, { cause: "key" });
-      } else if (e.altKey && e.code === "KeyA") nextNeedsYou(); // Codex's own key
+      } else if (e.altKey && e.shiftKey && e.code === "KeyA") nextNeedsYou(); // Codex's own key, now with ⇧
+      else if (e.altKey && e.code === "KeyA") setAttentionOpen((v) => !v); // SISO OS §6: ⌥⌘A opens the needs list
       else if (e.altKey && e.code === "KeyN") window.dispatchEvent(new CustomEvent("siso-pings-toggle")); // R1.21 the ping stack
       else if (e.shiftKey && e.code === "KeyB") setCardOpen((v) => !v);
       else if (!e.shiftKey && !e.altKey && e.code === "KeyB") {
@@ -1340,7 +1402,9 @@ export function App() {
       }
       else if (e.shiftKey && e.code === "BracketLeft") stepTab(-1); // ⌘⇧[ ⌘⇧]: the tabs, as in a browser
       else if (e.shiftKey && e.code === "BracketRight") stepTab(1);
-      else if (!e.shiftKey && !e.altKey && e.code === "KeyT") setWorkspacePaletteOpen(true); // ⌘T (Arc's command bar) and ⌘W, as in a browser
+      else if (!e.altKey && e.code === "BracketLeft") router.current?.back(); // ⌘[ ⌘]: the page history the old buttons walked (12 Oct)
+      else if (!e.altKey && e.code === "BracketRight") router.current?.forward();
+      else if (!e.shiftKey && !e.altKey && e.code === "KeyT") newWebTab(); // ⌘T a blank web tab and ⌘W, as in a browser
       else if (!e.shiftKey && !e.altKey && e.code === "KeyK") setWorkspacePaletteOpen(true);
       else if (!e.shiftKey && !e.altKey && e.code === "KeyW") view.kind === "tab" && openTabs.some((t) => t.id === view.id) ? closeTab(view.id) : close();
       else handled = false;
@@ -1464,9 +1528,279 @@ export function App() {
             ? { Icon: GlobeIcon, label: "Agent Zero's news and tasks" }
             : { Icon: ScrollTextIcon, label: "Recent output" };
 
+  const sidebarProps: ComponentProps<typeof Sidebar> = {
+    workspaces,
+    onWorkspace: setNavWorkspace,
+    views: [
+      { key: "workspace-search", label: "Find a workspace · ⌘K", icon: <LayoutDashboardIcon />, onSelect: () => setWorkspacePaletteOpen(true) },
+      { key: "workspace-chooser", label: "Agent workspaces", icon: <UsersIcon />, onSelect: () => setWorkspaceChooserOpen(true) },
+      { key: "space", label: "Space · ⌘⇧S", icon: <LayoutGridIcon />, onSelect: () => openSpace(active?.project ?? "agent-base", active?.id ?? null) },
+      { key: "canvas", label: "Canvas", icon: <NetworkIcon />, onSelect: () => openAppPage("canvas") },
+      { key: "product-map", label: "Product map", icon: <LayoutDashboardIcon />, onSelect: () => openAppPage("product-map") },
+      { key: "research", label: "Research", icon: <BookOpenIcon />, onSelect: () => openAppPage("research") },
+      { key: "whatsnew", label: "What's new", icon: <SparklesIcon />, onSelect: () => openAppPage("whatsnew") },
+    ],
+    zeroNeedCount: zeroNeeds.length,
+    onZeroNeeds: () => setAttentionOpen(true),
+    research: orbitResearch.data,
+    researchError: orbitResearch.error,
+    onOpenResearch: (selection) => { setResearchSelection(selection); openAppPage("research"); },
+    onFleet: () => { if (!zeroAgent) return; open(zeroAgent, { chat: true }); setSide(null); setCardOpen(true); setPanelFocus({ section: "team", at: Date.now() }); },
+    onPinboard: (id) => openSpace(id),
+    onProjectDashboard: (id) => { setOrgPage({ project: id }); setSpace("agents"); setView({ kind: "tab", id: "org" }); if (narrow) setSidebarOpen(false); },
+    selectedNowLane,
+    onNowLane: setSelectedNowLane,
+    onCodexWork: () => { openAppPage("codex-work"); if (narrow) setSidebarOpen(false); },
+    codexWorkActive: view.kind === "tab" && view.id === "codex-work",
+    onDashboard: () => { openAppPage("dashboard"); if (narrow) setSidebarOpen(false); },
+    pins,
+    onManagePins: () => { openAppPage("starred"); if (narrow) setSidebarOpen(false); },
+    needs,
+    onNeedsYou: nextNeedsYou,
+    onOrgChart: () => openTop("org"),
+    agents,
+    domains,
+    error,
+    down,
+    asOf,
+    activeId,
+    onOpen: (a, conversationTarget) => !conversationTarget && space === "pinboard" ? openSpace(a.project ?? pinProject, a.id) : open(a, { chat: true, conversationTarget }),
+    onAct: act,
+    onEdit: edit,
+    onReorder: reorder,
+    onReorderProjects: reorderProjects,
+    org,
+    orgDown,
+    onOrg: orgOp,
+    onNewCodex: async (name, choice, backendCatalogId) => { try { const key = `codex:${name}:${JSON.stringify(choice)}` + (backendCatalogId ? `:backend:${backendCatalogId}` : ""); const r = await requestWorkspace("/api/agents/start-codex", { name, model: "gpt-6.1-sol", ...choice, ...(backendCatalogId ? { backendCatalogId } : {}), launchId: draftLaunchId(key) }); acceptWorkspace(r); completeLaunchDraft(key); return null; } catch (e) { return (e as Error).message; } },
+    onNewClaude: async (name, choice) => { try { const key = `claude:${name}:${JSON.stringify(choice)}`; const r = await requestWorkspace("/api/agents/start", { name, model: "opus", ...choice, launchId: draftLaunchId(key) }); acceptWorkspace(r); completeLaunchDraft(key); return null; } catch (e) { return (e as Error).message; } },
+    onStart: startAgent,
+    onSay: sayStart,
+    onAskZero: askZero,
+    taskCounts,
+    needTasks,
+    onNeedTasks: () => openAppPage("tasks"),
+    onTasks: (a) => (open(a, { chat: true }), setTasksFor(a.name)),
+    ended,
+    onEndedPage: () => { openAppPage("ended-list"); if (narrow) setSidebarOpen(false); },
+    onPage: (p) => {
+      if (narrow) setSidebarOpen(false);
+      setOrgPage(p);
+      setSpace("agents");
+      setView({ kind: "tab", id: "org" });
+    },
+    onWorkers: (a) => {
+      open(a, { chat: true });
+      setSide({ kind: "crew", id: null });
+      setSideFull(false);
+    },
+    onZeroPage: (a) => {
+      open(a, { chat: true });
+      setSide({ kind: "surface", s: "page" });
+      setSideFull(false);
+    },
+    onRename: (a) => {
+      open(a, { chat: true });
+      setRenaming(a.name);
+    },
+  };
+
+  // Build the rail's module buttons and space headers from the registry (t-0599 step 2).
+  const moduleOpen: Record<string, () => void> = {
+    "agents": () => { setSpace("agents"); setView({ kind: "chat" }); },
+    "tasks": () => openAppPage("tasks"),
+    "voice": () => setSpace("voice"),
+    "browser": () => showWeb(),
+    "estate": () => { setSpace("estate"); setView({ kind: "chat" }); },
+    "rolodex": () => { setComms({ tab: "people" }); setSpace("whatsapp"); setView({ kind: "chat" }); },
+    "whatsapp": () => { setSpace("whatsapp"); setView({ kind: "chat" }); },
+    "agents-hub": () => { setSpace("agents-hub"); setView({ kind: "chat" }); },
+    "library": () => { setSpace("library"); setView({ kind: "chat" }); },
+    "questions": () => setSpace("questions"),
+  };
+  /** A module the shell has no special opener for (a URL module like App Factory) opens as its own space (step 7). */
+  const openModuleId = (id: string) => (moduleOpen[id] ?? (() => { setSpace(id as AppSpace); setView({ kind: "chat" }); }))();
+  useEffect(() => { if (SOLO) openModuleId(SOLO); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  // Right-click a rail icon (or a space's head): open that module in a window of its own (Shaan, 10 Oct).
+  const [railMenu, setRailMenu] = useState<{ x: number; y: number; id: string; name: string } | null>(null);
+  const [railNote, setRailNote] = useState("");
+  useEffect(() => {
+    if (SOLO) return;
+    const onMenu = (e: MouseEvent) => {
+      const t = e.target as HTMLElement;
+      if (!t.closest?.(".siso-app__rail")) return;
+      const space = t.closest(".siso-spaces__head") ? t.closest<HTMLElement>("[data-space]")?.dataset.space : undefined;
+      const id = t.closest<HTMLElement>("[data-module]")?.dataset.module ?? (space ? registry.modulesOf(space as never)[0]?.id : undefined);
+      if (!id) return;
+      e.preventDefault();
+      setRailNote("");
+      setRailMenu({ x: e.clientX, y: e.clientY, id, name: registry.byId(id)?.name ?? id });
+    };
+    document.addEventListener("contextmenu", onMenu);
+    return () => document.removeEventListener("contextmenu", onMenu);
+  }, []);
+  useEffect(() => {
+    if (!railMenu) return;
+    const close = (e: Event) => { if (!(e.target as HTMLElement)?.closest?.(".ab-rail-menu")) setRailMenu(null); };
+    const esc = (e: KeyboardEvent) => { if (e.key === "Escape") setRailMenu(null); };
+    window.addEventListener("pointerdown", close); window.addEventListener("keydown", esc);
+    return () => { window.removeEventListener("pointerdown", close); window.removeEventListener("keydown", esc); };
+  }, [railMenu]);
+
+  const moduleButton = (m: Module): ReactNode => {
+    const commonProps = {
+      key: m.id,
+      label: m.name,
+      line: m.line,
+      active: false,
+    };
+
+    switch (m.id) {
+      case "agents":
+        return (
+          <RailButton
+            {...commonProps}
+            label="Agents"
+            Icon={HouseIcon}
+            active={space === "agents" && view.kind === "chat"}
+            onClick={() => moduleOpen["agents"]()}
+          />
+        );
+      case "tasks":
+        return (
+          <RailButton
+            {...commonProps}
+            label="Tasks"
+            peek={({ close }) => <AgentBasePeek onOpen={() => { close(); location.hash = "#project/agent-base"; }}/>}
+            line="The task board: building, to do, specced, ideas, landed"
+            Icon={ListChecksIcon}
+            active={view.kind === "tab" && view.id === "tasks"}
+            onClick={() => moduleOpen["tasks"]()}
+          />
+        );
+      case "voice":
+        return (
+          <RailButton
+            {...commonProps}
+            renderIcon={livingRailIcon("siso-voice")}
+            line={voiceDown ? "SISO Voice is down" : "Talk anywhere: the bar, your history and stats"}
+            Icon={MicIcon}
+            meta={voiceDown ? "down" : undefined}
+            active={space === "voice"}
+            dot={voiceDown && "alert"}
+            onClick={() => moduleOpen["voice"]()}
+          />
+        );
+      case "browser":
+        return (
+          <RailButton
+            {...commonProps}
+            label="Browser"
+            renderIcon={livingRailIcon("web")}
+            line="Web pages as tabs beside the agents"
+            Icon={GlobeIcon}
+            meta={webTabs.length ? `${webTabs.length} open · ⌘T` : "⌘T"}
+            active={space === "web"}
+            onClick={() => moduleOpen["browser"]()}
+          />
+        );
+      case "estate":
+        return (
+          <span style={{ display: "contents" }} onPointerOver={() => setEstateKept(true)}>
+            <RailButton
+              {...commonProps}
+              label="Estate"
+              onWarm={() => { void import("./modules/estate/LibrarySpace"); }}
+              renderIcon={livingRailIcon("estate")}
+              line="The land and its Library: every repo, agent, machine and doc"
+              Icon={LandmarkIcon}
+              active={estateArea}
+              onClick={() => moduleOpen["estate"]()}
+            />
+          </span>
+        );
+      case "whatsapp":
+        return (
+          <RailButton
+            {...commonProps}
+            label="Communications"
+            onWarm={() => { void import("./modules/whatsapp/WhatsAppSpace").then((m) => m.warmWhatsApp()); }}
+            renderIcon={livingRailIcon("whatsapp")}
+            line="Your chats and the people in them"
+            Icon={MessageCircleIcon}
+            active={space === "whatsapp" && view.kind === "chat"}
+            onClick={() => moduleOpen["whatsapp"]()}
+          />
+        );
+      case "agents-hub":
+        return (
+          <RailButton
+            {...commonProps}
+            label="Agents Hub"
+            renderIcon={livingRailIcon("agents-hub")}
+            Icon={BlocksIcon}
+            line="Skills, MCP servers, plugins, models and usage across every agent"
+            active={space === "agents-hub"}
+            onClick={() => moduleOpen["agents-hub"]()}
+          />
+        );
+      case "library":
+        return (
+          <RailButton
+            {...commonProps}
+            label="Library"
+            renderIcon={livingRailIcon("library")}
+            line="Every repo, agent, machine and doc"
+            Icon={BookOpenIcon}
+            active={space === "library" && view.kind === "chat"}
+            onClick={() => moduleOpen["library"]()}
+          />
+        );
+      case "questions":
+        return (
+          <RailButton
+            {...commonProps}
+            label="Questions"
+            Icon={CircleHelpIcon}
+            line="What the agents are asking you"
+            active={space === "questions"}
+            onClick={() => moduleOpen["questions"]()}
+          />
+        );
+      default:
+        return (
+          <RailButton
+            {...commonProps}
+            label={m.name}
+            Icon={MODULE_ICON[m.icon] ?? SquareIcon}
+            active={space === m.id}
+            onClick={() => openModuleId(m.id)}
+          />
+        );
+    }
+  };
+
+  const spaceHead = (s: Space): ReactNode => (
+    <RailButton
+      label={s.name}
+      renderIcon={() => SPACE_MARK[s.id](30)}
+      Icon={FactoryIcon}
+      line={s.id === "agent-base" ? "Agent Zero, owners and crews" : s.id === "app-factory" ? "Build apps from parts" : "Partners and integrations"}
+      // Lit when what's open is the module the head stands for (Agents, App Factory); a module with its own icon lights that.
+      active={osSpaceOf(space) === s.id && registry.byId(space)?.rail === false}
+      onClick={() => {
+        setRailSpace(s.id);
+        save("rail-space", s.id);
+        const firstModule = registry.modulesOf(s.id)[0];
+        if (firstModule) openModuleId(firstModule.id);
+      }}
+    />
+  );
+
   return (
-    <AppFrame
-      topProps={{ "data-ab-comp": "top-strip" }}
+    <OsProvider registry={registry} bus={bus}>
+      <AppFrame
+      topProps={{ "data-ab-comp": "top-strip", ...(SOLO ? { "data-solo-title": registry.byId(SOLO)?.name ?? SOLO } : {}) }}
       side={
         <Boundary name="The agent panel" kind="card" resetKey={active?.id}>
           {/* t-0532 item 5: the companion spans the shell's two rows, beside the bar and chat.
@@ -1537,107 +1871,82 @@ export function App() {
               } else toggleSidebar();
             }}
           />
-          <HistoryButtons canBack={hist.canBack} canForward={hist.canForward} onBack={() => router.current?.back()} onForward={() => router.current?.forward()} />
+          {/* Shaan, 12 Oct: "the back buttons don't know why they're needed get rid of those": gone; ⌘[ and ⌘] walk the same history. */}
           {!narrow && !showSidebar && (space === "agents" || space === "pinboard" || space === "servers" || space === "tokens") && <TopNav active={topPage} onOpen={openTop} counts={{ tasks: openTaskCount ? `${openTaskCount} open` : undefined }} popped={popped} hue={popped ? PAGE_HUE[popped] : undefined} onPop={popTop} onPanel={panelOut} />}
           {/* On a web page the browser's own sidebar lists the tabs: here they fold into "⌄ N more" (HUB-DESIGN 22:18, one home). */}
-          {/* The pill's body opens Agent Zero; only the chevron opens its chats (Shaan, 6 Oct 21:15: "I can't just click the
+          {/* The pill's body opens Agent Zero; only the chevron opens its org card (Shaan, 6 Oct 21:15: "I can't just click the
               body of the pill and it takes me to agent zero"). */}
-          <span className="ab-zero-pill" data-testid="zero-pill">
+          <span className="ab-zero-pill" data-testid="zero-pill" ref={zeroPillRef}>
             <button type="button" className="ab-zero-tab" data-testid="zero-pill-open" aria-label="Open Agent Zero" disabled={!zeroAgent} onClick={() => zeroAgent && open(zeroAgent, { chat: true })}>
               <AgentFace {...(zeroAgent ? faceFor(zeroAgent) : { name: "Agent Zero" })} size={18}/><span>Agent Zero</span>
             </button>
-            <MenuButton label="Agent Zero chats" className="ab-zero-tab ab-zero-tab--menu" items={(agents ?? []).filter(a => a.zero).map(a => ({ key: a.id, label: <span style={{ color: a.tool === "codex" ? "#a78bfa" : "#22d3ee" }}>{`Agent Zero · ${a.tool === "codex" ? "Sol" : "Claude"}`}</span>, icon: <AgentFace {...faceFor(a)} hue={a.tool === "codex" ? 260 : 190} size={18}/>, onSelect: () => open(a, { chat: true }) }))}>
+            <button type="button" className="ab-zero-tab ab-zero-tab--menu" data-testid="zero-card-open" aria-label="Agent Zero's org card" aria-expanded={zeroCardOpen} onClick={() => { const r = zeroPillRef.current?.getBoundingClientRect(); if (r) setZeroCardLeft(Math.max(8, Math.min(r.left, window.innerWidth - 348))); setZeroCardOpen(!zeroCardOpen); }}>
               <ChevronDownIcon size={12}/>
-            </MenuButton>
+            </button>
+            {zeroCardOpen && createPortal(
+              <div ref={zeroCardRef} className="ab-zero-card-pop" data-testid="zero-card-pop" style={{ position: 'fixed', bottom: 'auto', top: '52px', left: zeroCardLeft, right: 'auto', width: '340px', maxHeight: 'calc(100vh - 80px)', overflowY: 'auto', zIndex: 100, backgroundColor: 'var(--crm-color-surface-raised, #191919)', border: '1px solid rgb(var(--crm-white-rgb) / 0.1)', borderRadius: '12px', boxShadow: '0 14px 44px rgb(0 0 0 / 0.45)', padding: '0' }}>
+                {/* The old menu's choice of Agent Zero chat (Claude or Sol), when there is more than one. */}
+                {(agents ?? []).filter(a => a.zero).length > 1 && (
+                  <div className="flex gap-1.5 px-3 pt-3" data-testid="zero-card-seats">
+                    {(agents ?? []).filter(a => a.zero).map(a => (
+                      <button key={a.id} type="button" className="flex flex-1 items-center gap-1.5 rounded-lg border border-white/10 px-2 py-1 text-[12px] hover:bg-white/5" style={{ color: a.tool === "codex" ? "#a78bfa" : "#22d3ee" }} onClick={() => { open(a, { chat: true }); setZeroCardOpen(false); }}>
+                        <AgentFace {...faceFor(a)} hue={a.tool === "codex" ? 260 : 190} size={16}/>{`Agent Zero · ${a.tool === "codex" ? "Sol" : "Claude"}`}
+                      </button>
+                    ))}
+                  </div>
+                )}
+                <Sidebar {...sidebarProps} cardOnly onOpen={(a, conversationTarget) => { sidebarProps.onOpen?.(a, conversationTarget); setZeroCardOpen(false); }} />
+              </div>,
+              document.body
+            )}
           </span>
           <TopTabs tabs={tabs} activeId={activeTab} onSelect={(id) => id === "browser-return" ? showWeb() : selectTab(id)} onReorder={reorderTab} onDropPage={(p, before) => openUrl(p.url, p.title, { owner: here, before, drop: true })} fold={view.kind === "tab" && mine.some((t) => t.id === view.id && t.kind === "web")} />
 
           <div data-tauri-drag-region className="ab-top-drag h-full min-w-6 flex-none" />
+          {/* The agents up top, each once: needs him, came back unseen, or has pages he opened; the working ones fold into "N working" (12 Oct). */}
+          <LiveAgents agents={liveUp} pages={agentPageGroups} max={narrow ? 2 : 4}
+            currentId={space === "agents" ? activeId : null} currentTab={space === "web" && view.kind === "tab" ? view.id : undefined}
+            face={(id) => { const a = byId.get(id); return a ? <AgentFace {...faceFor(a)} size={16} /> : null; }}
+            onOpen={(id) => { const a = byId.get(id); if (a) open(a, { chat: true, cause: "click" }); }}
+            onPage={(id) => { setSpace("web"); setView({ kind: "tab", id }); }}
+            onCloseAll={(id) => { const name = byId.get(id)?.name; webTabs.filter((t) => t.via === name).forEach((t) => closeTab(t.id)); }} />
           {/* t-0570 (Shaan, 9 Oct: "notification, new tab should be swap sides"): + first, then the bell. */}
-          <TopButton label="New tab · ⌘T" Icon={PlusIcon} onClick={() => setWorkspacePaletteOpen(true)} />
-          <NotificationsBell items={attention.items} open={attentionOpen} onToggle={() => setAttentionOpen(v => !v)} />
-          {/* not-landed (3 Oct 14:15): the version pill opens What's new in one click. */}
-          <Boundary name="The version pill" kind="inline">
-            <VersionPill />
-          </Boundary>
-          {/* R1.15: today's fleet spend sits at the top bar's right end, not in the bottom HUD. */}
-          <Boundary name="Today's spend" kind="inline">
-            <SpendChip />
-          </Boundary>
-          {/* t-0570: the three dots moved from beside the tabs, where they read as one more tab, to the far right end, where an
-              overflow menu lives in every toolbar (Chrome, VS Code); the tab strip now ends at the drag area. */}
-          <MenuButton label="More views" items={[
-            { key: "workspace-search", label: "Find a workspace · ⌘K", icon: <LayoutDashboardIcon />, onSelect: () => setWorkspacePaletteOpen(true) },
-            { key: "workspace-chooser", label: "Agent workspaces", icon: <UsersIcon />, onSelect: () => setWorkspaceChooserOpen(true) },
-            // t-0532 item 10 (Shaan, 8 Oct ~10:15: "that space dashboard pop up ... could go into the three dots"): out of the chat header.
-            { key: "space", label: "Space · ⌘⇧S", icon: <LayoutGridIcon />, onSelect: () => openSpace(active?.project ?? "agent-base", active?.id ?? null) },
-            { key: "canvas", label: "Canvas", icon: <NetworkIcon />, onSelect: () => openAppPage("canvas") },
-            { key: "product-map", label: "Product map", icon: <LayoutDashboardIcon />, onSelect: () => openAppPage("product-map") },
-            { key: "research", label: "Research", icon: <BookOpenIcon />, onSelect: () => openAppPage("research") },
-            { key: "whatsnew", label: "What’s new", icon: <SparklesIcon />, onSelect: () => openAppPage("whatsnew") },
-          ]}><EllipsisIcon size={16}/></MenuButton>
+          {/* Shaan, 12 Oct: "the new tab pop up ... most of the time I just use it to make new websites and it's so jarring": + and ⌘T
+              open a blank web tab with its address bar focused, as a browser does; ⌘K is still the search. */}
+          <TopButton label="New tab · ⌘T" Icon={PlusIcon} onClick={() => newWebTab()} />
+          {/* SISO OS §6 (t-0599): no bell (needs glow on the tabs and count on Agent Zero's card; ⌥⌘A opens the list), the version
+              pill sits by "Agent Base" in the side nav, the spend chip in the composer's status row, and the ⋯ items in the
+              "Agent Base ˅" dropdown. The bar keeps the toggle, back and forward, the tabs and +. */}
         </>
       }
       rail={
         <>
-          {/* R1.2 C: the rail keeps only the tools; Org chart, Tasks, Servers and Tokens are in the top row. */}
-          <RailButton label="Home" peek={({ close }) => <HomePeek close={close} projects={org?.groups.flatMap(group => group.projects).filter(project => project.shown) ?? []} agents={agents ?? []} loading={(!org && !orgDown) || (agents === null && !down)} unavailable={!!(orgDown || down)} currentProject={active?.project} onProject={id => { setOrgPage({ project: id }); setSpace("agents"); setView({ kind: "tab", id: "org" }); }} onAgent={agent => open(agent, { chat: true })} onHome={() => { setSpace("agents"); setView({ kind: "chat" }); }}/>} renderIcon={() => <WorkspaceMark brand="agent-base" size={32}/>} line="The agents: Agent Zero, the owners and their crews" meta={needsYou.length ? `${needsYou.length} need you · ⌥⌘A` : "⌘B side nav"} Icon={HouseIcon} active={space === "agents" && view.kind === "chat"} dot={needsYou.length > 0} onClick={() => (setSpace("agents"), setView({ kind: "chat" }))} />
-          <RailDivider />
-          {/* t-0541: Agent Base's own icon, its own group under the main one; its page is the three-lane task list. */}
-          <RailButton label="Agent Base" peek={({ close }) => <AgentBasePeek onOpen={() => { close(); location.hash = "#project/agent-base"; }}/>} line="Agent Base: the task board (building, to do, specced, ideas, landed)" Icon={ListChecksIcon} active={view.kind === "tab" && view.id === "org" && !!orgPage && "project" in orgPage && orgPage.project === "agent-base"} onClick={() => { location.hash = "#project/agent-base"; }} />
-          <RailDivider />
-          <RailButton label="Voice" renderIcon={livingRailIcon("siso-voice")} line={voiceDown ? "SISO Voice is down" : "Talk anywhere: the bar, your history and stats"} meta={voiceDown ? "down" : undefined} Icon={MicIcon} active={space === "voice"} dot={voiceDown && "alert"} onClick={() => setSpace("voice")} />
-          <RailButton label="Rolodex" renderIcon={livingRailIcon("rolodex")} line="Everyone you know, on six levels" meta={rolodexBook.data ? `${rolodexBook.data.people.filter((p) => p.level !== "off").length} people` : undefined} Icon={BookUserIcon} active={space === "rolodex"} onClick={() => setSpace("rolodex")} />
-          {lifeOn && <RailButton label="Life" renderIcon={livingRailIcon("lifelog")} line="Your day: morning routine, counters, checkout and XP" Icon={HeartPulseIcon} active={space === "life" && view.kind === "chat"} onClick={() => (setSpace("life"), setView({ kind: "chat" }))} />}
-          {whatsappOn && <RailButton label="WhatsApp" onWarm={() => { void import("./components/WhatsAppSpace").then((m) => m.warmWhatsApp()); }} renderIcon={livingRailIcon("whatsapp")} line="Your chats and groups" Icon={MessageCircleIcon} active={space === "whatsapp" && view.kind === "chat"} onClick={() => (setSpace("whatsapp"), setView({ kind: "chat" }))} />}
-          <RailButton label="Browser" renderIcon={livingRailIcon("web")} line="Web pages as tabs beside the agents" meta={webTabs.length ? `${webTabs.length} open · ⌘T` : "⌘T"} Icon={GlobeIcon} active={space === "web"} onClick={showWeb} />
-          <span style={{ display: "contents" }} onPointerOver={() => setEstateKept(true)}>
-            <RailButton label="Estate" onWarm={() => { void import("./components/LibrarySpace"); }} renderIcon={livingRailIcon("estate")} line="The land and its Library: every repo, agent, machine and doc" Icon={LandmarkIcon} active={estateArea} onClick={() => (setSpace("estate"), setView({ kind: "chat" }))} />
-          </span>
+          <SpacesRail open={railSpace} spaces={registry.spaces.map(s => ({ id: s.id, colour: s.colour, button: spaceHead(s) }))}
+            mods={Object.fromEntries(registry.spaces.map(s => [s.id, registry.modulesOf(s.id).filter(m => m.rail !== false).map(m => <span key={m.id} data-module={m.id} style={{ display: "contents" }}>{moduleButton(m)}</span>)]))} />
           {!showSidebar && (space === "agents" || space === "web") && agents && (
             <FaceDock agents={agents} pins={[] /* no pins in the rail either (Shaan, 6 Oct 22:35: "the pinned stuff ... I really dont like it") */} onManagePins={() => {} /* Starred is archived (AB-02) */} workspaces={workspaces} needs={needs} activeId={activeId} infra={org?.bottom.map((o) => o.name) ?? []} onOpen={(a, conversationTarget) => open(a, { cause: "dock", conversationTarget })} onOrgChart={() => openTop("org")} onEdit={edit} />
           )}
         </>
       }
       railFooter={
-        <HoverCard title="Shaan · MacBook" line={error ? `${down === "node" ? "the node" : "herdr"} is not answering; retrying` : "This machine: herdr answers for its agents"} meta={error ? "down" : `${agents?.length ?? "…"} agents`}>
-          <span className={`siso-app__orb${error ? " is-down" : ""}`} tabIndex={0} aria-label={error ? `Shaan · MacBook · ${down === "node" ? "the node" : "herdr"} is not answering` : `Shaan · MacBook · ${agents?.length ?? "…"} agents`}>
-            SS
-          </span>
-        </HoverCard>
+        <>
+          {registry.bottom.map(m => <span key={m.id} data-module={m.id} style={{ display: "contents" }}>{moduleButton(m)}</span>)}
+          <HoverCard title="Shaan · Life" line={error ? `${down === "node" ? "the node" : "herdr"} is not answering; retrying` : "This machine: herdr answers for its agents"} meta={error ? "down" : `${agents?.length ?? "…"} agents`}>
+            <span className={`siso-app__orb${error ? " is-down" : ""}`} role="button" tabIndex={0} aria-label={error ? `Shaan · MacBook · ${down === "node" ? "the node" : "herdr"} is not answering` : `Shaan · MacBook · ${agents?.length ?? "…"} agents`} onClick={() => (setSpace("life"), setView({ kind: "chat" }))} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") (setSpace("life"), setView({ kind: "chat" })); }}>
+              SS
+            </span>
+          </HoverCard>
+        </>
       }
     >
+      {railMenu && <div className="ab-rail-menu" role="menu" aria-label={`${railMenu.name} options`} style={{ left: railMenu.x, top: railMenu.y }}>
+        <button type="button" role="menuitem" autoFocus onClick={async () => { const m = railMenu; setRailMenu(null); const err = await openModuleWindow(m.id, m.name); if (err) setRailNote(err); }}><AppWindowIcon aria-hidden="true" />Open {railMenu.name} in a new window</button>
+        <button type="button" role="menuitem" onClick={() => { const m = railMenu; setRailMenu(null); openModuleId(m.id); }}>Open here</button>
+      </div>}
+      {railNote && <div role="status" className="ab-rail-note"><span>{railNote}</span><button type="button" onClick={() => setRailNote("")}>Dismiss</button></div>}
       {editError && <div role="alert" className="fixed bottom-4 left-1/2 z-[100] flex max-w-[min(90vw,600px)] -translate-x-1/2 items-center gap-3 rounded-lg border border-red-400/30 bg-background p-3 text-[12px] text-red-400 shadow-lg"><span className="min-w-0 break-words">{editError}</span><button type="button" onClick={clearEditError} className="shrink-0 rounded px-2 py-1 hover:bg-white/[0.08]" aria-label="Dismiss save error">Dismiss</button></div>}
       {/* QA #13 (A0, 3 Oct): each space, the side nav, the chat, a page and the side panel fail on their own. */}
       <Boundary name={`The ${space} space`} resetKey={`${space}:${view.kind}`}>
-      {(rolodexOn || rolodexKept) && (
-        <div style={{ display: rolodexOn ? "contents" : "none" }}>
-          {sidebarOpen && <RolodexSidebar book={rolodexBook} selected={rolodexSel} onSelect={(s) => { setRolodexSel(s); setRolodexPerson(null); }} onOpen={(id) => { setRolodexSel("all"); setRolodexPerson(id); }} />}
-          <section className="relative flex min-w-0 flex-1 flex-col" aria-label="Rolodex">
-            <RolodexMain
-              book={rolodexBook}
-              selected={rolodexSel}
-              onSelect={setRolodexSel}
-              person={rolodexPerson}
-              onPerson={setRolodexPerson}
-              projectHref={(p) => `#project/${encodeURIComponent(p.name)}`}
-              onAsk={(words) => {
-                // A0's chat with the person's words typed, as the Library's "Ask keeper" does.
-                const a = (agents ?? []).find((x) => x.row === "live" && (x.zero || canonName(x.name) === canonName("A0")));
-                if (!a) return;
-                setSpace("agents");
-                open(a, { chat: true });
-                prefill(a.id, words);
-              }}
-            />
-          </section>
-        </div>
-      )}
-      {space === "whatsapp" && whatsappOn && view.kind === "chat" && (
-        <section className="relative flex min-w-0 flex-1 flex-col" aria-label="WhatsApp">
-          <Suspense fallback={<p role="status" className="p-4 text-muted-foreground">Loading WhatsApp…</p>}><WhatsAppSpace /></Suspense>
-        </section>
-      )}
       {(estateArea || estateKept || libraryKept) && (
         <div className="flex min-w-0 flex-1 flex-col" style={estateArea ? undefined : { display: "none" }}>
           {estateArea && (
@@ -1684,52 +1993,17 @@ export function App() {
           )}
         </div>
       )}
-      {space === "life" && lifeOn && view.kind === "chat" && (
-        <Suspense fallback={<p role="status" className="p-4 text-muted-foreground">Loading Life…</p>}>
-          {sidebarOpen && <LifeSidebar selected={lifeSel} onSelect={setLifeSel} />}
-          <section className="relative flex min-w-0 flex-1 flex-col" aria-label="Life">
-            <LifeMain selected={lifeSel} onSelect={setLifeSel} />
-          </section>
-        </Suspense>
-      )}
-      {space === "voice" && view.kind === "chat" && (
-        <div className="vx-space">
-          {sidebarOpen && <VoiceSidebar selected={voiceSel} onSelect={setVoiceSel} />}
-          <section className="relative flex min-w-0 flex-1 flex-col" aria-label="Voice">
-            <VoiceMain selected={voiceSel} />
-          </section>
-        </div>
-      )}
+      {/* SISO OS §3 (t-0599 step 5): a module draws itself. The registry says what the open space is: a URL module is a
+          frame, a module with its own folder renders through ModuleView (its own crash box, swappable in place). */}
+      {view.kind === "chat" && openModule && !moduleOff[openModule.id] && (openModule.entry.kind === "url"
+        ? <UrlModuleFrame key={openModule.id} name={openModule.name} url={openModule.entry.url} />
+        : hasModuleView(openModule.id) && <ModuleView id={openModule.id} sidebarOpen={sidebarOpen} />)}
       </Boundary>
       {narrow && active && phoneTasks === active.name && view.kind === "chat" && space === "agents" && !showSidebar && (
         <TasksSheet key={active.id} a={active} agents={agents ?? []} onClose={closePhoneTasks} />
       )}
       {/* t-0263: on a phone the nav is a full-screen sheet over the chat (Phone.css), opened from the top-left button. */}
-      {navMounted && <div style={{ display: showSidebar ? "contents" : "none" }}><PhoneSheet on={narrow}><Boundary name="The side nav" kind="card"><Sidebar workspaces={workspaces} onWorkspace={setNavWorkspace} onFleet={() => { if (!zeroAgent) return; open(zeroAgent, { chat: true }); setSide(null); setCardOpen(true); setPanelFocus({ section: "team", at: Date.now() }); }} onPinboard={id => openSpace(id)} onProjectDashboard={id => { setOrgPage({ project: id }); setSpace("agents"); setView({ kind: "tab", id: "org" }); if (narrow) setSidebarOpen(false); }} selectedNowLane={selectedNowLane} onNowLane={setSelectedNowLane} onCodexWork={() => { openAppPage("codex-work"); if (narrow) setSidebarOpen(false); }} codexWorkActive={view.kind === "tab" && view.id === "codex-work"} onDashboard={() => { openAppPage("dashboard"); if (narrow) setSidebarOpen(false); }} pins={pins} onManagePins={() => { openAppPage("starred"); if (narrow) setSidebarOpen(false); }} needs={needs} onNeedsYou={nextNeedsYou} onOrgChart={() => openTop("org")} agents={agents} domains={domains} error={error} down={down} asOf={asOf} activeId={activeId} onOpen={(a, conversationTarget) => !conversationTarget && space === "pinboard" ? openSpace(a.project ?? pinProject, a.id) : open(a, { chat: true, conversationTarget })} onAct={act} onEdit={edit} onReorder={reorder} onReorderProjects={reorderProjects} org={org} orgDown={orgDown} onOrg={orgOp} onNewCodex={async (name,choice,backendCatalogId) => { try {const key=`codex:${name}:${JSON.stringify(choice)}`+(backendCatalogId ? `:backend:${backendCatalogId}` : "");const r=await requestWorkspace("/api/agents/start-codex",{name,model:"gpt-6.1-sol",...choice,...(backendCatalogId ? {backendCatalogId} : {}),launchId:draftLaunchId(key)});acceptWorkspace(r);completeLaunchDraft(key);return null;}catch(e){return (e as Error).message;} }} onNewClaude={async (name,choice) => { try {const key=`claude:${name}:${JSON.stringify(choice)}`;const r=await requestWorkspace("/api/agents/start",{name,model:"opus",...choice,launchId:draftLaunchId(key)});acceptWorkspace(r);completeLaunchDraft(key);return null;}catch(e){return (e as Error).message;} }} onStart={startAgent} onSay={sayStart} onAskZero={askZero} taskCounts={taskCounts} needTasks={needTasks} onNeedTasks={() => openAppPage("tasks")} onTasks={(a) => (open(a, { chat: true }), setTasksFor(a.name))}
-          ended={ended}
-          onEndedPage={() => { openAppPage("ended-list"); if (narrow) setSidebarOpen(false); }}
-          onPage={(p) => {
-            if (narrow) setSidebarOpen(false);
-            setOrgPage(p);
-            setSpace("agents");
-            setView({ kind: "tab", id: "org" });
-          }}
-          onWorkers={(a) => {
-            // The owner's workers in the Codex-style pane (Active · N / Done · N); each opens its chat.
-            open(a, { chat: true });
-            setSide({ kind: "crew", id: null });
-            setSideFull(false);
-          }}
-          onZeroPage={(a) => {
-            open(a, { chat: true });
-            setSide({ kind: "surface", s: "page" });
-            setSideFull(false);
-          }}
-          onRename={(a) => {
-            open(a, { chat: true });
-            setRenaming(a.name);
-          }}
-        /></Boundary></PhoneSheet></div>}
+      {navMounted && <div style={{ display: showSidebar ? "contents" : "none" }}><PhoneSheet on={narrow}><Boundary name="The side nav" kind="card"><Sidebar {...sidebarProps} /></Boundary></PhoneSheet></div>}
       <Boundary name={`The ${space} space`} resetKey={`${space}:${view.kind}`}>
       {space === "pinboard" && <ProjectSpace key={pinProject} project={pinProject} focusId={spaceFocus} people={people} org={org} onAppPage={page => page === "zero" ? (setSpace("agents"), setView({ kind: "tab", id: "zero" })) : openAppPage(page)} onClose={() => setSpace("agents")} onPage={page => openUrl(page.url, page.title)} />}
       {launchWorkspace && <div className="fixed bottom-4 right-4 z-40 w-[min(28rem,calc(100vw-2rem))]"><WorktreeSetupCard id={launchWorkspace} onActive={workspaceActive} onClose={()=>{setLaunchWorkspace(null);sessionStorage.removeItem("ab-current-workspace");}} /></div>}
@@ -1858,16 +2132,7 @@ export function App() {
             now={Date.now()}
           />
         )}
-        {active && !activeConversationTarget && (
-          <PingStrip
-            agent={active}
-            pings={pings}
-            onBoard={() => {
-              setSpace("agents");
-              setView({ kind: "tab", id: "zero" });
-            }}
-          />
-        )}
+        {/* SISO OS §8 (t-0599): no "NEW <agent> · 1 of N" strip above the replies; the pings stay on Agent Zero's board. */}
         <div className="relative min-h-0 min-w-0 flex-1">
           {space !== "pinboard" && live.filter(id => pinnedChats[id] || !byId.get(id)?.codexWorker).map((id) => (
             <div key={JSON.stringify([id, pinnedChats[id] ? pinTargetKey(pinnedChats[id].target) : null])} className="absolute inset-0" style={{ display: id === activeId ? undefined : "none" }}>
@@ -2096,7 +2361,7 @@ export function App() {
               : undefined
           }
           onTerminal={() => toTerminal(view.id)}
-          onNewTab={() => setWorkspacePaletteOpen(true)}
+          onNewTab={() => newWebTab()}
           tabs={browserTabs}
           onSelectTab={(id) => (setSpace("web"), setView({ kind: "tab", id }))}
           onCloseTab={closeTab}
@@ -2285,15 +2550,8 @@ export function App() {
       </Boundary>
       {/* The update pop-up (ab-149): a new build on disk; Reload keeps the tab and the scroll. */}
       <OwnerLinkToast />
-      {/* Agent Zero's spot (16:35): one face at the bottom right that follows the pointer, his live state; a click opens him. */}
-      {/* 6 Oct 23:35: not on his own page ("we don't need him when he's on the Agent Zero page"); everywhere else he stays. */}
-      {zeroAgent && !zeroHere && (
-        <button type="button" className="siso-zero-face" aria-label={`Agent Zero, ${WORD[markOf(zeroAgent)].toLowerCase()}`} data-testid="zero-face" aria-expanded={dockOpen} onClick={() => (zeroAgent.chat ? setDockOpen((v) => !v) : open(zeroAgent))}>
-          <ZeroFace agent={zeroAgent} size={60} />
-        </button>
-      )}
-      {/* SPEC-DELIGHT §2: his open needs as dots around his face, and the limit arc. */}
-      {zeroAgent && !zeroHere && <ZeroOrbit zero={zeroAgent} needs={zeroNeeds} size={60} research={orbitResearch.data} researchError={orbitResearch.error} onOpenResearch={selection => { setResearchSelection(selection); openAppPage("research"); }} />}
+      {/* SISO OS §8 (t-0599): no Agent Zero face or orbit at the bottom right: needs glow on the tabs and count on his card, usage is in
+          the composer, research batches on his card. */}
       {/* t-0216: his face docks Agent Zero's chat over this page (a terminal-only A0 still opens as the chat). */}
       {space !== "pinboard" && zeroAgent?.chat && dockOpen && (
         <ZeroDock
@@ -2314,22 +2572,44 @@ export function App() {
           onOpenAgent={a => open(a, { chat: true })}
           onOpenWorkspace={id => { setNavWorkspace(id); setSpace("agents"); setView({ kind: "chat" }); setSidebarOpen(true); }}
           pages={[
+            ...recentTabs.map((r) => ({
+              id: `recent:${r.url}`,
+              label: `Recent · ${r.title}`,
+              description: r.url,
+              icon: "web" as const,
+              onSelect: () => { setRecentTabs((all) => all.filter((x) => x.url !== r.url)); void openUrl(r.url, r.title); },
+            })),
+            ...registry.modules.filter(m => !m.hidden && m.id !== "agents").map(m => ({
+              id: `module:${m.id}`,
+              label: m.name,
+              description: m.line ?? `Open ${m.name}`,
+              icon: "agent-base" as const,
+              onSelect: () => openModuleId(m.id),
+            })),
             { id: "next-attention", label: "Next agent needing you", description: "Jump to the next agent waiting for your input", icon: "agent-base", shortcut: ["⌥", "⌘", "A"], onSelect: nextNeedsYou },
             { id: "agent-panel", label: "Toggle agent panel", description: "Show or hide the current agent's details", icon: "agent-base", shortcut: ["⇧", "⌘", "B"], onSelect: () => setCardOpen(v => !v) },
             { id: "notifications", label: "Toggle notifications", description: "Show or hide the ping stack", icon: "agent-base", shortcut: ["⌥", "⌘", "N"], onSelect: () => window.dispatchEvent(new CustomEvent("siso-pings-toggle")) },
             { id: "previous-tab", label: "Previous tab", description: "Move left through your open tabs", icon: "web", shortcut: ["⇧", "⌘", "["], onSelect: () => stepTab(-1) },
             { id: "next-tab", label: "Next tab", description: "Move right through your open tabs", icon: "web", shortcut: ["⇧", "⌘", "]"], onSelect: () => stepTab(1) },
+            { id: "ended", label: `Ended agents${ended.length ? ` · ${ended.length}` : ""}`, description: "Agents that finished, with their last words", icon: "agent-base", onSelect: () => openAppPage("ended-list") },
             { id: "agents", label: "Agent workspaces", description: "Choose an owner or worker", icon: "agent-base", onSelect: () => setWorkspaceChooserOpen(true) },
-            { id: "tasks", label: "Tasks", description: "Tasks grouped by workspace", icon: "agent-base", onSelect: () => openAppPage("tasks") },
-            { id: "library", label: "Library", description: "Every doc, project, page and Foundry record, searchable", icon: "library", onSelect: () => { setEstatePane("library"); setSpace("estate"); setView({ kind: "chat" }); } },
-            { id: "register", label: "Library register", description: "Everything built, every live page, the Works", icon: "library", onSelect: () => { setSpace("library"); setView({ kind: "chat" }); } },
-            { id: "estate", label: "Estate world", description: "The 3D world of every repo, agent and machine", icon: "estate", onSelect: () => { setEstatePane("world"); setSpace("estate"); setView({ kind: "chat" }); } },
-            { id: "voice", label: "Voice", description: "Talk anywhere: the bar, your history and stats", icon: "siso-voice", onSelect: () => setSpace("voice") },
           ]} />
       </div>
       <BankWorkspaceChooser open={workspaceChooserOpen} onOpenChange={setWorkspaceChooserOpen}
         agents={agents ?? []} activeId={activeId} connected={!error && agents !== null} org={org} observedAt={asOf}
         onOpenAgent={a => open(a, { chat: true })} />
-    </AppFrame>
+      </AppFrame>
+    </OsProvider>
+  );
+}
+
+/** A URL module (App Factory) in a frame, with ↻ to reload just the frame (Shaan, 10 Oct: "the app factory doesn't have a refresh button"). */
+function UrlModuleFrame({ name, url }: { name: string; url: string }) {
+  const [n, setN] = useState(0);
+  return (
+    <section className="relative flex min-w-0 flex-1 flex-col" aria-label={name}>
+      <iframe key={n} src={url} title={name} className="h-full w-full flex-1 border-0" />
+      <button type="button" data-testid="frame-reload" className="ab-frame-reload" onClick={() => setN((x) => x + 1)} aria-label={`Reload ${name}`} title={`Reload ${name}`}><RotateCwIcon aria-hidden="true" /></button>
+    </section>
   );
 }
