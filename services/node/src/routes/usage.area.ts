@@ -3,6 +3,7 @@ import { claudeUsage, defaultClaudeDir } from "../claude-usage.ts";
 import { handleTokens } from "../tokens.ts";
 import { handleTokensMoney } from "../tokens-money.ts";
 import { handleUsage } from "../usage.ts";
+import { handleUsageTasks } from "../usage-tasks.ts";
 import { handleSpend } from "../spend.ts";
 import type { Route } from "./registry.ts";
 import type { HttpRuntime } from "../server.ts";
@@ -22,6 +23,7 @@ export function usageRoutes(runtime: Pick<HttpRuntime, "json" | "usageDirectorie
       }
       if (await handleTokens(req, res, url)) return; // /api/tokens: spend per account, limits, achievements (tokens.ts)
       if (await handleTokensMoney(req, res, url)) return; // /api/tokens/{money,split,fleet}: grant, Codex credits, Luna/Sol, the VPS rollup
+      if (await handleUsageTasks(req, res, url)) return; // /api/usage/tasks: cost per seat and task, waste named (usage-tasks.ts)
       if (await handleUsage(req, res, url)) return; // /api/usage: local burn velocity (usage.ts)
       return false;
     },
