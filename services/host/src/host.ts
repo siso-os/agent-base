@@ -450,6 +450,18 @@ let lastPostTokens: number | null = null;
 const held: SDKUserMessage[] = [];
 /** Held messages handed over after a compaction: one the turn ends without folding in starts the next turn instead. */
 const released = new Set<string>();
+/**
+ * Whether an automatic compaction can be this chat's own. Sub-agents (Haiku team, ~200k window) inherit the same
+ * CLAUDE_AUTOCOMPACT_PCT_OVERRIDE and compact at ~60-70k; their status and boundary carry no sub-agent mark, so the
+ * seat showed "Compacting at 15%" again and again (HALO, 13 Oct: 8 in a night, 3k summaries; Shaan: "it just keeps on
+ * doing the compact animation on certain chats after like 10%"). The main chat only auto-compacts near its own point.
+ */
+function ownAutoCompact(tokens?: number): boolean {
+  if (!ctx) return true;
+  const at = Number(process.env.CLAUDE_AUTOCOMPACT_PCT_OVERRIDE || COMPACT_PCT) || 95;
+  const pct = typeof tokens === "number" && ctx.window ? (tokens / ctx.window) * 100 : ctx.pct;
+  return pct >= at - 8;
+}
 function compactStart(trigger: unknown, sid?: unknown) {
   adoptSession(sid);
   // The SDK's "compacting" status comes before the PreCompact hook and cannot tell the trigger; the hook can.
@@ -1107,8 +1119,9 @@ function startClaude() {
       canUseTool,
       // a0-018: compaction told in the chat and held messages kept out of it, in process (no shell hook, no file).
       hooks: {
-        PreCompact: [{ hooks: [async (i: any) => (compactStart(i?.trigger, i?.session_id), { continue: true })] }],
-        PostCompact: [{ hooks: [async (i: any) => (compactEnd(summaryTokens(i?.compact_summary), i?.session_id), { continue: true })] }],
+        // A sub-agent's compaction (agent_id set) is its own business, not this chat's.
+        PreCompact: [{ hooks: [async (i: any) => (i?.agent_id || compactStart(i?.trigger, i?.session_id), { continue: true })] }],
+        PostCompact: [{ hooks: [async (i: any) => (i?.agent_id || compactEnd(summaryTokens(i?.compact_summary), i?.session_id), { continue: true })] }],
       },
       env: { ...childEnv(), ...(KEEP_HERDR_ENV ? {} : { HERDR_ENV: "0" }) },
     },
@@ -1321,11 +1334,12 @@ async function drive(): Promise<string> {
       }
     } else if (m.type === "system" && m.subtype === "status") {
       // The CLI's own compaction status: the relay's backstop when a hook did not fire, and its failure.
-      if (m.status === "compacting") compactStart("auto", m.session_id);
+      if (m.status === "compacting") { if (ownAutoCompact()) compactStart("auto", m.session_id); }
       else if (m.compact_result === "failed") compactEnd(null, m.session_id, String(m.compact_error ?? "no reason given"));
       else if (m.compact_result === "success" && compacting) setTimeout(() => compactEnd(null), 2000); // PostCompact's turn first
     } else if (m.type === "system" && m.subtype === "compact_boundary") {
       const c = m.compact_metadata ?? {};
+      if (!compacting && c.trigger === "auto" && !ownAutoCompact(c.pre_tokens)) continue; // a sub-agent's
       adoptSession(m.session_id);
       if (typeof c.post_tokens === "number") (lastPostTokens = c.post_tokens), setCtx(c.post_tokens);
       if (compacting || compactTold) compactTold = false; // the relay says it

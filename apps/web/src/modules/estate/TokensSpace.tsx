@@ -790,6 +790,69 @@ function AccountCard({ a, color }: { a: Account; color: string }) {
   );
 }
 
+// ---------------------------------------------------------------- Per seat, per task, and the waste (harness usage-tasks.py)
+
+type Waste = { fetch: number; reread: number; bash: number; stale: number };
+type UsageTasks = {
+  ready: boolean; refreshing: boolean; ageMs: number | null; at?: number; hours?: number; usd?: number; requests?: number;
+  waste?: Waste; waste_share?: Waste;
+  proof?: { shaan_requests?: number; per_shaan_request?: number; fetch_share?: number; baseline: { at: string; per_shaan_request: number; fetch_share: number } };
+  seats?: { seat: string; usd: number; tasks: number; requests: number; per_request: number; waste: Waste }[];
+  tasks?: { seat: string; task: string | null; label: string; usd: number; sub_usd: number; requests: number; max_ctx: number; start: number; waste: Waste }[];
+};
+const WASTE_NAMES: [keyof Waste, string, string][] = [
+  ["fetch", "Opus fetching", "Opus calls that only read, search or run, 3+ in a row: Haiku 5.5 does these for ~1/40"],
+  ["bash", "Carried command output", "Bash output re-read as cached input on every later call"],
+  ["reread", "Files read again", "a file Read again in the same chat: written and carried twice"],
+  ["stale", "Finished-task context", "a finished task's context re-read on every later call until a fresh start (seat-fresh)"],
+];
+const wasteOf = (w: Waste) => w.fetch + w.bash + w.reread + w.stale;
+
+function WasteCard() {
+  const { data } = useSharedState<UsageTasks>("/api/usage/tasks", 60_000);
+  if (!data?.ready || !data.waste || !data.waste_share)
+    return <Card title="Per seat, per task, and the waste" testId="usage-tasks"><p className="m-0 text-[12px] text-muted-foreground">{data?.refreshing ? "Reading the last 24 hours of chats (about a minute)…" : "No reading yet."}</p></Card>;
+  const total = data.usd ?? 0;
+  const wasted = wasteOf(data.waste);
+  return (
+    <Card title="Per seat, per task, and the waste" aside={`last ${data.hours ?? 24} h · list prices · read ${ago(data.at ?? null)}${data.refreshing ? " · refreshing" : ""}`} testId="usage-tasks">
+      {data.proof?.per_shaan_request != null && data.proof.fetch_share != null && (
+        <div className="mb-3 rounded-md border border-border/60 p-2 text-[13px]" data-testid="usage-proof" title="token-where.py over the same window. Shaan, 13 Oct: Opus builds and reasons, Haiku gathers context; the proof is both numbers falling.">
+          <b className={data.proof.per_shaan_request < data.proof.baseline.per_shaan_request ? "text-emerald-300" : "text-amber-300"}>{usd(data.proof.per_shaan_request)}</b> per request from Shaan (was {usd(data.proof.baseline.per_shaan_request)}) ·
+          Opus fetching itself <b className={data.proof.fetch_share < data.proof.baseline.fetch_share ? "text-emerald-300" : "text-amber-300"}>{Math.round(data.proof.fetch_share * 100)}%</b> of cost (was {Math.round(data.proof.baseline.fetch_share * 100)}%, {data.proof.baseline.at})
+        </div>
+      )}
+      <div className="mb-3 text-[13px]">
+        <b>{usd(total)}</b> over {data.requests} requests ({usd(total / Math.max(1, data.requests ?? 1))} each) · <b className="text-amber-300">{usd(wasted)}</b> of it waste ({Math.round((wasted / Math.max(total, 1)) * 100)}%)
+      </div>
+      <div className="mb-4 grid grid-cols-2 gap-2 md:grid-cols-4">
+        {WASTE_NAMES.map(([k, name, why]) => (
+          <div key={k} className="rounded-md border border-border/60 p-2" title={why} data-testid={`waste-${k}`}>
+            <div className="text-[11px] text-muted-foreground">{name}</div>
+            <div className="text-[15px] font-semibold">{usd(data.waste![k])} <span className="text-[11px] font-normal text-muted-foreground">{Math.round(data.waste_share![k] * 100)}%</span></div>
+          </div>
+        ))}
+      </div>
+      <div className="grid gap-4 lg:grid-cols-2">
+        <table className="w-full text-[12px]" data-testid="usage-seats">
+          <thead><tr className="text-left text-muted-foreground"><th>Seat</th><th className="text-right">Cost</th><th className="text-right">Per request</th><th className="text-right">Tasks</th><th className="text-right">Waste</th></tr></thead>
+          <tbody>{(data.seats ?? []).slice(0, 12).map((s) => (
+            <tr key={s.seat} className="border-t border-border/40"><td className="py-1">{s.seat}</td><td className="text-right">{usd(s.usd)}</td><td className="text-right">{usd(s.per_request)}</td><td className="text-right">{s.tasks}</td><td className="text-right text-amber-300">{usd(wasteOf(s.waste))}</td></tr>
+          ))}</tbody>
+        </table>
+        <table className="w-full text-[12px]" data-testid="usage-task-rows">
+          <thead><tr className="text-left text-muted-foreground"><th>Task</th><th>Seat</th><th className="text-right">Cost</th><th className="text-right">Waste</th></tr></thead>
+          <tbody>{(data.tasks ?? []).slice(0, 12).map((t, i) => (
+            <tr key={`${t.seat}-${t.start}-${i}`} className="border-t border-border/40" title={`${t.label}\n${t.requests} requests · peak ${compact(t.max_ctx)} context · sub-agents ${usd(t.sub_usd)}`}>
+              <td className="max-w-[18rem] truncate py-1">{t.task ? <b>{t.task} </b> : null}{t.label}</td><td>{t.seat}</td><td className="text-right">{usd(t.usd)}</td><td className="text-right text-amber-300">{usd(wasteOf(t.waste))}</td>
+            </tr>
+          ))}</tbody>
+        </table>
+      </div>
+    </Card>
+  );
+}
+
 function BurnVelocity() {
   const { data: usage, error } = useSharedState<Usage>("/api/usage", 60_000);
   if (!usage || usage.source === "pending" || !usage.data)
@@ -1210,6 +1273,7 @@ export function TokensView({ data, error, onPopOut }: { data: Tokens; error: str
               ))}
             </div>
           </Card>
+          <WasteCard />
           <BurnVelocity />
         </div>
       </div>
@@ -1243,6 +1307,7 @@ export function UsageTokenSections({ tokens }: { tokens?: { data: Tokens | null;
   const colorOf = (id: string) => PALETTE[Math.max(0, data.accounts.findIndex(a => a.id === id)) % PALETTE.length];
   return <div className="usage-sections">
     <div className="grid min-w-0 grid-cols-1 gap-4 lg:grid-cols-2"><Trend data={data} colorOf={colorOf}/><UsageOverview data={data} period={period} onPeriod={setPeriod} compactView/></div>
+    <WasteCard/>
     <details data-testid="usage-accounts-detail" onToggle={e => setDetail((e.currentTarget as HTMLDetailsElement).open)}><summary>Accounts in detail · cloud credit, Luna/Sol split, DeepSeek, where it ran</summary>{detail && <div><MoneyBand data={data}/></div>}</details>
     <details><summary>Activity and account detail</summary><div className="grid min-w-0 grid-cols-1 gap-4 lg:grid-cols-2"><Heatmap days={data.heatmap ?? []}/><StatsPanel data={data} period={period}/><Leaderboard data={data} period={period} colorOf={colorOf}/><Achievements badges={data.achievements}/></div></details>
   </div>;
