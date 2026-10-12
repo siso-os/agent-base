@@ -20,7 +20,7 @@ import "./Composer.css";
 import "./AgentPanel.css";
 import { A0Board } from "./panel/A0Board";
 import { AgentWidgets } from "./widgets/AgentWidgets";
-import { ServersPage } from "./ServersSpace";
+import { ServersPage } from "../modules/estate/ServersSpace";
 import { ChangesPanel } from "./ChangesPanel";
 import type { NavWorkspace } from "../lib/workspace-nav";
 import { AgentOverview, AgentSpendDetail } from "./panel/AgentOverview";

@@ -22,11 +22,11 @@ writeFileSync(
   fakeClaude,
   `#!/usr/bin/env node
 const fs = require("node:fs");
-const pick = ["HERDR_ENV", "HERDR_PANE_ID", "FAKE_MARK", "CLAUDE_CONFIG_DIR", "SISO_ACCOUNT", "CLAUDE_AUTOCOMPACT_PCT_OVERRIDE"];
+const pick = ["HERDR_ENV", "HERDR_PANE_ID", "FAKE_MARK", "CLAUDE_CONFIG_DIR", "SISO_ACCOUNT", "CLAUDE_AUTOCOMPACT_PCT_OVERRIDE", "ANTHROPIC_DEFAULT_HAIKU_MODEL", "CLAUDE_CODE_SUBAGENT_MODEL"];
 const env = Object.fromEntries(pick.map((k) => [k, process.env[k] ?? null]));
 env.TOKEN = process.env.CLAUDE_CODE_OAUTH_TOKEN ? (process.env.CLAUDE_CODE_OAUTH_TOKEN === "tok-fuze" ? "the fuzeheritage token" : "another") : null;
 fs.writeFileSync(process.env.FAKE_CLAUDE_OUT, JSON.stringify({ argv: process.argv.slice(2), env }));
-process.stdin.resume();
+process.stdin.on("data", (d) => fs.appendFileSync(process.env.FAKE_CLAUDE_OUT + ".stdin", d));
 setTimeout(() => process.exit(0), 20000);
 `,
 );
@@ -56,8 +56,8 @@ async function run(label, hostArgs, env = {}) {
   for (let i = 0; i < 100 && !existsSync(out); i++) await sleep(100);
   child.kill("SIGKILL");
   if (!existsSync(out)) return { argv: [], env: {}, err: err.slice(-400) };
-  await sleep(50);
-  return JSON.parse(readFileSync(out, "utf8"));
+  await sleep(300);
+  return { label, ...JSON.parse(readFileSync(out, "utf8")) };
 }
 const after = (argv, flag) => {
   const i = argv.indexOf(flag);
@@ -66,12 +66,12 @@ const after = (argv, flag) => {
 
 try {
   // 1. Defaults unchanged: in a herdr pane the child still gets HERDR_ENV=0 and no name or settings of ours.
-  const plain = await run("plain", [], { HERDR_ENV: "1", HERDR_PANE_ID: "w9:pfake", CLAUDE_AUTOCOMPACT_PCT_OVERRIDE: undefined });
+  const plain = await run("plain", [], { HERDR_ENV: "1", HERDR_PANE_ID: "w9:pfake", CLAUDE_AUTOCOMPACT_PCT_OVERRIDE: undefined, ANTHROPIC_DEFAULT_HAIKU_MODEL: undefined, CLAUDE_CODE_SUBAGENT_MODEL: undefined });
   check("spawned the fake claude", plain.argv.length > 0, plain.err ? { err: plain.err } : {});
   check("default: child HERDR_ENV=0", plain.env.HERDR_ENV === "0", { env: plain.env });
   check("default: no --settings, no --name", !plain.argv.includes("--settings") && !plain.argv.includes("--name"), { argv: plain.argv });
   check("other env still passes through", plain.env.FAKE_MARK === "kept");
-  check("default: child auto-compacts at 30%", plain.env.CLAUDE_AUTOCOMPACT_PCT_OVERRIDE === "30", { env: plain.env });
+  check("default: child auto-compacts at 33% (~330k)", plain.env.CLAUDE_AUTOCOMPACT_PCT_OVERRIDE === "33", { env: plain.env });
 
   // 2. Agent Zero's launch: named, its agent-boot settings, herdr's env left alone.
   const a0 = await run("a0", ["--name", "A0-SDK", "--settings", ".claude/agent-boot.json", "--keep-herdr-env"], { HERDR_ENV: "1", HERDR_PANE_ID: "w9:pfake" });
@@ -103,6 +103,35 @@ try {
   check("stack plugin passed to claude by default", plain.argv.join(" ").includes(stack), { argv: plain.argv.filter((a) => a.includes("plugin")) });
   const nostack = await run("nostack", ["--no-stack"]);
   check("--no-stack: no plugin", !nostack.argv.join(" ").includes(stack));
+
+  // 6. --lean (or AB_LEAN=1): sub-agents run Haiku 5.5 and the seat is told to delegate bulk work; off by default.
+  // The SDK hands the appended system prompt over stdin (its initialize request), so read what the fake claude was sent.
+  const sent = (label) => (existsSync(path.join(scratch, `${label}.json.stdin`)) ? readFileSync(path.join(scratch, `${label}.json.stdin`), "utf8") : "");
+  const leanPrompt = (r) => sent(r.label).includes("Haiku 5.5 is the hands");
+  check("default: not lean (no Haiku env, no delegation rule)", plain.env.ANTHROPIC_DEFAULT_HAIKU_MODEL === null && plain.env.CLAUDE_CODE_SUBAGENT_MODEL === null && !leanPrompt(plain), { env: plain.env });
+  const lean = await run("lean", ["--lean"]);
+  check("--lean: sub-agents default to Haiku 5.5", lean.env.ANTHROPIC_DEFAULT_HAIKU_MODEL === "claude-haiku-5-5" && lean.env.CLAUDE_CODE_SUBAGENT_MODEL === "claude-haiku-5-5", { env: lean.env, err: lean.err });
+  check("--lean: the delegation rule is appended to the system prompt", leanPrompt(lean), { sent: sent("lean").slice(0, 200) });
+  const leanEnv = await run("lean-env", [], { AB_LEAN: "1", CLAUDE_CODE_SUBAGENT_MODEL: "claude-sonnet-5-5" });
+  check("AB_LEAN=1 works too, and a launcher's own sub-agent model wins", leanEnv.env.ANTHROPIC_DEFAULT_HAIKU_MODEL === "claude-haiku-5-5" && leanEnv.env.CLAUDE_CODE_SUBAGENT_MODEL === "claude-sonnet-5-5" && leanPrompt(leanEnv), { env: leanEnv.env });
+  // 7. --advisor M reaches claude as --advisor M (Haiku in front, Opus on call); absent by default.
+  check("default: no --advisor", !plain.argv.includes("--advisor"));
+  const adv = await run("advisor", ["--model", "claude-haiku-5-5", "--advisor", "claude-opus-5-5", "--name", "LEAN-TEST"]);
+  check("--advisor reaches claude, beside --name", after(adv.argv, "--advisor") === "claude-opus-5-5" && after(adv.argv, "--name") === "LEAN-TEST", { argv: adv.argv, err: adv.err });
+  // The app shows the effort a seat runs at even when it comes from settings, never passing it to claude.
+  const cfg = path.join(scratch, "cfg"); mkdirSync(cfg, { recursive: true });
+  writeFileSync(path.join(cfg, "settings.json"), JSON.stringify({ effortLevel: "low", modelSettings: { "claude-opus-5-5": { effortLevel: "medium" } } }));
+  const effRecord = async (label, args) => {
+    const hosts = path.join(scratch, `hosts-${label}`);
+    const r = await run(label, ["--model", "claude-opus-5-5[1m]", ...args], { CLAUDE_CONFIG_DIR: cfg, AB_HOSTS_DIR: hosts });
+    const { readdirSync } = await import("node:fs");
+    const f = existsSync(hosts) ? readdirSync(hosts).find((n) => /^pid-.*\.json$/.test(n)) : null;
+    return { r, effort: f ? JSON.parse(readFileSync(path.join(hosts, f), "utf8")).effort : undefined };
+  };
+  const shown = await effRecord("eff-settings", []);
+  check("no --effort: the record shows the settings effort for the model, claude gets no --effort", shown.effort === "medium" && !shown.r.argv.includes("--effort"), { effort: shown.effort, argv: shown.r.argv });
+  const flagged = await effRecord("eff-flag", ["--effort", "xhigh"]);
+  check("--effort wins in the record", flagged.effort === "xhigh", { effort: flagged.effort });
 } finally {
   rmSync(scratch, { recursive: true, force: true });
 }

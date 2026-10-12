@@ -19,7 +19,7 @@ await mkdir(out, { recursive: true });
 console.log(`Evidence: ${out}`);
 const port = await suitePort();
 const f = await donorFixture(), checks = [], errors = [], requests = [], sockets = [];
-const files = ['services/node/src/donor-work.ts', 'services/node/src/routes/donor-work.route.ts', 'apps/web/src/components/DonorWork.tsx', 'apps/web/src/components/DonorWork.css'];
+const files = ['services/node/src/donor-work.ts', 'services/node/src/routes/donor-work.route.ts', 'apps/web/src/modules/estate/DonorWork.tsx', 'apps/web/src/modules/estate/DonorWork.css'];
 const hashes = async () => Object.fromEntries(await Promise.all(files.map(async name => [name, createHash('sha256').update(await readFile(path.join(repo, name))).digest('hex')])));
 const before = await hashes();
 let browser, server, page;
@@ -28,7 +28,7 @@ try {
   await writeFile(path.join(f.root, 'index.html'), '<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1"></head><body><div id="root"></div><script type="module" src="/entry.tsx"></script></body></html>');
   await writeFile(path.join(f.root, 'entry.tsx'), `
     import React, {useEffect,useState} from 'react'; import {createRoot} from 'react-dom/client';
-    import {DonorWork} from ${JSON.stringify(path.join(repo, 'apps/web/src/components/DonorWork.tsx'))};
+    import {DonorWork} from ${JSON.stringify(path.join(repo, 'apps/web/src/modules/estate/DonorWork.tsx'))};
     document.body.style.cssText='margin:0;background:#14161c;color:#e5e7eb;font-family:system-ui';
     window.__opened=[]; window.__ready=0;
     function Fixture(){const[data,setData]=useState(null),[error,setError]=useState(null);

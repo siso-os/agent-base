@@ -21,7 +21,7 @@ const GROUPS = [
 const MODELS = [
   { id: "claude-opus-5-5[1m]", label: "Opus 5.5 · 1M", short: "Opus", why: "deep work, long sessions", speed: 2, depth: 5, cost: 5 },
   { id: "claude-sonnet-5-5", label: "Sonnet 5.5", short: "Sonnet", why: "fast, a fifth of the cost", speed: 4, depth: 4, cost: 2 },
-  { id: "claude-haiku-4-5-20251001", label: "Haiku 4.5", short: "Haiku", why: "quick reads and sweeps", speed: 5, depth: 2, cost: 1 },
+  { id: "claude-haiku-5-5", label: "Haiku 5.5", short: "Haiku", why: "quick reads and sweeps", speed: 5, depth: 2, cost: 1 },
 
 ];
 export const modelLabel = (m: string) => m.startsWith("gpt-") ? m.replace(/^gpt-/, "GPT ") : m.replace(/^claude-(opus|sonnet|haiku)-(\d+)-(\d+)(?:-\d{8})?(\[1m\])?$/i, (_, family: string, major: string, minor: string, context: string) => `Claude ${family[0].toUpperCase()}${family.slice(1)} ${major}.${minor}${context ? " · 1M" : ""}`);

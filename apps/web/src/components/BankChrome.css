@@ -25,3 +25,11 @@
 .td-peek .td-dashboard{background:rgb(var(--crm-white-rgb) / .05);border-color:rgb(var(--crm-white-rgb) / .14);color:var(--crm-color-text)}
 .td-share{display:flex;gap:2px;height:8px;margin:14px 0 2px;overflow:hidden;border-radius:4px;background:rgb(var(--crm-white-rgb) / .06)}
 .td-share i{display:block;min-width:4px}
+/* SISO OS §6 (t-0599): the spend chip, smaller, in the composer's status row beside context and usage; its panel opens up. */
+.ab-bank-spend.is-compact .td-trigger{min-height:24px;padding:1px 7px 1px 4px;gap:4px;border-radius:8px;background:transparent;border-color:transparent}
+.ab-bank-spend.is-compact .td-trigger:hover{background:rgb(var(--crm-white-rgb) / .05);border-color:rgb(var(--crm-white-rgb) / .1)}
+.ab-bank-spend.is-compact .td-icon{width:16px;height:16px}
+.ab-bank-spend.is-compact .td-value{font-size:11.5px}
+.ab-bank-spend.is-compact .td-trigger-copy>span,.ab-bank-spend.is-compact .td-trigger-copy small,.ab-bank-spend.is-compact .td-chevron{display:none}
+.ab-bank-spend.is-compact .td-panel{top:auto;bottom:calc(100% + 8px)}
+@media(max-width:600px){.ab-bank-spend.is-compact .td-panel{top:auto;bottom:90px;position:fixed}}

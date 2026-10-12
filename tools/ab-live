@@ -15,7 +15,7 @@ ROLLBACK=0; ARGS=()
 for a in "$@"; do if [ "$a" = --rollback ]; then ROLLBACK=1; else ARGS+=("$a"); fi; done
 SHA=${ARGS[0]:-}; [ -n "$SHA" ] || { echo "usage: tools/ab-live [--rollback] <sha>" >&2; exit 2; }
 M=${AB_LIVE_CHECKOUT:-$HOME/SISO_Workspace/SISO_Agency/apps/siso-internal-labs/siso-internal-labs-agent-base}
-APP=${AB_LIVE_INSTALLED_APP:-$HOME/Applications/Agent Base.app}
+APP=${AB_LIVE_INSTALLED_APP:-$( [ -d "$HOME/Applications/SISO OS.app" ] && echo "$HOME/Applications/SISO OS.app" || echo "$HOME/Applications/Agent Base.app" )}  # renamed SISO OS (t-0599); the old name until the app is rebuilt
 APP_NEW=${AB_LIVE_APP:-}
 STATE=${AB_LIVE_STATE:-$HOME/.local/state/agent-base/live}
 MINI=${AB_MINI:-$HOME/SISO_Workspace/SISO_Agency/apps/siso-internal-labs/siso-internal-labs-agents/.agents/luna/ab-mini}
@@ -46,7 +46,15 @@ if [ -f "$STATE/active.json" ] && [ "${AB_LIVE_LEGACY:-}" != 1 ]; then
     log "$SHA" desktop refused "front is live: desktop installs by hand" ""
     exit 4
   fi
-  if ((ROLLBACK)); then exec "$HOOK_ROOT/tools/ab-switch" --rollback "$SHA"; else exec "$HOOK_ROOT/tools/ab-switch" "$SHA"; fi
+  # Seats run siso-host from this checkout, not the release slot: after a good switch, bring services/host and stack here
+  # too (tools/ab-host-sync; HARNESS 12 Oct: five host PRs sat merged and "live" while every seat ran the 10 Oct host).
+  # A refused or failed host sync is reported and logged; web and node stay live.
+  rc=0; if ((ROLLBACK)); then "$HOOK_ROOT/tools/ab-switch" --rollback "$SHA" || rc=$?; else "$HOOK_ROOT/tools/ab-switch" "$SHA" || rc=$?; fi
+  if [ "$rc" = 0 ] && [ "${AB_LIVE_HOST_SYNC:-1}" != 0 ]; then
+    hs=0; "$HOOK_ROOT/tools/ab-host-sync" "$SHA" || hs=$?
+    [ "$hs" = 0 ] || log "$SHA" host "$( [ "$hs" = 4 ] && echo refused || echo failed )" "ab-host-sync exit $hs"
+  fi
+  exit "$rc"
 fi
 cd "$M"
 # 7 Oct (AGENT-BASE, t-0497): two desktop ships built the app without AB_REPO_ROOT, so the installed app ran its node and dist
@@ -143,7 +151,7 @@ fi
 # so the first real deploy failed; the app was untouched). AB_LIVE_QUIT / AB_LIVE_OPEN (tests) are shell snippets.
 quit_app() { if [ -n "${AB_LIVE_QUIT:-}" ]; then bash -c "$AB_LIVE_QUIT"; else osascript -e "quit app \"$(basename "$APP" .app)\""; fi; }
 open_app() { if [ -n "${AB_LIVE_OPEN:-}" ]; then bash -c "$AB_LIVE_OPEN"; else open -g "$APP"; fi; }
-OLD=$(pgrep -f "${AB_LIVE_APP_PROC:-Agent Base.app/Contents/MacOS/agent-base}" | head -1 || true)
+OLD=$(pgrep -f "${AB_LIVE_APP_PROC:-(SISO OS|Agent Base).app/Contents/MacOS/agent-base}" | head -1 || true)
 [ -n "$APP_NEW" ] && { cp -cR "$APP" "$BACKUP/AgentBase.app"; }
 # From here the app is down: any failure puts the previous dist and paths back and reopens it, so it is never left closed.
 restore() { rsync -a --delete "$BACKUP/dist/" apps/web/dist/ 2>/dev/null || true; ((${#RESTORE_PATHS[@]})) && git checkout "$PREV" -- "${RESTORE_PATHS[@]}" 2>/dev/null || true; [ -n "$APP_NEW" ] && rsync -a --delete "$BACKUP/AgentBase.app/" "$APP/" || true; open_app || true; log "$SHA" "$KIND" rolled-back; cleanup; }

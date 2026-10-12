@@ -1,4 +1,5 @@
 import { Component, type ErrorInfo, type ReactNode } from "react";
+import { reportCrash } from "../lib/booted";
 import "./Boundary.css";
 
 /**
@@ -20,6 +21,7 @@ export class Boundary extends Component<Props, State> {
   }
   componentDidCatch(error: Error, info: ErrorInfo) {
     console.error(`${this.props.name} could not draw:`, error, info.componentStack);
+    reportCrash(this.props.name, String(error?.message ?? error));
   }
   render() {
     const { error } = this.state;

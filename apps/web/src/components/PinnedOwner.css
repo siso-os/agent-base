@@ -280,3 +280,68 @@ button.ab-card-crew__quiet:hover { color: var(--crm-color-text-strong); }
 .ab-workspace-panel .ab-zero__rim .ab-zero__row, .ab-workspace-panel .ab-zero__rim .ab-zero__row.is-active { background: transparent; }
 /* Idle names stay one comma-separated line: their owner cards wrap each name inline. */
 .ab-workspace__idle-names .ab-hover-trigger { display: inline; }
+
+/* SISO OS step 1 (t-0599, spec §6-§8). Header: "Agent Base", its version, then ˅; the grid button stays at the right. */
+.siso-headstack__space { justify-content: flex-start; gap: 4px; }
+.siso-headstack__space .siso-headstack__dash { margin-left: auto; }
+.siso-headstack__space .ab-version-pill { flex: none; }
+.siso-headstack__more { display: grid; width: 26px; height: 26px; place-items: center; border-radius: 7px; color: var(--crm-color-text-muted); }
+.siso-headstack__more:hover, .siso-headstack__more:focus-visible, .siso-headstack__more[aria-expanded="true"] { color: var(--crm-color-text-strong); background: rgb(var(--crm-white-rgb) / 0.06); }
+@media (max-width: 639px) { .siso-headstack__more { width: 40px; height: 40px; } }
+/* Agent Zero's card takes the face's jobs: the count of what waits on him, and the running research batches. */
+.ab-zero__needs { display: inline-grid; flex: none; min-width: 20px; height: 20px; place-items: center; padding: 0 6px; border: 0; border-radius: 10px; background: rgb(240 176 63 / 0.16); color: #f0b03f; font-size: 11.5px; font-weight: 700; font-variant-numeric: tabular-nums; cursor: pointer; }
+.ab-zero__needs:hover, .ab-zero__needs:focus-visible { background: rgb(240 176 63 / 0.28); }
+.ab-zero__research { padding: 0; border: 0; background: none; color: #7dd3fc; font: inherit; font-size: 11px; cursor: pointer; }
+.ab-zero__research:hover { text-decoration: underline; text-underline-offset: 2px; }
+/* SISO Family and Agents inside the card. Agents is not joined to Agent Zero's tree: a gap and a hairline set it apart. */
+.ab-org-branch { margin-top: 2px; }
+.ab-org-branch__kids .siso-thread, .ab-org-branch__kids .siso-project { margin-left: 0; }
+.ab-agents-branch { position: relative; margin-top: 12px; padding-top: 10px; }
+.ab-agents-branch::before { content: ""; position: absolute; top: 0; left: 8px; right: 8px; height: 1px; background: linear-gradient(90deg, transparent, rgb(148 163 184 / 0.28), transparent); }
+.ab-agents-branch__face { display: inline-grid; place-items: center; }
+.ab-agents-branch .ab-nav-sub { font-size: 12px; }
+.ab-agents-branch .ab-nav-sub small { margin-left: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--crm-color-text-muted); }
+/* Agent Infrastructure: one row of three small stacked faces; hover or click opens the three rows above it. */
+.siso-infra.is-stacked[data-testid=nav-infra] { position: relative; display: block; padding: 4px 8px 4px 8px; }
+.siso-infra__entry { display: flex; width: 100%; align-items: center; gap: 8px; padding: 5px 6px 5px 4px; border: 0; border-radius: 8px; background: none; text-align: left; cursor: pointer; }
+.siso-infra__entry:hover, .siso-infra__entry[aria-expanded="true"] { background: rgb(var(--crm-white-rgb) / 0.04); }
+.siso-infra__entry .siso-infra__label { flex: 1; }
+.siso-infra__stack { display: inline-flex; flex: none; }
+.siso-infra__stack > .ab-ring { width: 20px; height: 20px; border-radius: 50%; box-shadow: 0 0 0 2px var(--crm-color-surface, #111); }
+.siso-infra__stack > * + * { margin-left: -7px; }
+.siso-infra__live { min-width: 16px; padding: 0 4px; border-radius: 8px; background: rgb(56 189 248 / 0.16); color: #38bdf8; font-size: 10.5px; font-weight: 700; text-align: center; }
+.siso-infra__pop { position: absolute; left: 8px; right: 8px; bottom: calc(100% + 6px); z-index: 60; display: grid; gap: 2px; padding: 8px 8px 8px 10px; border: 1px solid rgb(var(--crm-white-rgb) / 0.1); border-radius: 12px; background: var(--crm-color-surface-raised, #191919); box-shadow: 0 14px 44px rgb(0 0 0 / 0.45); }
+.siso-infra__pop::after { content: ""; position: absolute; left: 0; right: 0; top: 100%; height: 8px; }
+.siso-infra.is-stacked .siso-infra__pop { left: 8px; right: 8px; width: auto; padding: 6px; }
+.siso-infra.is-stacked .siso-infra__pop button.siso-infra__face { grid-template-columns: 20px minmax(0, 1fr) auto; column-gap: 9px; padding: 5px 8px; }
+.siso-infra.is-stacked .siso-infra__pop .siso-infra__goal { color: #9d968d; }
+
+/* The whole side nav is one lit card, like Voice's and WhatsApp's (Shaan, 12 Oct: "wrap the whole side nav in that neon card
+   even the agent base up top with the drop nav and the dashboard icon ... slightly more lit up"). The head and the notices at
+   the foot stay put; the tree between them scrolls. */
+.siso-sidenav:has(.ab-nav-card) { border-right: 0; }
+.siso-sidenav__body:has(> .ab-nav-card) { display: flex; flex-direction: column; overflow: hidden; padding: 8px 0 8px 8px; }
+.ab-workspace-panel.ab-nav-card.siso-rim { flex: 1; min-height: 0; margin: 0; padding: 0; border-radius: var(--crm-radius-card, 18px);
+  display: flex; flex-direction: column; overflow: hidden;
+  background: linear-gradient(rgb(94 234 212 / .07), rgb(94 234 212 / .015) 55%), rgb(23 23 21 / .9); }
+.ab-nav-card > * { position: relative; z-index: 1; }
+.ab-nav-card__head { flex: none; padding: 10px 8px 4px 10px; }
+.ab-nav-card__head .siso-headstack { padding: 0; }
+.ab-nav-card__body { flex: 1; min-height: 0; overflow-y: auto; padding: 0 2px 10px; scrollbar-width: none; }
+.ab-nav-card__body::-webkit-scrollbar { display: none; }
+.ab-nav-card__foot { flex: none; }
+.ab-nav-card__foot:empty { display: none; }
+.ab-nav-card__foot > * { margin: 0 6px 8px; }
+
+/* Agent Infrastructure as a folder (12 Oct): its three faces share the 22px logo slot as a small cluster, so its name lines up
+   with SISO Family's and Agents'; each row is the name with its goal under it, the dot on the right. */
+.ab-infra-branch__faces { position: relative; display: block; }
+.ab-infra-branch__faces > .ab-ring { position: absolute; display: grid; place-items: center; width: 13px; height: 13px; }
+.ab-infra-branch__faces > .ab-ring:nth-child(1) { left: 0; top: 0; }
+.ab-infra-branch__faces > .ab-ring:nth-child(2) { left: 9px; top: 0; }
+.ab-infra-branch__faces > .ab-ring:nth-child(3) { left: 4.5px; top: 9px; }
+.ab-infra-branch__faces .wm, .ab-infra-branch__faces svg { width: 13px; height: 13px; }
+.ab-infra-branch__text { display: flex; flex: 1; min-width: 0; flex-direction: column; gap: 1px; line-height: 1.2; }
+.ab-infra-branch__text b { flex: none; }
+.ab-infra-branch__text small { overflow: hidden; font-size: 11px; color: var(--crm-color-text-muted); white-space: nowrap; text-overflow: ellipsis; }
+.ab-infra-branch__row > .siso-infra__dot { flex: none; margin-right: 6px; }

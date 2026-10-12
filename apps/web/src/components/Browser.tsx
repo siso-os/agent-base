@@ -70,7 +70,7 @@ const tabSpaceKey = (id: string) => `agent-base:browser-profile:${id}`;
 const spaceTabKey = (space: string) => `agent-base:browser-space-tab:${space}`;
 const local = { get: (k: string) => { try { return localStorage.getItem(k); } catch { return null; } }, set: (k: string, v: string) => { try { localStorage.setItem(k, v); } catch { /* kept for this window */ } } };
 const setChoice = (key: string, value: string) => { if (browserStore.getItem(key) !== value) browserStore.setItem(key, value); };
-export type BrowserTab = { id: string; title: string; url: string; pin?: string };
+export type BrowserTab = { id: string; title: string; url: string; pin?: string; via?: string };
 const pinKey = (space: string, url: string) => `pin:${space}:${url}`;
 const favKey = (url: string) => `fav:${url}`;
 let sidebarScroll = 0;
@@ -709,7 +709,7 @@ function BrowserPage(props: PageProps) {
     const pages = live.pages.filter((p) => p.tab === id);
     return { awake: id === props.tabId || pages.length > 0, sound: live.playing.find((k) => pages.some((p) => p.key === k)) };
   };
-  type Row = { key: string; id?: string; url: string; title: string; current: boolean; asleep: boolean; sound?: string; open: () => void; close: () => void };
+  type Row = { key: string; id?: string; url: string; title: string; via?: string; current: boolean; asleep: boolean; sound?: string; open: () => void; close: () => void };
   const closeTabRow = (id: string) => {
     const i = todayTabs.findIndex((r) => r.id === id);
     const next = id === props.tabId ? (todayTabs[i + 1] ?? todayTabs[i - 1])?.id : undefined;
@@ -718,7 +718,7 @@ function BrowserPage(props: PageProps) {
     if (next) props.onSelectTab!(next); else openTabIn(profile, "", "New tab");
   };
   const rows: Row[] = tabsMode
-    ? todayTabs.map((t) => { const st = native ? tabState(t.id) : { awake: true, sound: undefined }; return { key: t.id, id: t.id, url: t.url, title: t.title, current: t.id === props.tabId, asleep: !st.awake, sound: st.sound, open: () => showTab(t.id), close: () => closeTabRow(t.id) }; })
+    ? todayTabs.map((t) => { const st = native ? tabState(t.id) : { awake: true, sound: undefined }; return { key: t.id, id: t.id, url: t.url, title: t.title, via: t.via, current: t.id === props.tabId, asleep: !st.awake, sound: st.sound, open: () => showTab(t.id), close: () => closeTabRow(t.id) }; })
     : todayRows.map((p) => ({ key: p.url, url: p.url, title: p.title, current: nav.url === p.url, asleep: Boolean(states && !states.awake.has(p.url)), sound: states?.playing.get(p.url), open: () => props.onGo(p.url, p.title),
       close: () => { const next = { ...today, [profile]: today[profile].filter((tab) => tab.url !== p.url) }; setToday(next); saveBrowserTabs(next, browserStore); if (nav.url === p.url) props.onGo("", "New tab"); } }));
   const awakeCount = rows.filter((r) => !r.asleep).length;
@@ -879,7 +879,7 @@ function BrowserPage(props: PageProps) {
           {!(tabsMode && !nav.url) && <button className="ab-browser__row ab-browser__new" type="button" title="New tab (⌘T)" onClick={() => (props.onNewTab ? props.onNewTab() : props.onGo("", "New tab"))}><PlusIcon size={15} /><span>New tab</span><kbd>⌘T</kbd></button>}
           {rows.map((r) => <div key={r.key} className="ab-browser__tab" draggable onDragStart={(e) => { e.dataTransfer.setData(TODAY_DRAG, JSON.stringify({ url: r.url, title: r.title, id: r.id })); e.dataTransfer.effectAllowed = "move"; }} data-state={r.sound ? "playing" : r.asleep ? "asleep" : native ? "awake" : undefined}>
             {r.sound && <button type="button" className="ab-browser__sound" aria-label={`Mute ${r.title}`} title="Playing. Click to mute" onClick={() => mute(r.sound!)}><Volume2Icon size={14} /></button>}
-            <button className="ab-browser__row" type="button" title={r.asleep ? `${r.title} (asleep: reopens from its address)` : r.url} aria-current={r.current ? "page" : undefined} data-url={r.url || undefined} onClick={r.open}>{!r.sound && (r.url ? <SiteMark url={r.url} title={r.title} /> : <span className="ab-browser__site ab-browser__blank" aria-hidden="true"><GlobeIcon size={13} /></span>)}<span>{r.url ? rowTitle(r) : r.title || "New tab"}</span></button>
+            <button className="ab-browser__row" type="button" title={r.asleep ? `${r.title} (asleep: reopens from its address)` : r.url} aria-current={r.current ? "page" : undefined} data-url={r.url || undefined} onClick={r.open}>{!r.sound && (r.url ? <SiteMark url={r.url} title={r.title} /> : <span className="ab-browser__site ab-browser__blank" aria-hidden="true"><GlobeIcon size={13} /></span>)}<span>{r.url ? rowTitle(r) : r.title || "New tab"}</span>{r.via && <em className="ab-browser__via" data-testid="browser-tab-via" title={`Sent by ${r.via}`}>{r.via}</em>}</button>
             {/* A pin on every tab (6 Oct 22:10: "there's no buttons to pin any of the browsers"): it moves to Saved pages. */}
             {r.url && <button className="ab-browser__pin" type="button" aria-label={`Pin ${r.title}`} title="Pin to Saved pages (or drag it onto a folder)" onClick={() => filePin({ url: r.url, title: r.title, id: r.id })}><PinIcon size={13} /></button>}
             <button className="ab-browser__close" type="button" aria-label={`Close ${r.title}`} onClick={r.close}>×</button>

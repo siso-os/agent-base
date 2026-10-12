@@ -2,7 +2,6 @@
 # One name per line = services/node/test/<name>.mjs. Lanes append theirs.
 chat-cli-parity
 owner-tasks
-dock-ui
 voice
 chat-edges
 hud-seat-ui

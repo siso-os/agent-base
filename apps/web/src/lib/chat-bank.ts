@@ -14,8 +14,14 @@ export function resultReceipts(events: readonly Ev[]): ReadonlySet<number> {
   return new Set(events.flatMap(event => event.t === 'result' && !('parent' in event && event.parent) && Number.isFinite(event.at) ? [event.at] : []));
 }
 export function responseReceipt(turn: Turn, completed: ReadonlySet<number>, live: boolean) {
-  const failure = [...turn.work, ...turn.answer].find(item => item.k === 'error');
-  if (failure?.k === 'error') return { status: 'failed' as const, failure: failure.text };
+  // An error stops the response only when nothing was said after it (Shaan, 12 Oct: "response interrupted ... I don't know
+  // if it's actually interrupting my response"): an API error the agent recovered from, then answered, keeps its card where
+  // it happened, and the reply is not labelled interrupted.
+  const items = [...turn.work, ...turn.answer];
+  let at = items.length - 1;
+  while (at >= 0 && items[at].k !== 'error') at--;
+  const failure = items[at];
+  if (failure?.k === 'error' && !items.slice(at + 1).some(item => item.k === 'said' && item.text.trim())) return { status: 'failed' as const, failure: failure.text };
   if (live) return { status: turn.answer.some(item => item.k === 'said' && item.text) ? 'streaming' as const : 'working' as const };
   return { status: turn.done && turn.endedAt != null && completed.has(turn.endedAt) ? 'complete' as const : 'unconfirmed' as const };
 }

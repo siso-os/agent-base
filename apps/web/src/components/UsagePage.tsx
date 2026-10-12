@@ -1,6 +1,6 @@
 import { useEffect, useId, useRef } from 'react';
 import { FleetStatsPage } from './FleetStats';
-import { UsageTokenSections, useTokens } from './TokensSpace';
+import { UsageTokenSections, useTokens } from '../modules/estate/TokensSpace';
 import { UsageAnswer } from './UsageAnswer';
 import { ConnectedVersionsLine } from './VersionsLine';
 import { useSpend } from '../lib/spend';

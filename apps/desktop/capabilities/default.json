@@ -1,7 +1,7 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "The Agent Base window loads its screens from the laptop node; it may drag itself by the title bar.",
+  "description": "The SISO OS windows (main, the SISO Browser window, a module's own window) load their screens from the laptop node; each may drag itself by the title bar.",
   "remote": {
     "urls": [
       "http://127.0.0.1:*",
@@ -16,6 +16,7 @@
   ],
   "webviews": [
     "main",
-    "browser"
+    "browser",
+    "mod-*"
   ]
 }

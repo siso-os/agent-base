@@ -27,6 +27,7 @@ use tauri::{
 
 mod adblock;
 mod browser;
+mod module_window;
 mod site_auth;
 #[cfg(all(debug_assertions, target_os = "macos", feature = "browser-test"))]
 mod browser_test;
@@ -232,11 +233,11 @@ pub fn run() {
     #[cfg(all(debug_assertions, target_os = "macos", feature = "browser-test"))]
     let builder = builder.invoke_handler(tauri::generate_handler![dictation_paste, browser::browser_open, browser::browser_bounds,
         browser::browser_visible, browser::browser_close, browser::browser_navigate,
-        browser::browser_action, browser::browser_url, browser::browser_title, browser::browser_google_account, browser::browser_audio, browser::browser_session_state, browser::browser_window, browser::browser_prefetch, site_auth::browser_auth, site_auth::browser_auth_pending, adblock::browser_adblock, browser_test::browser_test_observe, browser_test::browser_test_status, browser_test::browser_test_pages, browser_test::browser_test_media, browser_test::browser_test_google]);
+        browser::browser_action, browser::browser_url, browser::browser_title, browser::browser_google_account, browser::browser_audio, browser::browser_session_state, browser::browser_window, module_window::module_window, browser::browser_prefetch, site_auth::browser_auth, site_auth::browser_auth_pending, adblock::browser_adblock, browser_test::browser_test_observe, browser_test::browser_test_status, browser_test::browser_test_pages, browser_test::browser_test_media, browser_test::browser_test_google]);
     #[cfg(not(all(debug_assertions, target_os = "macos", feature = "browser-test")))]
     let builder = builder.invoke_handler(tauri::generate_handler![dictation_paste, browser::browser_open, browser::browser_bounds,
         browser::browser_visible, browser::browser_close, browser::browser_navigate,
-        browser::browser_action, browser::browser_url, browser::browser_title, browser::browser_google_account, browser::browser_audio, browser::browser_session_state, browser::browser_window, browser::browser_prefetch, site_auth::browser_auth, site_auth::browser_auth_pending, adblock::browser_adblock]);
+        browser::browser_action, browser::browser_url, browser::browser_title, browser::browser_google_account, browser::browser_audio, browser::browser_session_state, browser::browser_window, module_window::module_window, browser::browser_prefetch, site_auth::browser_auth, site_auth::browser_auth_pending, adblock::browser_adblock]);
     builder
         .manage(NodeProcess(Mutex::new(None)))
         .manage(NativeDictationProcess(Mutex::new(None)))
@@ -281,7 +282,7 @@ pub fn run() {
             }.parse()?;
             // Codex's frame: no title text, the traffic lights over the 40 px bar the screens draw themselves.
             let window = WebviewWindowBuilder::new(app, "main", WebviewUrl::External(url))
-                .title("Agent Base")
+                .title("SISO OS")
                 .inner_size(1440.0, 920.0)
                 .min_inner_size(1080.0, 700.0)
                 .center()

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { trySwap } from "../os/modules";
 import { every } from "./poll";
 
 export type AppVersion = { web: string; assets?: string[]; node: string; desktop: string; sha: string };
@@ -9,6 +10,7 @@ type ChangesResponse = { subjects: string[]; changes?: Change[]; sha?: string; n
 type Update = { kind: "web" | "desktop"; subjects: string[]; changes: Change[]; sha?: string; note?: string };
 /** What the reload just brought in (SPEC-DELIGHT §1): the Shipped card reads it once, after the page comes back. */
 export type Shipped = { sha: string; changes: Change[] };
+export type Swapped = { ids: string[]; at: number };
 const SNAPSHOT_KEY = "agent-base:update-reload";
 
 function restoreReloadState(onShipped: (s: Shipped) => void) {
@@ -58,6 +60,7 @@ export function useVersion() {
   const [applying, setApplying] = useState(false);
   const pendingShipped = useRef<Shipped | null>(null);
   const [shipped, setShipped] = useState<Shipped | null>(null);
+  const [swapped, setSwapped] = useState<Swapped | null>(null);
 
   useEffect(() => restoreReloadState(value => { pendingShipped.current = value; }), []);
   useEffect(() => {
@@ -83,17 +86,34 @@ export function useVersion() {
         if (!baseline) {
           baseline = next;
           if (!loadedAssetsAreCurrent(next.assets)) {
-            const changes = await fetch(`/api/version/changes?since=${encodeURIComponent(next.sha)}`, { cache: "no-store", signal: AbortSignal.timeout(10_000) });
-            const { subjects = [], changes: list = [], sha, note } = changes.ok ? await changes.json() as ChangesResponse : {};
-            if (alive) { setUpdate({ kind: "web", subjects, changes: list, sha, note: note?.title }); setReloadTarget(next); }
+            // Try to swap modules first (spec §2a step 4)
+            const swappedIds = await trySwap();
+            if (swappedIds !== null) {
+              // Swap succeeded: no reload offer
+              if (alive && swappedIds.length) setSwapped({ ids: swappedIds, at: Date.now() });
+            } else {
+              // Swap failed or not applicable: offer reload
+              const changes = await fetch(`/api/version/changes?since=${encodeURIComponent(next.sha)}`, { cache: "no-store", signal: AbortSignal.timeout(10_000) });
+              const { subjects = [], changes: list = [], sha, note } = changes.ok ? await changes.json() as ChangesResponse : {};
+              if (alive) { setUpdate({ kind: "web", subjects, changes: list, sha, note: note?.title }); setReloadTarget(next); }
+            }
           }
           if (alive) succeeded();
           return;
         }
         if (next.web !== baseline.web || next.sha !== baseline.sha) {
-          const changes = await fetch(`/api/version/changes?since=${encodeURIComponent(baseline.sha)}`, { cache: "no-store", signal: AbortSignal.timeout(10_000) });
-          const { subjects = [], changes: list = [], sha, note } = changes.ok ? await changes.json() as ChangesResponse : {};
-          if (alive) { setUpdate({ kind: "web", subjects, changes: list, sha, note: note?.title }); setReloadTarget(next); }
+          // Try to swap modules in place (spec §2a step 4)
+          const swappedIds = await trySwap();
+          if (swappedIds !== null) {
+            // Swap succeeded: no reload offer, just update baseline
+            baseline = next;
+            if (alive && swappedIds.length) setSwapped({ ids: swappedIds, at: Date.now() });
+          } else {
+            // Swap failed or not applicable: offer reload
+            const changes = await fetch(`/api/version/changes?since=${encodeURIComponent(baseline.sha)}`, { cache: "no-store", signal: AbortSignal.timeout(10_000) });
+            const { subjects = [], changes: list = [], sha, note } = changes.ok ? await changes.json() as ChangesResponse : {};
+            if (alive) { setUpdate({ kind: "web", subjects, changes: list, sha, note: note?.title }); setReloadTarget(next); }
+          }
         } else if (next.desktop !== baseline.desktop) {
           setUpdate({ kind: "desktop", subjects: [], changes: [] }); setReloadTarget(next);
         }
@@ -123,5 +143,6 @@ export function useVersion() {
     if (error) dismissedFailure.current = true;
   }, [error]);
   const clearShipped = useCallback(() => setShipped(null), []);
-  return { update, error, reload, dismiss, shipped, clearShipped, current, checked, applying, available: reloadTarget };
+  const clearSwapped = useCallback(() => setSwapped(null), []);
+  return { update, error, reload, dismiss, shipped, clearShipped, swapped, clearSwapped, current, checked, applying, available: reloadTarget };
 }

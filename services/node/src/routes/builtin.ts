@@ -9,6 +9,7 @@ import { spacesRoutes } from "./spaces.area.ts";
 import { changesRoutes } from "./changes.area.ts";
 import { attentionRoutes } from "./attention.area.ts";
 import { versionRoutes, releaseLeavesRoutes, shippingRoutes } from "./release.area.ts";
+import { bootedRoutes } from "./booted.area.ts";
 import { scratchpadRoutes } from "./scratchpad.area.ts";
 import { serviceLeavesRoutes } from "./services.area.ts";
 import { usageRoutes, spendRoutes } from "./usage.area.ts";
@@ -43,6 +44,7 @@ export function builtinRoutes(runtime: HttpRuntime) {
     changesRoutes(runtime),
     attentionRoutes(runtime),
     versionRoutes(runtime),
+    bootedRoutes(runtime),
     scratchpadRoutes(runtime),
     releaseLeavesRoutes(runtime),
     serviceLeavesRoutes(runtime),

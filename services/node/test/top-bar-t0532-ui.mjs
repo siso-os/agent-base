@@ -59,8 +59,9 @@ try {
         await page.keyboard.press('Escape');
         // Item 3: open STREAMING, its arrow lists the fleet, a click swaps to OPERATOR-UI, whose arrow shows the same fleet.
         // Open STREAMING's chat from its row in the Agents list (folded in this fixture; the click is the row's own handler).
-        await page.getByRole('button', { name: 'Open Agents' }).click();
-        await page.locator('[data-testid="rail-row"][data-item="own-1"]').first().evaluate(el => el.click());
+        // SISO OS §7 (t-0599): the Agents branch in Agent Zero's card; its rows are owner rows.
+        if (await page.getByRole('button', { name: 'Open Agents' }).count()) await page.getByRole('button', { name: 'Open Agents' }).first().evaluate(el => el.click());
+        await page.locator('[data-testid="nav-agents"] [data-owner="own-1"]').first().evaluate(el => el.click());
         const live = page.locator('[data-testid="chat-head"]:visible').first();
         await live.locator('.ab-head__name', { hasText: 'STREAMING' }).waitFor({ timeout: 8000 });
         await live.getByRole('button', { name: /STREAMING's fleet: 3 agents/ }).click();

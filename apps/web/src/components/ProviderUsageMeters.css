@@ -52,8 +52,8 @@
 .ab-uw__text b{color:rgb(var(--crm-white-rgb) / .55);font-size:10px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
 .ab-uw__left{color:var(--crm-color-text-strong);font-size:12px;font-variant-numeric:tabular-nums;white-space:nowrap}
 .ab-uw__text small{color:rgb(var(--crm-white-rgb) / .5);font-size:10.5px;line-height:1.35;white-space:normal}
-.ab-uw__bar{display:block;height:3px;margin-top:3px;overflow:hidden;border-radius:2px;background:rgb(var(--crm-white-rgb) / .08)}
-.ab-uw__bar u{display:block;height:100%;border-radius:2px;background:rgb(var(--crm-white-rgb) / .35);text-decoration:none}
+.ab-uw__bar{position:relative;display:block;height:5px;margin:4px 0 3px;border-radius:3px;background:rgb(var(--crm-white-rgb) / .08)}
+.ab-uw__bar u{display:block;height:100%;border-radius:3px;background:#34d399;text-decoration:none}
 .ab-uw[data-state=stale]{opacity:.6}
 .ab-uw.is-note .ab-uw__text small{max-width:168px}
 /* Narrow windows: the name on its own line, the two windows under it. */
@@ -61,3 +61,19 @@
  .ab-provider-card .ab-usage-row{grid-template-columns:1fr 1fr;row-gap:8px}
  .ab-provider-card .ab-usage-row__who{grid-column:1/-1}
 }
+
+/* 10 Oct, "make it nicer and clearer": the used share in big type and colour, the bar of what's used, the time tick. */
+.ab-uw__pct{color:var(--crm-color-text-strong);font:650 17px/1.15 var(--crm-font-sans);font-variant-numeric:tabular-nums}
+.ab-uw__pct em{color:rgb(var(--crm-white-rgb) / .5);font-size:11px;font-style:normal;font-weight:500}
+.ab-uw[data-tone=warn] .ab-uw__pct{color:#fbbf24}.ab-uw[data-tone=warn] .ab-uw__bar u{background:#fbbf24}
+.ab-uw[data-tone=bad] .ab-uw__pct{color:#f87171}.ab-uw[data-tone=bad] .ab-uw__bar u{background:#f87171}
+.ab-uw__bar s{position:absolute;top:-2px;width:2px;height:9px;margin-left:-1px;border-radius:1px;background:rgb(var(--crm-white-rgb) / .75);text-decoration:none}
+.ab-uw__text small strong{color:var(--crm-color-text-strong);font-weight:600}
+.ab-provider-card__fresh{display:inline-flex;align-items:center;gap:4px;color:rgb(var(--crm-white-rgb) / .5);font-size:11px}
+.ab-provider-card header .ab-provider-card__fresh button{display:grid;place-items:center;font-size:20px}
+.ab-provider-card header button.is-busy svg{animation:ab-usage-spin .9s linear infinite}
+@keyframes ab-usage-spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.ab-provider-card header button.is-busy svg{animation:none;opacity:.5}}
+.ab-provider-card__legend{display:flex;align-items:center;gap:6px;margin:8px 0 0!important;color:rgb(var(--crm-white-rgb) / .42);font-size:10.5px}
+.ab-provider-card__legend i{flex:none;width:2px;height:9px;border-radius:1px;background:rgb(var(--crm-white-rgb) / .75)}
+.ab-usage-row__why{display:block;margin-top:2px;color:#f5c26b!important;font-size:10.5px;line-height:1.35;white-space:normal}

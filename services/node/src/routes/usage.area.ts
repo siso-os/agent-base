@@ -16,7 +16,8 @@ export function usageRoutes(runtime: Pick<HttpRuntime, "json" | "usageDirectorie
       if (url.pathname === "/api/claude-accounts" && req.method === "GET") return json(res, 200, claudeAccounts());
       if (url.pathname === "/api/claude-usage" && ["GET", "POST"].includes(req.method ?? "")) {
         const dir = defaultClaudeDir();
-        if (req.method === "POST") await Promise.all(usageDirectories().map(profile => claudeUsage.refresh(profile)));
+        // ↻ in the panel: read every account now, except one read in the last 10 s (a double click is one read).
+        if (req.method === "POST") await Promise.all(usageDirectories().filter(profile => (claudeUsage.get(profile)?.ageMs ?? Infinity) >= 10_000).map(profile => claudeUsage.refresh(profile)));
         return json(res, 200, claudeUsage.get(dir) ?? { stale: true, at: null });
       }
       if (await handleTokens(req, res, url)) return; // /api/tokens: spend per account, limits, achievements (tokens.ts)

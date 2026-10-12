@@ -1,0 +1,64 @@
+/* Communications (Shaan, 10 Oct: "Merge Rolodex and WhatsApp ... I like the WhatsApp UI quite a lot"): WhatsApp desktop's
+   icon strip on the left (Chats, People), then the same halo-rim list card and main pane for both halves. */
+.wa-comms { --wa-brand: var(--crm-brand-rgb, 255 167 38); --wa-white: var(--crm-white-rgb, 255 255 255); height: 100%; min-height: 0; }
+.wa-comms .wa-strip { flex: none; display: flex; flex-direction: column; align-items: center; gap: 6px; width: 64px; padding: 14px 0; margin: 8px 0 8px 8px;
+  border-radius: var(--crm-radius-card, 18px); border: 1px solid rgb(var(--wa-white) / .06); background: rgb(var(--wa-white) / .02); }
+.wa-comms .wa-strip-btn { position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px; width: 52px; padding: 8px 0 6px; border: 0; border-radius: 12px;
+  background: none; color: var(--crm-color-text-faint, rgb(255 255 255 / .48)); font: 600 10px/1 var(--crm-font-sans, inherit); cursor: pointer; transition: background .14s, color .14s, box-shadow .16s; }
+.wa-comms .wa-strip-btn:hover { color: var(--crm-color-text-strong, #f5f4ef); background: rgb(var(--wa-white) / .05); }
+.wa-comms .wa-strip-btn[aria-pressed="true"] { color: rgb(var(--wa-brand)); background: rgb(var(--wa-brand) / .14); box-shadow: inset 0 0 0 1px rgb(var(--wa-brand) / .38), 0 0 18px -6px rgb(var(--wa-brand) / .7); }
+.wa-comms .wa-strip-btn:focus-visible { outline: 2px solid rgb(var(--wa-brand) / .7); outline-offset: 1px; }
+.wa-comms .wa-strip-btn > b { position: absolute; top: 3px; right: 6px; min-width: 16px; height: 16px; padding: 0 4px; display: grid; place-items: center; border-radius: 999px;
+  font: 700 9.5px/1 var(--crm-font-sans, inherit); font-variant-numeric: tabular-nums; color: var(--crm-color-on-brand, #1a1209); background: rgb(var(--wa-brand)); }
+.wa-comms .wa-comms-pane { flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; }
+.wa-comms .wa-comms-pane[hidden] { display: none; }
+.wa-comms .wa-comms-pane > .wa-space { flex: 1; }
+.wa-comms .wa-strip-link { height: 32px; padding: 0 14px; border-radius: 10px; font-size: 12.5px; font-weight: 650; color: var(--crm-color-on-brand, #1a1209); background: rgb(var(--wa-brand)); }
+
+/* A chat's person: a level tag on the row, a chip in the header that opens their page, or "Add to People". */
+.wa-space .wa-lvl { flex: none; max-width: 84px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 1px 6px; border-radius: 999px; font-size: 9.5px; font-weight: 650; letter-spacing: .01em;
+  color: rgb(var(--wa-tone)); background: rgb(var(--wa-tone) / .13); box-shadow: inset 0 0 0 1px rgb(var(--wa-tone) / .26); }
+.wa-space .wa-person-chip { flex: none; display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 11px; border-radius: 10px; font-size: 11.5px; font-weight: 650;
+  color: rgb(var(--wa-tone)); background: rgb(var(--wa-tone) / .1); box-shadow: inset 0 0 0 1px rgb(var(--wa-tone) / .3); transition: background .14s; }
+.wa-space .wa-person-chip:hover { background: rgb(var(--wa-tone) / .18); }
+.wa-space .wa-person-chip > i { width: 7px; height: 7px; border-radius: 50%; background: rgb(var(--wa-tone)); box-shadow: 0 0 8px rgb(var(--wa-tone) / .7); }
+.wa-space .wa-person-chip > span { font-weight: 500; color: var(--wa-muted); }
+.wa-space .wa-place { flex: none; display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 4px 0 10px; border-radius: 10px; color: var(--wa-faint); border: 1px dashed var(--wa-line-strong); }
+.wa-space .wa-place:hover { color: var(--wa-strong); border-color: rgb(var(--wa-brand) / .5); }
+.wa-space .wa-place select { height: 28px; border: 0; outline: 0; background: transparent; color: inherit; font: inherit; font-size: 11.5px; font-weight: 600; cursor: pointer; }
+.wa-space .wa-place select option { color: #111; }
+
+/* People: chats' list with levels as the filter tabs (they scroll sideways), tools on top, level-tinted avatars. */
+.wa-people .wa-chips { display: flex; overflow-x: auto; scrollbar-width: none; }
+.wa-people .wa-chips::-webkit-scrollbar { display: none; }
+.wa-people .wa-chips .wa-tab { flex: none; padding: 0 9px; }
+.wa-people .wa-chips .wa-tab > i { width: 6px; height: 6px; border-radius: 50%; background: var(--rx); }
+.wa-people .wa-chips .wa-tab > small { font: 500 10px/1 var(--crm-font-mono, ui-monospace, monospace); color: var(--wa-faint); }
+.wa-people .wa-lvl-dot { width: 6px; height: 6px; border-radius: 50%; background: rgb(var(--wa-tone)); }
+.wa-people .wa-tool-icon { flex: none; width: 32px; height: 32px; display: grid; place-items: center; border-radius: 10px; color: rgb(var(--wa-brand)); background: rgb(var(--wa-brand) / .12); box-shadow: inset 0 0 0 1px rgb(var(--wa-brand) / .26); }
+.wa-people .wa-avatar.is-proposed { box-shadow: inset 0 0 0 1px rgb(var(--wa-tone) / .28), 0 0 0 1.5px var(--wa-surface), 0 0 0 3px rgb(var(--wa-tone) / .45); }
+.wa-people .wa-quiet { color: rgb(var(--wa-brand) / .8); }
+.wa-people .wa-name mark { background: rgb(var(--wa-brand) / .25); color: inherit; border-radius: 3px; }
+.wa-people .wa-link { color: rgb(var(--wa-brand)); text-decoration: underline; text-underline-offset: 2px; }
+.wa-people .wa-row[data-active="true"], .wa-people .wa-tool[data-active="true"] { background: rgb(var(--wa-brand) / .1); box-shadow: inset 0 0 0 1px rgb(var(--wa-brand) / .3); color: var(--wa-strong); }
+.wa-people .wa-card-preview { display: flex; gap: 6px; align-items: flex-start; }
+.wa-people .wa-card-preview > svg { flex: none; margin-top: 2px; color: rgb(var(--wa-brand)); }
+.wa-people .wa-sort-cta { display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 14px; text-align: left; color: var(--wa-strong);
+  background: linear-gradient(120deg, rgb(var(--wa-brand) / .16), rgb(var(--wa-brand) / .05)); box-shadow: inset 0 0 0 1px rgb(var(--wa-brand) / .35); transition: transform .14s, box-shadow .16s; }
+.wa-people .wa-sort-cta:hover { transform: translateY(-1px); box-shadow: inset 0 0 0 1px rgb(var(--wa-brand) / .55), 0 10px 30px -14px rgb(var(--wa-brand) / .6); }
+.wa-people .wa-sort-cta > svg { flex: none; color: rgb(var(--wa-brand)); }
+.wa-people .wa-sort-cta span { display: flex; flex-direction: column; gap: 3px; }
+.wa-people .wa-sort-cta b { font-size: 14px; font-weight: 650; }
+.wa-people .wa-sort-cta small { font-size: 12px; color: var(--wa-muted); }
+/* The Rolodex parts (person page, decks) in the main pane: their own styles, on the chats' background. */
+.wa-people .wa-people-main { flex: 1; min-height: 0; padding: 8px 8px 8px 12px; background: transparent; }
+.wa-people .wa-people-main > .rolodex-person { border-radius: var(--crm-radius-card, 18px); }
+.wa-people .wa-people-main > .wa-home { margin: -8px -8px -8px -12px; }
+.wa-people .wa-people-main > .rolodex-deck { padding-top: 32px; }
+
+@media (max-width: 760px) {
+  .wa-comms { flex-direction: column-reverse; }
+  .wa-comms .wa-strip { flex-direction: row; justify-content: center; width: auto; margin: 0 6px 6px; padding: 4px; }
+  .wa-comms .wa-strip-btn { flex-direction: row; width: auto; padding: 8px 16px; gap: 6px; font-size: 12px; }
+  .wa-comms .wa-strip-btn > b { position: static; }
+}

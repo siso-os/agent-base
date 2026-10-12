@@ -12,7 +12,7 @@ import type { Agent, OrgProject } from '../lib/agents';
 import type { EntityPageData } from '../lib/org-types';
 import type { TaskSummary } from './widgets/TasksWidget';
 import './ProjectPage.css';
-import { SprintLine, TaskBoard } from './TaskBoard';
+import { SprintLine, TaskBoard } from '../modules/tasks/TaskBoard';
 import { useBoard } from '../lib/board';
 import { useSharedState } from '../lib/poll';
 import type { Org } from '../lib/agents';

@@ -3,6 +3,7 @@ import { readModelSettings, saveModelSettings } from "./model-settings.ts";
 import { CodexChildren, childIdentity, childTools } from "./codex-children.ts";
 import { createRequire } from "node:module";
 import { recordChangesBoundary } from "./changes-checkpoint.ts";
+import { forEachLine } from "./lines.ts";
 /**
  * siso-host: Claude Code through the Agent SDK, inside a herdr pane (Shaan, 2 Oct: "I don't really want stuff to show
  * 1 to 5 seconds late … I would low-key want to own maybe the input box").
@@ -72,6 +73,18 @@ const MODEL = flag("model");
 const REPLAY = flag("replay");
 const RESUME = flag("resume") ?? REPLAY;
 const EFFORT = flag("effort");
+// Lean seat (HARNESS, 12 Oct; Shaan: "Opus 5.5 and Haiku 5.5 is a lethal combo"): Opus thinks, Haiku 5.5 does the bulk.
+// Its sub-agents run Haiku 5.5 (list $0.10/M input against Opus's $5/M) and the seat is told to hand them multi-call reading,
+// searching and command runs. Off unless --lean or AB_LEAN=1, so a running seat changes only when it is relaunched with it.
+// Haiku in front, Opus on call: --advisor claude-opus-5-5 with --model claude-haiku-5-5 gives the seat Claude Code's
+// server-side advisor tool, so the cheap model asks Opus only for the hard calls.
+const ADVISOR = flag("advisor");
+const LEAN = args.includes("--lean") || process.env.AB_LEAN === "1";
+const LEAN_ENV: Record<string, string> = { ANTHROPIC_DEFAULT_HAIKU_MODEL: "claude-haiku-5-5", CLAUDE_CODE_SUBAGENT_MODEL: "claude-haiku-5-5" };
+const LEAN_PROMPT = "Token rule: you are the thinker; Haiku 5.5 is the hands (about 50x cheaper per token than you). For reading, searching "
+  + "or running commands that will take more than two tool calls, dispatch one sub-agent with model haiku, give it a precise "
+  + "question, and ask for a compact answer with file:line evidence; work from its return. Several independent questions go to "
+  + "several sub-agents in one message. Keep judgement, the final edit and the answer to the user yourself.";
 const FIRST = flag("prompt");
 const MODE = flag("permission-mode") as "default" | "acceptEdits" | "bypassPermissions" | "plan" | undefined;
 const PANE = process.env.HERDR_ENV === "1" ? process.env.HERDR_PANE_ID : undefined;
@@ -81,10 +94,10 @@ const TOKEN = randomBytes(18).toString("base64url");
 
 // 3 Oct 00:47: `siso-host --help` run from inside A0's pane started a second host there, and its exit released the pane's
 // agent in herdr, so Agent Zero vanished while alive. Nothing below may report to herdr until these pass.
-const VALUE_FLAGS = ["name", "settings", "model", "replay", "resume", "effort", "prompt", "permission-mode", "account"];
-const BOOL_FLAGS = ["keep-awake", "keep-herdr-env", "no-stack", "chrome", "no-chrome"];
+const VALUE_FLAGS = ["name", "settings", "model", "replay", "resume", "effort", "prompt", "permission-mode", "account", "advisor"];
+const BOOL_FLAGS = ["keep-awake", "keep-herdr-env", "no-stack", "chrome", "no-chrome", "lean"];
 const USAGE = `usage: siso-host [--name N] [--resume ID | --replay ID] [--model M] [--effort E] [--prompt TEXT] [--settings FILE]
-                 [--permission-mode MODE] [--account fuzeheritage|lordsisodia] [--keep-herdr-env] [--no-stack]\n`;
+                 [--permission-mode MODE] [--account fuzeheritage|lordsisodia] [--keep-herdr-env] [--no-stack] [--lean] [--advisor M]\n`;
 for (let i = 0; i < args.length; i++) {
   const a = args[i];
   if (a === "--help" || a === "-h") (process.stdout.write(USAGE), process.exit(0));
@@ -421,7 +434,16 @@ function prompt(text: string, from: 'app'|'pane', images: unknown[] = []) {
  * summary of M tokens". What is sent meanwhile is held by the host (shown queued) and handed to Claude once it is back,
  * so nothing typed during a compaction can fall into it.
  */
-let compacting: { at: number; pct: number | null } | null = null;
+let compacting: { at: number; pct: number | null; manual: boolean } | null = null;
+/**
+ * A compaction someone asked for (/compact, self-compact) ends the turn, and the seat then sat idle with its task
+ * half done (Shaan, 12 Oct: "compacted seats just sit there and don't get told continue their task"). An automatic one
+ * happens inside a turn, which carries on by itself. So after an asked-for compaction, when nothing else is waiting,
+ * the host tells Claude to go on. AB_RESUME_AFTER_COMPACT=0 turns it off.
+ */
+let resumeAfterCompact = false;
+const RESUME_AFTER_COMPACT = process.env.AB_RESUME_AFTER_COMPACT !== "0";
+const RESUME_PROMPT = "Compaction finished. Carry on with the task you were working on, from the summary (the newest entry of .agents/HANDOFF.md has the detail). If nothing was in progress, say so in one line and stop.";
 /** The relay already told this compaction, so the SDK's compact_boundary note would only say it twice. */
 let compactTold = false;
 let lastPostTokens: number | null = null;
@@ -430,8 +452,9 @@ const held: SDKUserMessage[] = [];
 const released = new Set<string>();
 function compactStart(trigger: unknown, sid?: unknown) {
   adoptSession(sid);
-  if (compacting) return;
-  compacting = { at: Date.now(), pct: ctx?.pct ?? null };
+  // The SDK's "compacting" status comes before the PreCompact hook and cannot tell the trigger; the hook can.
+  if (compacting) return void (trigger === "manual" && (compacting.manual = true));
+  compacting = { at: Date.now(), pct: ctx?.pct ?? null, manual: trigger === "manual" };
   compactTold = false;
   lastPostTokens = null;
   const text = `Compacting at ${compacting.pct ?? "?"}%${trigger === "manual" ? " (asked for)" : ""}`;
@@ -442,6 +465,7 @@ function compactStart(trigger: unknown, sid?: unknown) {
 function compactEnd(summaryTokens: number | null, sid?: unknown, failed?: string) {
   adoptSession(sid);
   if (!compacting) return;
+  if (compacting.manual && !failed && RESUME_AFTER_COMPACT) resumeAfterCompact = true;
   compacting = null;
   compactTold = true;
   const text = failed ? `Compaction failed: ${failed}` : `Back, summary of ${kTok(summaryTokens ?? lastPostTokens)} tokens`;
@@ -685,7 +709,7 @@ function sessionExtras(id: string): Extras {
   const dir = process.env.CLAUDE_CONFIG_DIR ?? path.join(homedir(), ".claude");
   try {
     const file = path.join(dir, "projects", process.cwd().replace(/[^A-Za-z0-9]/g, "-"), `${id}.jsonl`);
-    for (const line of readFileSync(file, "utf8").split("\n")) {
+    forEachLine(file, (line) => {
       const u = line.match(/"uuid":"([^"]+)"/)?.[1];
       const ts = line.match(/"timestamp":"([^"]+)"/)?.[1];
       if (u && ts) times.set(u, Date.parse(ts) || 0);
@@ -710,7 +734,7 @@ function sessionExtras(id: string): Extras {
           /* a torn line */
         }
       }
-    }
+    });
   } catch {
     /* no file here (another machine's session): history without times */
   }
@@ -783,7 +807,7 @@ server.on("upgrade", (req, socket, head) => {
   wss.handleUpgrade(req, socket, head, (ws) => {
     clients.add(ws);
     const questionRecovery = REPLAY ? undefined : questions.recoverySnapshot(session);
-    send(ws, { t: "hello", name: NAME, session, model: seatModel, effort: seatEffort, settingsSaved, state, ctx, compacting: !!compacting, child, log, partial: Object.fromEntries(partial), thinking: Object.fromEntries([...thinkingNow].map(([k, v]) => [k, v.text])), tasks: [...tasks.values()], bg: background, queue: queueStore?.snapshot(), capabilities: REPLAY ? undefined : deliveryCaps(), hostInstance: questions.hostInstance, questionCapability: !REPLAY && questionRecovery?.status !== 'unavailable', pendingQuestions: REPLAY ? [] : questions.snapshot(), questionRecovery });
+    send(ws, { t: "hello", name: NAME, session, model: seatModel, effort: shownEffort(), settingsSaved, state, ctx, compacting: !!compacting, child, log, partial: Object.fromEntries(partial), thinking: Object.fromEntries([...thinkingNow].map(([k, v]) => [k, v.text])), tasks: [...tasks.values()], bg: background, queue: queueStore?.snapshot(), capabilities: REPLAY ? undefined : deliveryCaps(), hostInstance: questions.hostInstance, questionCapability: !REPLAY && questionRecovery?.status !== 'unavailable', pendingQuestions: REPLAY ? [] : questions.snapshot(), questionRecovery });
     ws.on("message", (raw) => {
       let m: any;
       try {
@@ -840,7 +864,7 @@ server.on("upgrade", (req, socket, head) => {
 const SWITCH_CATALOG = [
   { id: "claude-opus-5-5[1m]", label: "Claude Opus 5.5 · 1M", description: "Deep work and long sessions", efforts: ["low", "medium", "high", "xhigh", "max"] },
   { id: "claude-sonnet-5-5", label: "Claude Sonnet 5.5", description: "Fast implementation and everyday work", efforts: ["low", "medium", "high", "xhigh", "max"] },
-  { id: "claude-haiku-4-5-20251001", label: "Claude Haiku 4.5", description: "Quick reads and focused tasks", efforts: ["low", "medium", "high", "xhigh", "max"] },
+  { id: "claude-haiku-5-5", label: "Claude Haiku 5.5", description: "Quick reads and focused tasks", efforts: ["low", "medium", "high", "xhigh", "max"] },
 ];
 const SWITCH_MODELS = new Set(SWITCH_CATALOG.map(model => model.id));
 let modelSwitch = Promise.resolve();
@@ -921,6 +945,18 @@ if (RESUME) {
   const saved = readModelSettings(HOSTS_DIR, RESUME);
   seatModel = saved?.model ?? seatModel; seatEffort = saved?.effort ?? seatEffort;
 }
+/** What the seat runs at when nobody set an effort: Claude Code's own order (settings modelSettings[model].effortLevel, then
+ *  effortLevel, then the model's default, medium for Opus 5.5). Shown in the app only, never passed to the SDK, so the
+ *  settings stay in charge. Shaan, 12 Oct: "it doesn't actually show the effort for some reason". */
+function settingsEffort(model: string | null): string | null {
+  try {
+    const dir = process.env.CLAUDE_CONFIG_DIR ?? path.join(homedir(), ".claude");
+    const s = JSON.parse(readFileSync(path.join(dir, "settings.json"), "utf8"));
+    const id = String(model ?? s.model ?? "").replace(/\[.*\]$/, "");
+    return s.modelSettings?.[id]?.effortLevel ?? s.effortLevel ?? (/opus-5/.test(id) ? "medium" : null);
+  } catch { return null; }
+}
+const shownEffort = () => seatEffort ?? settingsEffort(seatModel);
 let rateLimits: SeatLimits | null = null;
 let port = 0;
 const startedAt = Date.now();
@@ -933,7 +969,7 @@ function writeHostFile(extra: Record<string, unknown> = {}) {
   // the node never reads half a file.
   // `apiKeySource` (an SDK label only), `context` and `configDir` are what a service host's reader (node service-hosts.ts) needs.
   const body = {
-    pid: process.pid, runnerPid: Number(process.env.AB_RUNNER_PID) || undefined, port, token: TOKEN, ...childIdentity(), workspaceId: workspaceReceipt?.workspaceId, ...activity?.metadata(), session, pane: PANE ?? null, name: NAME, cwd: process.cwd(), model: seatModel, effort: seatEffort, settingsSaved, startedAt, updatedAt: Date.now(), state, child, compacting: !!compacting, compactingSince: compacting?.at ?? null, ctx,
+    pid: process.pid, runnerPid: Number(process.env.AB_RUNNER_PID) || undefined, port, token: TOKEN, ...childIdentity(), workspaceId: workspaceReceipt?.workspaceId, ...activity?.metadata(), session, pane: PANE ?? null, name: NAME, cwd: process.cwd(), model: seatModel, effort: shownEffort(), settingsSaved, startedAt, updatedAt: Date.now(), state, child, compacting: !!compacting, compactingSince: compacting?.at ?? null, ctx,
     models: SWITCH_CATALOG, rateLimits, apiKeySource, context: ctx ? { used: ctx.used, cap: ctx.window } : null, configDir: process.env.CLAUDE_CONFIG_DIR ?? path.join(homedir(), ".claude"),
     ...(serviceName ? { label: process.env.AB_SERVICE_LABEL ?? `com.siso.${serviceName === "A0" ? "a0-host" : "host-lab"}` } : {}),
   };
@@ -1062,11 +1098,11 @@ function startClaude() {
       ...(CLAUDE_BIN ? { pathToClaudeCodeExecutable: CLAUDE_BIN } : {}),
       settingSources: ["user", "project", "local"],
       ...(SETTINGS ? { settings: path.resolve(SETTINGS) } : {}),
-      ...(NAMED ? { extraArgs: { name: NAMED } } : {}),
+      ...(NAMED || ADVISOR ? { extraArgs: { ...(NAMED ? { name: NAMED } : {}), ...(ADVISOR ? { advisor: ADVISOR } : {}) } } : {}),
       ...(PLUGINS.length ? { plugins: PLUGINS } : {}),
       // Thinking as readable summaries (Shaan, 2 Oct 13:21: "see what's thinking chains"); Opus omits it otherwise.
       thinking: { type: "adaptive", display: "summarized" },
-      systemPrompt: { type: "preset", preset: "claude_code", append: "Use codex_children spawn_codex for full hosted children, and message_codex/codex_status/stop_codex to control them. Their answers are delivered automatically as new input messages." },
+      systemPrompt: { type: "preset", preset: "claude_code", append: "Use codex_children spawn_codex for full hosted children, and message_codex/codex_status/stop_codex to control them. Their answers are delivered automatically as new input messages." + (LEAN ? "\n\n" + LEAN_PROMPT : "") },
       includePartialMessages: true,
       canUseTool,
       // a0-018: compaction told in the chat and held messages kept out of it, in process (no shell hook, no file).
@@ -1082,6 +1118,12 @@ function startClaude() {
   writeHostFile();
 }
 /**
+ * Where a hosted seat auto-compacts unless its launcher or the app's setting says otherwise: 33% of a 1M window,
+ * ~330k. Shaan, 12 Oct: "500k is way too much ... 330k kind of is the sweet spot, and I've made the UI so I can adjust
+ * it". (Was 30%; the run-away early compactions he saw were the context ping's task-boundary ask at >100k, not this.)
+ */
+const COMPACT_PCT = "33";
+/**
  * The child's environment. Every hosted chat auto-compacts at 30% of its window unless its launcher said otherwise
  * (FLEET-COST, 7 Oct; Shaan's brief: "compaction that actually happens at about 30% in every chat"). Only bin/opus-chat
  * set CLAUDE_AUTOCOMPACT_PCT_OVERRIDE before, so chats started any other way ran to 40-82% on 6 Oct, and every call
@@ -1089,7 +1131,8 @@ function startClaude() {
  */
 function childEnv(): NodeJS.ProcessEnv {
   const env = { ...process.env };
-  if (env.CLAUDE_AUTOCOMPACT_PCT_OVERRIDE === undefined) env.CLAUDE_AUTOCOMPACT_PCT_OVERRIDE = "30";
+  if (env.CLAUDE_AUTOCOMPACT_PCT_OVERRIDE === undefined) env.CLAUDE_AUTOCOMPACT_PCT_OVERRIDE = COMPACT_PCT;
+  if (LEAN) for (const [k, v] of Object.entries(LEAN_ENV)) env[k] ??= v; // a launcher's own choice wins
   return env;
 }
 startClaude();
@@ -1320,6 +1363,10 @@ async function drive(): Promise<string> {
       for (const id of released) if (waiting.has(id)) (lifecycle(id, "started"), report("working"));
       released.clear();
       drainNext(); publishQueue();
+      if (resumeAfterCompact) {
+        resumeAfterCompact = false;
+        if (state === "idle" && !inbox.length && !held.length && !waiting.size) prompt(RESUME_PROMPT, "app");
+      }
       refreshCtx();
       void refreshLimits();
       turnOut = 0;

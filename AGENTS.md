@@ -10,7 +10,7 @@ verified, the parts list of what to lift, and the phase 1 plan. The wants and sc
 | | |
 |---|---|
 | Integrating owner | AB-RESEARCH; independent isolated file scopes run in parallel, shared integration through owner acceptance. Read [.agents/HANDOFF.md](.agents/HANDOFF.md), [.agents/TASK-TREE.md](.agents/TASK-TREE.md) and [.agents/OWNER-PLAN.md](.agents/OWNER-PLAN.md) before starting work. Existing owner/builder branches are preserved. |
-| Run the app | `pnpm install && pnpm desktop` builds `apps/desktop/target/release/bundle/macos/Agent Base.app` (it starts the node itself) |
+| Run the app | `pnpm install && pnpm desktop` builds `apps/desktop/target/release/bundle/macos/SISO OS.app` (it starts the node itself) |
 | Run the node | `cd services/node && pnpm start` (port 5401; `AB_HERDR` points it at a lab session for tests) |
 | UI hub | `ui-hub/`: one folder per component (input bar, side nav, Agent Zero's board) with its pictures and its feedback, reasoning, ideas and improvements logs. Read `ui-hub/<component>/README.md` before touching that component's look. View it at `python3 ui-hub/serve.py` → http://127.0.0.1:8896/ |
 | Reusable parts | `packages/` (`@siso/tokens`, `@siso/shell`, `@siso/side-nav`, `@siso/terminal`); read `packages/README.md`. Good new parts go there, with no agent knowledge |

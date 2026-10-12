@@ -1,0 +1,17 @@
+{
+  "name": "@siso/os",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "SISO OS's contract: spaces, module manifests, the registry and the bus modules talk through. No module code, no agent knowledge.",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.0",
+    "react": "^19.2.0"
+  }
+}

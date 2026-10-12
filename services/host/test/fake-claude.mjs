@@ -5,6 +5,7 @@
 //   a message containing HANG     starts a turn that never ends (to kill mid-turn)
 //   a message containing COMPACT  compacts first: PreCompact hook, FAKE_COMPACT_MS of work, PostCompact hook with a
 //                                 summary of FAKE_SUMMARY_TOKENS tokens; FAKE_NEW_SESSION makes the session id change
+//   ... MANUALCOMPACT             the same, as an asked-for compaction (trigger "manual", like /compact)
 //   anything else                 answers "echo: <text>"
 // FAKE_CTX: input tokens each request reports (default 164000, of a 200k window: 82%).
 import { appendFileSync } from "node:fs";
@@ -99,7 +100,8 @@ async function run() {
     }
     if (text.includes("COMPACT")) {
       send({ type: "system", subtype: "status", status: "compacting", ...base() });
-      await hook("PreCompact", { trigger: "auto", custom_instructions: null });
+      const trigger = text.includes("MANUALCOMPACT") ? "manual" : "auto";
+      await hook("PreCompact", { trigger, custom_instructions: null });
       await sleep(Number(process.env.FAKE_COMPACT_MS ?? 1500));
       const pre = ctx;
       if (process.env.FAKE_NEW_SESSION) session = process.env.FAKE_NEW_SESSION;

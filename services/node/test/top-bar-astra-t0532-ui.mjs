@@ -36,10 +36,9 @@ try {
     const head = page.locator('[data-testid="chat-head"]:visible').first();
     if (width >= 700) await head.waitFor();
     await page.waitForTimeout(800);
-    // The actual top-bar + opens Spotlight, not a separate new-tab modal.
-    const plus = page.getByRole('button', { name: 'New tab · ⌘T', exact: true });
-    await plus.click();
+    // ⌘K opens Spotlight; + no longer does (Shaan, 12 Oct: "the new tab pop up ... it's so jarring": + is a blank web tab).
     const dialog = page.getByRole('dialog', { name: 'Spotlight' });
+    await page.keyboard.press('Meta+k');
     await dialog.waitFor();
     await page.screenshot({ path: path.join(shots, `palette-${width}.png`) });
     const r = await dialog.boundingBox();
@@ -47,16 +46,18 @@ try {
     await page.mouse.click(outside.x, outside.y);
     await dialog.waitFor({ state: 'hidden' });
     assert.equal(await page.locator('.wp-dialog [role="option"]').count(), 0, 'closed palette has no result rows');
-    await plus.focus();
-    await page.keyboard.press('Enter');
+    await page.keyboard.press('Meta+k');
     await dialog.waitFor();
     await page.keyboard.press('Escape');
     await dialog.waitFor({ state: 'hidden' });
-    assert.equal(await plus.evaluate(el => document.activeElement === el), true, 'dismissal restores the + button');
+    // + is a blank web tab, its address bar focused, and Spotlight stays shut.
+    await page.getByRole('button', { name: 'New tab · ⌘T', exact: true }).click();
+    await page.waitForFunction(() => document.activeElement?.tagName === 'INPUT' && !document.activeElement.classList.contains('wp-search'));
+    assert.equal(await dialog.isVisible(), false, '+ does not open Spotlight');
     await page.screenshot({ path: path.join(shots, `dismissed-${width}.png`) });
     assert.deepEqual(errors, []);
     results.push({ width });
     await page.close();
   }
-  console.log('PASS t-0532 + dismissal at desktop and phone sizes', JSON.stringify(results));
+  console.log('PASS t-0532 Spotlight dismissal (⌘K) and + as a blank tab at desktop and phone sizes', JSON.stringify(results));
 } finally { await browser?.close(); await server?.close(); }

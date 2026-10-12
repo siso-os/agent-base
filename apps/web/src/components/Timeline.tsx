@@ -7,7 +7,7 @@ import type { Agent, Page } from "../lib/agents";
 import { every } from "../lib/poll";
 import { Fold } from "./PanelFold";
 import { fmtTokens } from "./SubagentRow";
-import { TasksPage as TaskBoard } from "./TasksPage";
+import { TasksPage as TaskBoard } from "../modules/tasks/TasksPage";
 import { TimelineDisclosure } from "./timeline/TimelineDisclosure";
 import "./Timeline.css";
 export type TlFilter = "all" | "you" | "subagents" | "tasks" | "pages";

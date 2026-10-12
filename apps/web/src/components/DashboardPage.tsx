@@ -9,7 +9,7 @@ import { isOpenTask, sortTasks, type TaskSummary } from "./widgets/TasksWidget";
 import { HubPage, Widget, WidgetGrid } from "./page/HubPage";
 import { Ring } from "./page/Figures";
 import type { TopPage } from "./TopNav";
-import type { Tokens } from "./TokensSpace";
+import type { Tokens } from "../modules/estate/TokensSpace";
 import "./DashboardPage.css";
 
 type Machine = { key: string; name: string; here?: boolean; health: { level: string; at: number | null; source?: string; cpus: number | null; load: number[] | null; why?: string[] } };

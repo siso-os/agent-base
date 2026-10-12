@@ -11,6 +11,8 @@ import { ComposerHud, ContextPopover } from "../../../../packages/siso-composer/
 import type { MoveStatus, MoveTarget } from "../../../../services/node/src/move";
 import { ContextBreakdown, ContextGauge, contextSegments, levelOf, noteCompaction, type Mix, type MixStatus } from "./ContextCard";
 import "./Hud.css";
+import { SpendChip } from "./SpendChip";
+import { Boundary } from "./Boundary";
 
 /** What the agent's chat says is running (ChatView announces it): sub-agents running / started, background jobs. */
 function useActivity(agentId: string) {
@@ -121,7 +123,7 @@ export function ModelChip({ a, model, move }: { a: Agent; model: string | null; 
  */
 export function Hud({ a, crew = [], onOpenCrew, variant = "strip", model }: { a: Agent; crew?: Agent[]; onOpenCrew: (agent: Agent) => void; variant?: "strip" | "rim"; model?: HudMove }) {
   const h = a.hud;
-  const compactAt = a.compactAt ?? (a.tool === 'codex' ? 75 : 35);
+  const compactAt = a.compactAt ?? (a.tool === 'codex' ? 75 : 33);
   const onCompactAt = a.compactAt !== undefined && a.tool !== 'codex' ? async (pct: number) => {
     const response = await fetch(`/api/agents/${encodeURIComponent(a.name)}/compact-at`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ pct }) });
     const result = await response.json();
@@ -155,7 +157,7 @@ export function Hud({ a, crew = [], onOpenCrew, variant = "strip", model }: { a:
     return <ComposerHud
       identity={<ModelChip a={a} model={h?.model ?? null} move={model}/>}
       context={<ContextPopover key={`${a.id}:${a.session}`} value={h?.context ?? null} open={ctxOpen} onOpenChange={setCtxOpen} title={gauge} segments={contextSegments(mix)} compactAt={compactAt} onCompactAt={onCompactAt} compactReadOnlyReason={compactReadOnlyReason}><ContextBreakdown agentId={a.id} status={mixStatus} compact={compact}>{chatLine}</ContextBreakdown></ContextPopover>}
-      usage={<ProviderUsageMeters now={now} session={a.tool !== "codex" ? { accountId: h?.accountId ?? null, fiveHour: h?.fiveHour ?? null, week: h?.week ?? null, at: h?.at ?? null, limitsAt: h?.limitsAt, limitsStale: h?.limitsStale } : null}/>}
+      usage={<><ProviderUsageMeters now={now} session={a.tool !== "codex" ? { accountId: h?.accountId ?? null, fiveHour: h?.fiveHour ?? null, week: h?.week ?? null, at: h?.at ?? null, limitsAt: h?.limitsAt, limitsStale: h?.limitsStale } : null}/>{/* SISO OS §6: today's spend moved here from the top bar. */}<Boundary name="Today's spend" kind="inline"><SpendChip compact /></Boundary></>}
       /* No ↑ ↓ tokens or cache % in the bar (Shaan, 6 Oct 21:00: "the cache rate ... doesn't need to be there"); they stay in the ctx card. */
       rate={h?.tokensPerSecond != null && Number.isFinite(h.tokensPerSecond) && <span className="ab-hud__tok ab-hud__rate" data-testid="hud-rate" title={`This agent's last reported output rate${h.at ? ` · read ${ago(h.at)}` : ""}; worker rates are in the faces pill`}>{h.tokensPerSecond.toFixed(1)} tok/s</span>}
       activity={<SubagentsPopover agent={a} total={total} running={running} crew={crew} onOpenCrew={onOpenCrew} shells={act?.shells ?? []}/>}
@@ -185,6 +187,7 @@ export function Hud({ a, crew = [], onOpenCrew, variant = "strip", model }: { a:
   const right = (
     <>
       <ProviderUsageMeters now={now} session={a.tool !== "codex" ? { accountId: h?.accountId ?? null, fiveHour: h?.fiveHour ?? null, week: h?.week ?? null, at: h?.at ?? null, limitsAt: h?.limitsAt, limitsStale: h?.limitsStale } : null}/>
+      <Boundary name="Today's spend" kind="inline"><SpendChip compact /></Boundary>
       <SubagentsPopover agent={a} total={total} running={running} crew={crew} onOpenCrew={onOpenCrew} shells={act?.shells ?? []} />
       <DevPill />
     </>

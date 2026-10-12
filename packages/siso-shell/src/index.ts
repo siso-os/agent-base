@@ -14,3 +14,4 @@ export { CHAT_DRAG, PAGE_DRAG, TAB_DRAG, TopTabs, type TopTab } from "./TopTabs"
 export { AllTabsMenu } from "./AllTabsMenu";
 export { matchTabs } from "./tab-search";
 export { HaloRim, type HaloRimState } from "./halo-rim/HaloRim";
+export { SpacesRail, type RailSpaceSlot } from "./SpacesRail";

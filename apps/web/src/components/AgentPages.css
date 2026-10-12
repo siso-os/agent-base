@@ -1,0 +1,19 @@
+.ab-agent-pages { display: flex; align-items: center; gap: 6px; flex: none; margin-right: 4px; }
+.ab-agent-pages__chip {
+  display: flex; align-items: center; height: 28px; border-radius: 8px;
+  border: 1px solid rgb(var(--crm-white-rgb) / 0.08); background: rgb(var(--crm-white-rgb) / 0.03);
+}
+.ab-agent-pages__chip[data-current="1"] { border-color: rgb(var(--crm-brand-rgb, 255 106 26) / 0.55); background: rgb(var(--crm-brand-rgb, 255 106 26) / 0.1); }
+.ab-agent-pages__name {
+  display: flex; align-items: center; gap: 6px; height: 100%; padding: 0 6px 0 7px; max-width: 150px;
+  font-size: 12px; color: rgb(var(--crm-white-rgb) / 0.82); border-radius: 8px 0 0 8px;
+}
+.ab-agent-pages__name > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ab-agent-pages__name:hover, .ab-agent-pages__more:hover { background: rgb(var(--crm-white-rgb) / 0.06); color: var(--crm-color-text-strong); }
+.ab-agent-pages__more {
+  display: flex; align-items: center; gap: 2px; height: 100%; padding: 0 5px 0 6px; border-radius: 0 8px 8px 0;
+  border-left: 1px solid rgb(var(--crm-white-rgb) / 0.08); color: rgb(var(--crm-white-rgb) / 0.6); font-size: 11px;
+}
+.ab-agent-pages__more svg { width: 13px; height: 13px; }
+.ab-agent-pages__count { font-variant-numeric: tabular-nums; }
+.ab-agent-pages__chip > span { height: 100%; }

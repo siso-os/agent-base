@@ -420,3 +420,6 @@ button.ab-rail__row:hover { background: rgb(var(--crm-white-rgb) / 0.04); }
 .ab-drill__body:has(> .ab-board) { display: flex; flex-direction: column; overflow: hidden; }
 .ab-board__item summary > span { display: flex; justify-content: space-between; gap: 10px; }
 .ab-board__item summary i { flex: none; color: var(--crm-color-text-muted); font: 10px var(--crm-font-mono); opacity: .55; }
+/* Shaan, 10 Oct: the panel sits level with the main card, under the top bar: same top line, same 8px foot and edge as
+   .siso-app__frame. */
+@media (min-width:641px){.siso-app__side .ab-panel{padding:0 8px 8px 0}}

@@ -26,7 +26,7 @@ export const TAB_DRAG = "application/x-siso-tab";
 export const CHAT_DRAG = "application/x-siso-chat";
 
 export type TopTab =
-  | { kind: "chat" | "page"; id: string; label: string; title?: string; actions?: ReactNode; drag?: string; icon?: ReactNode; close?: () => void; reorder?: boolean; dragType?: string }
+  | { kind: "chat" | "page"; id: string; label: string; title?: string; actions?: ReactNode; drag?: string; icon?: ReactNode; close?: () => void; reorder?: boolean; dragType?: string; colour?: string; pin?: boolean; needs?: boolean }
   | { kind: "gap"; id: string };
 type RealTab = Exclude<TopTab, { kind: "gap" }>;
 
@@ -163,8 +163,10 @@ export function TopTabs({
               t.kind === "chat" && "is-chat",
               t.close && "can-close",
               drop?.id === t.id && (drop.after ? "is-drop-after" : "is-drop-before"),
+              t.needs && "is-needs",
             )}
             data-tab={t.id}
+            style={t.colour ? { "--tab-colour": t.colour } as React.CSSProperties : undefined}
             draggable={!!t.drag || !!t.reorder}
             onDragStart={(e: DragEvent) => {
               if (!t.drag && !t.reorder) return;
@@ -176,7 +178,7 @@ export function TopTabs({
             onDragOver={(e) => over(e, t)}
             onClick={() => onSelect(t.id)}
             onAuxClick={(e) => {
-              if (e.button === 1 && t.close) {
+              if (e.button === 1 && t.close && !t.pin) {
                 e.preventDefault();
                 t.close();
               }

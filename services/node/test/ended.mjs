@@ -113,19 +113,18 @@ try {
   check("4. /ended/:id/ws sends its chat (hello, source ended) and types nothing into any pane",
     hello.t === "hello" && hello.source === "ended" && JSON.stringify(hello.log).includes("WORKER-X SAID HI") && typed.length === 0, { t: hello.t, source: hello.source, typed });
 
-  // 5. The side nav footer opens the Ended page; a row opens the chat read-only (no composer).
+  // 5. The Ended page (off the side nav since 10 Oct, in ⌘K; here opened by its saved place) lists WORKER-X; a row opens
+  // the chat read-only (no composer).
   browser = await webkit.launch();
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
   const errors = [];
   page.on("pageerror", (e) => errors.push(e.message));
-  await page.goto(BASE);
-  const shelf = page.getByTestId("ended-open");
-  await shelf.waitFor({ timeout: 20000 });
-  const folded = (await page.locator("[data-testid=ended-row]").count()) === 0;
-  await shelf.click();
+  await page.goto(`${BASE}/#at=${encodeURIComponent(JSON.stringify({ s: "agents", v: { kind: "tab", id: "ended-list" }, a: null, o: null }))}`);
+  await page.locator(".siso-app__rail").waitFor({ timeout: 20000 });
+  const folded = (await page.getByTestId("ended-open").count()) === 0;
   const row = page.locator('[data-testid=ended-row][data-name="WORKER-X"]');
   await row.waitFor({ timeout: 5000 });
-  check("5. the Ended footer keeps history off the nav and opens to WORKER-X", folded && (await row.count()) === 1, { folded });
+  check("5. no Ended line on the nav; the Ended page lists WORKER-X", folded && (await row.count()) === 1, { folded });
   await row.click();
   const chat = page.locator("[data-testid=ended-chat]");
   await chat.getByText("WORKER-X SAID HI").waitFor({ timeout: 8000 });

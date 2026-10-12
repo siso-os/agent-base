@@ -60,9 +60,10 @@ test("Agent Zero Now isolates sources, caches reads and exposes bounded actionab
       assert.ok(body.today.data.every((e, i, a) => !i || a[i - 1].at >= e.at));
       await codexLanes(process.env.AB_A0NOW_LANES_CMD); assert.equal(counts().LANES, 1, "full page and Now reuse the lane runner");
     });
-    await t.test("each source keeps its own 10s / 60s / 10min cache", async () => {
+    await t.test("each source keeps its own 10s / 60s / 5min / 10min cache", async () => {
       now += 10_000; await get(); const ten = counts(); assert.equal(ten.LANES, 2); assert.equal(ten.NEEDS, 2); assert.equal(ten.SHIP, 2); assert.equal(ten.STACK, 1); assert.equal(ten.RENEWALS, 1);
-      now += 60_000; await get(); assert.equal(counts().STACK, 2); assert.equal(counts().BUDGET, 2); assert.equal(counts().RENEWALS, 1);
+      now += 60_000; await get(); assert.equal(counts().STACK, 1, "stack-doctor runs at most every 5 min (t-0586)"); assert.equal(counts().BUDGET, 2); assert.equal(counts().RENEWALS, 1);
+      now += 240_000; await get(); assert.equal(counts().STACK, 2);
       now += 600_000; await get(); assert.equal(counts().RENEWALS, 2);
     });
     await t.test("one corrupt source never blanks any of the other sources", async () => {
@@ -73,10 +74,13 @@ test("Agent Zero Now isolates sources, caches reads and exposes bounded actionab
         assert.ok(Array.isArray(body.today.data)); configure(key, { data: fixtures[key] }); now += 600_000; await get();
       }
     });
-    await t.test("timeout is bounded and preserves the usable blocks", async () => {
+    await t.test("a slow source answers with its last reading at once; the page never waits on it", async () => {
       configure("STACK", { mode: "timeout" }); now += 600_000;
       const started = performance.now(), body = await get();
-      assert.ok(performance.now() - started < 12_000); assert.equal(body.stack.data, null); assert.equal(body.lanes.error, null); assert.equal(body.ship.error, null);
+      assert.ok(performance.now() - started < 2_000, `a0/now waited ${Math.round(performance.now() - started)} ms on a hung source`);
+      assert.deepEqual(body.stack.data, fixtures.STACK, "the last good stack reading answers"); assert.equal(body.lanes.error, null); assert.equal(body.ship.error, null);
+      await new Promise((resolve) => setTimeout(resolve, 10_500));
+      const after = await get(); assert.equal(after.stack.data, null, "once the hung read times out, the page says so"); assert.match(after.stack.error, /unavailable/);
       configure("STACK", { data: fixtures.STACK });
     });
     await t.test("observed lane/item transitions appear once; old or queued events do not pretend to be today", async () => {

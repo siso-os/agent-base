@@ -69,7 +69,7 @@ try {
     // The rail icon opens straight to the board (at 390 the rail is in the closed drawer).
     if (width < 700) await page.evaluate(() => { location.hash = '#project/agent-base'; });
     else {
-      const rail = page.getByRole('button', { name: /^Agent Base: /, exact: false });
+      const rail = page.getByRole('button', { name: /^Tasks/, exact: false });
       await rail.hover();
       const peek = page.getByTestId('agent-base-peek');
       await peek.getByText('t-0567').waitFor();

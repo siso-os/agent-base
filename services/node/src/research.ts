@@ -13,14 +13,17 @@ export type ResearchFleet = { name: string; created: string; finished: string | 
 export type ResearchTopic = { id: string; title: string; updated: number; preview: string; markdown: string | null; error: string | null; fleets: string[] };
 export type Research = { fleets: Block<ResearchFleet[]>; topics: Block<ResearchTopic[]> };
 const run = promisify(execFile);
+// t-0586 (10 Oct): `fleet status --json` is a Python run that asks the mini over ssh (~4 s); the app polls this every 10 s,
+// so it was alive a third of every minute on the laptop. Research jobs run for minutes: one reading a minute is plenty.
+const FLEETS_MS = 60_000;
 const cache = new Map<string, { block?: Block<unknown>; pending?: Promise<Block<unknown>> }>();
 const safeName = (name: unknown): name is string => typeof name === 'string' && !!name && name !== '.' && name !== '..' && !/[\/\\\0]/.test(name);
 const inside = (root: string, file: string) => file.startsWith(root + path.sep);
 
-async function source<T>(key: string, read: () => Promise<T>): Promise<Block<T>> {
+async function source<T>(key: string, read: () => Promise<T>, ttl = 10_000): Promise<Block<T>> {
   let entry = cache.get(key);
   if (!entry) cache.set(key, (entry = {}));
-  if (entry.block && Date.now() - entry.block.at < 10_000) return entry.block as Block<T>;
+  if (entry.block && Date.now() - entry.block.at < ttl) return entry.block as Block<T>;
   const current = entry;
   const fresh = current.pending ??= (async () => {
     let timer: ReturnType<typeof setTimeout> | undefined;
@@ -138,7 +141,7 @@ async function readTopics(): Promise<ResearchTopic[]> {
 }
 
 export async function research(): Promise<Research> {
-  const [fleets, topics] = await Promise.all([source('fleets', readFleets), source('topics', readTopics)]);
+  const [fleets, topics] = await Promise.all([source('fleets', readFleets, FLEETS_MS), source('topics', readTopics)]);
   const root = process.env.AB_RESEARCH_ROOT ?? path.join(os.homedir(), 'SISO_Workspace/SISO_Agents/agent-zero/siso-agent-zero/.agents/a0/research');
   return { fleets, topics: { ...topics, data: topics.data?.map((t) => ({ ...t, fleets: (fleets.data ?? []).filter((f) => f.topic && path.resolve(f.topic) === path.resolve(root, t.id)).map((f) => f.name) })) ?? null } };
 }

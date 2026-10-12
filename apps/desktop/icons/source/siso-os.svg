@@ -1,0 +1,17 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <!-- SISO OS: one tile, the three spaces lit inside it (Agent Base teal, App Factory blue, Agency orange). macOS grid: 824 px tile, 100 px inset. -->
+  <defs>
+    <linearGradient id="tile" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1b1b1f"/><stop offset="1" stop-color="#0a0a0b"/></linearGradient>
+    <linearGradient id="rim" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity="0.16"/><stop offset="1" stop-color="#ffffff" stop-opacity="0.03"/></linearGradient>
+    <radialGradient id="halo" cx="0.5" cy="0.52" r="0.5"><stop offset="0" stop-color="#3b82f6" stop-opacity="0.22"/><stop offset="1" stop-color="#3b82f6" stop-opacity="0"/></radialGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="18" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  <rect x="100" y="100" width="824" height="824" rx="185" fill="url(#tile)"/>
+  <rect x="101.5" y="101.5" width="821" height="821" rx="184" fill="none" stroke="url(#rim)" stroke-width="3"/>
+  <circle cx="512" cy="530" r="330" fill="url(#halo)"/>
+  <g filter="url(#glow)">
+    <rect x="296" y="300" width="190" height="190" rx="48" fill="#22d3ee"/>
+    <rect x="538" y="300" width="190" height="190" rx="48" fill="#3b82f6"/>
+    <rect x="417" y="542" width="190" height="190" rx="48" fill="#FFA726"/>
+  </g>
+</svg>
