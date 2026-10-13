@@ -14,6 +14,11 @@ import { migrateAgentPins, needsPinRows, projectAgentPins, type PinRow } from ".
 import type { Route } from "./registry.ts";
 import type { HttpRuntime } from "../server.ts";
 
+/** ~/.local/state/agent-base/t3-seats.json: {NAME: {session, cwd, at}}, written by seat-to-t3. */
+function t3Seats(): Record<string, { session: string; cwd: string }> {
+  try { return JSON.parse(readFileSync(path.join(homedir(), ".local/state/agent-base/t3-seats.json"), "utf8")); } catch { return {}; }
+}
+
 export function directoryRoutes(runtime: Pick<HttpRuntime, "ALLOWED_ORIGINS" | "HERDR" | "MACHINE" | "MACHINE_KEY" | "addProject" | "json" | "listAgents" | "liveOrg" | "placeNew" | "readBody" | "registry" | "registryStore" | "saveRegistry">): Route {
   return {
     method: null,
@@ -91,7 +96,15 @@ export function directoryRoutes(runtime: Pick<HttpRuntime, "ALLOWED_ORIGINS" | "
         }
         if (migrateAgentPins(registry, identities, () => `pin-${randomUUID()}`)) saveRegistry();
         const projected = projectAgentPins(registry, navigation, identities);
-        return json(res, 200, { ...projected, projects: projects(), domains: projects(), workspaces: registry.workspaces, pinnedPages: registry.pinnedPages, recentPages: registry.recentPages, at: Date.now() });
+        // Seats handed to SISO Code (T3 on :5490; siso-agent-zero bin/seat-to-t3): their siso-host has stopped, so no row
+        // comes from the hosts. One row each, row "t3", so SISO Code's tree keeps them and opens their conversation there;
+        // Agent Base's own nav shows live rows only and leaves them out. Shaan, 14 Oct: "the agents are running on T3 code".
+        const live = new Set(projected.agents.filter((a) => a.row === "live").map((a) => a.name));
+        const t3 = Object.entries(t3Seats()).filter(([name]) => !live.has(name)).map(([name, seat]) => {
+          const entry = (registry.agents as Record<string, { workspace?: string; project?: string; main?: boolean } | undefined>)[name];
+          return { id: `t3:${name}`, name, row: "t3", status: "idle", navOwner: true, main: entry?.main ?? true, workspace: entry?.workspace ?? null, project: entry?.project ?? null, cwd: seat.cwd, session: seat.session, machine: MACHINE, machineKey: MACHINE_KEY };
+        });
+        return json(res, 200, { ...projected, agents: [...projected.agents, ...(t3 as never[])], projects: projects(), domains: projects(), workspaces: registry.workspaces, pinnedPages: registry.pinnedPages, recentPages: registry.recentPages, at: Date.now() });
       }
       if (url.pathname.startsWith("/api/codex-workers/") && req.method === "GET") {
         const worker = codexWorkers().find(w => w.id === url.pathname.slice("/api/codex-workers/".length));

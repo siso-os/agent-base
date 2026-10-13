@@ -1544,6 +1544,7 @@ const HTTP_ROUTES = builtinRoutes({
   get zeroStarting() { return zeroStarting; },
   set zeroStarting(value) { zeroStarting = value; },
 });
+const SISO_CODE_ORIGINS = new Set(["http://127.0.0.1:5490", "http://localhost:5490"]);
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url ?? "/", "http://node");
   inFlight.set(req, Date.now());
@@ -1554,6 +1555,8 @@ const server = http.createServer(async (req, res) => {
     const origin = String(req.headers.origin ?? "");
     if (url.pathname.startsWith("/api/") && ["POST", "PUT", "PATCH", "DELETE"].includes(req.method ?? "") && origin && !ALLOWED_ORIGINS.has(origin))
       return json(res, 403, { error: "not this app" });
+    // SISO Code (T3 on :5490) draws the org tree natively and reads the agents from here (Shaan, 14 Oct); reads only.
+    if (SISO_CODE_ORIGINS.has(origin) && (req.method === "GET" || req.method === "HEAD")) res.setHeader("Access-Control-Allow-Origin", origin);
     if (await dispatchRoute(HTTP_ROUTES, req, res, url.pathname, url)) return;
     if (await dispatchRoute(ROUTES, req, res, url.pathname)) return;
     json(res, 404, { error: "not found" });
