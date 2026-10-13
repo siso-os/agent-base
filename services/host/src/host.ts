@@ -1142,9 +1142,23 @@ const COMPACT_PCT = "33";
  * set CLAUDE_AUTOCOMPACT_PCT_OVERRIDE before, so chats started any other way ran to 40-82% on 6 Oct, and every call
  * re-reads the whole context (OPERATOR-UI averaged 394k per call). An explicit value, "" included, still wins.
  */
+/**
+ * Sub-agents compact at 100k (Haiku 5.5's 200k window at 50%, and where its price tier doubles). Shaan, 13 Oct: "Haiku
+ * subagent should be set to 100k auto compact always because it's much cheaper". One percentage covers the seat and its
+ * sub-agents (they compacted at 33% of 200k, ~66k), so the seat's own point moves into the window instead: 50% of a window
+ * of (seat window x its percentage / 50). Claude Code caps that window at each model's own, so a 200k sub-agent compacts at
+ * 100k and the seat where its percentage said (33% of 1M = 50% of 660k = 330k; checked with /context, 13 Oct).
+ */
+const SUB_PCT = 50;
 function childEnv(): NodeJS.ProcessEnv {
   const env = { ...process.env };
   if (env.CLAUDE_AUTOCOMPACT_PCT_OVERRIDE === undefined) env.CLAUDE_AUTOCOMPACT_PCT_OVERRIDE = COMPACT_PCT;
+  const pct = Number(env.CLAUDE_AUTOCOMPACT_PCT_OVERRIDE);
+  if (pct > 0 && pct < SUB_PCT && env.CLAUDE_CODE_AUTO_COMPACT_WINDOW === undefined) {
+    const seatWindow = /\[1m\]/i.test(seatModel ?? "") ? 1_000_000 : 200_000;
+    env.CLAUDE_CODE_AUTO_COMPACT_WINDOW = String(Math.round((seatWindow * pct) / SUB_PCT));
+    env.CLAUDE_AUTOCOMPACT_PCT_OVERRIDE = String(SUB_PCT);
+  }
   if (LEAN) for (const [k, v] of Object.entries(LEAN_ENV)) env[k] ??= v; // a launcher's own choice wins
   return env;
 }

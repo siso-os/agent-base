@@ -54,7 +54,7 @@ try {
         assert.equal((await pill.locator('b').textContent())?.trim(), 'v1', 'just the version number (the fixture is release 1)');
         assert.match(await pill.getAttribute('title'), /recorded deployment/i, 'the hover still says what the number is');
         assert.equal(await head.getByRole('button', { name: /Space/ }).count(), 0, 'no Space button in the chat header (item 10)');
-        await page.getByRole('button', { name: 'More views' }).click();
+        await page.getByRole('button', { name: 'Views' }).click();
         assert.ok(await page.getByRole('menuitem', { name: /Space · ⌘⇧S/ }).isVisible(), 'Space is in the three dots');
         await page.keyboard.press('Escape');
         // Item 3: open STREAMING, its arrow lists the fleet, a click swaps to OPERATOR-UI, whose arrow shows the same fleet.

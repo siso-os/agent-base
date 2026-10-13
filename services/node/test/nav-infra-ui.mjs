@@ -51,7 +51,9 @@ try {
     // its row; a click opens the three rows under it. Nothing is left at the bottom, and the header sits in the same card.
     const card = page.getByTestId('nav-card');
     assert.equal(await card.getByTestId('nav-infra').count(), 1, 'the folder is inside the nav card');
-    assert.equal(await card.locator('.siso-headstack').count(), 1, 'Agent Base, its menu and the dashboard icon are in the card');
+    assert.equal(await page.getByTestId('siso-os-brand').count(), 1, 'SISO OS, its mark and version sit in the shell top bar');
+    assert.equal(await card.locator('.siso-zero .siso-zero__views').count(), 1, 'the views menu and the dashboard icon are under Agent Zero');
+    assert.equal(await card.locator('.ab-workspaces [data-testid="nav-infra"]').count(), 1, 'Agent Infrastructure is a branch of Agent Zero');
     assert.equal(await page.locator('.siso-nav-footer').count(), 0, 'no bottom slot');
     assert.deepEqual(await bar.locator('.ab-infra-branch__faces [data-role]').evaluateAll(xs => xs.map(x => x.getAttribute('data-role'))), ROLES, 'three stacked faces, in order');
     await page.getByTestId('infra-entry').click();

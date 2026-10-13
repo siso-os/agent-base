@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import type { SpaceId } from "@siso/os";
 import { LivingIcon, WorkspaceMark } from "../../../../packages/halo-face/living-assets";
-import { FactoryIcon, type LucideIcon } from "lucide-react";
+import { CodeXmlIcon, FactoryIcon, type LucideIcon } from "lucide-react";
 import type { AppSpace } from "../App";
 import { registry } from "./registry";
 
@@ -13,7 +13,7 @@ export const SPACE_MARK: Record<SpaceId, (size: number) => ReactNode> = {
 };
 
 /** Rail icons by a manifest's `icon` name, for modules the shell draws generically (URL modules). */
-export const MODULE_ICON: Record<string, LucideIcon> = { "app-factory": FactoryIcon };
+export const MODULE_ICON: Record<string, LucideIcon> = { "app-factory": FactoryIcon, "siso-code": CodeXmlIcon };
 
 /**
  * Map an app space to its SISO OS space, or null if it doesn't move the rail

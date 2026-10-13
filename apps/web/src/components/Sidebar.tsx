@@ -5,7 +5,6 @@ import { useLive } from "../lib/chatLive";
 import {
   AlarmClockOffIcon,
   MoonIcon,
-  BotIcon,
   Building2Icon,
   CheckIcon,
   ChevronDownIcon,
@@ -42,8 +41,6 @@ import {
 } from "@siso/side-nav";
 import { Fragment, useMemo, useRef, useState, useCallback, useLayoutEffect, type ReactNode, type CSSProperties, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { VersionPill } from "./WhatsNew";
-import { Boundary } from "./Boundary";
 import { runningResearch } from "../lib/delight";
 import type { Research, ResearchSelection } from "../../../../services/node/src/research";
 import { fmtDuration } from "../lib/chat";
@@ -191,6 +188,8 @@ export function Sidebar(props: {
   onOpenResearch?: (selection: ResearchSelection) => void;
   /** When true, return only the org card (HaloRim) without the full side nav. */
   cardOnly?: boolean;
+  /** SISO Code's frame (App's ?embed=nav): the tree only, no header, no Agents list. */
+  embed?: boolean;
 }) {
   const { agents, domains, error, activeId, onOpen, onAct, onEdit } = props;
   const [menuFor, setMenuFor] = useState<string | null>(null);
@@ -617,6 +616,13 @@ export function Sidebar(props: {
         {l.zero && (
           <div className="siso-zero">
             {zeroRow(l.zero)}
+            {/* Shaan, 13 Oct: the views dropdown goes "under agent 0"; the name and version moved up to the shell as SISO OS. */}
+            {!props.embed && <div className="siso-zero__views">
+              <MenuButton label="Views" align="left" menuClassName="siso-rail-menu" className="siso-zero__views-menu" items={props.views ?? []}>
+                <span>Views</span><ChevronDownIcon size={13} className="opacity-60" />
+              </MenuButton>
+              <button type="button" className="siso-headstack__dash" data-testid="nav-dashboard" aria-label="Dashboard" title="Dashboard" onClick={props.onDashboard}><LayoutGridIcon size={14} /></button>
+            </div>}
             {saying && props.onSay && <SayNew onSay={async (words, choice) => {
               const r = await props.onSay!(addingOwner ? `Start a long-running owner in the ${addingOwner.name} workspace: ${words}` : words, choice);
               if (addingOwner && r.name && !r.error) {
@@ -627,15 +633,17 @@ export function Sidebar(props: {
             }} onAskZero={props.onAskZero} onClose={() => { setSaying(false); setAddingOwner(null); }} />}
           </div>
         )}
+    {/* Shaan, 13 Oct: Agent Infrastructure "should be moved into the actual tree under agent zero, probably below playground". */}
     <WorkspaceNav workspaces={props.workspaces ?? []} agents={agents ?? []} activeId={activeId} onOpen={onOpen} onWorkspace={props.onWorkspace} onFleet={props.onFleet} onAdd={w => { setAddingOwner(w); setSaying(true); }}
+      tail={!a0Mode && props.org && props.org.bottom.length > 0 ? <InfraGroup trio={props.org.bottom} agents={agents ?? []} activeId={activeId} onOpen={onOpen} /> : null}
       card={(a, node) => <AgentHoverCard agent={hoverAgent(a, hub)} edit={cardEdit(a, onEdit)} row extra={cardExtra(a)}>{node}</AgentHoverCard>} />
     {/* SISO OS §7 (t-0599): SISO Family is a branch of Agent Zero's tree; Agents sits below it, its own face and lines, not joined. */}
     {!a0Mode && props.org?.groups.filter(g => g.id === "family").map(g => (
       <OrgGroupBlock key={g.id} branch g={g} strays={strays?.byProject} agents={agents ?? []} needs={props.needs} teamOf={teamOf} row={row} onOpen={onOpen} onOrg={props.onOrg} onStart={props.onStart} onPage={props.onPage} onPinboard={props.onPinboard} onReorder={props.onReorder} />
     ))}
-    <AgentsGroup agents={agents ?? []} stateOf={stateOf} onOpen={onOpen} needs={props.needs} activeId={activeId} openByDefault={loose.length > 0}
-      card={(a, node) => <AgentHoverCard agent={hoverAgent(a, hub)} edit={cardEdit(a, onEdit)} row extra={cardExtra(a)}>{node}</AgentHoverCard>} />
-    {!a0Mode && props.org && props.org.bottom.length > 0 && <InfraGroup trio={props.org.bottom} agents={agents ?? []} activeId={activeId} onOpen={onOpen} />}
+    {/* In SISO Code the Agents list is T3's own threads (Shaan, 13 Oct: "you can get rid of the agents drop down"). */}
+    {!props.embed && <AgentsGroup agents={agents ?? []} stateOf={stateOf} onOpen={onOpen} needs={props.needs} activeId={activeId} openByDefault={loose.length > 0}
+      card={(a, node) => <AgentHoverCard agent={hoverAgent(a, hub)} edit={cardEdit(a, onEdit)} row extra={cardExtra(a)}>{node}</AgentHoverCard>} />}
       </TreeLines>
   );
   const card = (
@@ -659,30 +667,6 @@ export function Sidebar(props: {
       {/* Shaan, 12 Oct: "wrap the whole side nav in that neon card even the agent base up top with the drop nav and the
           dashboard icon so it's a bit more like the voice tab and the whatsapp one and it's slightly more lit up". */}
       <HaloRim className="ab-workspace-panel ab-nav-card" data-testid="nav-card" hue={zeroHue} state={zeroWorking ? "working" : "idle"}>
-      <div className="ab-nav-card__head">
-        {/* The space switcher with the SISO mark (Shaan, 2 Oct: "you got rid of the SISO agency drop down … I like that"). */}
-        <div className="siso-headstack" data-stale={error ? "" : undefined}>
-        <div className="siso-headstack__space">
-        {/* SISO OS §7 (t-0599): "Agent Base", its version, then ˅ with the views that were under the top bar's ⋯. The space list
-            went: spaces live on the rail. */}
-        <MenuButton label="Agent Base views" align="left" menuClassName="siso-rail-menu" className="siso-brand" items={props.views ?? []}>
-          <img src="/siso-mark.png" alt="" />
-          <span className="siso-sidenav__title">Agent Base</span>
-        </MenuButton>
-        <Boundary name="The version pill" kind="inline"><VersionPill /></Boundary>
-        <MenuButton label="More views" align="left" menuClassName="siso-rail-menu" className="siso-headstack__more" items={props.views ?? []}>
-          <ChevronDownIcon size={14} className="opacity-50" />
-        </MenuButton>
-          {/* Agent Zero has a fixed slot at the very top (it never scrolls away), as HEALTH has at the bottom. */}
-          <button type="button" className="siso-headstack__dash" data-testid="nav-dashboard" aria-label="Dashboard" title="Dashboard" onClick={props.onDashboard}><LayoutGridIcon size={15} /></button>
-        </div>
-          {false && props.onCodexWork && <HoverCard title="Codex work" line="Codex tabs, pairs and recent jobs">
-            <button type="button" className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs text-muted-foreground hover:bg-white/5 hover:text-foreground" aria-label="Codex work" aria-pressed={props.codexWorkActive} data-testid="codex-work-open" onClick={props.onCodexWork}>
-              <BotIcon size={15} aria-hidden /> Codex work
-            </button>
-          </HoverCard>}
-        </div>
-      </div>
       <div className="ab-nav-card__body">
       {tree}
       {/* "Pinned" gave way to an Agents dropdown (Shaan, 6 Oct 21:15: "remove where it says pinned ... one called agents and
@@ -1237,7 +1221,7 @@ function InfraGroup({ trio, agents, activeId, onOpen }: { trio: Org["bottom"]; a
     <div className="ab-workspace ab-agents-branch ab-infra-branch" data-group="infra" data-testid="nav-infra" style={{ "--workspace-color": "#5eead4" } as CSSProperties}>
       <div className="ab-workspace__card">
         <button type="button" className="ab-workspace__name" data-testid="infra-entry" aria-expanded={open} aria-label="Agent Infrastructure" onClick={toggle}>
-          <span className="ab-workspace__logo ab-infra-branch__faces" aria-hidden="true" data-tree-id="infra">
+          <span className="ab-workspace__logo ab-infra-branch__faces" aria-hidden="true" data-tree-id="infra" data-tree-parent="zero" data-tree-color={ZERO_LINE}>
             {trio.map((t) => { const status = roleStatus(t.name); return <span key={t.name} className={`ab-ring is-${status ?? "off"}`} data-role={t.name}><AgentFace {...faceFor({ name: t.name, project: roleAgent(t.name)?.project ?? undefined, status: status as Agent["status"] })} size={14} /></span>; })}
           </span>Agent Infrastructure
         </button>
@@ -1352,7 +1336,7 @@ const HelperCount = ({ a }: { a: Agent }) => a.navHelpers ? <span className="ab-
 // SISO OS §11.5 (t-0599): every row carries its machine, the laptop's too (it was only the agents away from it).
 const OffLaptop = ({ a }: { a: Agent }) => <MachineGlyph machineKey={a.machineKey} name={a.machine} size={11}/>;
 
-function WorkspaceNav({ workspaces, agents, activeId, onOpen, onWorkspace, onFleet, onAdd, card }: { workspaces: NavWorkspace[]; agents: Agent[]; activeId: string | null; onOpen: (a: Agent, conversationTarget?: ConversationPinTarget) => void; onWorkspace?: (id: string) => void; onFleet?: (id: string) => void; onAdd: (w: NavWorkspace) => void; card: (a: Agent, node: ReactNode) => ReactNode }) {
+function WorkspaceNav({ workspaces, agents, activeId, onOpen, onWorkspace, onFleet, onAdd, card, tail }: { tail?: ReactNode; workspaces: NavWorkspace[]; agents: Agent[]; activeId: string | null; onOpen: (a: Agent, conversationTarget?: ConversationPinTarget) => void; onWorkspace?: (id: string) => void; onFleet?: (id: string) => void; onAdd: (w: NavWorkspace) => void; card: (a: Agent, node: ReactNode) => ReactNode }) {
   const [opened, setOpened] = useState<Record<string,boolean>>({});
   const groups = useSharedState<FleetBoardData>("/api/fleet-board", FLEET_BOARD_MS).data?.groups ?? [];
   const nav = workspaces.filter(w => w.nav).sort((a, b) => a.order - b.order);
@@ -1391,7 +1375,7 @@ function WorkspaceNav({ workspaces, agents, activeId, onOpen, onWorkspace, onFle
       </div>}
     </div>;
   };
-  return <div className="ab-workspaces" data-testid="nav-workspaces">{nav.filter(w => !isNested(w)).map(w => node(w, "zero", ZERO_LINE))}</div>;
+  return <div className="ab-workspaces" data-testid="nav-workspaces">{nav.filter(w => !isNested(w)).map(w => node(w, "zero", ZERO_LINE))}{tail}</div>;
 }
 
 /** v4's lines (t-0563): one SVG layer drawn from where the faces and icons actually are, so every line meets them exactly and

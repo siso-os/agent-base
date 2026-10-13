@@ -56,6 +56,10 @@ import type { Need } from "./components/ZeroOrbit";
 import { ZeroPipelineMetric } from "./components/DeliveryEvidence";
 import type { MoveStatus, MoveTarget } from "../../../services/node/src/move";
 
+/** ?embed=nav: only the side nav, for SISO Code's sidebar (see the EMBED_NAV render). */
+const EMBED_NAV = typeof location !== "undefined" && new URLSearchParams(location.search).get("embed") === "nav";
+const SISO_CODE_ORIGIN = "http://127.0.0.1:5490";
+
 /** Where an agent runs now, as Move to… names it (the HUD's model for Claude, Luna unless it says Sol for Codex). */
 function modelOf(a: Agent): MoveTarget {
   const m = (a.hud?.model ?? "").toLowerCase();
@@ -66,6 +70,7 @@ function modelOf(a: Agent): MoveTarget {
 import { type Nav, PageView, hostOf } from "./components/Browser";
 import { Hud, type HudMove } from "./components/Hud";
 import { RecentOutput } from "./components/RecentOutput";
+import { VersionPill } from "./components/WhatsNew";
 import { FaceDock, Sidebar, WORD, markOf } from "./components/Sidebar";
 import { ServersPage } from "./modules/estate/ServersSpace";
 import { MiniLanePage } from "./modules/estate/MiniLanes";
@@ -1797,6 +1802,18 @@ export function App() {
     />
   );
 
+  // SISO Code (T3) shows this nav in a frame above its own threads (?embed=nav): the tree alone, and opening an agent
+  // tells SISO Code, which opens that agent's thread (Shaan, 13 Oct: "how can I keep the org tree ... and make that work in here").
+  if (EMBED_NAV) return (
+    <OsProvider registry={registry} bus={bus}>
+      <div className="ab-embed-nav" data-testid="embed-nav">
+        <Boundary name="The side nav" kind="card">
+          <Sidebar {...sidebarProps} embed onOpen={(a) => window.parent.postMessage({ type: "siso:open-agent", agent: { id: a.id, name: a.name, cwd: a.cwd, project: a.project ?? null, zero: a.zero } }, SISO_CODE_ORIGIN)} />
+        </Boundary>
+      </div>
+    </OsProvider>
+  );
+
   return (
     <OsProvider registry={registry} bus={bus}>
       <AppFrame
@@ -1860,6 +1877,13 @@ export function App() {
       }
       top={
         <>
+          {/* Shaan, 13 Oct: the name, mark and version are the OS's now, "in the shell up top in the most top left with the
+              version selector ... you can call it SISO OS instead of agent base". */}
+          <span className="siso-os-brand" data-testid="siso-os-brand">
+            <img src="/siso-mark.png" alt="" />
+            <span className="siso-os-brand__name">SISO OS</span>
+            <Boundary name="The version pill" kind="inline"><VersionPill /></Boundary>
+          </span>
           <TopButton
             label="Show or hide the side nav"
             Icon={PanelLeftIcon}
@@ -1996,7 +2020,7 @@ export function App() {
       {/* SISO OS §3 (t-0599 step 5): a module draws itself. The registry says what the open space is: a URL module is a
           frame, a module with its own folder renders through ModuleView (its own crash box, swappable in place). */}
       {view.kind === "chat" && openModule && !moduleOff[openModule.id] && (openModule.entry.kind === "url"
-        ? <UrlModuleFrame key={openModule.id} name={openModule.name} url={openModule.entry.url} />
+        ? <UrlModuleFrame key={openModule.id} name={openModule.name} url={openModule.entry.url} reload={openModule.frameReload !== false} />
         : hasModuleView(openModule.id) && <ModuleView id={openModule.id} sidebarOpen={sidebarOpen} />)}
       </Boundary>
       {narrow && active && phoneTasks === active.name && view.kind === "chat" && space === "agents" && !showSidebar && (
@@ -2604,12 +2628,12 @@ export function App() {
 }
 
 /** A URL module (App Factory) in a frame, with ↻ to reload just the frame (Shaan, 10 Oct: "the app factory doesn't have a refresh button"). */
-function UrlModuleFrame({ name, url }: { name: string; url: string }) {
+function UrlModuleFrame({ name, url, reload = true }: { name: string; url: string; reload?: boolean }) {
   const [n, setN] = useState(0);
   return (
     <section className="relative flex min-w-0 flex-1 flex-col" aria-label={name}>
       <iframe key={n} src={url} title={name} className="h-full w-full flex-1 border-0" />
-      <button type="button" data-testid="frame-reload" className="ab-frame-reload" onClick={() => setN((x) => x + 1)} aria-label={`Reload ${name}`} title={`Reload ${name}`}><RotateCwIcon aria-hidden="true" /></button>
+      {reload && <button type="button" data-testid="frame-reload" className="ab-frame-reload" onClick={() => setN((x) => x + 1)} aria-label={`Reload ${name}`} title={`Reload ${name}`}><RotateCwIcon aria-hidden="true" /></button>}
     </section>
   );
 }

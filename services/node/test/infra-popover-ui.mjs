@@ -46,7 +46,7 @@ try {
     });
     await page.goto(base);
     await page.getByTestId('nav-infra').waitFor();
-    await page.getByRole('button', { name: 'More views' }).click();
+    await page.getByRole('button', { name: 'Views' }).click();
     await page.getByRole('menuitem', { name: 'Agent workspaces' }).click();
     await page.locator('.ip-trigger').click();
     const rows = page.locator('.ip-rows .ip-row');
