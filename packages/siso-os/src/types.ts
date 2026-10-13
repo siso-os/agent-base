@@ -22,6 +22,8 @@ export type Module = {
   /** One line for the rail's hover card and ⌘K. */
   line?: string;
   sidenav?: { kind: "builtin"; component: string } | "none";
+  /** A URL module's ↻ over its frame; false when the app draws its own controls there (SISO Code's sidebar toggle). */
+  frameReload?: boolean;
   /** Its PagesNav. */
   pages?: { id: string; name: string; icon: string }[];
   /** Into ⌘K. */

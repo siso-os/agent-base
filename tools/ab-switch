@@ -267,6 +267,9 @@ if [ -n "$OLD_PORT" ] && [ "$OLD_PORT" != "$PORT" ]; then
 fi
 say "$SHORT live on $PORT behind :$PUBLIC (build ${T_BUILD}s, node up ${T_UP}s, total $(( $(date +%s) - T0 ))s; old ${OLD_SHA:0:12} on ${OLD_PORT:-none} stopped)"
 
+# SISO Code (T3 Code) runs on this laptop and comes with the update; a failure is said, never fails the deploy.
+"$DIR/tools/siso-code-install" 2>&1 | sed 's/^/  /' || true
+
 # Keep the newest KEEP release dirs that are not live; a dir with edits in it is kept and named.
 ls -dt "$RELEASES"/release-* 2>/dev/null | while read -r d; do
   [ "$d" = "$DIR" ] && continue
