@@ -28,7 +28,7 @@ export function seedWorkspaces(value: Workspace[] = []): Workspace[] {
   for (const seed of nav) {
     const logo = path.join(process.env.AB_WORKSPACE_LOGOS_DIR ?? path.join(homedir(), "SISO_Workspace/_data/faces/logos"), `${seed.id}.svg`);
     const existing = all.find(w => w.id === seed.id);
-    if (existing) Object.assign(existing, { logo: existing.logo ?? logo, nav: true, ...(!existing.nav ? { order: seed.order } : {}) }); else all.push({ ...seed, logo });
+    if (existing) Object.assign(existing, { logo: existing.logo ?? logo, nav: existing.nav ?? true, ...(existing.nav === undefined ? { order: seed.order } : {}) }); else all.push({ ...seed, logo });
   }
   if (!all.some(w => w.id === 'halo-streaming')) all.push({ id: 'halo-streaming', name: 'HALO Streaming', owner: 'STREAM-QUALITY', group: 'HALO', color: '#b19aff', order: 8 });
   for (const w of all) if (!w.parent) w.parent = ({ 'halo-operator': 'halo', 'halo-streaming': 'halo', kikas: 'siso-agency', fahmy: 'siso-agency', 'app-atlas': 'agent-base', tasks: 'agent-base', 'agent-base': 'siso-agency', 'ui-hub': 'siso-agency' } as Record<string,string>)[w.id];
@@ -42,6 +42,7 @@ export function editWorkspace(workspaces: Workspace[], body: Record<string, unkn
     const p = patch as Record<string, unknown>;
     if (typeof p.id !== 'string' || !/^[a-z0-9][a-z0-9-]{0,79}$/.test(p.id)) return 'workspace id required';
     let w = staged.find(w => w.id === p.id);
+    const isNew = !w;
     if (!w) { w = { id: p.id, name: '', owner: '', group: '', color: '#9b9ba6', order: staged.length }; staged.push(w); }
     for (const key of ['name', 'owner', 'group'] as const) {
       if (p[key] !== undefined) {
@@ -55,8 +56,10 @@ export function editWorkspace(workspaces: Workspace[], body: Record<string, unkn
       w.logo = path.resolve(p.logo);
     }
     if (p.nav !== undefined) { if (typeof p.nav !== 'boolean') return 'nav must be boolean'; w.nav = p.nav; }
-    if (p.parent !== undefined) { if (typeof p.parent !== 'string' || p.parent === w.id || !/^[a-z0-9][a-z0-9-]{0,79}$/.test(p.parent)) return 'invalid workspace parent'; w.parent = p.parent; }
-    if (!w.name || !w.group || (!w.owner && w.id !== 'unassigned' && !w.nav)) return 'name, owner and group required';
+    // parent null lifts a workspace to the top of the nav (A0's flat org chart, 14 Oct).
+    if (p.parent === null) delete w.parent;
+    else if (p.parent !== undefined) { if (typeof p.parent !== 'string' || p.parent === w.id || !/^[a-z0-9][a-z0-9-]{0,79}$/.test(p.parent)) return 'invalid workspace parent'; w.parent = p.parent; }
+    if (!w.name || !w.group || (!w.owner && isNew && w.id !== 'unassigned' && !w.nav)) return 'name, owner and group required';
     if (p.color !== undefined) { if (typeof p.color !== 'string' || !/^#[a-f0-9]{6}$/i.test(p.color)) return 'color must be #rrggbb'; w.color = p.color; }
     if (p.order !== undefined) { if (!Number.isSafeInteger(p.order) || Number(p.order) < 0) return 'order must be a nonnegative integer'; w.order = Number(p.order); }
     if (p.size !== undefined) { if (!['S', 'M', 'L'].includes(String(p.size))) return 'size must be S, M or L'; w.size = p.size as Workspace['size']; }
