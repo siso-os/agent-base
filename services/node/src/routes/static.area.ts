@@ -49,6 +49,9 @@ export function staticRoutes(runtime: Pick<HttpRuntime, "TYPES" | "WEB_DIST" | "
         res.writeHead(404, { "content-type": "text/html" });
         return void res.end(`<body style="font:15px system-ui;padding:2rem;background:#111;color:#eee">${existsSync(root) ? "No such page in the Library." : `The Library is not built on this machine (expected ${root}). Build it with <code>node build.mjs</code> in Great_Library_of_SISO/reader.`}</body>`);
       }
+      // Retired for plain browsers (Shaan, 14 Oct: "one app"): the page itself sends a browser tab on 5401 to SISO Code
+      // (apps/web/src/main.tsx). The server cannot tell the desktop app's webview from a browser, and redirecting here
+      // left a cold-launched desktop app on plain SISO Code with no shell (Shaan, 14 Oct ~20:00).
       // Built screens, when the window loads them from this node instead of the dev server.
       const file = path.join(WEB_DIST, url.pathname === "/" ? "index.html" : url.pathname);
       if (file.startsWith(WEB_DIST) && existsSync(file) && statSync(file).isFile()) {

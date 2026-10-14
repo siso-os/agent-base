@@ -494,6 +494,8 @@ type Registry = {
   hiddenPages: Record<string, string[]>;
   /** t-0264: his name for the default Agent Zero in the switcher ("A0 app"); it stays Agent Zero everywhere else. */
   a0Label?: string;
+  /** Agents taken out of the table (op "remove"), kept with when; nothing is deleted. */
+  archive?: Record<string, Who & { archivedAt: number }>;
 };
 const registryStore = jsonStore<Registry>(REGISTRY_FILE, (d) => migrateRegistry({
   projects: [],
@@ -697,6 +699,15 @@ function edit(b: Record<string, unknown>, pinRows?: PinRow[]): string | null {
     const list = (registry.pages[name] ?? []).filter((p) => p.url !== b.url);
     if (op === "save-page") list.unshift({ url: b.url as string, title: str(b.title, 120) ?? (b.url as string), at: Date.now() });
     registry.pages[name] = list.slice(0, 20);
+  } else if (op === "remove") {
+    // AGENT-BASE, 14 Oct: an unused seat record leaves the table into `archive` (Agent Zero: "archive its record, don't
+    // delete it"). A workspace head or a seat SISO Code still hosts must be moved or renamed first.
+    const cur = registry.agents[name];
+    if (!cur) return `no agent ${name}`;
+    const head = registry.workspaces.find((w) => typeof w.owner === "string" && w.owner.toUpperCase() === name.toUpperCase());
+    if (head) return `${name} heads workspace ${head.id}; give it another owner first`;
+    registry.archive = { ...registry.archive, [name]: { ...cur, archivedAt: Date.now() } };
+    delete registry.agents[name];
   } else return `unknown op ${String(op)}`;
   saveRegistry();
   return null;
