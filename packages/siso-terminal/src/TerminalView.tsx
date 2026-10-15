@@ -57,7 +57,7 @@ export function TerminalView({ socketPath, token, active = true, background = "#
 
     const terminal = new Terminal({
       allowProposedApi: true,
-      cursorBlink: true,
+      cursorBlink: false, // the active effect below turns it on for the shown terminal
       fontFamily: 'ui-monospace, "SF Mono", Menlo, Consolas, monospace',
       fontSize: 12.5,
       lineHeight: 1.2,
@@ -91,17 +91,6 @@ export function TerminalView({ socketPath, token, active = true, background = "#
     terminal.loadAddon(unicode);
     terminal.unicode.activeVersion = "11";
     terminal.open(host);
-    try {
-      // Agent output redraws whole screens; the canvas renderer drops frames on that. WebGL may be missing.
-      const webgl = new WebglAddon();
-      // A lost WebGL context leaves xterm with no renderer until the addon is disposed (it reads
-      // `_renderer.value.dimensions` and throws); disposing falls back to the DOM renderer.
-      webgl.onContextLoss(() => webgl.dispose());
-      terminal.loadAddon(webgl);
-    } catch {
-      /* fall back to the default renderer */
-    }
-
     let disposed = false;
     const fitIfShown = () => {
       // After dispose xterm's renderer is gone and fit() throws on it (a late socket open or resize).
@@ -169,6 +158,35 @@ export function TerminalView({ socketPath, token, active = true, background = "#
       termRef.current = null;
     };
   }, [socketPath, token, attempt, background]);
+
+  // Only the shown terminal draws with WebGL and blinks its cursor. Each WebGL renderer keeps its own glyph atlas and
+  // GPU buffers, and the app keeps up to 8 terminals attached (App.tsx KEEP_MOUNTED): attached-but-hidden ones held
+  // most of the web view's memory (15 Oct: 1.7 GB after 15 h, 40-70% CPU idle). A hidden one keeps its screen on the
+  // DOM renderer, which xterm pauses while it is not visible, and gets WebGL back the moment it is shown.
+  useEffect(() => {
+    const terminal = termRef.current;
+    if (!terminal) return undefined;
+    terminal.options.cursorBlink = active;
+    if (!active) return undefined;
+    let webgl: WebglAddon | null = null;
+    try {
+      // Agent output redraws whole screens; the canvas renderer drops frames on that. WebGL may be missing.
+      webgl = new WebglAddon();
+      // A lost WebGL context leaves xterm with no renderer until the addon is disposed (it reads
+      // `_renderer.value.dimensions` and throws); disposing falls back to the DOM renderer.
+      webgl.onContextLoss(() => webgl?.dispose());
+      terminal.loadAddon(webgl);
+    } catch {
+      webgl = null; /* fall back to the default renderer */
+    }
+    return () => {
+      try {
+        webgl?.dispose();
+      } catch {
+        /* the terminal was torn down first and took the addon with it */
+      }
+    };
+  }, [active, socketPath, token, attempt, background]);
 
   // A tab that becomes active takes the keyboard, so a click on its pill is enough to start typing.
   useEffect(() => {

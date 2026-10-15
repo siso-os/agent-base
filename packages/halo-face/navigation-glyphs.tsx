@@ -95,6 +95,71 @@ function AgentBase({ uid }: IconGlyphProps) {
   </g>
 }
 
+function Music({ uid }: IconGlyphProps) {
+  return (
+  <g className="ng-music">
+    <path d="M33 63V56C33 39 45 27 60 27S87 39 87 56V63" fill="none" stroke={`url(#${uid}-metal)`} strokeWidth="7" strokeLinecap="round"/>
+    <path d="M38 57C38 43 48 32 60 32S82 43 82 57" fill="none" stroke={`url(#${uid}-bright)`} strokeWidth="1.6" opacity=".55"/>
+    <g className="ng-music-disc">
+      <circle cx="60" cy="70" r="17" fill="#0b1324" stroke={`url(#${uid}-metal)`} strokeWidth="2"/>
+      <circle cx="60" cy="70" r="13" fill="none" stroke="var(--li-pale)" strokeOpacity=".2"/>
+      <circle cx="60" cy="70" r="9.5" fill="none" stroke="var(--li-pale)" strokeOpacity=".14"/>
+      <circle cx="60" cy="70" r="6.2" fill={`url(#${uid}-accent)`}/>
+      <circle cx="60" cy="70" r="1.7" fill="#0b1324"/>
+      <path d="M47.5 61.5Q52 55.5 60 54.5" stroke="white" strokeWidth="1.7" opacity=".55" fill="none" strokeLinecap="round"/>
+    </g>
+    <g className="ng-music-cup ng-music-cup-l">
+      <rect x="24" y="56" width="18" height="31" rx="8.5" fill={`url(#${uid}-metal)`}/>
+      <rect x="27.5" y="59.5" width="11" height="24" rx="5.5" fill={`url(#${uid}-accent)`}/>
+      <path d="M31 64V79" stroke="#131e30" strokeWidth="2.4" strokeLinecap="round" opacity=".5"/>
+    </g>
+    <g className="ng-music-cup ng-music-cup-r">
+      <rect x="78" y="56" width="18" height="31" rx="8.5" fill={`url(#${uid}-metal)`}/>
+      <rect x="81.5" y="59.5" width="11" height="24" rx="5.5" fill={`url(#${uid}-accent)`}/>
+      <path d="M89 64V79" stroke="#131e30" strokeWidth="2.4" strokeLinecap="round" opacity=".5"/>
+    </g>
+    <path className="ng-music-note" d="M89 26V38.5A3.6 3.2 0 1 1 86.6 35.6V24.5L95 22.5V26Z" fill={`url(#${uid}-bright)`}/>
+    <path d="M40 41Q46 33 54 31" stroke="white" strokeWidth="1.5" opacity=".6" fill="none" strokeLinecap="round"/>
+  </g>
+  )
+}
+
+function PeopleGraph({ uid }: IconGlyphProps) {
+  return (
+  <g className="ng-people">
+    <g className="ng-people-links" stroke={`url(#${uid}-metal)`} strokeWidth="3.2" strokeLinecap="round">
+      <path d="M60 60 34 38M60 60 88 36M60 60 30 82M60 60 90 84M34 38 88 36M30 82 90 84"/>
+    </g>
+    <circle className="ng-people-node ng-people-n1" cx="34" cy="38" r="8" fill={`url(#${uid}-accent)`} stroke={`url(#${uid}-metal)`} strokeWidth="2"/>
+    <circle className="ng-people-node ng-people-n2" cx="88" cy="36" r="7" fill={`url(#${uid}-accent)`} stroke={`url(#${uid}-metal)`} strokeWidth="2"/>
+    <circle className="ng-people-node ng-people-n3" cx="30" cy="82" r="7" fill={`url(#${uid}-accent)`} stroke={`url(#${uid}-metal)`} strokeWidth="2"/>
+    <circle className="ng-people-node ng-people-n4" cx="90" cy="84" r="8" fill={`url(#${uid}-accent)`} stroke={`url(#${uid}-metal)`} strokeWidth="2"/>
+    <g className="ng-people-core">
+      <circle cx="60" cy="60" r="16" fill="#0b1324" stroke={`url(#${uid}-metal)`} strokeWidth="2.5"/>
+      <circle cx="60" cy="55" r="5.5" fill={`url(#${uid}-bright)`}/>
+      <path d="M50 70Q60 60 70 70" fill="none" stroke={`url(#${uid}-bright)`} strokeWidth="4" strokeLinecap="round"/>
+    </g>
+  </g>
+  )
+}
+
+function SisoCode({ uid }: IconGlyphProps) {
+  return (
+  <g className="ng-code">
+    <rect x="22" y="28" width="76" height="62" rx="11" fill={`url(#${uid}-metal)`}/>
+    <rect x="26" y="32" width="68" height="12" rx="7" fill={`url(#${uid}-accent)`}/>
+    <circle cx="34" cy="38" r="2.4" fill="#0b1324" opacity=".7"/><circle cx="41.5" cy="38" r="2.4" fill="#0b1324" opacity=".55"/><circle cx="49" cy="38" r="2.4" fill="#0b1324" opacity=".4"/>
+    <rect x="26" y="44" width="68" height="42" rx="6" fill="#0b1324"/>
+    <path d="M30 50H58M30 80H46" stroke="var(--li-pale)" strokeOpacity=".14" strokeWidth="2" strokeLinecap="round"/>
+    <path className="ng-code-left" d="M47 56 37 65 47 74" fill="none" stroke={`url(#${uid}-bright)`} strokeWidth="5" strokeLinecap="round" strokeLinejoin="round"/>
+    <path className="ng-code-right" d="M73 56 83 65 73 74" fill="none" stroke={`url(#${uid}-bright)`} strokeWidth="5" strokeLinecap="round" strokeLinejoin="round"/>
+    <path className="ng-code-slash" d="M64 54 56 76" stroke={`url(#${uid}-accent)`} strokeWidth="4.2" strokeLinecap="round"/>
+    <rect className="ng-code-cursor" x="80" y="78" width="7" height="3.4" rx="1.2" fill="var(--li-a)"/>
+    <path d="M30 31Q42 29 58 30" stroke="white" strokeWidth="1.5" opacity=".6" fill="none" strokeLinecap="round"/>
+  </g>
+  )
+}
+
 export const NAVIGATION_ICONS = {
   library: { label: 'Great Library of SISO', description: 'An open illuminated book inside the architecture of a knowledge archive.', motion: 'The right page lifts from its spine, catches the light, and settles.', colorA: '#e8c879', colorB: '#9871e6', pale: '#fff4d1', Glyph: Library },
   estate: { label: 'SISO Estate', description: 'A protected home within a faceted shield: the assets and systems SISO owns.', motion: 'The inner home seats into its shield as a security glint passes upward.', colorA: '#66d8c0', colorB: '#348aa2', pale: '#d5fff4', Glyph: Estate },
@@ -103,5 +168,8 @@ export const NAVIGATION_ICONS = {
   lifelog: { label: 'LifeLog', description: 'A bound personal chronicle with an inset timepiece; entirely synthetic artwork.', motion: 'The clock hand advances through a measured turn, then settles at its starting time.', colorA: '#d5a9f7', colorB: '#8664da', pale: '#f6eaff', Glyph: LifeLog },
   rolodex: { label: 'Rolodex', description: 'Layered contact cards with a bold portrait cutout and polished binding feet.', motion: 'The rear cards fan apart briefly, then stack neatly again.', colorA: '#7aaff7', colorB: '#5e74c4', pale: '#ecf3ff', Glyph: Rolodex },
   'siso-voice': { label: 'SISO Voice', description: 'A sculpted microphone capsule in a luminous cradle with responsive wave bars.', motion: 'The side waves answer in a short staggered phrase and settle.', colorA: '#f4af79', colorB: '#ca5d90', pale: '#fff0d9', Glyph: Voice },
+  'siso-music': { label: 'SISO Music', description: 'Sculpted over-ear headphones cradling a vinyl record with a neon label.', motion: 'The record spins one turn while the ear cups give a bass thump, and a note lifts away.', colorA: '#ff7ad9', colorB: '#7b4ff0', pale: '#ffe6fb', Glyph: Music },
+  'people-graph': { label: 'People graph', description: 'A portrait core wired to four linked nodes: everyone we know, what they made and what they said.', motion: 'The outer nodes pulse outward in turn and the core brightens as the links tighten.', colorA: '#5eead4', colorB: '#3b82f6', pale: '#e0fffa', Glyph: PeopleGraph },
+  'siso-code': { label: 'SISO Code', description: 'A machined editor window holding a glowing code bracket pair and a waiting cursor.', motion: 'The brackets part as the slash flares, the cursor blinks twice, and the code closes up again.', colorA: '#7cf29a', colorB: '#1f9d6b', pale: '#e3ffec', Glyph: SisoCode },
   'agent-base': { label: 'Agent Base · Beacon', description: 'A distinct three-sided architectural beacon surrounding a suspended intelligence core.', motion: 'The inner core rises and brightens; three rays briefly appear before it seats again.', colorA: '#72caff', colorB: '#4567e8', pale: '#e5f7ff', Glyph: AgentBase },
 } satisfies Record<string, LivingIconDefinition>

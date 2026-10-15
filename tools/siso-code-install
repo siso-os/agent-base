@@ -26,6 +26,15 @@ for old in com.siso.code-door com.siso.code-tunnel; do
   fi
 done
 
+# An upgrade restarts SISO Code, which cuts every running agent turn (15 Oct: 8 installs in a morning). With a build
+# already running, a new tag waits until the last install is 2 h old and no thread has an active run, the same rule
+# as siso/install-laptop.sh in the fork; SISO_CODE_INSTALL_NOW=1 overrides. Deferred, the old build keeps running.
+if [ -f "$APP/TAG" ] && [ "$(cat "$APP/TAG")" != "$TAG" ] && [ -z "${SISO_CODE_INSTALL_NOW:-}" ]; then
+  age=$(( $(date +%s) - $(stat -f %m "$APP/TAG") ))
+  busy=$(sqlite3 "file:$STATE/userdata/statev2.sqlite?mode=ro" "select count(*) from orchestration_v2_projection_runs r join orchestration_v2_projection_threads t on t.thread_id = r.thread_id where r.status in ('preparing','starting','running','waiting') and t.archived_at is null and t.deleted_at is null" 2>/dev/null || echo 0)
+  if (( age < 7200 )); then say "deferred $TAG: last install was $(( age / 60 )) min ago; installs are at most every 2 h"; TAG=$(cat "$APP/TAG")
+  elif (( busy > 0 )); then say "deferred $TAG: $busy run(s) active; a restart would cut them"; TAG=$(cat "$APP/TAG"); fi
+fi
 if [ "$(cat "$APP/TAG" 2>/dev/null)" != "$TAG" ]; then
   tmp=$(mktemp -d)
   # GitHub first; a copy the mini left in downloads/ when GitHub cannot be reached or the login has lapsed.
