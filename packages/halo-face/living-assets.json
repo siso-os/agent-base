@@ -127,8 +127,32 @@
       "colorB": "#ca5d90",
       "pale": "#fff0d9"
     },
+    "siso-music": {
+      "label": "SISO Music",
+      "description": "Sculpted over-ear headphones cradling a vinyl record with a neon label.",
+      "motion": "The record spins one turn while the ear cups give a bass thump, and a note lifts away.",
+      "colorA": "#ff7ad9",
+      "colorB": "#7b4ff0",
+      "pale": "#ffe6fb"
+    },
+    "people-graph": {
+      "label": "People graph",
+      "description": "A portrait core wired to four linked nodes: everyone we know, what they made and what they said.",
+      "motion": "The outer nodes pulse outward in turn and the core brightens as the links tighten.",
+      "colorA": "#5eead4",
+      "colorB": "#3b82f6",
+      "pale": "#e0fffa"
+    },
+    "siso-code": {
+      "label": "SISO Code",
+      "description": "A machined editor window holding a glowing code bracket pair and a waiting cursor.",
+      "motion": "The brackets part as the slash flares, the cursor blinks twice, and the code closes up again.",
+      "colorA": "#7cf29a",
+      "colorB": "#1f9d6b",
+      "pale": "#e3ffec"
+    },
     "agent-base": {
-      "label": "Agent Base \u00b7 Beacon",
+      "label": "Agent Base · Beacon",
       "description": "A distinct three-sided architectural beacon surrounding a suspended intelligence core.",
       "motion": "The inner core rises and brightens; three rays briefly appear before it seats again.",
       "colorA": "#72caff",

@@ -25,7 +25,7 @@ import { ChatView, OPEN_PAGE, openLink, type People } from "./components/ChatVie
 import { AgentFace, accentRgb, faceFor } from "./lib/face";
 import { groupAgentPages } from "./components/AgentPages";
 import { LiveAgents, liveAgents } from "./components/LiveAgents";
-import { LivingIcon, type LivingIconName } from "../../../packages/halo-face/living-assets";
+import { LIVING_ICONS, LivingIcon, type LivingIconName } from "../../../packages/halo-face/living-assets";
 import "./components/LivingNavigation.css";
 import { AgentZeroPage } from "./components/AgentZeroPage";
 import { isLibraryLocation } from "./components/LibraryNavigation";
@@ -111,6 +111,7 @@ import { RemoteInventory } from "./components/RemoteInventory";
 import { useSharedState } from "./lib/poll";
 import type { Research, ResearchSelection } from "../../../services/node/src/research";
 import { CodexWorkPage } from "./components/CodexWorkPage";
+import { DiskWarning } from "./components/DiskWarning";
 
 recoverPersistedJson();
 setPersistPrefix("agent-base:");
@@ -144,7 +145,7 @@ const decodeLoc = (h: string): Loc | null => {
   if (!h.startsWith("at=")) return null;
   try {
     const raw = JSON.parse(decodeURIComponent(h.slice(3))) as any;
-    if (!raw || typeof raw !== "object" || Array.isArray(raw) || typeof raw.s !== "string" || !(LOC_SPACES.has(raw.s) || registry.byId(raw.s)?.entry.kind === "url")) return null;
+    if (!raw || typeof raw !== "object" || Array.isArray(raw) || typeof raw.s !== "string" || !(LOC_SPACES.has(raw.s) || registry.byId(raw.s)?.entry.kind === "url" || hasModuleView(raw.s))) return null;
     const v = raw.v;
     if (!v || typeof v !== "object" || Array.isArray(v) || (v.kind !== "chat" && v.kind !== "tab") || (v.kind === "tab" && typeof v.id !== "string")) return null;
     if (raw.a !== null && typeof raw.a !== "string") return null;
@@ -442,6 +443,9 @@ export function App() {
   useEffect(() => save("as-terminal", asTerminal), [asTerminal]);
   /** Which space fills the frame: the agents, or Voice (his dictation history and stats, from SISO Voice). */
   const [space, setSpace] = useState<AppSpace>(() => isLibraryLocation(location.hash) ? "library" : load("space", "agents"));
+  // One browser (Shaan, 15 Oct: "our browser and their browser, what's the difference?"): Browser draws in the Zen look
+  // he picked (Browser.css, :root[data-browser-skin="zen"]); its pages, spaces, favourites and Arc import are unchanged.
+  useEffect(() => { document.documentElement.dataset.browserSkin = "zen"; }, []);
   /** Which SISO OS space is open on the rail (agent-base, app-factory, or agency). */
   const [railSpace, setRailSpace] = useState<SpaceId>(() => osSpaceOf(space) ?? load("rail-space", "agent-base"));
   useEffect(() => {
@@ -1778,6 +1782,7 @@ export function App() {
             {...commonProps}
             label={m.name}
             Icon={MODULE_ICON[m.icon] ?? SquareIcon}
+            renderIcon={m.icon in LIVING_ICONS ? livingRailIcon(m.icon as LivingIconName) : undefined}
             active={space === m.id}
             onClick={() => openModuleId(m.id)}
           />
@@ -1787,10 +1792,12 @@ export function App() {
 
   const spaceHead = (s: Space): ReactNode => (
     <RailButton
-      label={s.name}
-      renderIcon={() => SPACE_MARK[s.id](30)}
+      // The Agent Base head is SISO Code now (modules/siso-code/manifest.ts): one icon, which opens SISO Code.
+      label={s.id === "agent-base" ? "SISO Code" : s.name}
+      // SISO Code's own living icon (Shaan, 15 Oct: "the SISO code should have an icon built out for it").
+      renderIcon={s.id === "agent-base" ? livingRailIcon("siso-code") : () => SPACE_MARK[s.id](30)}
       Icon={FactoryIcon}
-      line={s.id === "agent-base" ? "Agent Zero, owners and crews" : s.id === "app-factory" ? "Build apps from parts" : "Partners and integrations"}
+      line={s.id === "agent-base" ? "Agent Zero, owners and crews, in SISO Code" : s.id === "app-factory" ? "Build apps from parts" : "Partners and integrations"}
       // Lit when what's open is the module the head stands for (Agents, App Factory); a module with its own icon lights that.
       active={osSpaceOf(space) === s.id && registry.byId(space)?.rail === false}
       onClick={() => {
@@ -1927,6 +1934,8 @@ export function App() {
           <TopTabs tabs={tabs} activeId={activeTab} onSelect={(id) => id === "browser-return" ? showWeb() : selectTab(id)} onReorder={reorderTab} onDropPage={(p, before) => openUrl(p.url, p.title, { owner: here, before, drop: true })} fold={view.kind === "tab" && mine.some((t) => t.id === view.id && t.kind === "web")} />
 
           <div data-tauri-drag-region className="ab-top-drag h-full min-w-6 flex-none" />
+          {/* Agent Zero, 15 Oct: a nearly full disk shows here before agents die of it. */}
+          <DiskWarning />
           {/* The agents up top, each once: needs him, came back unseen, or has pages he opened; the working ones fold into "N working" (12 Oct). */}
           <LiveAgents agents={liveUp} pages={agentPageGroups} max={narrow ? 2 : 4}
             currentId={space === "agents" ? activeId : null} currentTab={space === "web" && view.kind === "tab" ? view.id : undefined}
@@ -2630,9 +2639,22 @@ export function App() {
 /** A URL module (App Factory) in a frame, with ↻ to reload just the frame (Shaan, 10 Oct: "the app factory doesn't have a refresh button"). */
 function UrlModuleFrame({ name, url, reload = true }: { name: string; url: string; reload?: boolean }) {
   const [n, setN] = useState(0);
+  const frame = useRef<HTMLIFrameElement>(null);
+  // A framed module can ask where it sits on screen (SISO Browser docks Zen's window there). The shell runs on
+  // tauri://localhost, so the frame can't read its own place across origins; it asks with "siso:frame-rect?".
+  useEffect(() => {
+    const onMessage = (e: MessageEvent) => {
+      const w = frame.current?.contentWindow;
+      if (!w || e.source !== w || (e.data as { type?: string } | null)?.type !== "siso:frame-rect?") return;
+      const r = frame.current!.getBoundingClientRect();
+      w.postMessage({ type: "siso:frame-rect", x: window.screenX + r.left, y: window.screenY + (window.outerHeight - window.innerHeight) + r.top, width: r.width, height: r.height }, "*");
+    };
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
+  }, []);
   return (
     <section className="relative flex min-w-0 flex-1 flex-col" aria-label={name}>
-      <iframe key={n} src={url} title={name} className="h-full w-full flex-1 border-0" />
+      <iframe ref={frame} key={n} src={url} title={name} className="h-full w-full flex-1 border-0" />
       {reload && <button type="button" data-testid="frame-reload" className="ab-frame-reload" onClick={() => setN((x) => x + 1)} aria-label={`Reload ${name}`} title={`Reload ${name}`}><RotateCwIcon aria-hidden="true" /></button>}
     </section>
   );

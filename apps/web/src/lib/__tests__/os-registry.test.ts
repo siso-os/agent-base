@@ -10,9 +10,9 @@ describe("SISO OS registry (siso-os.md §4, §5)", () => {
     expect(registry.spaces.map((s) => s.id)).toEqual(["agent-base", "app-factory", "agency"]);
   });
   it("puts today's modules where §5 says", () => {
-    expect(registry.modulesOf("agent-base").map((m) => m.id)).toEqual(["agents", "siso-code", "tasks", "voice", "browser", "estate", "agents-hub"]);
+    expect(registry.modulesOf("agent-base").map((m) => m.id)).toEqual(["siso-code", "agents", "tasks", "voice", "browser", "estate", "agents-hub", "siso-music", "people-graph"]);
     expect(registry.modulesOf("app-factory").map((m) => m.id)).toEqual(["app-factory"]);
-    expect(registry.modulesOf("agency").map((m) => m.id)).toEqual(["rolodex", "whatsapp"]);
+    expect(registry.modulesOf("agency").map((m) => m.id)).toEqual(["whatsapp", "rolodex"]);
     expect(registry.bottom.map((m) => m.id)).toEqual(["library", "questions"]);
     expect(registry.avatar.map((m) => m.id)).toEqual(["life"]);
   });
