@@ -8,8 +8,8 @@ import { registry } from "./registry";
 /** Space marks on the rail head: Agent Base and Agency use WorkspaceMark, App Factory uses an icon. */
 export const SPACE_MARK: Record<SpaceId, (size: number) => ReactNode> = {
   "agent-base": (size) => <WorkspaceMark brand="agent-base" size={size} />,
-  "app-factory": (size) => <LivingIcon name="app-factory" size={size} variant="glyph" />,
-  "agency": (size) => <WorkspaceMark brand="siso-agency" size={size} />,
+  "app-factory": (size) => <LivingIcon name="app-factory" size={size} variant="rail" />,
+  "agency": (size) => <WorkspaceMark brand="siso-agency" size={size} className="ab-rail-mark" />,
 };
 
 /** Rail icons by a manifest's `icon` name, for modules the shell draws generically (URL modules). */

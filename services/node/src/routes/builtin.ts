@@ -6,6 +6,7 @@ import { productMapRoutes } from "./product-map.area.ts";
 import { browserDiagnosticRoutes, browserRoutes } from "./browser.area.ts";
 import { feedbackRoutes } from "./feedback.area.ts";
 import { zenRoutes } from "./zen.area.ts";
+import { browserAgentRoutes } from "./browser-agent.area.ts";
 import { spacesRoutes } from "./spaces.area.ts";
 import { changesRoutes } from "./changes.area.ts";
 import { attentionRoutes } from "./attention.area.ts";
@@ -53,6 +54,7 @@ export function builtinRoutes(runtime: HttpRuntime) {
     shippingRoutes(runtime),
     spendRoutes(runtime),
     directoryRoutes(runtime),
+    browserAgentRoutes(runtime),
     browserRoutes(runtime),
     zenRoutes(runtime),
     communicationsRoutes(runtime),

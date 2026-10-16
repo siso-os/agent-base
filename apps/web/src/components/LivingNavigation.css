@@ -1,10 +1,31 @@
-/* 6 Oct 21:10 ("those icons aren't centered ... they should be like 30-40% bigger"): the shell's 20 px rail-svg rule
-   was shrinking the living icon inside its box and pinning it left. The art now fills a centred 27 px box (the ink
-   was ~15 px, now ~20 px: +35%), and plain rail icons go from 20 to 26 px. */
-.siso-app__rail-art { display: grid; place-items: center; width: 27px; height: 27px; line-height: 0; }
-.siso-app__rail-art > .wm { display: grid; place-items: center; width: 27px; height: 27px; }
-.siso-app__rail-btn .siso-app__rail-art svg { width: 27px; height: 27px; }
-.siso-app__rail-btn > svg { width: 26px; height: 26px; }
+/* One inlaid tile per module. The SVG owns the material; rail state only tints its edge. */
+.siso-app__rail-btn,
+.siso-spaces__head .siso-app__rail-btn,
+.siso-spaces.is-all .siso-spaces__head .siso-app__rail-btn:not(.is-active) {
+  width: 46px; height: 46px; border-radius: 13px;
+  background: transparent; box-shadow: none; border-color: transparent;
+}
+.siso-app__rail-btn:is(:hover, :focus-visible, .is-active),
+.siso-spaces__head .siso-app__rail-btn:is(:hover, :focus-visible, .is-active) {
+  background: transparent; box-shadow: none;
+  border-color: color-mix(in srgb, var(--space-colour, var(--crm-color-brand-hover)) 60%, transparent);
+}
+.siso-app__rail-art { display: grid; place-items: center; width: 44px; height: 44px; line-height: 0; }
+.siso-app__rail-btn .siso-app__rail-art svg { width: 44px; height: 44px; }
+.siso-app__rail-art > .wm { display: grid; place-items: center; width: 44px; height: 44px; }
+/* WorkspaceMark uses a 120-unit canvas; crop its margin to match the navigation tile's 96-unit canvas. */
+.siso-app__rail-art > .ab-rail-mark { display: block; position: relative; overflow: hidden; }
+.siso-app__rail-btn .ab-rail-mark svg { position: absolute; left: -5.5px; top: -5.5px; width: 55px; height: 55px; }
+.ab-rail-mark .wm-floor { display: none; }
+.siso-app__rail-btn > svg:not(.ab-rail-chevron) { width: 36px; height: 36px; }
+.siso-app__rail-btn > .ab-rail-chevron { position: absolute; right: -2px; bottom: 0; width: 11px; height: 11px; }
+.ab-browser-menu { max-height: min(560px, 65vh); overflow-y: auto; }
+.ab-zero-reports { padding: 6px; }
+.ab-zero-reports__label { padding: 8px; font-size: 11px; color: var(--muted-foreground); }
+.ab-zero-reports > button { display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px; border-radius: 8px; text-align: left; font-size: 13px; }
+.ab-zero-reports > button:hover { background: rgb(var(--crm-white-rgb) / .06); }
+.ab-zero-reports > button:disabled { opacity: .5; }
+.ab-zero-reports small { display: block; font-size: 11px; color: var(--muted-foreground); }
 .ab-nav-context { display: none; }
 @media (max-width: 639px) {
   .ab-nav-context { display: inline-flex; flex: none; color: var(--muted-foreground); font-size: 10px; font-variant-numeric: tabular-nums; }

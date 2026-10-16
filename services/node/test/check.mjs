@@ -1,16 +1,44 @@
 import { spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
 const pnpm = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
+const envDigest = (env) => {
+  const hash = createHash("sha256");
+  for (const [key, value] of Object.entries(env).sort(([a], [b]) => a < b ? -1 : a > b ? 1 : 0)) {
+    if (key === "PATH") continue; // pnpm exec prepends node_modules/.bin again, so PATH always differs
+    hash.update(String(key.length)).update(":").update(key)
+      .update(String(value.length)).update(":").update(value).update(";");
+  }
+  return hash.digest("hex");
+};
+const metadataProbe = `const { createHash } = require("node:crypto"); const hash = createHash("sha256"); for (const [key, value] of Object.entries(process.env).sort(([a], [b]) => a < b ? -1 : a > b ? 1 : 0)) if (key !== "PATH") hash.update(String(key.length)).update(":").update(key).update(String(value.length)).update(":").update(value).update(";"); console.log(JSON.stringify({ execPath: process.execPath, envDigest: hash.digest("hex"), path: process.env.PATH }));`;
+let selectedNode;
+let selectedPath;
+try {
+  const probe = spawnSync(pnpm, ["exec", "node", "-e", metadataProbe], {
+    cwd: process.cwd(), env: process.env, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"],
+  });
+  if (!probe.error && probe.status === 0) {
+    const metadata = JSON.parse(probe.stdout);
+    const nodeName = path.basename(metadata.execPath);
+    if (path.isAbsolute(metadata.execPath) && /^node(?:\.exe)?$/i.test(nodeName)
+      && typeof metadata.path === "string" && metadata.envDigest === envDigest(process.env)) {
+      selectedNode = metadata.execPath;
+      selectedPath = metadata.path;
+    }
+  }
+} catch { /* A failed or invalid probe keeps the original pnpm dispatch. */ }
 const checks = [
+  ["Node check dispatch regression", ["exec", "node", "--test", "services/node/test/check-dispatch.test.mjs"]],
   ["Model account and context contracts", ["exec", "node", "--experimental-strip-types", "--no-warnings", "--test", "services/node/test/model-accounts.mjs"]],
   ["Claude billing reader boundary", ["exec", "python3", "tools/test/claude-account-readings.test.py"]],
-  ["Typecheck apps/web", ["--filter", "@agent-base/web", "exec", "tsc", "--noEmit", "-p", "tsconfig.json"]],
+  ["Typecheck apps/web", ["--filter", "@agent-base/web", "exec", "tsc", "--noEmit", "--incremental", "--tsBuildInfoFile", "../../node_modules/.cache/tsc/web.tsbuildinfo", "-p", "tsconfig.json"]],
   ["Typecheck services/node", ["--filter", "@agent-base/web", "exec", "tsc", "--noEmit", "--incremental", "--tsBuildInfoFile", "../../node_modules/.cache/tsc/node.tsbuildinfo", "--target", "ES2022", "--module", "NodeNext", "--moduleResolution", "NodeNext", "--allowImportingTsExtensions", "--skipLibCheck", "--types", "node", "--typeRoots", "../../services/node/node_modules/@types", "../../services/node/src/routes/donor-work.route.ts", "../../services/node/src/routes/remote-enrollment.route.ts", "../../services/node/src/routes/writer-measurements.route.ts"]],
   ["Typecheck services/host", ["--filter", "@agent-base/web", "exec", "tsc", "--noEmit", "--incremental", "--tsBuildInfoFile", "../../node_modules/.cache/tsc/host.tsbuildinfo", "-p", "../../services/host/tsconfig.json"]],
-  ["Build apps/web", ["--filter", "@agent-base/web", "build"]],
+  ["Build apps/web", ["--filter", "@agent-base/web", "exec", "vite", "build"]],
   ["Unit tests", ["dlx", "vitest@3.2.4", "run", "--config", "vitest.config.ts"]],
   ["Project page task and owner projection", ["exec", "node", "services/node/test/project-page.mjs"]],
   ["Working brief bounded reads", ["exec", "node", "--experimental-strip-types", "--no-warnings", "services/node/test/working-brief.mjs"]],
@@ -112,7 +140,12 @@ for (const [name, args, fixture] of checks) {
     env.AB_ROLODEX_WA = path.join(scratch, "contacts.json");
   }
   let result;
-  try { result = spawnSync(pnpm, args, { stdio: "inherit", env }); }
+  const directNodeArgs = selectedNode && args[0] === "exec" && args[1] === "node"
+    ? [selectedNode, ...args.slice(2)]
+    : null;
+  try { result = directNodeArgs
+    ? spawnSync(directNodeArgs[0], directNodeArgs.slice(1), { cwd: process.cwd(), stdio: "inherit", env: { ...env, PATH: selectedPath } })
+    : spawnSync(pnpm, args, { cwd: process.cwd(), stdio: "inherit", env }); }
   finally { if (scratch) rmSync(scratch, { recursive: true }); }
   console.log(`<<< ${name}: ${((Date.now() - started) / 1000).toFixed(2)}s`);
   if (result.error) {

@@ -126,7 +126,7 @@ export function onNewTab(cb: (url: string) => void): () => void {
  * agent is driving. Eight, not four (browser v3, Shaan 7 Oct: "pages refresh when i click off of them"): a hidden WebKit
  * page is compressed by macOS, and flipping between a handful of tabs must never reload one. */
 export const AWAKE = 8;
-type AwakePage = { key: string; tab: string; used: number; mounted: boolean; url: string; agent?: string };
+type AwakePage = { key: string; tab: string; used: number; mounted: boolean; url: string; agent?: string; seen?: number };
 const awake = new Map<string, AwakePage>();
 let clock = 0;
 /** A tab's page on one account's store: the account, never the space, decides which sign-ins the page sees. */
@@ -143,13 +143,25 @@ export function pickSleepers(pages: Pick<AwakePage, "key" | "used" | "mounted" |
   }
   return out;
 }
+/** The load manager from the Zen build, brought to this browser (siso-browser, 16 Oct): besides the awake cap, a tab he has
+ * not looked at for IDLE_MINUTES sleeps, so a day of browsing never keeps forty WebKit processes; the sidebar's meter can
+ * also put every tab but this one to sleep at once. Sound and agents' pages are kept as before. */
+export const IDLE_MINUTES = 30;
+export function pickIdle(pages: Pick<AwakePage, "key" | "mounted" | "agent" | "seen">[], playing: ReadonlySet<string>, now: number, idleMs = IDLE_MINUTES * 60_000): string[] {
+  return pages.filter((p) => !p.mounted && !p.agent && !playing.has(p.key) && p.seen !== undefined && now - p.seen >= idleMs).map((p) => p.key);
+}
 let sleeping: Promise<void> | undefined;
-async function enforceAwake() {
-  if (awake.size <= AWAKE) return;
+/** Put every hidden tab to sleep now (the meter's Sleep button), except one playing sound or an agent's. */
+export function sleepOthers() { return enforceAwake("all"); }
+if (typeof window !== "undefined") (window.setInterval(() => { if (bridge()) void enforceAwake("idle").catch(() => undefined); }, 60_000) as unknown as { unref?: () => void }).unref?.();
+async function enforceAwake(mode: "cap" | "idle" | "all" = "cap") {
+  if (mode === "cap" && awake.size <= AWAKE) return;
+  const idleNow = mode === "idle" ? new Set(pickIdle([...awake.values()], new Set(), Date.now())) : null;
+  if (idleNow && !idleNow.size && awake.size <= AWAKE) return;
   // Audio eval can take three seconds on a throttled hidden page. It must never hold the foreground queue.
   if (sleeping) return sleeping;
   sleeping = (async () => {
-    const candidates = [...awake.values()].filter((p) => !p.mounted && !p.agent).map((p) => ({ ...p }));
+    const candidates = [...awake.values()].filter((p) => !p.mounted && !p.agent && (!idleNow || awake.size > AWAKE || idleNow.has(p.key))).map((p) => ({ ...p }));
     const readings = await Promise.all(candidates.map(async (p) => ({ p, playing: await invoke<boolean>("browser_audio", { tab: p.key }).catch(() => null) })));
     await serial(async () => {
       const protectedPages = new Set([...awake.keys()]);
@@ -158,7 +170,9 @@ async function enforceAwake() {
         // Unknown audio, remounted pages and a changed driver remain protected.
         if (playing === false && current && current.used === p.used && !current.mounted && !current.agent) protectedPages.delete(p.key);
       }
-      for (const key of pickSleepers([...awake.values()], protectedPages)) {
+      const pages = [...awake.values()];
+      const chosen = mode === "all" ? pickIdle(pages, protectedPages, Infinity, 0) : mode === "idle" ? pickIdle(pages, protectedPages, Date.now()) : [];
+      for (const key of new Set([...chosen, ...pickSleepers(pages, protectedPages)])) {
         await invoke("browser_close", { tab: key });
         awake.delete(key);
       }
@@ -226,7 +240,7 @@ export function mountPage(slot: HTMLElement, initialUrl: string, onUrl: (url: st
   let disposed = false;
   // A page whose driver changed is rebuilt by browser_open (throttling is fixed when a page is made).
   const kept = (awake.get(tab)?.agent ?? null) === (agent ?? null) ? awake.get(tab) : undefined;
-  if (kept) { kept.mounted = true; kept.used = ++clock; }
+  if (kept) { kept.mounted = true; kept.used = ++clock; kept.seen = Date.now(); }
   // A kept page exists natively: show it where it was left, then catch up if the tab's address moved meanwhile.
   let opened = Boolean(kept);
   let dragging = false;
@@ -270,7 +284,7 @@ export function mountPage(slot: HTMLElement, initialUrl: string, onUrl: (url: st
       opened = true;
       shown = true;
       lastBounds = JSON.stringify(bounds);
-      awake.set(tab, { key: tab, tab: tabId, used: ++clock, mounted: !disposed, url: currentUrl, agent });
+      awake.set(tab, { key: tab, tab: tabId, used: ++clock, mounted: !disposed, url: currentUrl, agent, seen: Date.now() });
       void enforceAwake().catch(() => undefined);
     }
     if (!opened) return;
@@ -376,7 +390,7 @@ export function mountPage(slot: HTMLElement, initialUrl: string, onUrl: (url: st
       document.removeEventListener("pointerdown", pointer, true);
       // Leaving the tab hides its page; it stays alive (music keeps playing, a half-done sign-in survives).
       const p = awake.get(tab);
-      if (p) { p.mounted = false; p.used = ++clock; }
+      if (p) { p.mounted = false; p.used = ++clock; p.seen = Date.now(); }
       // Hidden a moment later, behind the tab he switched to: the next page shows first, so the switch never flashes empty.
       window.setTimeout(() => void serial(async () => {
         const now = awake.get(tab);
@@ -799,4 +813,42 @@ export async function readGoogleAccount(tab: string): Promise<string | null> {
     try { result = JSON.parse(result); } catch { return null; }
   }
   return typeof result === "string" && /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(result) ? result : null;
+}
+
+/** Agents' background pages (browser-agent.ts, siso-browser 16 Oct): a native page of the agent's own, made off the window and
+ * hidden at once, unthrottled and never put to sleep while the agent holds it. The browser's rim turns while any is busy. */
+const agentBusy = new Set<string>();
+const busyListeners = new Set<(n: number) => void>();
+export function onAgentBrowsing(cb: (busy: number) => void) { busyListeners.add(cb); cb(agentBusy.size); return () => { busyListeners.delete(cb); }; }
+export async function agentBrowsing<T>(key: string, work: () => Promise<T>): Promise<T> {
+  agentBusy.add(key); for (const cb of busyListeners) cb(agentBusy.size);
+  try { return await work(); } finally { agentBusy.delete(key); for (const cb of busyListeners) cb(agentBusy.size); }
+}
+export const agentPages = () => [...awake.values()].filter((p) => p.agent).map((p) => ({ key: p.key, tab: p.tab, agent: p.agent!, url: p.url }));
+export function openAgentPage(key: string, tab: string, url: string, profile: string, agent: string) {
+  return serial(async () => {
+    await invoke("browser_open", { tab: key, rawUrl: url, profile, x: 20000, y: 0, width: 1280, height: 800, agent });
+    await invoke("browser_visible", { tab: key, visible: false });
+    awake.set(key, { key, tab, used: ++clock, mounted: false, url, agent, seen: Date.now() });
+  });
+}
+export const navigateAgentPage = (key: string, url: string) => serial(async () => { await invoke("browser_navigate", { tab: key, rawUrl: url }); const p = awake.get(key); if (p) p.url = url; });
+export const closeAgentPage = (key: string) => serial(async () => { awake.delete(key); await invoke("browser_close", { tab: key }); });
+/** Waits for the page to finish loading (browser_url answers once it has), up to `ms`. */
+export async function agentPageUrl(key: string, ms = 15_000) {
+  const until = Date.now() + ms;
+  for (;;) {
+    const url = await invoke<string>("browser_url", { tab: key }).catch(() => "");
+    if (url || Date.now() > until) return url;
+    await new Promise((r) => setTimeout(r, 300));
+  }
+}
+export const agentPageTitle = (key: string) => invoke<string>("browser_title", { tab: key }).catch(() => "");
+/** The page's text and links (browser_read, a fixed probe on agents' pages only). Null on an app build without it. */
+export async function readAgentPage(key: string): Promise<{ url: string; title: string; text: string; links: { text: string; href: string }[] } | null> {
+  try {
+    let v: unknown = await invoke<unknown>("browser_read", { tab: key });
+    for (let i = 0; i < 2 && typeof v === "string"; i++) v = JSON.parse(v);
+    return v && typeof v === "object" ? v as never : null;
+  } catch (e) { if (/not found|unknown|command/i.test(String(e))) return null; throw e; }
 }

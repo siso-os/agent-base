@@ -31,11 +31,12 @@ import { AgentZeroPage } from "./components/AgentZeroPage";
 import { isLibraryLocation } from "./components/LibraryNavigation";
 import { ModuleView, hasModuleView, useModuleSwaps } from "./os/modules";
 
-const livingRailIcon = (name: LivingIconName) => (engaged: boolean) => <LivingIcon name={name} size={30} variant="glyph" active={engaged}/>;
+const livingRailIcon = (name: LivingIconName) => (engaged: boolean) => <LivingIcon name={name} size={44} variant="rail" active={engaged}/>;
 
 import { ZeroDock } from "./components/ZeroDock";
 import { useA0Page } from "./lib/a0-widgets";
 import { closePage, nativeBrowserAvailable, onBrowserShortcut, onNewTab } from "./lib/webview";
+import { startBrowserAgent } from "./lib/browser-agent";
 import { duplicateTabs, sameUrl } from "./lib/browser-tabs";
 import { canon, useHubAgents, useHubOrg, useHubProject } from "./lib/hub";
 import { TasksAnswer, TasksPage, type TaskFocus } from "./modules/tasks/TasksPage";
@@ -43,6 +44,7 @@ import { PAGE_HUE, PagePop, loadPopped, savePopped, type PoppedPage } from "./co
 import { canonName, isDone, isParked, needsNames, openCounts, ownerNames, tasksOf, useA0Tasks } from "./lib/a0-tasks";
 import { TasksWidget } from "./components/widgets/TasksWidget";
 import { OrgChart } from "./components/OrgChart";
+import { directZeroReports } from "./lib/rail-navigation";
 import { AttentionPanel } from './components/AttentionPanel';
 import { attentionId, attentionPost, useAttention } from './lib/attention';
 import { ProjectSpace } from "./components/ProjectSpace";
@@ -445,7 +447,7 @@ export function App() {
   const [space, setSpace] = useState<AppSpace>(() => isLibraryLocation(location.hash) ? "library" : load("space", "agents"));
   // One browser (Shaan, 15 Oct: "our browser and their browser, what's the difference?"): Browser draws in the Zen look
   // he picked (Browser.css, :root[data-browser-skin="zen"]); its pages, spaces, favourites and Arc import are unchanged.
-  useEffect(() => { document.documentElement.dataset.browserSkin = "zen"; }, []);
+  useEffect(() => { document.documentElement.dataset.browserSkin = "zen"; startBrowserAgent(); }, []);
   /** Which SISO OS space is open on the rail (agent-base, app-factory, or agency). */
   const [railSpace, setRailSpace] = useState<SpaceId>(() => osSpaceOf(space) ?? load("rail-space", "agent-base"));
   useEffect(() => {
@@ -509,6 +511,12 @@ export function App() {
   // has the API configured. "an icon in the agent space called life and then it's got its own side nav".
   const [lifeOn, setLifeOn] = useState(false);
   const moduleOff: Record<string, boolean> = { life: !lifeOn };
+  /** The URL module on screen, and the keepAlive ones opened before: those stay mounted, hidden, so Music keeps playing. */
+  const shownFrame = view.kind === "chat" && openModule && !moduleOff[openModule.id] && openModule.entry.kind === "url" ? openModule.id : null;
+  const [keptFrames, setKeptFrames] = useState<string[]>([]);
+  useEffect(() => {
+    if (shownFrame && registry.byId(shownFrame)?.keepAlive) setKeptFrames((k) => (k.includes(shownFrame) ? k : [...k, shownFrame]));
+  }, [shownFrame]);
   useEffect(() => {
     fetch("/api/life/status", { cache: "no-store" }).then((r) => r.json()).then((c) => setLifeOn(!!c?.configured)).catch(() => setLifeOn(false));
   }, []);
@@ -783,7 +791,8 @@ export function App() {
   const a0Page = useA0Page(space === "agents" && view.kind === "tab" && view.id === "zero");
   const hubAgents = useHubAgents();
   const hubProject = useHubProject(view.kind === "tab" && view.id === "org" && orgPage && "project" in orgPage ? orgPage.project : null);
-  const hubOrg = useHubOrg(view.kind === "tab" && view.id === "orgchart");
+  const hubOrg = useHubOrg(zeroCardOpen || view.kind === "tab" && view.id === "orgchart");
+  const zeroReports = useMemo(() => zeroCardOpen && hubOrg ? directZeroReports(hubOrg, agents ?? [], org ?? undefined) : [], [zeroCardOpen, hubOrg, agents, org]);
   // Back and forward (hub-11; 2 Oct: "i don't know how to go back"): every move between pages is a history entry, so
   // the buttons, ⌘[ / ⌘] and the mouse's back button all work. A popped entry puts the place back. Picking an agent is
   // not one (QA #11, A0, 3 Oct: a trackpad swipe walked A0 → HALO-UI → AGENT-BASE): only a page an agent owns brings
@@ -1254,15 +1263,9 @@ export function App() {
     return a ? [{ id: a.id, name: a.name, tabs: g.tabs }] : [];
   });
   const orgLabel = orgPage ? ("lane" in orgPage ? orgPage.lane : "group" in orgPage ? org?.groups.find((g) => g.id === orgPage.group)?.name ?? "Group" : org?.groups.flatMap((g) => g.projects).find((p) => p.id === orgPage.project)?.name ?? org?.groups.flatMap((g) => g.folders.flatMap((f) => f.items)).find((i) => i.id === orgPage.project)?.name ?? orgPage.project) : "";
-  // The last web page stays up top beside Agent Zero when he goes back to the agents (Shaan, 6 Oct 21:15: "I like to keep my
-  // agent zero up there ... so I can flip between the two relatively quickly"): one click each way.
-  // A page an agent sent sits under that agent's chip instead (12 Oct: no agent or page twice).
-  const ownTabs = webTabs.filter((x) => !(x.via && agentNames.has(x.via)));
-  const browserBack = space !== "web" ? ownTabs.find((x) => x.id === webLast.current) ?? ownTabs.at(-1) : undefined;
-  // Browser v3: in the Web space the browser's sidebar is the tab list (as in Arc), so its tabs are not repeated up here.
-  const stripTabs = space === "web" ? mine.filter((t) => t.kind !== "web") : mine;
+  // Browser pages share the rail dropdown; terminals keep their existing top tabs.
+  const stripTabs = mine.filter((t) => t.kind !== "web");
   const tabs: TopTab[] = [
-    ...(browserBack ? [{ kind: "page" as const, id: "browser-return", label: tabLabel(browserBack.title, navOf(browserBack.id).url), title: `Back to the browser: ${navOf(browserBack.id).url || "New tab"}`, icon: <GlobeIcon aria-hidden="true" /> }] : []),
     // Shaan, 10 Oct: "Agent zero drop down should show all of this stuff and that'll be alright regardless of page I'm on. And then you shouldn't have to show these other agents here." – agents no longer add top tabs.
     // Agent Zero's own page (hub-6) has no tab since 3 Oct (A0: retire it): "Where things stand ›" in his panel opens it.
     ...(orgPage && space !== "web"
@@ -1702,16 +1705,21 @@ export function App() {
         );
       case "browser":
         return (
-          <RailButton
-            {...commonProps}
-            label="Browser"
-            renderIcon={livingRailIcon("web")}
-            line="Web pages as tabs beside the agents"
-            Icon={GlobeIcon}
-            meta={webTabs.length ? `${webTabs.length} open · ⌘T` : "⌘T"}
-            active={space === "web"}
-            onClick={() => moduleOpen["browser"]()}
-          />
+          <MenuButton label="Browser" align="left"
+            className={`siso-app__rail-btn${space === "web" ? " is-active" : ""}`}
+            menuClassName="ab-browser-menu"
+            items={[
+              { key: "open", label: "Open Browser", icon: <GlobeIcon/>, onSelect: showWeb },
+              { key: "new", label: "New tab", icon: <PlusIcon/>, onSelect: newWebTab },
+              ...openTabs.filter(t => t.kind === "web").map(t => ({ key: t.id,
+                label: tabLabel(t.title, navOf(t.id).url), icon: <GlobeIcon/>,
+                current: view.kind === "tab" && view.id === t.id,
+                onSelect: () => { setSpace("web"); setView({ kind: "tab", id: t.id }); },
+              })),
+            ]}>
+            <span aria-hidden="true" className="siso-app__rail-art">{livingRailIcon("web")(false)}</span>
+            <ChevronDownIcon className="ab-rail-chevron" aria-hidden="true"/>
+          </MenuButton>
         );
       case "estate":
         return (
@@ -1795,7 +1803,7 @@ export function App() {
       // The Agent Base head is SISO Code now (modules/siso-code/manifest.ts): one icon, which opens SISO Code.
       label={s.id === "agent-base" ? "SISO Code" : s.name}
       // SISO Code's own living icon (Shaan, 15 Oct: "the SISO code should have an icon built out for it").
-      renderIcon={s.id === "agent-base" ? livingRailIcon("siso-code") : () => SPACE_MARK[s.id](30)}
+      renderIcon={s.id === "agent-base" ? livingRailIcon("siso-code") : () => SPACE_MARK[s.id](44)}
       Icon={FactoryIcon}
       line={s.id === "agent-base" ? "Agent Zero, owners and crews, in SISO Code" : s.id === "app-factory" ? "Build apps from parts" : "Partners and integrations"}
       // Lit when what's open is the module the head stands for (Agents, App Factory); a module with its own icon lights that.
@@ -1911,7 +1919,7 @@ export function App() {
             <button type="button" className="ab-zero-tab" data-testid="zero-pill-open" aria-label="Open Agent Zero" disabled={!zeroAgent} onClick={() => zeroAgent && open(zeroAgent, { chat: true })}>
               <AgentFace {...(zeroAgent ? faceFor(zeroAgent) : { name: "Agent Zero" })} size={18}/><span>Agent Zero</span>
             </button>
-            <button type="button" className="ab-zero-tab ab-zero-tab--menu" data-testid="zero-card-open" aria-label="Agent Zero's org card" aria-expanded={zeroCardOpen} onClick={() => { const r = zeroPillRef.current?.getBoundingClientRect(); if (r) setZeroCardLeft(Math.max(8, Math.min(r.left, window.innerWidth - 348))); setZeroCardOpen(!zeroCardOpen); }}>
+            <button type="button" className="ab-zero-tab ab-zero-tab--menu" data-testid="zero-card-open" aria-label="Agent Zero direct reports" aria-haspopup="menu" aria-expanded={zeroCardOpen} onClick={() => { const r = zeroPillRef.current?.getBoundingClientRect(); if (r) setZeroCardLeft(Math.max(8, Math.min(r.left, window.innerWidth - 348))); setZeroCardOpen(!zeroCardOpen); }}>
               <ChevronDownIcon size={12}/>
             </button>
             {zeroCardOpen && createPortal(
@@ -1926,12 +1934,22 @@ export function App() {
                     ))}
                   </div>
                 )}
-                <Sidebar {...sidebarProps} cardOnly onOpen={(a, conversationTarget) => { sidebarProps.onOpen?.(a, conversationTarget); setZeroCardOpen(false); }} />
+                <div className="ab-zero-reports" role="menu" aria-label="Agent Zero direct reports">
+                  <p className="ab-zero-reports__label">Reports to Agent Zero</p>
+                  {!hubOrg && <p className="ab-zero-reports__label">{hubOrg === null ? "Org chart unavailable" : "Reading the org chart…"}</p>}
+                  {zeroReports.map(report => <button key={report.key} type="button" role="menuitem"
+                    disabled={!report.agent || report.agent.row === "settled"}
+                    onClick={() => { if (report.agent) { open(report.agent, { chat: true }); setZeroCardOpen(false); } }}>
+                    <AgentFace {...(report.agent ? faceFor(report.agent) : { name: report.name })} paused size={28}/>
+                    <span>{report.name}<small>{report.agent ? report.agent.status : "Not running"}</small></span>
+                  </button>)}
+                  {hubOrg && !zeroReports.length && <p className="ab-zero-reports__label">No direct reports recorded</p>}
+                </div>
               </div>,
               document.body
             )}
           </span>
-          <TopTabs tabs={tabs} activeId={activeTab} onSelect={(id) => id === "browser-return" ? showWeb() : selectTab(id)} onReorder={reorderTab} onDropPage={(p, before) => openUrl(p.url, p.title, { owner: here, before, drop: true })} fold={view.kind === "tab" && mine.some((t) => t.id === view.id && t.kind === "web")} />
+          <TopTabs tabs={tabs} activeId={activeTab} onSelect={selectTab} onReorder={reorderTab} onDropPage={(p, before) => openUrl(p.url, p.title, { owner: here, before, drop: true })} fold={view.kind === "tab" && mine.some((t) => t.id === view.id && t.kind === "web")} />
 
           <div data-tauri-drag-region className="ab-top-drag h-full min-w-6 flex-none" />
           {/* Agent Zero, 15 Oct: a nearly full disk shows here before agents die of it. */}
@@ -2028,9 +2046,10 @@ export function App() {
       )}
       {/* SISO OS §3 (t-0599 step 5): a module draws itself. The registry says what the open space is: a URL module is a
           frame, a module with its own folder renders through ModuleView (its own crash box, swappable in place). */}
-      {view.kind === "chat" && openModule && !moduleOff[openModule.id] && (openModule.entry.kind === "url"
-        ? <UrlModuleFrame key={openModule.id} name={openModule.name} url={openModule.entry.url} reload={openModule.frameReload !== false} />
-        : hasModuleView(openModule.id) && <ModuleView id={openModule.id} sidebarOpen={sidebarOpen} />)}
+      {registry.modules.flatMap((m) => m.entry.kind === "url" && (m.id === shownFrame || keptFrames.includes(m.id))
+        ? [<UrlModuleFrame key={m.id} name={m.name} url={m.entry.url} reload={m.frameReload !== false} hidden={m.id !== shownFrame} />]
+        : [])}
+      {view.kind === "chat" && openModule && !moduleOff[openModule.id] && openModule.entry.kind !== "url" && hasModuleView(openModule.id) && <ModuleView id={openModule.id} sidebarOpen={sidebarOpen} />}
       </Boundary>
       {narrow && active && phoneTasks === active.name && view.kind === "chat" && space === "agents" && !showSidebar && (
         <TasksSheet key={active.id} a={active} agents={agents ?? []} onClose={closePhoneTasks} />
@@ -2637,7 +2656,7 @@ export function App() {
 }
 
 /** A URL module (App Factory) in a frame, with ↻ to reload just the frame (Shaan, 10 Oct: "the app factory doesn't have a refresh button"). */
-function UrlModuleFrame({ name, url, reload = true }: { name: string; url: string; reload?: boolean }) {
+function UrlModuleFrame({ name, url, reload = true, hidden = false }: { name: string; url: string; reload?: boolean; hidden?: boolean }) {
   const [n, setN] = useState(0);
   const frame = useRef<HTMLIFrameElement>(null);
   // A framed module can ask where it sits on screen (SISO Browser docks Zen's window there). The shell runs on
@@ -2653,7 +2672,7 @@ function UrlModuleFrame({ name, url, reload = true }: { name: string; url: strin
     return () => window.removeEventListener("message", onMessage);
   }, []);
   return (
-    <section className="relative flex min-w-0 flex-1 flex-col" aria-label={name}>
+    <section className="relative flex min-w-0 flex-1 flex-col" aria-label={name} style={hidden ? { display: "none" } : undefined}>
       <iframe ref={frame} key={n} src={url} title={name} className="h-full w-full flex-1 border-0" />
       {reload && <button type="button" data-testid="frame-reload" className="ab-frame-reload" onClick={() => setN((x) => x + 1)} aria-label={`Reload ${name}`} title={`Reload ${name}`}><RotateCwIcon aria-hidden="true" /></button>}
     </section>

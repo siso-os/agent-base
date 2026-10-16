@@ -233,11 +233,11 @@ pub fn run() {
     #[cfg(all(debug_assertions, target_os = "macos", feature = "browser-test"))]
     let builder = builder.invoke_handler(tauri::generate_handler![dictation_paste, browser::browser_open, browser::browser_bounds,
         browser::browser_visible, browser::browser_close, browser::browser_navigate,
-        browser::browser_action, browser::browser_url, browser::browser_title, browser::browser_google_account, browser::browser_audio, browser::browser_session_state, browser::browser_window, module_window::module_window, browser::browser_prefetch, site_auth::browser_auth, site_auth::browser_auth_pending, adblock::browser_adblock, browser_test::browser_test_observe, browser_test::browser_test_status, browser_test::browser_test_pages, browser_test::browser_test_media, browser_test::browser_test_google]);
+        browser::browser_action, browser::browser_url, browser::browser_title, browser::browser_google_account, browser::browser_audio, browser::browser_read, browser::browser_session_state, browser::browser_window, module_window::module_window, browser::browser_prefetch, site_auth::browser_auth, site_auth::browser_auth_pending, adblock::browser_adblock, browser_test::browser_test_observe, browser_test::browser_test_status, browser_test::browser_test_pages, browser_test::browser_test_media, browser_test::browser_test_google]);
     #[cfg(not(all(debug_assertions, target_os = "macos", feature = "browser-test")))]
     let builder = builder.invoke_handler(tauri::generate_handler![dictation_paste, browser::browser_open, browser::browser_bounds,
         browser::browser_visible, browser::browser_close, browser::browser_navigate,
-        browser::browser_action, browser::browser_url, browser::browser_title, browser::browser_google_account, browser::browser_audio, browser::browser_session_state, browser::browser_window, module_window::module_window, browser::browser_prefetch, site_auth::browser_auth, site_auth::browser_auth_pending, adblock::browser_adblock]);
+        browser::browser_action, browser::browser_url, browser::browser_title, browser::browser_google_account, browser::browser_audio, browser::browser_read, browser::browser_session_state, browser::browser_window, module_window::module_window, browser::browser_prefetch, site_auth::browser_auth, site_auth::browser_auth_pending, adblock::browser_adblock]);
     builder
         .manage(NodeProcess(Mutex::new(None)))
         .manage(NativeDictationProcess(Mutex::new(None)))
