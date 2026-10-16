@@ -3,7 +3,7 @@
 //   heavy -- node --experimental-strip-types --no-warnings --test services/node/test/people-route.test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { peopleRoute, rebase } from '../src/routes/people.route.ts';
+import { hubTheme, peopleRoute, rebase } from '../src/routes/people.route.ts';
 
 const call = async (route, p) => {
   const out = { status: 0, headers: {}, body: '' };
@@ -37,4 +37,10 @@ test('no credential or no site: a page that says so', async () => {
 
 test('rebase leaves absolute and protocol-relative links alone', () => {
   assert.equal(rebase('<a href="https://x/">a</a><a href="//x">b</a><a href=\'/c/\'>c</a>'), '<a href="https://x/">a</a><a href="//x">b</a><a href=\'/api/people/c/\'>c</a>');
+});
+
+test('every page served here takes the hub theme, once', () => {
+  assert.equal(hubTheme("<!doctype html><html><head></head></html>"), '<!doctype html><html data-theme="hub"><head></head></html>');
+  assert.equal(hubTheme("<html lang='en'>"), `<html data-theme="hub" lang='en'>`);
+  assert.equal(hubTheme('<html data-theme="light">'), '<html data-theme="light">');
 });

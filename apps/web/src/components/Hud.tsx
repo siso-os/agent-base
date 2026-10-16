@@ -21,7 +21,10 @@ function useActivity(agentId: string) {
     setA(null);
     const on = (e: Event) => {
       const d = (e as CustomEvent).detail;
-      if (d?.agentId === agentId) setA({ running: d.running, total: d.total, bg: d.bg, shells: d.shells });
+      if (d?.agentId === agentId) setA(previous =>
+        previous && previous.running === d.running && previous.total === d.total && previous.bg === d.bg && previous.shells === d.shells
+          ? previous
+          : { running: d.running, total: d.total, bg: d.bg, shells: d.shells });
     };
     window.addEventListener("siso-chat-activity", on);
     return () => window.removeEventListener("siso-chat-activity", on);

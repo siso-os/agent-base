@@ -707,6 +707,17 @@ pub async fn browser_audio(caller: Webview, tab: String) -> Result<bool, String>
     let Some(page) = mine(&caller, &tab)? else { return Ok(false) };
     playing(&page).await
 }
+/// What an agent's background page shows (siso-browser, 16 Oct: agents drive the globe's browser): its address, title, the
+/// visible text and links, by a fixed probe. Only a page an agent drives; his own tabs are never read.
+#[tauri::command]
+pub async fn browser_read(caller: Webview, tab: String) -> Result<String, String> {
+    let Some(page) = mine(&caller, &tab)? else { return Err("no such page".into()) };
+    let driven = caller.app_handle().state::<BrowserState>().0.lock().map(|p| p.agent.contains_key(page.label())).unwrap_or(false);
+    if !driven { return Err("only an agent's page can be read".into()); }
+    let (tx, rx) = std::sync::mpsc::channel();
+    page.eval_with_callback("JSON.stringify({url:location.href,title:document.title,text:(document.body?.innerText||'').slice(0,20000),links:[...document.links].slice(0,150).map(a=>({text:(a.innerText||'').trim().slice(0,120),href:a.href}))})", move |value| { let _ = tx.send(value); }).map_err(|e| e.to_string())?;
+    tauri::async_runtime::spawn_blocking(move || rx.recv_timeout(std::time::Duration::from_secs(10)).map_err(|e| e.to_string())).await.map_err(|e| e.to_string())?
+}
 async fn playing(page: &Webview) -> Result<bool, String> {
     let (tx, rx) = std::sync::mpsc::channel();
     page.eval_with_callback("[...document.querySelectorAll('audio,video')].some(m=>!m.paused&&!m.ended&&!m.muted&&m.volume>0&&m.readyState>2)", move |value| { let _ = tx.send(value); }).map_err(|e| e.to_string())?;

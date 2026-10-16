@@ -1370,23 +1370,29 @@ function ChatViewInner({ agentId, agentKey = agentId, agentName, conversationTar
   const taskByTool = useMemo(() => new Map(Object.values(tasks).flatMap((t) => (t.tool ? [[t.tool, t] as const] : []))), [tasks]);
   const runningTasks = Object.values(tasks).filter((t) => t.status === "running");
 
-  // What the bottom bar counts for this agent (Hud): sub-agents running / started here, and background jobs.
-  useEffect(() => {
-    const calls = chat.turns.flatMap((t) => [...t.work, ...t.answer]).filter((it): it is Extract<Item, { k: "agent" }> => it.k === "agent");
+  // Sub-agent counts change with settled events/tasks, never with streamed words.
+  const activityCounts = useMemo(() => {
+    const calls = settled.turns.flatMap((t) => [...t.work, ...t.answer]).filter((it): it is Extract<Item, { k: "agent" }> => it.k === "agent");
     const running = calls.filter((it) => {
       const task = taskByTool.get(it.call.id);
       return task ? task.status === "running" || task.status === "pending" : it.call.done === undefined;
     }).length;
-    // R1.21: its latest step, for the header's line 2 when no plan item or title says what it is doing: the running
-    // call, else the last thing it said, else its last call.
+    return { running, total: calls.length };
+  }, [settled, taskByTool]);
+  // Keep the live first line, but inspect only the last turn while words stream.
+  const activityLast = useMemo(() => {
     const lastTurn = chat.turns.at(-1);
     const items = lastTurn ? [...lastTurn.work, ...lastTurn.answer] : [];
     const runs = items.flatMap((it) => (it.k === "run" ? it.calls : []));
     const live = [...runs].reverse().find((c) => c.done === undefined);
     const said = [...items].reverse().find((it): it is Extract<Item, { k: "said" }> => it.k === "said")?.text.trim().split("\n")[0].replace(/[#*_`>]/g, "").trim();
-    const last = live ? doing(live) : said || (runs.length ? doing(runs[runs.length - 1]) : "");
-    window.dispatchEvent(new CustomEvent("siso-chat-activity", { detail: { agentId, running, total: calls.length, bg: shells.length, shells, last } }));
-  }, [chat, taskByTool, shells, agentId]);
+    return live ? doing(live) : said || (runs.length ? doing(runs[runs.length - 1]) : "");
+  }, [chat]);
+  // Retain the announcement cadence for listeners mounted while a chat streams.
+  // The HUD ignores unchanged count/shell snapshots at its state boundary.
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent("siso-chat-activity", { detail: { agentId, running: activityCounts.running, total: activityCounts.total, bg: shells.length, shells, last: activityLast } }));
+  }, [chat, taskByTool, activityCounts.running, activityCounts.total, activityLast, shells, agentId]);
   // The working line's clock (from his last message), for the panel's "Working · 5m" (R1.23b).
   const turnAt = chat.turns.at(-1)?.me?.at ?? null;
   useEffect(() => setTurnStart(agentId, turnAt), [agentId, turnAt]);

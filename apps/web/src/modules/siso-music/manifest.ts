@@ -15,5 +15,7 @@ export default {
   entry: { kind: "url", url: "http://127.0.0.1:5493/" },
   sidenav: "none",
   frameReload: false,
+  // Shaan, 16 Oct: "when you click off of it, it stops playing".
+  keepAlive: true,
   host: "local",
 } satisfies Module;

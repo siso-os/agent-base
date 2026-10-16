@@ -5,7 +5,7 @@ import './living-icon.css'
 export type LivingIconProps = {
   name: LivingIconName
   size?: number
-  variant?: 'tile' | 'glyph'
+  variant?: 'tile' | 'glyph' | 'rail'
   /** External hover/focus state for a parent link or button. One gesture per entry. */
   active?: boolean
   paused?: boolean
@@ -48,12 +48,12 @@ export function LivingIcon({ name, size=32, variant='tile', active=false, paused
     timer.current=setTimeout(()=>setBurst(false),1450)
   }
   const style={width:size,height:size,'--li-a':definition.colorA,'--li-b':definition.colorB,'--li-pale':definition.pale} as CSSProperties
-  const plate='M35 14H85Q91 14 96 21L103 30Q106 34 106 41V79Q106 86 101 92L93 101Q89 106 82 106H38Q31 106 26 101L18 93Q14 88 14 81V39Q14 32 19 26L27 18Q30 14 35 14Z'
+  const plate=variant==='rail'?'M39 15H81Q105 15 105 39V81Q105 105 81 105H39Q15 105 15 81V39Q15 15 39 15Z':'M35 14H85Q91 14 96 21L103 30Q106 34 106 41V79Q106 86 101 92L93 101Q89 106 82 106H38Q31 106 26 101L18 93Q14 88 14 81V39Q14 32 19 26L27 18Q30 14 35 14Z'
   return <span ref={host} style={style} className={'li '+className} data-name={name} data-motion={moving?'on':'off'} data-active={moving&&(active||hovered||focused||burst||demo)?'true':'false'} data-demo={demo?'true':'false'} data-tier={size>48?'portrait':'nav'} data-variant={variant}
     role={interactive?'button':'img'} tabIndex={interactive?0:undefined} aria-label={title??definition.label+(interactive?' · replay animation':'')}
     onPointerEnter={interactive?()=>setHovered(true):undefined} onPointerLeave={()=>setHovered(false)} onFocus={interactive?()=>setFocused(true):undefined} onBlur={()=>setFocused(false)} onClick={interactive?trigger:undefined}
     onKeyDown={interactive?e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();if(!e.repeat)trigger()}}:undefined}>
-    <svg viewBox="0 0 120 120" aria-hidden="true">
+    <svg viewBox={variant==='rail'?"12 12 96 96":"0 0 120 120"} aria-hidden="true">
       <defs>
         <linearGradient id={uid+'-accent'} x1="0" y1="0" x2=".8" y2="1"><stop stopColor="var(--li-pale)"/><stop offset=".26" stopColor="var(--li-a)"/><stop offset=".67" stopColor="var(--li-b)"/><stop offset="1" stopColor="var(--li-a)"/></linearGradient>
         <linearGradient id={uid+'-metal'} x1="0" y1="0" x2=".8" y2="1"><stop stopColor="var(--li-pale)"/><stop offset=".23" stopColor="#a1b5c8"/><stop offset=".49" stopColor="#253b54"/><stop offset=".7" stopColor="var(--li-pale)"/><stop offset="1" stopColor="#324860"/></linearGradient>
@@ -64,14 +64,14 @@ export function LivingIcon({ name, size=32, variant='tile', active=false, paused
         <radialGradient id={uid+'-glow'}><stop stopColor="var(--li-a)" stopOpacity=".42"/><stop offset="1" stopColor="var(--li-b)" stopOpacity="0"/></radialGradient>
         <clipPath id={uid+'-tile'}><path d={plate}/></clipPath>
       </defs>
-      {variant==='tile'&&<g className="li-plate">
+      {variant!=='glyph'&&<g className="li-plate">
         <path d={plate} transform="translate(0 3)" fill="#02070d" stroke="#102035" strokeWidth="2"/>
         <path d={plate} fill={'url(#'+uid+'-rim)'} stroke="var(--li-pale)" strokeWidth=".65" strokeOpacity=".45"/>
         <path d={plate} transform="translate(60 60) scale(.88) translate(-60 -60)" fill={'url(#'+uid+'-glass)'} stroke="#020814" strokeWidth="1.4"/>
         <g clipPath={'url(#'+uid+'-tile)'}><ellipse cx="36" cy="84" rx="63" ry="46" fill={'url(#'+uid+'-glow)'} opacity=".45"/><path d="M21 28Q61 8 100 29V49Q65 34 20 55Z" fill={'url(#'+uid+'-reflection)'}/></g>
         <path className="li-edge" d={plate} transform="translate(60 60) scale(.94) translate(-60 -60)" fill="none" stroke="var(--li-pale)" strokeWidth=".9" opacity=".3" pathLength="100" strokeDasharray="15 85"/>
       </g>}
-      <g transform={variant==='glyph'?'translate(60 60) scale(1.4) translate(-60 -60)':undefined}><g className="li-scene" key={name+':'+revision}><Glyph uid={uid}/></g></g>
+      <g transform={variant==='glyph'?'translate(60 60) scale(1.4) translate(-60 -60)':variant==='rail'?'translate(60 60) scale(1.15) translate(-60 -60)':undefined}><g className="li-scene" key={name+':'+revision}><Glyph uid={uid}/></g></g>
     </svg>
   </span>
 }

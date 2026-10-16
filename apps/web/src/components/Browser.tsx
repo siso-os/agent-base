@@ -5,7 +5,7 @@ import { SearchIcon } from "@siso/icons/search";
 import { loadBrowserTabs, looksLikeAddress, rememberBrowserTab, rowTitle, saveBrowserTabs, loadBrowserFolders, saveBrowserFolders, fileBrowserPin, sameUrl, favouriteColumns } from "../lib/browser-tabs";
 import "./Browser.css";
 import { SavedFolders } from "./browser/SavedFolders";
-import { browserWindow, onPageMoved, prefetchPage, shellWindow, accountFor, onBrowserShortcut, onBrowserWindowChange, keepImportedPage, applyBrowserImport, type BrowserImport, createBrowserProfile, createGoogleAccount, DEFAULT_ACCOUNT, importArcSidebar, loadAccounts, loadArcProfiles, migrateAccounts, mountPage, nativeBrowserAvailable, onDownload, pageKey, readGoogleAccount, saveAccounts, saveArcProfiles, checkSessions, signInUrl, awakePages, pageAudio, mutePage, playPage, sleepState, accountStatus, type BrowserAccount, storeOf, moveSignIn, needsAccount, noteSignIn, freshStore, FAVORITES, favoritesOf, spaceOf, type ArcProfile, type BrowserPin, adblockOn, setAdblock, onSiteAuth, siteAuthPending, answerSiteAuth, type SiteAuth } from "../lib/webview";
+import { browserWindow, onPageMoved, prefetchPage, shellWindow, accountFor, onBrowserShortcut, onBrowserWindowChange, keepImportedPage, applyBrowserImport, type BrowserImport, createBrowserProfile, createGoogleAccount, DEFAULT_ACCOUNT, importArcSidebar, loadAccounts, loadArcProfiles, migrateAccounts, mountPage, nativeBrowserAvailable, onDownload, pageKey, readGoogleAccount, saveAccounts, saveArcProfiles, checkSessions, signInUrl, awakePages, pageAudio, sleepOthers, onAgentBrowsing, IDLE_MINUTES, mutePage, playPage, sleepState, accountStatus, type BrowserAccount, storeOf, moveSignIn, needsAccount, noteSignIn, freshStore, FAVORITES, favoritesOf, spaceOf, type ArcProfile, type BrowserPin, adblockOn, setAdblock, onSiteAuth, siteAuthPending, answerSiteAuth, type SiteAuth } from "../lib/webview";
 import { downloadsNow, subscribeDownloads } from "../lib/browser-downloads";
 import { browserStore, useBrowserStore } from "../lib/browser-store";
 import { AccountsHub, type Filter } from "./browser/AccountsHub";
@@ -602,6 +602,8 @@ function BrowserPage(props: PageProps) {
   }, [native, needsCheck, host, account]);
   // Which Today rows have a live page, and which of those play sound (spec §1 #5): looked at every 3 s while shown.
   const [live, setLive] = useState<{ pages: LivePage[]; playing: string[] }>({ pages: [], playing: [] });
+  const [agentsBusy, setAgentsBusy] = useState(0);
+  useEffect(() => onAgentBrowsing(setAgentsBusy), []);
   useEffect(() => {
     if (!native) return;
     let stopped = false;
@@ -722,6 +724,11 @@ function BrowserPage(props: PageProps) {
     : todayRows.map((p) => ({ key: p.url, url: p.url, title: p.title, current: nav.url === p.url, asleep: Boolean(states && !states.awake.has(p.url)), sound: states?.playing.get(p.url), open: () => props.onGo(p.url, p.title),
       close: () => { const next = { ...today, [profile]: today[profile].filter((tab) => tab.url !== p.url) }; setToday(next); saveBrowserTabs(next, browserStore); if (nav.url === p.url) props.onGo("", "New tab"); } }));
   const awakeCount = rows.filter((r) => !r.asleep).length;
+  // The load manager's meter (from the Zen build): live pages against the cap, and one press to sleep every hidden tab.
+  const ownLive = live.pages.filter((p) => !p.tab.startsWith("agent:"));
+  const agentLive = live.pages.length - ownLive.length;
+  const [sleepingNow, setSleepingNow] = useState(false);
+  const sleepNow = () => { setSleepingNow(true); void sleepOthers().catch(() => undefined).finally(() => { setSleepingNow(false); setLive((l) => ({ ...l, pages: awakePages().map((p) => ({ key: p.key, tab: p.tab, url: p.url, mounted: p.mounted })) })); }); };
   const clearToday = () => {
     if (tabsMode) {
       const gone = todayTabs.map((t) => t.id);
@@ -834,7 +841,7 @@ function BrowserPage(props: PageProps) {
         onDropCapture={() => { draggingSidebar.current = false; }}>
       {hidden && !narrow && <div className="ab-browser__edge" aria-hidden="true" onPointerEnter={peekLater} />}
       {/* Browser v3: the sidebar is a card in Agent Base's halo rim, lit in the space's colour; the ring turns while the page loads. */}
-      <aside onPointerOver={(e) => hoverRow(e.target)} onPointerLeave={() => clearTimeout(hoverTimer.current)} className={`ab-browser__sidebar siso-rim ${loadingSince !== null ? "is-working" : "is-idle"}`} aria-label="Browser sidebar" hidden={hidden && (!peek || narrow)} ref={(el) => { if (el && el.dataset.scrollKept !== "1") { el.dataset.scrollKept = "1"; const list = el.querySelector<HTMLElement>(".ab-browser__scroll"); if (list) list.scrollTop = sidebarScroll; } }} style={{ "--ab-space-rgb": spaceColour(profile), "--rim-hue": `rgb(${spaceColour(profile)})` } as CSSProperties}>
+      <aside onPointerOver={(e) => hoverRow(e.target)} onPointerLeave={() => clearTimeout(hoverTimer.current)} className={`ab-browser__sidebar siso-rim ${loadingSince !== null || agentsBusy > 0 ? "is-working" : "is-idle"}`} data-agents-browsing={agentsBusy || undefined} aria-label="Browser sidebar" hidden={hidden && (!peek || narrow)} ref={(el) => { if (el && el.dataset.scrollKept !== "1") { el.dataset.scrollKept = "1"; const list = el.querySelector<HTMLElement>(".ab-browser__scroll"); if (list) list.scrollTop = sidebarScroll; } }} style={{ "--ab-space-rgb": spaceColour(profile), "--rim-hue": `rgb(${spaceColour(profile)})` } as CSSProperties}>
         <div className="ab-browser__top">
           <span className="ab-browser__steps">{steps}</span>
           {/* Beside the chat (R1.22b) the sidebar folds into the page's bar; full width, ⌘S hides it and the edge peeks it. */}
@@ -916,6 +923,11 @@ function BrowserPage(props: PageProps) {
           {profileError && <span role="alert">{profileError}</span>}
         </form>}
         <div className="ab-browser__bottom">
+          {native && <div className="ab-browser__load" aria-label="Load" title={`At most 8 tabs stay awake; one you have not looked at for ${IDLE_MINUTES} minutes sleeps and reopens from its address`}>
+            <span className="ab-browser__load-bar" aria-hidden="true"><i style={{ width: `${Math.min(100, (ownLive.length / 8) * 100)}%` }} /></span>
+            <span className="ab-browser__load-text">{ownLive.length} awake{rows.length - awakeCount > 0 ? ` · ${rows.length - awakeCount} asleep` : ""}{agentLive > 0 ? ` · ${agentLive} agent${agentLive === 1 ? "" : "s"}` : ""}</span>
+            <button type="button" disabled={sleepingNow || ownLive.filter((p) => !p.mounted).length === 0} onClick={sleepNow} title="Sleep every tab but this one (playing ones stay)">Sleep others</button>
+          </div>}
           {pinMenu && <div className="ab-browser__menu" role="menu" aria-label={`Shortcut: ${pinMenu.pin.title}`} onKeyDown={(e) => { if (e.key === "Escape") setPinMenu(null); }}>
             <button type="button" role="menuitem" onClick={() => removePin(pinMenu.space, pinMenu.pin)}>Unpin</button>
             {pinMenu.space !== FAVORITES && <button type="button" role="menuitem" onClick={() => { keepImported(pinMenu.pin, true); setPinMenu(null); }}>Keep in favourites</button>}

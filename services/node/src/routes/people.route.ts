@@ -25,6 +25,8 @@ const fromFile = (file: string): Password => async () => {
 
 /** Root-relative links and sources in the site's HTML are moved under the prefix; protocol-relative ones are left alone. */
 export const rebase = (html: string) => html.replace(/(\b(?:href|src|action)=["'])\/(?!\/)/g, `$1${PREFIX}/`);
+/** Pages served here sit inside the People hub, so they take its theme (the site's [data-theme=hub] colours). */
+export const hubTheme = (html: string) => html.replace(/<html(?![^>]*\bdata-theme=)/i, '<html data-theme="hub"');
 
 function fail(res: Parameters<Route["handle"]>[1], status: number, why: string) {
   res.writeHead(status, { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" });
@@ -51,7 +53,7 @@ export function peopleRoute(password: Password = fromFile(CRED), site = SITE, ge
       const loc = r.headers.get("location");
       if (loc) headers.Location = loc.startsWith("/") ? PREFIX + loc : loc.replace(site, PREFIX);
       if (type.includes("text/html")) {
-        const body = rebase(await r.text());
+        const body = hubTheme(rebase(await r.text()));
         res.writeHead(r.status, headers);
         return void res.end(body);
       }

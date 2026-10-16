@@ -24,6 +24,8 @@ export type Module = {
   sidenav?: { kind: "builtin"; component: string } | "none";
   /** A URL module's ↻ over its frame; false when the app draws its own controls there (SISO Code's sidebar toggle). */
   frameReload?: boolean;
+  /** A URL module whose frame stays loaded, hidden, once opened, so leaving it does not stop it (Music keeps playing). */
+  keepAlive?: boolean;
   /** Its PagesNav. */
   pages?: { id: string; name: string; icon: string }[];
   /** Into ⌘K. */
