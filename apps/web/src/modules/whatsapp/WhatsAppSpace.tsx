@@ -175,7 +175,7 @@ export function warmWhatsApp(client: WhatsAppClient = apiClient) {
 export type WaPerson = { id: string; name: string; level: Level };
 export type WaPeopleLink = { byKey: Map<string, WaPerson>; onPerson: (id: string) => void; place: (key: string, level: Level) => Promise<void> };
 
-export function WhatsAppSpace({ client = apiClient, now, people, openKey, onUnread }: { client?: WhatsAppClient; now?: number; people?: WaPeopleLink; openKey?: { key: string; nonce: number }; onUnread?: (n: number) => void }) {
+export function WhatsAppSpace({ client = apiClient, now, people, openKey, onUnread, top }: { top?: ReactNode; client?: WhatsAppClient; now?: number; people?: WaPeopleLink; openKey?: { key: string; nonce: number }; onUnread?: (n: number) => void }) {
   const kept = lastRead.get(client);
   const [iconActive, setIconActive] = useState(false);
   const [organisation, setOrganisation] = useState<WaOrganisation | null>(kept?.organisation ?? null);
@@ -350,6 +350,7 @@ export function WhatsAppSpace({ client = apiClient, now, people, openKey, onUnre
   return <section className={`wa-space${open ? " has-open" : ""}${needsLink ? " is-linking" : ""}`} aria-labelledby="wa-title">
     <aside className={`wa-side siso-rim ${loading || syncing ? "is-working" : "is-idle"}`} aria-label="Chats">
       <div className="wa-side-top">
+        {top}
         <div className="wa-brand" onPointerEnter={() => setIconActive(true)} onPointerLeave={() => setIconActive(false)}><LivingIcon name="whatsapp" size={24} active={iconActive} /><h1 id="wa-title">WhatsApp</h1>
           <span className={`wa-pill is-${offline ? "offline" : state}`} role="status" title={offline ? offline : health?.link?.detail || ""}>
             <span className="wa-dot" aria-hidden="true" />{offline ? "Mac mini unreachable" : syncing ? `Syncing ${health?.link?.historyPercent}%` : STATE_LABEL[state] ?? state}

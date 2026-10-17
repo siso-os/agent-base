@@ -452,7 +452,6 @@
 .ab-browser > .ab-browser__side { padding: 8px 0 8px 8px; }
 .ab-browser__sidebar.siso-rim { width: 256px; flex: 0 0 256px; gap: 10px; padding: 12px 10px 8px; border: 0; border-radius: 18px; overflow: visible;
   background: linear-gradient(180deg, rgb(var(--ab-space-rgb) / .10), rgb(var(--ab-space-rgb) / .025) 38%, transparent 70%), rgb(24 24 23 / .86); }
-.ab-browser__sidebar.siso-rim.is-idle { --rim-ring: linear-gradient(160deg, rgb(var(--ab-space-rgb) / .55), #2c2c2a 40%, rgb(var(--ab-space-rgb) / .28)); box-shadow: 0 14px 40px -18px rgb(var(--ab-space-rgb) / .55), 0 10px 30px -16px rgb(0 0 0 / .7); }
 .ab-browser__sidebar.siso-rim > * { flex: none; }
 .ab-browser__sidebar.siso-rim > .ab-browser__scroll { flex: 1 1 auto; }
 .ab-browser__sidebar.siso-rim > .ab-browser__bottom { margin-top: auto; }
@@ -640,9 +639,8 @@
    drawn the way Zen draws them: one quiet colour (SISO blue, not the space's tint),
    the sidebar flush with the window, Essentials as quiet tiles, and the page a floating card. The Halo rim stays. */
 :root[data-browser-skin="zen"] .ab-browser { background: #0a0a0a; }
-:root[data-browser-skin="zen"] .ab-browser__sidebar { --ab-space-rgb: 52 107 241 !important; --rim-hue: #346bf1 !important; background: #0a0a0a; }
+:root[data-browser-skin="zen"] .ab-browser__sidebar { --ab-space-rgb: 52 107 241 !important; background: #0a0a0a; }
 :root[data-browser-skin="zen"] .ab-browser__sidebar.siso-rim { width: 240px; flex-basis: 240px; margin: 8px 0 8px 8px; padding: 10px 8px 8px; border-radius: 12px; }
-:root[data-browser-skin="zen"] .ab-browser__sidebar.siso-rim.is-idle { --rim-ring: linear-gradient(160deg, rgb(52 107 241 / .55), #1f1f1f 40%, rgb(34 211 238 / .30)); box-shadow: 0 10px 30px -18px rgb(52 107 241 / .5); }
 :root[data-browser-skin="zen"] .ab-browser__address { background: #111; border-color: #1f1f1f; border-radius: 10px; }
 :root[data-browser-skin="zen"] .ab-browser__favorites button { border-radius: 10px; background: #161616; border: 1px solid #1f1f1f; }
 :root[data-browser-skin="zen"] .ab-browser__favourite > button[aria-current="page"] { background: #1c1c1c; border-color: #346bf1; box-shadow: 0 0 0 1px rgb(52 107 241 / .45); }

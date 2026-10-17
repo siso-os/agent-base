@@ -12,6 +12,9 @@
 .siso-rim.is-working::before{animation:siso-rim-spin 6s linear infinite}
 .siso-rim.is-idle{--rim-ring:linear-gradient(135deg,color-mix(in srgb,var(--rim-hue) 50%,#333),#2c2c2a 42%,color-mix(in srgb,var(--rim-hue) 35%,#2c2c2a));box-shadow:0 10px 32px -16px rgb(0 0 0 / .7)}
 @keyframes siso-rim-spin{to{--siso-rim-ang:360deg}}
+/* Lit: SISO Code's own rim (siso-code apps/web/src/siso/siso.css: violet into cyan, the full ring and its light even while
+   idle), for side navs that should glow like SISO Code's composer and details card (Shaan, 17 Oct). */
+.siso-rim.is-lit{--rim-hue:#a78bfa;--rim-cyan:#22d3ee}
 /* Voice's two colours, shared with everything that speaks or listens (the mic orb, the speaker toggle). */
 :root{--siso-voice:#a78bfa;--siso-voice-2:#f472b6}
 /* Voice: violet and faster (state="voice", or any child that says it is listening). Opening the mic, writing it down

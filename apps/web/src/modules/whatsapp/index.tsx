@@ -8,7 +8,7 @@ import { WhatsAppSpace, type WaPeopleLink, type WaPerson } from "./WhatsAppSpace
 import "./Comms.css";
 
 /** Communications (siso-os.md §5, Agency; Shaan, 10 Oct: "Merge Rolodex and WhatsApp ... I like the WhatsApp UI quite a lot"):
- *  his chats and the people in them, one space. A WhatsApp-style strip on the left switches Chats and People; a chat shows its
+ *  his chats and the people in them, one space. A Chats | People switch at the top of the side nav swaps its list; a chat shows its
  *  person's level and opens their page, a person's page opens their chat. Private: never mirrored. */
 export default function CommsModule() {
   const comms = useComms();
@@ -39,24 +39,28 @@ export default function CommsModule() {
   const onAsk = useCallback((words: string) => bus.runCommand("ask-a0", words), []);
 
   const go = (t: "chats" | "people") => setComms({ tab: t });
+  // Chats and People switch at the top of the one side nav (Shaan, 17 Oct: "merge it into the side nav ... so you don't have a
+  // whole separate sidebar").
+  const top = (
+        <nav className="wa-switch" aria-label="Communications">
+          <button type="button" className="wa-switch-btn" aria-pressed={tab === "chats"} data-tab="chats" onClick={() => go("chats")} title="Chats: your WhatsApp">
+            <MessageCircle size={15} aria-hidden="true" />{unread > 0 && <b aria-label={`${unread} unread chats`}>{unread > 99 ? "99+" : unread}</b>}<span>Chats</span>
+          </button>
+          <button type="button" className="wa-switch-btn" aria-pressed={tab === "people"} data-tab="people" onClick={() => go("people")} title="People: your Rolodex, on six levels">
+            <BookUser size={15} aria-hidden="true" />{!!book.data?.inbox.length && <b aria-label={`${book.data.inbox.length} chats to sort`}>{book.data.inbox.length > 99 ? "99+" : book.data.inbox.length}</b>}<span>People</span>
+          </button>
+        </nav>
+  );
   return (
     <section className="wa-comms relative flex min-w-0 flex-1" aria-label="Communications" data-tab={tab}>
-      <nav className="wa-strip" aria-label="Communications">
-        <button type="button" className="wa-strip-btn" aria-pressed={tab === "chats"} data-tab="chats" onClick={() => go("chats")} title="Chats: your WhatsApp">
-          <MessageCircle size={20} aria-hidden="true" />{unread > 0 && <b aria-label={`${unread} unread chats`}>{unread > 99 ? "99+" : unread}</b>}<span>Chats</span>
-        </button>
-        <button type="button" className="wa-strip-btn" aria-pressed={tab === "people"} data-tab="people" onClick={() => go("people")} title="People: your Rolodex, on six levels">
-          <BookUser size={20} aria-hidden="true" />{!!book.data?.inbox.length && <b aria-label={`${book.data.inbox.length} chats to sort`}>{book.data.inbox.length > 99 ? "99+" : book.data.inbox.length}</b>}<span>People</span>
-        </button>
-      </nav>
       {seen.chats && <div className="wa-comms-pane" hidden={tab !== "chats"}>
-        {waOn === false ? <div className="wa-space"><div /><main className="wa-main"><div className="wa-center"><Smartphone size={26} aria-hidden="true" />
+        {waOn === false ? <div className="wa-space"><aside className="wa-side siso-rim is-idle" aria-label="Chats"><div className="wa-side-top">{top}</div></aside><main className="wa-main"><div className="wa-center"><Smartphone size={26} aria-hidden="true" />
           <p>WhatsApp isn't set up on this Mac, so there are no chats to show.</p>
           <button type="button" className="wa-strip-link" onClick={() => go("people")}>Open People</button></div></main></div>
-          : waOn && <WhatsAppSpace people={people} openKey={openKey} onUnread={setUnread} />}
+          : waOn && <WhatsAppSpace top={top} people={people} openKey={openKey} onUnread={setUnread} />}
       </div>}
       {seen.people && <div className="wa-comms-pane" hidden={tab !== "people"}>
-        <PeopleSpace book={book} pane={pane} onPane={setPane} active={tab === "people"} onAsk={onAsk}
+        <PeopleSpace top={top} book={book} pane={pane} onPane={setPane} active={tab === "people"} onAsk={onAsk}
           onOpenChat={(key) => setComms({ tab: "chats", chatKey: key })} />
       </div>}
     </section>

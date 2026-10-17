@@ -116,7 +116,7 @@ export function VoiceSidebar({ selected, onSelect }: { selected: VoiceSelection;
   const dayCount = days ? Object.keys(days).length : undefined;
   const page = pageOf(selected);
   return (
-    <aside className={cn("vx-side siso-rim", live(state.key) ? "is-working" : "is-idle")} aria-label="Voice">
+    <aside className={cn("vx-side siso-rim is-lit", live(state.key) && "is-working")} aria-label="Voice">
       <div className="vx-brand">
         <LivingIcon name="siso-voice" size={26} variant="glyph" active={state.key === "listening"} />
         <h1>Voice</h1>
