@@ -1704,22 +1704,15 @@ export function App() {
           />
         );
       case "browser":
+        // One click opens the browser page (Shaan, 17 Oct: no dropdown, no "Open Browser" step); its tabs live in its sidebar.
         return (
-          <MenuButton label="Browser" align="left"
-            className={`siso-app__rail-btn${space === "web" ? " is-active" : ""}`}
-            menuClassName="ab-browser-menu"
-            items={[
-              { key: "open", label: "Open Browser", icon: <GlobeIcon/>, onSelect: showWeb },
-              { key: "new", label: "New tab", icon: <PlusIcon/>, onSelect: newWebTab },
-              ...openTabs.filter(t => t.kind === "web").map(t => ({ key: t.id,
-                label: tabLabel(t.title, navOf(t.id).url), icon: <GlobeIcon/>,
-                current: view.kind === "tab" && view.id === t.id,
-                onSelect: () => { setSpace("web"); setView({ kind: "tab", id: t.id }); },
-              })),
-            ]}>
-            <span aria-hidden="true" className="siso-app__rail-art">{livingRailIcon("web")(false)}</span>
-            <ChevronDownIcon className="ab-rail-chevron" aria-hidden="true"/>
-          </MenuButton>
+          <RailButton
+            {...commonProps}
+            renderIcon={livingRailIcon("web")}
+            Icon={GlobeIcon}
+            active={space === "web"}
+            onClick={() => moduleOpen["browser"]()}
+          />
         );
       case "estate":
         return (

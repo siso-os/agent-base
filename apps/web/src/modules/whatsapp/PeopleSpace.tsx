@@ -20,7 +20,8 @@ const LEVEL_TONE: Record<Level, string> = { client: "56 189 248", partner: "255 
 export const levelTone = (l: Level) => ({ "--wa-tone": LEVEL_TONE[l] }) as CSSProperties;
 const SHOWN = 40;
 
-export function PeopleSpace({ book, pane, onPane, onOpenChat, onAsk, active }: {
+export function PeopleSpace({ book, pane, onPane, onOpenChat, onAsk, active, top }: {
+  top?: ReactNode;
   book: Book; pane: PeoplePane; onPane: (p: PeoplePane) => void; onOpenChat: (key: string) => void; onAsk?: (words: string) => void; active: boolean;
 }) {
   const d = book.data;
@@ -76,6 +77,7 @@ export function PeopleSpace({ book, pane, onPane, onOpenChat, onAsk, active }: {
   return <section className={`wa-space wa-people${pane.kind !== "home" ? " has-open" : ""}`} aria-label="People">
     <aside className="wa-side siso-rim is-idle" aria-label="People list">
       <div className="wa-side-top">
+        {top}
         <div className="wa-brand"><LivingIcon name="rolodex" size={24} /><h1>People</h1>
           <span className={`wa-pill is-${d?.whatsapp.state === "live" ? "connected" : "needs_qr"}`} role="status"><span className="wa-dot" aria-hidden="true" />
             {d ? `${placed.length} people` : book.error ? "Not read" : "Reading…"}</span></div>

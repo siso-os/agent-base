@@ -17,9 +17,7 @@
 .siso-app__rail-art > .ab-rail-mark { display: block; position: relative; overflow: hidden; }
 .siso-app__rail-btn .ab-rail-mark svg { position: absolute; left: -5.5px; top: -5.5px; width: 55px; height: 55px; }
 .ab-rail-mark .wm-floor { display: none; }
-.siso-app__rail-btn > svg:not(.ab-rail-chevron) { width: 36px; height: 36px; }
-.siso-app__rail-btn > .ab-rail-chevron { position: absolute; right: -2px; bottom: 0; width: 11px; height: 11px; }
-.ab-browser-menu { max-height: min(560px, 65vh); overflow-y: auto; }
+.siso-app__rail-btn > svg { width: 36px; height: 36px; }
 .ab-zero-reports { padding: 6px; }
 .ab-zero-reports__label { padding: 8px; font-size: 11px; color: var(--muted-foreground); }
 .ab-zero-reports > button { display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px; border-radius: 8px; text-align: left; font-size: 13px; }

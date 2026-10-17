@@ -1,5 +1,5 @@
 // Communications (Shaan, 10 Oct: "Merge Rolodex and WhatsApp. Move Rolodex into WhatsApp ... I like the WhatsApp UI quite a
-// lot"): one rail icon; inside, a WhatsApp-style strip switches Chats and People. A chat shows its person's level and opens
+// lot"): one rail icon; inside, a Chats | People switch tops the side nav. A chat shows its person's level and opens
 // their page; a person's page opens their chat; an unsorted chat goes onto a level from its header. Sealed vite + fixture API
 // in headless webkit; every name and number is invented (phones in the 07700 900xxx drama range); never the live node.
 //   heavy -- node --experimental-strip-types --no-warnings services/node/test/comms-ui.mjs
@@ -118,7 +118,7 @@ try {
   if (!placed || placed.key !== keyOf(J.juno) || placed.level !== "friend") fail(`the place op was ${JSON.stringify(placed)}`);
   await page.locator(".wa-person-chip").click();
   await page.locator('.wa-comms[data-tab="people"] .rolodex-person[aria-label="Juno Ashgrove\'s page"]').waitFor({ timeout: 8000 }).catch(() => fail("the Friend chip did not open Juno's page in People"));
-  if (await page.locator('.wa-strip-btn[data-tab="people"] b').count()) fail("People's to-sort badge still shows after the last chat was placed");
+  if (await page.locator('.wa-switch-btn[data-tab="people"] b').count()) fail("People's to-sort badge still shows after the last chat was placed");
   console.log("PASS place from chat: Juno's chat → Add to People → Friend sent one place op with her hashed key; the chip opened her page in People");
   if (errors.length) fail(`page errors: ${errors.join(" | ")}`);
   console.log(JSON.stringify({ shots: ["people-home.png", "person.png", "chat-with-person.png"].map((f) => path.join(out, f)) }));

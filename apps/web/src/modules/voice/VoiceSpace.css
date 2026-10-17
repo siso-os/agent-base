@@ -32,7 +32,7 @@
 @keyframes vx-pulse { 50% { opacity: .35; } }
 
 /* ── The sidebar: one halo-rim card ── */
-.vx-space .vx-side.siso-rim { --rim-hue: rgb(var(--vx-violet)); flex: none; width: 272px; margin: 8px 0 8px 8px; padding: 14px 10px 0; border-radius: var(--crm-radius-card, 18px);
+.vx-space .vx-side.siso-rim { flex: none; width: 272px; margin: 8px 0 8px 8px; padding: 14px 10px 0; border-radius: var(--crm-radius-card, 18px);
   display: flex; flex-direction: column; min-height: 0; overflow: hidden; background: linear-gradient(rgb(var(--vx-violet) / .05), rgb(var(--vx-violet) / .012)), rgb(23 23 21 / .9); }
 .vx-space .vx-side > * { position: relative; z-index: 1; }
 /* The day numbers stay the size he knows (they inherited it through the old button reset); days with nothing stay faded. */
