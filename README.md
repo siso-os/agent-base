@@ -18,7 +18,6 @@
 </p>
 
 <!-- /siso-os:header -->
-
 ## What it is
 
 Agent Base is one window onto every coding agent you run: Claude Code, Codex and the others that

@@ -1,0 +1,494 @@
+{
+  "sourceCommit": "f4b8a8c16617eea7ce7f00e7adf83f686e574798",
+  "materialized": [
+    {
+      "path": "packages/siso-composer/src/ActivityPopover.tsx",
+      "sha256": "f35d89c57396cac7cefa936932e5533d4d9a18034b10209558b02200bea141ff"
+    },
+    {
+      "path": "packages/siso-composer/src/ArtifactShelfView.tsx",
+      "sha256": "cacd3bd2c9cd94ab0bb1c33e774c8d6b677109675a4daffae23607a396f4bb18"
+    },
+    {
+      "path": "packages/siso-composer/src/ComposerFrame.tsx",
+      "sha256": "c5cb2f03c94fab6f4889bda5b281445866f087d70feae66fbd0b8509db25d709"
+    },
+    {
+      "path": "packages/siso-composer/src/ComposerHud.tsx",
+      "sha256": "09eaf47801761f789ccdca06a14f5c492dc0577bb235d7a3a3614ff8bf8ab955"
+    },
+    {
+      "path": "packages/siso-composer/src/ContextMeter.tsx",
+      "sha256": "0ec3a11a181578007ccd19f36b13b1b06c6a6d8f64fcaba6df3efa8125ded736"
+    },
+    {
+      "path": "packages/siso-composer/src/ModelPicker.tsx",
+      "sha256": "c9aaa4bf0e98037539ca147476e55d2f1c2705b5ddf15358579d4b3c3e8d4a0b"
+    },
+    {
+      "path": "packages/siso-composer/src/activity.css",
+      "sha256": "56a031cb47478518f1f51b8c27e17dac01e999b511a70b7cbb13b5bbf6836db7"
+    },
+    {
+      "path": "packages/siso-composer/src/compact-dial.ts",
+      "sha256": "69f7b591ae15de650b8071116136f2b95681fc22b5d0fdf04607937756e29ce2"
+    },
+    {
+      "path": "packages/siso-composer/src/composer.css",
+      "sha256": "78cf72e55114d5574c5f67e044a3d5572c0ef8685167e9aa2100d79529f32b82"
+    },
+    {
+      "path": "packages/siso-composer/src/context-segments.ts",
+      "sha256": "79b879ae7d24b6bf97618aa72d1e323a5e55a653afcee3960ed7f481a7e6dac1"
+    },
+    {
+      "path": "packages/siso-composer/src/hud.css",
+      "sha256": "5233f08f48edac11ce10412e980d1e327f00c26709bc11d3d5465679ef23a0a2"
+    },
+    {
+      "path": "packages/siso-composer/src/icons.tsx",
+      "sha256": "bcce51c28c8ee0da9a52906ac75c023465413fa22c819bdfad15ee048fdc84bb"
+    },
+    {
+      "path": "packages/siso-composer/src/index.ts",
+      "sha256": "928f797379b6157796e9e18ab067b3bb42176701552885827094f99f96aa21df"
+    },
+    {
+      "path": "packages/siso-composer/src/model.css",
+      "sha256": "ec11d248a2ba2df00f7767069bbb8d4892c79ce0a71b7f93a9537f521e054ba7"
+    },
+    {
+      "path": "packages/siso-composer/src/shelf.css",
+      "sha256": "08febbddc13450bfb638dff72ff688408d5baea85b438e62236f1f731c02d68c"
+    },
+    {
+      "path": "packages/siso-composer/src/usage-ring.css",
+      "sha256": "e8a3d113b59398ffed0a9146f3284066a3c56894bafc011c2fbaca915eb9961e"
+    },
+    {
+      "path": "packages/siso-os/src/bus.ts",
+      "sha256": "feeb648e59fd2c9cd7e6b5670787641356ac27e382822530e5988b8df4bacb8a"
+    },
+    {
+      "path": "packages/siso-os/src/index.ts",
+      "sha256": "079514c9b8bc1e68d8623e6f4240a9169fe82b79c4c3ffe1184d4dc03e34c8e8"
+    },
+    {
+      "path": "packages/siso-os/src/react.tsx",
+      "sha256": "0f2d218670d16f145f20971cc0ab4f8a89970db58c19b9c5a62bf4b79d202c1c"
+    },
+    {
+      "path": "packages/siso-os/src/registry.ts",
+      "sha256": "10f8755941ff3d3d6068ffb199ddb4d6abec4a9c13d21a518769fe2714405de6"
+    },
+    {
+      "path": "packages/siso-os/src/types.ts",
+      "sha256": "86c8f5da01bc3727ba7e74746c69b16b3063720ace5d0d0915a1332385be8cf6"
+    },
+    {
+      "path": "packages/siso-icons/src/AnimatedNavIcon.tsx",
+      "sha256": "af76d600b07a260c93987d2030168a4a8c0446e4c5378f075be85f546f020a73"
+    },
+    {
+      "path": "packages/siso-icons/src/cn.ts",
+      "sha256": "292978b82060c9250ac17adf1ee586316c46b918c5f6775940bc90b79f5b2c5c"
+    },
+    {
+      "path": "packages/siso-icons/src/index.ts",
+      "sha256": "1d1517bd0f3c79a2142323052fc520895a7e1bd2b7004a195aa5cfa2ffda8864"
+    },
+    {
+      "path": "packages/siso-icons/src/pq/activity.tsx",
+      "sha256": "6220f80d6c47e206008f6ca431605968c83580360fe38c9712f7b60373d657a9"
+    },
+    {
+      "path": "packages/siso-icons/src/pq/atom.tsx",
+      "sha256": "87aed1073ce712375c49499f7a1025455ba10e14e4ac1f4d73d5dce853cd22b7"
+    },
+    {
+      "path": "packages/siso-icons/src/pq/badge-alert.tsx",
+      "sha256": "1a57412fc13a46ec6cd57323b618e36c7df9ba2cbf32d24215fed7cc6058da5a"
+    },
+    {
+      "path": "packages/siso-icons/src/pq/bell.tsx",
+      "sha256": "3cf55cb8e68a1f25938db9e876195919dd581ce4e4d4c5248eedff15e1a67872"
+    },
+    {
+      "path": "packages/siso-icons/src/pq/blocks.tsx",
+      "sha256": "17d1a50e4d21ab0216194171802a373715f37d8f873e64544d0f261dbf17a728"
+    },
+    {
+      "path": "packages/siso-icons/src/pq/book-text.tsx",
+      "sha256": "8994d2c06e6da5cf17a0e112deb3f1bcb128e9fed4064cfcc3e261c584d9b91e"
+    },
+    {
+      "path": "packages/siso-icons/src/pq/bot.tsx",
+      "sha256": "b3647b0f827bfd09a481722a54c0e266676f21b1c5caea9c3f31618d7c9cc2d0"
+    },
+    {
+      "path": "packages/siso-icons/src/pq/box.tsx",
+      "sha256": "6729d3e80f36d8de2746a174388415f68900b4e5e1ff92d20a4e33419f14077b"
+    },
+    {
+      "path": "packages/siso-icons/src/pq/brain.tsx",
+      "sha256": "0e1f1acdb9bbf62a2e499eeb99e99c2f733a6163f807d7f517ba437a8d8cd8fb"
+    },
+    {
+      "path": "packages/siso-icons/src/pq/briefcase-business.tsx",
+      "sha256": "ef8ff3ba96901217bc9ca762f814783fcfa59e5c659afd1f982aba00db8d518f"
+    },
+    {
+      "path": "packages/siso-icons/src/pq/cart.tsx",
+      "sha256": "3ffbb4daf5dcc8ccb7b74b3c6927fca8158d7c56e40aeff4de2631f3811ab174"
+    },
+    {
+      "path": "packages/siso-icons/src/pq/chess-king.tsx",
+      "sha256": "042fc57b3ac94686db24e2d200e6026b7a8c9394277fe0f844b691f79c9aed73"
+    },
+    {
+      "path": "packages/siso-icons/src/pq/chevron-right.tsx",
+      "sha256": "c034ae3318f07c8960dfa59267a3c95533fb8a0b8dcdd396b29b50247e837421"
+    },
+    {
+      "path": "packages/siso-icons/src/pq/circle-check.tsx",
+      "sha256": "3aa6fced4d9cff2586335db26526f13151d4fa604ca6163490275705b138ace7"
+    },
+    {
+      "path": "packages/siso-icons/src/pq/circle-dollar-sign.tsx",
+      "sha256": "a61f736d267e8e87dc5d52e8a7832a9aa3eb3bc0d63fee4c6a1292f73a4ad376"
+    },
+    {
+      "path": "packages/siso-icons/src/pq/clipboard-check.tsx",
+      "sha256": "3dbe356e6223265b724c65caec15443111c0772a2922e68debabc7abee1f3b6e"
+    },
+    {
+      "path": "packages/siso-icons/src/pq/coffee.tsx",
+      "sha256": "cba7f0a1787907eeba0502bc4ae38d5fb149aa85196faf3076a6eca251d23705"
+    },
+    {
+      "path": "packages/siso-icons/src/pq/compass.tsx",
+      "sha256": "3595053d1814a89a0229b5f5a75d90941ec95f01b81d75551d37f6ec26f47351"
+    },
+    {
+      "path": "packages/siso-icons/src/pq/construction.tsx",
+      "sha256": "43f1e833c55f7301834c4fe9e240b835fdaf99fc6237151938bf4bb42c9e3fc3"
+    },
+    {
+      "path": "packages/siso-icons/src/pq/cooking-pot.tsx",
+      "sha256": "3fb719b5e6e53f3c415033c8f4758d1cbc3db091ee51af4bb2161215e788015a"
+    },
+    {
+      "path": "packages/siso-icons/src/pq/cpu.tsx",
+      "sha256": "719db24cc3eef3144657ee971118ce5d45f82059b53ca9f6cfb79ecba3c05503"
+    },
+    {
+      "path": "packages/siso-icons/src/pq/flask.tsx",
+      "sha256": "e0b7e1d1bbf0531055c9f7a41c9922ec4a362d2b3d62ab4a1e8d24153245d4fe"
+    },
+    {
+      "path": "packages/siso-icons/src/pq/gauge.tsx",
+      "sha256": "26ccfac47b3f492330d366527742b6615a45413a9396b35d3da224a576b403e5"
+    },
+    {
+      "path": "packages/siso-icons/src/pq/gavel.tsx",
+      "sha256": "8c7a4bb8c907571d440d89cae63e4ee8dae9b8654ceefa38ed2344ea30d3713e"
+    },
+    {
+      "path": "packages/siso-icons/src/pq/graduation-cap.tsx",
+      "sha256": "2e1bce3824e0a97abe48f50e2dfd763a7776e08482bd890e0659ab7aebedc0bd"
+    },
+    {
+      "path": "packages/siso-icons/src/pq/hammer.tsx",
+      "sha256": "691741b3097099c1d63b99e48fe365227b067cb6a41f7fbb73d745c89d8f169b"
+    },
+    {
+      "path": "packages/siso-icons/src/pq/heart-handshake.tsx",
+      "sha256": "02b39c88be9b4800825e8dea7695746ad77aff6d7108ede16b73b7d2f3d7c9b3"
+    },
+    {
+      "path": "packages/siso-icons/src/pq/history.tsx",
+      "sha256": "19fd9615df83d672aacf023b788f047a5329a1fd1090091486edf58df6771cb3"
+    },
+    {
+      "path": "packages/siso-icons/src/pq/home.tsx",
+      "sha256": "a553ea1cfff829597f0bca50fc41242f6f50b1079c86d92710b7e112a7998514"
+    },
+    {
+      "path": "packages/siso-icons/src/pq/laptop-minimal-check.tsx",
+      "sha256": "9cf7a6a38bf856113efaea94dfb76d66de87cfd3f37c8871a5174c8184247668"
+    },
+    {
+      "path": "packages/siso-icons/src/pq/layers.tsx",
+      "sha256": "0260e04d84f497bc59628e4422bbf7bdf06438813c4675a4af78ca2bc96a8305"
+    },
+    {
+      "path": "packages/siso-icons/src/pq/layout-grid.tsx",
+      "sha256": "c3dd47b247e5ff9b4ed402a4d5bec7178ed00d90091cf8299ca41610ac9598f2"
+    },
+    {
+      "path": "packages/siso-icons/src/pq/layout-panel-top.tsx",
+      "sha256": "e855eb9e546683ce84caa2c2067b2de11f7c075b404557e78d32aa0079051810"
+    },
+    {
+      "path": "packages/siso-icons/src/pq/map-pin-house.tsx",
+      "sha256": "a5baec2408ab7e74b4658ceaa8a972fb8480da25f5c674e7398ea08d11632f5c"
+    },
+    {
+      "path": "packages/siso-icons/src/pq/map-pin.tsx",
+      "sha256": "b20c5c36bd032cc4d35623a547844228edd5cd8cbad918c3a782281ed315d83b"
+    },
+    {
+      "path": "packages/siso-icons/src/pq/message-circle-more.tsx",
+      "sha256": "82f06f7e24d6d3c51ebbe95f203cf955464c53aa95acf88687fc216cb88f7e2e"
+    },
+    {
+      "path": "packages/siso-icons/src/pq/monitor-check.tsx",
+      "sha256": "ae2220ff631281773e59833cb3c46e2f851138591c9806cfd21c4af87c397bb6"
+    },
+    {
+      "path": "packages/siso-icons/src/pq/palette.tsx",
+      "sha256": "7f2a183078536c4f8d394758ccd882aa07c4524f5b9f008cc849642baa077db9"
+    },
+    {
+      "path": "packages/siso-icons/src/pq/plane-takeoff.tsx",
+      "sha256": "d94bf692b9242ef1a98fdba4e99138d820673e5f3aaa2d3b081b5908c8955321"
+    },
+    {
+      "path": "packages/siso-icons/src/pq/radio-tower.tsx",
+      "sha256": "dff7bd27a07421b0196afe51226f01ea3ec84c0f070e5e4b7357f543cb59db3c"
+    },
+    {
+      "path": "packages/siso-icons/src/pq/rocket.tsx",
+      "sha256": "2d382cdbc8df5d51f0ba79f6a0fcfa5073f9964e2aa8d496701ec8cae6da98ab"
+    },
+    {
+      "path": "packages/siso-icons/src/pq/route.tsx",
+      "sha256": "9718d31bd269507b1b09ccf7c9610cc03fd075ec7dbeb57159738b4b3cb55505"
+    },
+    {
+      "path": "packages/siso-icons/src/pq/search.tsx",
+      "sha256": "773fa220278bed5243f418e71e095f02ac2bed43415dc10cf7f8a2358600225b"
+    },
+    {
+      "path": "packages/siso-icons/src/pq/server.tsx",
+      "sha256": "077e93d3d9f6bf94f49e4d67e39e0b8af7e7d11c863f6f104dc50f5963a106a2"
+    },
+    {
+      "path": "packages/siso-icons/src/pq/shield-check.tsx",
+      "sha256": "0b0ce3c56608a2905a579a27659426821df0b68f87a3ad8f791d7c72aac1b8dc"
+    },
+    {
+      "path": "packages/siso-icons/src/pq/sparkles.tsx",
+      "sha256": "297abc285f62b79c1dfec998def1ea2d3afcbcd4821de842c9760f8089102fe6"
+    },
+    {
+      "path": "packages/siso-icons/src/pq/stamp.tsx",
+      "sha256": "9a383a453a767cb77016db6b0463ef8194f011b86dbdf8c868326c91ad2ec6f5"
+    },
+    {
+      "path": "packages/siso-icons/src/pq/stethoscope.tsx",
+      "sha256": "2b7621ab02b0c03586fad29c3b01fa1513228459465af9b035ca96b23a2fd776"
+    },
+    {
+      "path": "packages/siso-icons/src/pq/terminal.tsx",
+      "sha256": "51a43de1b0ba66fd7c8eae31a03315202e0fbfa84c335bcec12a6e3ff04a044c"
+    },
+    {
+      "path": "packages/siso-icons/src/pq/timer.tsx",
+      "sha256": "c080202177481b207e2ba71bf24db54a1e54506f27adaed02d70abf0fdeb3340"
+    },
+    {
+      "path": "packages/siso-icons/src/pq/user-check.tsx",
+      "sha256": "125af634bf765b1df3d1daccbe532a85969980af111652dc6ec2e8be662d036e"
+    },
+    {
+      "path": "packages/siso-icons/src/pq/users.tsx",
+      "sha256": "c667f76f8ea68e937e3f677c11184339edffba211ee86f7e7d32cb7186739ed9"
+    },
+    {
+      "path": "packages/siso-icons/src/pq/wallet.tsx",
+      "sha256": "655ab6169c96300c607fc9e10a26bd184fee5f73debdcc95928854f0392a0d49"
+    },
+    {
+      "path": "packages/siso-icons/src/pq/workflow.tsx",
+      "sha256": "7f00fae6dfa920a509dda0251aa9eebfbae3f3b8c4198911d909e2ec5e9de60f"
+    },
+    {
+      "path": "packages/siso-icons/src/pq/zap.tsx",
+      "sha256": "9f164ba99f771aea1590ae67ccc6532939b5ed0ea88fbf392707555cf153e122"
+    },
+    {
+      "path": "packages/siso-icons/src/staticGlyph.tsx",
+      "sha256": "821d6b2446c3007a8948967eedf0aa2f49c7290b2eca10345818a8834f4b3e43"
+    },
+    {
+      "path": "packages/siso-icons/src/types.ts",
+      "sha256": "e358396ad0ca2dc77dfa3fe7dc0f4c0940349d34c14dca5a68d592f3412a5732"
+    },
+    {
+      "path": "packages/siso-voice/src/VoiceCalendar.tsx",
+      "sha256": "300c3dbbd0f6503aa64732d5d7acd3f80cf705a53b23cc7a1b21c57a4f86d560"
+    },
+    {
+      "path": "packages/siso-voice/src/VoiceDictionary.tsx",
+      "sha256": "a2b478196370f9859e04dae3734ce24c33b38ac0a4feb0e413789f3b93b7e625"
+    },
+    {
+      "path": "packages/siso-voice/src/VoiceHistory.tsx",
+      "sha256": "04c83752605a63412caa1a3ae3702b3d241dd42932fc44dfd70c287d8bdc7f5b"
+    },
+    {
+      "path": "packages/siso-voice/src/VoiceSettings.tsx",
+      "sha256": "464f466e0f1ba4cc1b7a4abe439156a627d5485b317904bf581147a4e9659306"
+    },
+    {
+      "path": "packages/siso-voice/src/VoiceStats.tsx",
+      "sha256": "aebb7f8288c62f9f9b196b21e475acfd5deddce99fdde0aafc3c575a6cb6c08c"
+    },
+    {
+      "path": "packages/siso-voice/src/api.ts",
+      "sha256": "2e8aefaf4cd0173e55d8864426d242cd52458a4ae28fb9592aafb9e1e91a4694"
+    },
+    {
+      "path": "packages/siso-voice/src/charts.tsx",
+      "sha256": "d5a8417e8a29721b2b933df79d2724e2ea15ea29a96537bd7d674f5bfa9cc133"
+    },
+    {
+      "path": "packages/siso-voice/src/format.ts",
+      "sha256": "6dbdc799c8a0e161ad1f40ee81afb137356a7331731c082e766e41f4f23fcf55"
+    },
+    {
+      "path": "packages/siso-voice/src/index.ts",
+      "sha256": "9ccef13a3fcee4f78647e3c5a99fcfac51644c57ee245464aae123e4e5901063"
+    },
+    {
+      "path": "packages/siso-voice/src/ui.tsx",
+      "sha256": "7d061b23ac92867ee790ebda617d9b0d4f09e3734ffd52adb8292464779d8614"
+    },
+    {
+      "path": "packages/halo-face/AgentFace.tsx",
+      "sha256": "c6f1a5c1ad067e112f69c6061fda90df9deaf473f21dbfd3383deadae4a2e7dc"
+    },
+    {
+      "path": "packages/halo-face/LivingIcon.tsx",
+      "sha256": "b4b0b58ed9f60f747ce9a233d2660299a8e67e4188f191f38bfd2215ac3de06a"
+    },
+    {
+      "path": "packages/halo-face/WorkspaceMark.tsx",
+      "sha256": "684bbd3c5eb418813261a13c16b5b6b2679d5efca23ec6b69330276a8c123315"
+    },
+    {
+      "path": "packages/halo-face/agent-face.css",
+      "sha256": "1c67ab23673ab368c0a291a761e3d61a4c6e85361b83defacc657d8873492c83"
+    },
+    {
+      "path": "packages/halo-face/agent-face.js",
+      "sha256": "756f5aeb8515156a71de04fd8990c5d249253e8aad7d116ae1935d476636d840"
+    },
+    {
+      "path": "packages/halo-face/family-glyphs.css",
+      "sha256": "2532cca4634be6807263d6cdbcee2b183f62d48ef9aba557a3cf42c4796b8d73"
+    },
+    {
+      "path": "packages/halo-face/family-glyphs.tsx",
+      "sha256": "c003bee49fab270d664570e593a634e6e37c55fc4cc3ffa4eccae5c3e4584ca0"
+    },
+    {
+      "path": "packages/halo-face/halo-face.css",
+      "sha256": "58e83c6e56e718f2cc302dc2b5262b58db518c32fa6b0ebbf527ee6a536f4d53"
+    },
+    {
+      "path": "packages/halo-face/halo-face.js",
+      "sha256": "5495f3450015c47ad2271184a609d2201f4ca91c03b1e50c90ab08059fd5c8b7"
+    },
+    {
+      "path": "packages/halo-face/icon-catalog.ts",
+      "sha256": "c01af0c46502d4775bb00b6740b7798457eb06992b50b96cac169ea19d47e5db"
+    },
+    {
+      "path": "packages/halo-face/identity.ts",
+      "sha256": "33ff6bc96209591f54d2bb368ff22842cb47d7721a8d3080c6435fa8645d30ee"
+    },
+    {
+      "path": "packages/halo-face/index.ts",
+      "sha256": "62f3bd51c4dfd94a809dcbf17fca703da16559afa39fd743dc4f47d63d322bc6"
+    },
+    {
+      "path": "packages/halo-face/industry-glyphs.css",
+      "sha256": "08f6dae04aeac0404fde13208c8770cf6978d23000ed353541278099b1fd4839"
+    },
+    {
+      "path": "packages/halo-face/industry-glyphs.tsx",
+      "sha256": "40ae2ca9361ae4f119b53f3d1419f327f01961f6345e43d0488ce90010aa541c"
+    },
+    {
+      "path": "packages/halo-face/living-assets.ts",
+      "sha256": "87e4292025d902fc9c622a207f19f32bc93748b4ec34e869007408dad813ad8a"
+    },
+    {
+      "path": "packages/halo-face/living-icon-types.ts",
+      "sha256": "6ffaea8203c284422b16670cb822fa2340caec9d40f12184352b212bf502fd96"
+    },
+    {
+      "path": "packages/halo-face/living-icon.css",
+      "sha256": "186f8a9d4d89d19d4bb5e2b3821038b94b260655392cee851755b0b65ce6601e"
+    },
+    {
+      "path": "packages/halo-face/mark-geometry.ts",
+      "sha256": "5472b6916bb84caf6553fcf47c3107543895ae8bcd4464db13176b15d0b723d4"
+    },
+    {
+      "path": "packages/halo-face/navigation-glyphs.css",
+      "sha256": "f59513f5c6aac43c78916d1930a13324ccc694d2edd68343f7f29d7b2aa9ba44"
+    },
+    {
+      "path": "packages/halo-face/navigation-glyphs.tsx",
+      "sha256": "09ef34eb04650b4b61cec6d26915b88d397d08c59246774af6e08b33d622acd6"
+    },
+    {
+      "path": "packages/halo-face/os-glyphs.css",
+      "sha256": "036b953dcff06f9db5e9be2278c6f9498472be231978efd496541f88b57a8e80"
+    },
+    {
+      "path": "packages/halo-face/os-glyphs.tsx",
+      "sha256": "3716055e5b3377edbcf941537e8c7f801538a703c4a8e32835e8ec6a49bd1407"
+    },
+    {
+      "path": "packages/halo-face/prism-engine.ts",
+      "sha256": "dd8198cbb33b4f58e21700349e5a3d67286a44a88f5d38fda95cdefe97c43e4b"
+    },
+    {
+      "path": "packages/halo-face/prism-face.css",
+      "sha256": "c3ab12538793b91600e86bf037f1523df642ac7425243182d311fc9603223d27"
+    },
+    {
+      "path": "packages/halo-face/project-glyphs.css",
+      "sha256": "91f2b79ee127a285bcc632a175ca37018c28dba01fe5a8a03690e54c14e4494a"
+    },
+    {
+      "path": "packages/halo-face/project-glyphs.tsx",
+      "sha256": "ba923b31612bfd9f8782ac890ed53d55f55a4968fa9b2ccb7a646ff00d8e2c0a"
+    },
+    {
+      "path": "packages/halo-face/workspace-mark.css",
+      "sha256": "eac272c7bfa97ea17b0c00db8472b29b8d032b782de702921f844a9b856432aa"
+    }
+  ],
+  "importers": [
+    ".",
+    "apps/web",
+    "packages/halo-face",
+    "packages/siso-composer",
+    "packages/siso-icons",
+    "packages/siso-os",
+    "packages/siso-shell",
+    "packages/siso-side-nav",
+    "packages/siso-terminal",
+    "packages/siso-tokens",
+    "packages/siso-voice",
+    "services/host",
+    "services/node"
+  ],
+  "packages": 383,
+  "snapshots": 383
+}

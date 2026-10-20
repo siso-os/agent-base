@@ -1,6 +1,6 @@
 @import "tailwindcss";
-@import "@siso/tokens/siso.css";
-@import "@siso/tokens/tokens.css";
+@import "@agent-base/tokens/siso.css";
+@import "@agent-base/tokens/tokens.css";
 @import "@siso/shell/shell.css";
 @import "@siso/side-nav/grouped-rail.css";
 @import "@siso/side-nav/rail-extras.css";

@@ -1,7 +1,7 @@
 import "./VoiceSpace.css";
 import "../../../../../packages/siso-shell/src/halo-rim/halo-rim.css";
 import { cn } from "@siso/shell";
-import { VoiceCalendar, VoiceDictionary, VoiceHistory, VoiceSettings, VoiceStats, dayLabel, formatGrouped, timeAgo, useVoiceActivity, useVoiceStats, useVoiceStatus, voiceRestart, type VoiceEntry, type VoiceStatus } from "@siso/voice";
+import { VoiceCalendar, VoiceDictionary, VoiceHistory, VoiceSettings, VoiceStats, dayLabel, formatGrouped, timeAgo, useVoiceActivity, useVoiceStats, useVoiceStatus, voiceRestart, type VoiceEntry, type VoiceStatus } from "@agent-base/voice";
 import { ArrowUpRightIcon, BookOpenTextIcon, ChartColumnIcon, CheckIcon, CopyIcon, HistoryIcon, HouseIcon, RotateCcwIcon, Settings2Icon, type LucideIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { LivingIcon } from "../../../../../packages/halo-face/living-assets";

@@ -77,7 +77,7 @@ import { FaceDock, Sidebar, WORD, markOf } from "./components/Sidebar";
 import { ServersPage } from "./modules/estate/ServersSpace";
 import { MiniLanePage } from "./modules/estate/MiniLanes";
 import { voiceHealth } from "./modules/voice/VoiceSpace";
-import { useVoiceStatus } from "@siso/voice";
+import { useVoiceStatus } from "@agent-base/voice";
 import { registry, bus } from "./os/registry";
 import { MODULE_ICON, SPACE_MARK, osSpaceOf } from "./os/rail";
 import { type Agent, type Page, byWhoNeedsYou, isUnseenDone, navState, sidebarOrder, useAgents, useOrg, useStats } from "./lib/agents";
