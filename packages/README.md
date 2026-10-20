@@ -6,11 +6,13 @@ first app built on them; nothing in them knows about agents or herdr.
 
 | Package | What it gives you | Lifted from |
 |---|---|---|
-| `@siso/tokens` | `siso.css`: the SISO design values (`--crm-*`, `--siso-*`), the SISO CRM's `tokens.css` byte for byte (sha256 1fb51616…, it already called itself "@siso/tokens — THE single source of truth"). `tokens.css`: Tailwind 4 names mapped onto it, plus the four state colours | SISO CRM `product-app/src/styles/tokens.css` @552f83b |
+| `@agent-base/tokens` | `siso.css`: the SISO design values (`--crm-*`, `--siso-*`), the SISO CRM's `tokens.css` byte for byte (sha256 1fb51616…, it already called itself "@siso/tokens — THE single source of truth"). `tokens.css`: Tailwind 4 names mapped onto it, plus the four state colours | SISO CRM `product-app/src/styles/tokens.css` @552f83b |
 | `@siso/shell` | `PillTabs` (title-bar tabs in a glass capsule, ⌘1-9 hints, arrival pulse), `LayoutSwitch` + `nextLayout` (▭ ◫ ⤢), `useResizable` + `ResizeHandle`, `MenuButton` / `MenuList`, `Rail` (a plain icon rail), `usePersisted`, `cn`; `shell.css` (capsule, tab, segment and panel materials in the CRM rail's language) | Codex (tabs, layout cycle), SISO CRM materials |
 | `@siso/side-nav` | **`GroupedRail`: the SISO side nav** (glass rail, brand + name + collapse, ⌘K search, labelled groups, utility capsule, operator dock; `grouped-rail.css` is the CRM file byte for byte, sha256 87c0c20e…), `RailGroup`, `RailIcon`, `RailCapsule`, `RailDock`, `RailRow` + `SortableRail` (live rows with a status, drag to reorder), `rail-extras.css`; also `SideNav`, `StatusRow`, `Shelf`, `formatDuration`, `formatAge` | SISO CRM `GroupedRail` (Shaan, 2 Oct: "you didn't use our side nav principles"); T3 Code's row (MIT, @5cc99e1c); dnd-kit |
 | `@siso/terminal` | `TerminalView`: xterm.js over any socket that speaks ttyd's framing (ttyd itself or a bridge), with fit, unicode11, WebGL, mouse reports and reconnect; `terminal.css` | Labs fork `siso/herdr/terminal-view.tsx` |
-| `@siso/voice` | `VoiceHistory` (by day, search, app filter, expand to full text, copy, paging), `VoiceStats` (share-card ticket, words trend, hour rhythm, app bars, activity wall), `VoiceDictionary` (vocabulary, terms, replacements), `VoiceSettings` (transcription, behaviour, the record), `VoiceCalendar` (a month of dictation days for a side nav), `useVoiceDays`; talks to `/api/voice/*` from a `base` URL or `fetchJson`/`sendJson` adapters; the dictionary and settings write SISO Voice's preferences through the node | SISO Internal `domains-preview/pages/voice/` (History, Stats, Charts, adapter), re-skinned onto the tokens |
+| `@agent-base/voice` | `VoiceHistory` (by day, search, app filter, expand to full text, copy, paging), `VoiceStats` (share-card ticket, words trend, hour rhythm, app bars, activity wall), `VoiceDictionary` (vocabulary, terms, replacements), `VoiceSettings` (transcription, behaviour, the record), `VoiceCalendar` (a month of dictation days for a side nav), `useVoiceDays`; talks to `/api/voice/*` from a `base` URL or `fetchJson`/`sendJson` adapters; the dictionary and settings write SISO Voice's preferences through the node | SISO Internal `domains-preview/pages/voice/` (History, Stats, Charts, adapter), re-skinned onto the tokens |
+
+Agent Base now installs through the monorepo root workspace. `@agent-base/tokens` and `@agent-base/voice` are product-local compatibility packages; the shared `@siso/tokens` and `@siso/voice` names belong to the root kit. The [root-workspace receipt](../_archive/2026-10-18-root-workspace/README.md) records frozen dependencies and verification.
 
 ## Use them in an app
 
@@ -23,8 +25,8 @@ They ship TypeScript source (React 19, Tailwind 4, lucide-react as peers), so th
 2. In the app's CSS, after Tailwind:
    ```css
    @import "tailwindcss";
-   @import "@siso/tokens/siso.css";
-   @import "@siso/tokens/tokens.css";
+   @import "@agent-base/tokens/siso.css";
+   @import "@agent-base/tokens/tokens.css";
    @import "@siso/shell/shell.css";
    @import "@siso/side-nav/grouped-rail.css";
    @import "@siso/side-nav/rail-extras.css";

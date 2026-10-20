@@ -53,13 +53,16 @@ import { UsersIcon } from "./pq/users";
 import { WalletIcon } from "./pq/wallet";
 import { WorkflowIcon } from "./pq/workflow";
 import { ZapIcon } from "./pq/zap";
+import type { AnimatedIcon } from "./types";
 
 export { AnimatedNavIcon, type AnimatedNavIconProps } from "./AnimatedNavIcon";
 export { staticGlyph } from "./staticGlyph";
 export type { AnimatedIcon, AnimatedIconHandle, AnimatedIconProps } from "./types";
 
 /** Every animated glyph referenced by Agent Base's ICON-MAP. */
-export const ICONS = {
+export type IconName = "briefcase-business" | "flask" | "home" | "brain" | "layout-panel-top" | "zap" | "stethoscope" | "chess-king" | "radio-tower" | "gauge" | "layout-grid" | "heart-handshake" | "construction" | "sparkles" | "blocks" | "book-text" | "wallet" | "gavel" | "graduation-cap" | "rocket" | "map-pin-house" | "bot" | "route" | "box" | "stamp" | "coffee" | "hammer" | "user-check" | "cart" | "palette" | "shield-check" | "cooking-pot" | "layers" | "users" | "compass" | "plane-takeoff" | "bell" | "badge-alert" | "history" | "message-circle-more" | "clipboard-check" | "search" | "circle-dollar-sign" | "cpu" | "terminal" | "laptop-minimal-check" | "map-pin" | "chevron-right" | "workflow" | "atom" | "circle-check" | "monitor-check" | "server" | "timer" | "activity";
+
+export const ICONS: { readonly [K in IconName]: AnimatedIcon } = {
   "briefcase-business": BriefcaseBusinessIcon,
   flask: FlaskIcon,
   home: HomeIcon,
@@ -115,9 +118,7 @@ export const ICONS = {
   server: ServerIcon,
   timer: TimerIcon,
   activity: ActivityIcon,
-} as const;
-
-export type IconName = keyof typeof ICONS;
+};
 
 export function isIconName(value: unknown): value is IconName {
   return typeof value === "string" && Object.prototype.hasOwnProperty.call(ICONS, value);
